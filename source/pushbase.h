@@ -1,0 +1,310 @@
+#pragma once
+
+///
+/// The base names for the device objects created in \Device
+///
+#define PUSH_DEVICE_DIR_NAME                        L"\\Device"
+#define PUSH_DEVICE_BASE_NAME                       PUSH_DEVICE_DIR_NAME L"\\Push"
+
+///
+/// The symlinks to the device objects created in \DosDevices
+///
+#define PUSH_DOSDEV                                 L"Push"
+#define PUSH_DOSDEV_NAME                            L"\\\\.\\" PUSH_DOSDEV
+#define PUSH_SYMLINK_NAME                           L"\\DosDevices\\" PUSH_DOSDEV
+
+///
+/// Shared memory section name
+///
+#define PUSH_SECTION_NAME                           L"PushSharedMemory"
+
+///
+/// Events
+///
+#define PUSH_PROCESS_EVENT_NAME                     L"PushProcessEvent"
+#define PUSH_THREAD_EVENT_NAME                      L"PushThreadEvent"
+#define PUSH_IMAGE_EVENT_NAME                       L"PushImageEvent"
+#define PUSH_RAMDISK_REMOVE_EVENT_NAME              L"PushRemoveRamDiskEvent"
+
+///
+/// RAM Disk
+///
+#define PUSH_RAMDISK_DEVICE_NAME                    L"\\Device\\PushRamDisk"
+
+///
+/// Settings File
+///
+#define PUSH_SETTINGS_FILE                          L"push.ini"
+
+///
+/// Base value for the IOCTL's.
+///
+#define FILE_DEVICE_PUSH             0x8000
+#define CTL_CODE( DeviceType, Function, Method, Access ) (                 \
+    ((DeviceType) << 16) | ((Access) << 14) | ((Function) << 2) | (Method) \
+)
+#define IOCTL_PUSH_READ_MSR             CTL_CODE(FILE_DEVICE_PUSH, 0x800, 0, 0)
+#define IOCTL_PUSH_READ_PCI_CONFIG      CTL_CODE(FILE_DEVICE_PUSH, 0x801, 0, ( 0x0001 ))
+#define IOCTL_PUSH_READ_GPU_REGISTER    CTL_CODE(FILE_DEVICE_PUSH, 0x802, 0, 0)
+#define IOCTL_PUSH_SET_CACHE_NAME       CTL_CODE(FILE_DEVICE_PUSH, 0x803, 0, 0)
+#define IOCTL_PUSH_QUERY_VERSION        CTL_CODE(FILE_DEVICE_PUSH, 0x804, 0, 0)
+#define IOCTL_PUSH_CREATE_RAMDISK       CTL_CODE(FILE_DEVICE_PUSH, 0x805, 0, ( 0x0001 ) | ( 0x0002 ))
+#define IOCTL_PUSH_QUERY_RAMDISK        CTL_CODE(FILE_DEVICE_PUSH, 0x806, 0, 0)
+#define IOCTL_PUSH_QUERY_DRIVER         CTL_CODE(FILE_DEVICE_PUSH, 0x807, 0, 0)
+#define IOCTL_PUSH_TOGGLE_MONITORING    CTL_CODE(FILE_DEVICE_PUSH, 0x808, 0, ( 0x0001 ) | ( 0x0002 ))
+#define IOCTL_PUSH_GET_PROC_INFO        CTL_CODE(FILE_DEVICE_PUSH, 0x809, 0, ( 0x0001 ) | ( 0x0002 ))
+#define IOCTL_PUSH_GET_IMAGE_INFO       CTL_CODE(FILE_DEVICE_PUSH, 0x810, 0, ( 0x0001 ) | ( 0x0002 ))
+#define IOCTL_PUSH_GET_THREAD_INFO      CTL_CODE(FILE_DEVICE_PUSH, 0x811, 0, ( 0x0001 ) | ( 0x0002 ))
+#define IOCTL_PUSH_MAP_PHYSICAL_MEMORY  CTL_CODE(FILE_DEVICE_PUSH, 0x812, 0, ( 0x0001 ) | ( 0x0002 ))
+#define IOCTL_PUSH_QUEUE_FILE           CTL_CODE(FILE_DEVICE_PUSH, 0x813, 0, ( 0x0001 ) | ( 0x0002 ))
+
+
+#define IMDISK_VERSION                 0x0160
+#define IMDISK_DRIVER_VERSION          0x0103
+
+#ifndef ZERO_STRUCT
+#define ZERO_STRUCT { 0 }
+#endif
+
+
+
+///
+/// Bit constants for the Flags field in IMDISK_CREATE_DATA
+///
+
+/// Read-only device
+#define IMDISK_OPTION_RO                0x00000001
+
+/// Check if flags specifies read-only
+#define IMDISK_READONLY(x)              ((ULONG)(x) & 0x00000001)
+
+/// Removable, hot-plug, device
+#define IMDISK_OPTION_REMOVABLE         0x00000002
+
+/// Check if flags specifies removable
+#define IMDISK_REMOVABLE(x)             ((ULONG)(x) & 0x00000002)
+
+/// Specifies that image files are created with sparse attribute.
+#define IMDISK_OPTION_SPARSE_FILE       0x00000004
+
+/// Check if flags specifies sparse
+#define IMDISK_SPARSE_FILE(x)           ((ULONG)(x) & 0x00000004)
+
+/// Device type is virtual harddisk partition
+#define IMDISK_DEVICE_TYPE_HD           0x00000010
+/// Device type is virtual floppy drive
+#define IMDISK_DEVICE_TYPE_FD           0x00000020
+/// Device type is virtual CD/DVD-ROM drive
+#define IMDISK_DEVICE_TYPE_CD           0x00000030
+
+/// Extracts the IMDISK_DEVICE_TYPE_xxx from flags
+#define IMDISK_DEVICE_TYPE(x)           ((ULONG)(x) & 0x000000F0)
+
+/// Virtual disk is backed by image file
+#define IMDISK_TYPE_FILE                0x00000100
+/// Virtual disk is backed by virtual memory
+#define IMDISK_TYPE_VM                  0x00000200
+/// Virtual disk is backed by proxy connection
+#define IMDISK_TYPE_PROXY               0x00000300
+
+/// Extracts the IMDISK_TYPE_xxx from flags
+#define IMDISK_TYPE(x)                  ((ULONG)(x) & 0x00000F00)
+
+/// Proxy connection is direct-type
+#define IMDISK_PROXY_TYPE_DIRECT        0x00000000
+/// Proxy connection is over serial line
+#define IMDISK_PROXY_TYPE_COMM          0x00001000
+/// Proxy connection is over TCP/IP
+#define IMDISK_PROXY_TYPE_TCP           0x00002000
+/// Proxy connection uses shared memory
+#define IMDISK_PROXY_TYPE_SHM           0x00003000
+
+/// Extracts the IMDISK_PROXY_TYPE_xxx from flags
+#define IMDISK_PROXY_TYPE(x)            ((ULONG)(x) & 0x0000F000)
+
+/// Extracts the IMDISK_PROXY_TYPE_xxx from flags
+#define IMDISK_IMAGE_MODIFIED           0x00010000
+
+
+
+
+typedef struct _IMDISK_SET_DEVICE_FLAGS
+{
+  unsigned long FlagsToChange;
+  unsigned long FlagValues;
+} IMDISK_SET_DEVICE_FLAGS, *PIMDISK_SET_DEVICE_FLAGS;
+
+#define IMDISK_API_NO_BROADCAST_NOTIFY  0x00000001
+#define IMDISK_API_FORCE_DISMOUNT       0x00000002
+
+//OSD Flags
+#define OSD_TIME            0x00000001
+#define OSD_GPU_LOAD        0x00000002
+#define OSD_GPU_TEMP        0x00000004
+#define OSD_GPU_VRAM        0x00000008
+#define OSD_CPU_LOAD        0x00000010
+#define OSD_CPU_TEMP        0x00000020
+#define OSD_RAM             0x00000040
+#define OSD_MCU             0x00000080
+#define OSD_MTU             0x00000100
+#define OSD_BUFFERS         0x00000200
+#define OSD_FPS             0x00000400
+#define OSD_DISK_RWRATE     0x00000800
+#define OSD_DISK_RESPONSE   0x00001000
+#define OSD_GPU_E_CLK       0x00002000
+#define OSD_GPU_M_CLK       0x00004000
+
+
+typedef struct _CORE_LIST CORE_LIST;
+typedef struct _CORE_LIST {
+
+    UINT8 number;
+    LARGE_INTEGER perfCounter;
+    LARGE_INTEGER idleTime;
+    float usage;
+    CORE_LIST *nextEntry;
+
+} CORE_LIST;
+
+
+#pragma pack(push,1)
+typedef struct _PUSH_HARDWARE_INFORMATION
+{
+    struct
+    {
+        UINT8   Temperature;
+        UINT8   Load;
+        UINT32  EngineClock;
+        UINT32  MemoryClock;
+        UINT32  EngineClockMax;
+        UINT32  MemoryClockMax;
+        ULONG   pciAddress;
+        ULONG   BarAddress;
+        unsigned short    VendorId;
+
+        struct
+        {
+            UINT8 Load;
+            UINT32 Used;
+            UINT32 Total;
+
+        }FrameBuffer;
+
+    }DisplayDevice;
+
+    struct
+    {
+        UINT8 NumberOfCores;
+        UINT8 Load;
+        UINT8 MaxThreadUsage;
+        UINT8 MaxCoreUsage;
+        UINT8 Temperature;
+        INT32 tjmax;
+        CORE_LIST coreList;
+
+    }Processor;
+
+    struct
+    {
+        UINT8 Load;
+        UINT32 Used;
+        UINT32 Total;
+
+    }Memory;
+
+    struct
+    {
+        UINT32 ReadWriteRate;
+        UINT32 ResponseTime;
+    }Disk;
+
+}PUSH_HARDWARE_INFORMATION;
+#pragma pack(pop)
+
+
+// Structure for shared memory
+
+typedef struct _PUSH_SHARED_MEMORY
+{
+    //enable/disable OSD items
+    unsigned int    OSDFlags;
+    
+    PUSH_HARDWARE_INFORMATION HarwareInformation;
+
+    //OSD item threshholds
+    unsigned int    Overloads;
+
+    //Other
+    UCHAR           FrameLimit;
+    UCHAR           ForceVsync;
+    UCHAR           DisableRepeatKeys;
+    //unsigned short  GameProcessID;
+    //UCHAR           ThreadMonitorOSD;
+    //UCHAR           MaxCoreUsage;
+    UCHAR           GameUsesRamDisk;
+    //unsigned long long maxThreadCycleTime;
+    long long       performanceFrequency;
+    VOID*           WindowHandle;
+    BOOLEAN         ThreadOptimization;
+
+} PUSH_SHARED_MEMORY;
+
+
+typedef struct _PROCESS_CALLBACK_INFO
+{
+    UINT16 hProcessID;
+
+} PROCESS_CALLBACK_INFO, *PPROCESS_CALLBACK_INFO;
+
+
+typedef struct _THREAD_CALLBACK_INFO
+{
+    UINT16 threadOwner;
+    UINT16 threadID;
+    unsigned char create;
+
+}  THREAD_CALLBACK_INFO;
+
+
+typedef struct _IMAGE_CALLBACK_INFO
+{
+    UINT16  processID;
+    //WCHAR   imageName[260];
+
+} IMAGE_CALLBACK_INFO;
+
+
+/**
+   Structure used by the IOCTL_IMDISK_CREATE_DEVICE and
+   IOCTL_IMDISK_QUERY_DEVICE calls and by the ImDiskQueryDevice() function.
+*/
+typedef struct _RAMDISK_CREATE_DATA
+{
+  /// Total size in bytes (in the Cylinders field) and virtual geometry.
+  DISK_GEOMETRY   DiskGeometry;
+  /// The byte offset in the image file where the virtual disk begins.
+  //LARGE_INTEGER   ImageOffset;
+  /// Creation flags. Type of device and type of connection.
+  //unsigned long           Flags;
+  /// Driveletter (if used, otherwise zero).
+  unsigned short           DriveLetter;
+  /// Length in bytes of the FileName member.
+  //unsigned short          FileNameLength;
+  /// Dynamically-sized member that specifies the image file name.
+  //unsigned short           FileName[1];
+} RAMDISK_CREATE_DATA;
+
+
+typedef struct _READ_PCI_CONFIG_INPUT
+{
+    unsigned long PciAddress;
+    unsigned long PciOffset;
+
+}   READ_PCI_CONFIG_INPUT;
+
+
+typedef struct _PHYSICAL_MEMORY
+{
+    UINT64 pvAddr;   //physical addr when mapping, virtual addr when unmapping
+    ULONG dwSize;   //memory size to map or unmap
+} PHYSICAL_MEMORY;

@@ -1,0 +1,2 @@
+VOID
+MnuRender( OvOverlay* Overlay );

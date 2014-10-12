@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp</Extensions>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{eefd9020-8333-4533-888d-df89bc15e2f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ini.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ring0.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HWinfo\hwinfo.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HWinfo\GeForce\geforce.c" />
+    <ClCompile Include="HWinfo\Intel\intel.c" />
+    <ClCompile Include="file.c" />
+    <ClCompile Include="HWinfo\disk.c" />
+    <ClCompile Include="HWinfo\d3dkmt.c" />
+    <ClCompile Include="batch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="push.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\cache.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\gui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\copy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HWinfo\Radeon\radeon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RAMdisk\ramdisk.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ring0.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="push.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ini.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HWinfo\hwinfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HWinfo\Radeon\radeon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HWinfo\GeForce\geforce.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HWinfo\Intel\intel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RAMdisk\ramdisk.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="file.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hwinfo\disk.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hwinfo\d3dkmt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="batch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\gui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\cache.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\copy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="push.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="icon.rc" />
+  </ItemGroup>
+</Project>

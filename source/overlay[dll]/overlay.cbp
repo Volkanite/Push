@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="overlay" />
+		<Option pch_mode="2" />
+		<Option compiler="msvc10" />
+		<Build>
+			<Target title="Debug Win32">
+				<Option output="../../bin/overlay" prefix_auto="1" extension_auto="1" />
+				<Option type="3" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/Zi" />
+					<Add option="/DDEBUG" />
+				</Compiler>
+				<Linker>
+					<Add option="/DEBUG" />
+					<Add library="d3dcompiler.lib" />
+					<Add library="d3dx11.lib" />
+					<Add library="dxgi.lib" />
+					<Add library="d3dx10.lib" />
+					<Add library="effects11.lib" />
+					<Add library="gdiplus.lib" />
+					<Add library="sldetours.lib" />
+					<Add library="ntdll.lib" />
+				</Linker>
+			</Target>
+			<Target title="Release Win32">
+				<Option output="../../bin/overlay" prefix_auto="1" extension_auto="1" />
+				<Option type="3" />
+				<Option compiler="msvc10" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="/O2" />
+				</Compiler>
+				<Linker>
+					<Add library="dxgi.lib" />
+					<Add library="gdiplus.lib" />
+					<Add library="sldetours.lib" />
+					<Add library="slc.lib" />
+					<Add library="ntdll.lib" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option='/D&quot;_UNICODE&quot;' />
+			<Add option='/D&quot;UNICODE&quot;' />
+			<Add directory="../_resources/directx/inc" />
+			<Add directory="../_resources/sl" />
+			<Add directory="../overlay[dll]" />
+			<Add directory="C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/Include" />
+			<Add directory="../_resources/directx/dx8" />
+			<Add directory="../_resources/directx/lib/Effects11/Inc" />
+			<Add directory="../_resources/OvRender" />
+		</Compiler>
+		<Linker>
+			<Add option='/NODEFAULTLIB:&quot;MSVCRT&quot;' />
+			<Add library="user32.lib" />
+			<Add library="slmodule.lib" />
+			<Add library="gdi32.lib" />
+			<Add library="lde64.lib" />
+			<Add library="d3d10.lib" />
+			<Add library="OvRender.lib" />
+			<Add library="sloverlay.lib" />
+			<Add directory="../_resources/directx/lib" />
+			<Add directory="../_resources/sl/lib" />
+			<Add directory="../_resources/ddk/lib" />
+			<Add directory="../_resources/OvRender" />
+		</Linker>
+		<Unit filename="dx10/dx10font.h" />
+		<Unit filename="dx10/dx10overlay.h" />
+		<Unit filename="dx11/dx11font.h" />
+		<Unit filename="dx11/dx11overlay.h" />
+		<Unit filename="dx8/dx8font.h" />
+		<Unit filename="dx8/dx8overlay.h" />
+		<Unit filename="dx9/dx9font.h" />
+		<Unit filename="dx9/dx9hook.h" />
+		<Unit filename="dx9/dx9overlay.h" />
+		<Unit filename="dxgi/dxgioverlay.h" />
+		<Unit filename="menu.cpp" />
+		<Unit filename="menu.h" />
+		<Unit filename="osd.cpp">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="osd.h" />
+		<Unit filename="overlay.cpp" />
+		<Unit filename="overlay.h" />
+		<Unit filename="render.cpp">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="render.h" />
+		<Unit filename="thread.cpp" />
+		<Unit filename="thread.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="driver" />
+		<Option pch_mode="2" />
+		<Option compiler="msvc10" />
+		<Build>
+			<Target title="Debug Win32">
+				<Option output="../../bin/push0" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option type="5" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/Gz" />
+					<Add option="/Zi" />
+					<Add option="/D_X86_" />
+				</Compiler>
+				<Linker>
+					<Add option="/DEBUG" />
+					<Add directory="../_resources/ddk/lib/i386" />
+					<Add directory="../_resources/sl/lib/i386" />
+				</Linker>
+				<ExtraCommands>
+					<Add after="sign.bat" />
+					<Add after="update.bat" />
+				</ExtraCommands>
+			</Target>
+			<Target title="Debug x64">
+				<Option output="../../bin/push0" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option type="5" />
+				<Option compiler="microsoft_visual_c_2010_amd64" />
+				<Compiler>
+					<Add option="/Zi" />
+					<Add option="/D_AMD64_" />
+					<Add option="/D_WIN64" />
+				</Compiler>
+				<Linker>
+					<Add option="/MACHINE:X64" />
+					<Add option="/DEBUG" />
+					<Add directory="../_resources/ddk/lib/amd64" />
+					<Add directory="../_resources/sl/lib/AMD64" />
+				</Linker>
+				<ExtraCommands>
+					<Add after="sign.bat" />
+				</ExtraCommands>
+			</Target>
+			<Target title="Release x64">
+				<Option output="../../bin/push0" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option type="5" />
+				<Option compiler="microsoft_visual_c_2010_amd64" />
+				<Compiler>
+					<Add option="/D_AMD64_" />
+					<Add option="/D_WIN64" />
+				</Compiler>
+				<Linker>
+					<Add option="/MACHINE:X64" />
+					<Add directory="../_resources/ddk/lib/amd64" />
+					<Add directory="../_resources/sl/lib/AMD64" />
+				</Linker>
+				<ExtraCommands>
+					<Add after="sign.bat" />
+				</ExtraCommands>
+			</Target>
+			<Target title="Release Win32">
+				<Option output="push0" prefix_auto="1" extension_auto="1" />
+				<Option type="0" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/D_X86_" />
+				</Compiler>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="/GS-" />
+			<Add option="/D_WIN32_WINNT=0x0601" />
+			<Add directory="../_resources/ddk/inc" />
+			<Add directory="../_resources/sl" />
+			<Add directory="../../source" />
+		</Compiler>
+		<Linker>
+			<Add option='/ENTRY:&quot;DriverEntry&quot;' />
+			<Add library="ntoskrnl.lib" />
+			<Add library="hal.lib" />
+			<Add library="slpci.lib" />
+			<Add library="fltmgr.lib" />
+		</Linker>
+		<Unit filename="filter.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="filter.h" />
+		<Unit filename="imdproxy.h" />
+		<Unit filename="msr.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="ntkmapi.h" />
+		<Unit filename="procmon.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="procmon.h" />
+		<Unit filename="push0.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="push0.h" />
+		<Unit filename="ramdisk.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="ramdisk.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

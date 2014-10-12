@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Push" />
+		<Option pch_mode="2" />
+		<Option compiler="msvc10" />
+		<Build>
+			<Target title="Debug Win32">
+				<Option output="../../bin/Push" prefix_auto="1" extension_auto="1" />
+				<Option type="0" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/Zi" />
+					<Add option="/DNO_STRICT" />
+					<Add option="/DDEBUG" />
+					<Add option="/D_WOW64_" />
+				</Compiler>
+				<Linker>
+					<Add option="/DEBUG" />
+					<Add library="comctl32.lib" />
+					<Add library="d3d9.lib" />
+					<Add library="psapi.lib" />
+					<Add library="ntdll.lib" />
+					<Add library="advapi32.lib" />
+					<Add library="setupapi.lib" />
+					<Add library="user32.lib" />
+					<Add library="shell32.lib" />
+					<Add library="comdlg32.lib" />
+					<Add library="stdlibprocess.lib" />
+					<Add library="slgui.lib" />
+					<Add library="slc.lib" />
+					<Add library="slfile.lib" />
+					<Add library="sldriver.lib" />
+					<Add library="slmodule.lib" />
+				</Linker>
+			</Target>
+			<Target title="Debug x64">
+				<Option output="Push" prefix_auto="1" extension_auto="1" />
+				<Option type="0" />
+				<Option compiler="msvc10" />
+				<Linker>
+					<Add option="/debug" />
+					<Add directory="$(SolutionDir)source/_resources/nvapi" />
+					<Add directory="$(LibraryPath)" />
+				</Linker>
+			</Target>
+			<Target title="Release x64">
+				<Option output="Push" prefix_auto="1" extension_auto="1" />
+				<Option type="0" />
+				<Option compiler="msvc10" />
+				<Linker>
+					<Add directory="$(SolutionDir)source/_resources/nvapi" />
+					<Add directory="$(LibraryPath)" />
+				</Linker>
+			</Target>
+			<Target title="Release Win32">
+				<Option output="../../bin/Push" prefix_auto="1" extension_auto="1" />
+				<Option type="0" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/O2" />
+					<Add option="/D_WOW64_" />
+				</Compiler>
+				<Linker>
+					<Add library="comctl32.lib" />
+					<Add library="d3d9.lib" />
+					<Add library="psapi.lib" />
+					<Add library="ntdll.lib" />
+					<Add library="advapi32.lib" />
+					<Add library="setupapi.lib" />
+					<Add library="user32.lib" />
+					<Add library="shell32.lib" />
+					<Add library="comdlg32.lib" />
+					<Add library="stdlibprocess.lib" />
+					<Add library="slgui.lib" />
+					<Add library="slc.lib" />
+					<Add library="slfile.lib" />
+					<Add library="sldriver.lib" />
+					<Add library="slmodule.lib" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add directory="../push[exe]" />
+			<Add directory="RAMdisk" />
+			<Add directory="GUI" />
+			<Add directory="HWinfo" />
+			<Add directory="../../source" />
+			<Add directory="../_resources/sl" />
+		</Compiler>
+		<Linker>
+			<Add option='/NODEFAULTLIB:&quot;MSVCRT.lib&quot;' />
+			<Add library="sladl.lib" />
+			<Add directory="../_resources/sl/lib" />
+			<Add directory="../_resources/ddk/lib" />
+		</Linker>
+		<ExtraCommands>
+			<Add after="mt.exe -manifest Push.exe.manifest -outputresource:..\..\bin\Push.exe;#1" />
+		</ExtraCommands>
+		<Unit filename="GUI/cache.cpp" />
+		<Unit filename="GUI/cache.h" />
+		<Unit filename="GUI/copy.cpp" />
+		<Unit filename="GUI/copy.h" />
+		<Unit filename="GUI/gui.cpp">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="GUI/gui.h" />
+		<Unit filename="GUI/main.cpp" />
+		<Unit filename="GUI/main.h" />
+		<Unit filename="HWinfo/GeForce/geforce.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="HWinfo/GeForce/geforce.h" />
+		<Unit filename="HWinfo/Intel/intel.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="HWinfo/Intel/intel.h" />
+		<Unit filename="HWinfo/Radeon/radeon.cpp" />
+		<Unit filename="HWinfo/Radeon/radeon.h" />
+		<Unit filename="HWinfo/d3dkmt.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="HWinfo/d3dkmt.h" />
+		<Unit filename="HWinfo/disk.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="HWinfo/disk.h" />
+		<Unit filename="HWinfo/hwinfo.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="HWinfo/hwinfo.h" />
+		<Unit filename="RAMdisk/ramdisk.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="RAMdisk/ramdisk.h" />
+		<Unit filename="batch.cpp" />
+		<Unit filename="batch.h" />
+		<Unit filename="file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file.h" />
+		<Unit filename="icon.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
+		<Unit filename="ini.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="ini.h" />
+		<Unit filename="push.cpp" />
+		<Unit filename="push.h" />
+		<Unit filename="push.ico" />
+		<Unit filename="ring0.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="ring0.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

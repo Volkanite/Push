@@ -1,0 +1,1 @@
+UINT8 GetIntelTemp();

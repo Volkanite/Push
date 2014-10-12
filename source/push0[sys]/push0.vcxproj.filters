@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{5cdc9088-59fe-41c1-8c3b-b03e6f8f6375}</UniqueIdentifier>
+      <Extensions>c</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{28615e1e-5e2d-4617-ab53-82771aee0cb0}</UniqueIdentifier>
+      <Extensions>h</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="imdproxy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ntkmapi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="push0.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ramdisk.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="procmon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="push0.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ramdisk.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="procmon.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gpu.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="msr.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
