@@ -63,17 +63,13 @@ ID3DX11EffectShaderResourceVariable    *effectSRV;
 Sprite *sprites;
 UINT64 FntSpriteListSize = 0;
 UINT64 g_NumberOfSprites = 0;
-//UINT    TexWidth, TexHeight;
 VOID* FntHeapHandle;
 D3DCompile_t FntD3DCompile;
 ID3DX11EffectPass *effectPass;
 
     BOOLEAN                        Initialized;
-    //POINT m_pt;
     #define START_CHAR 33
-#define END_CHAR 127
 
-    //int m_nLineHeight;
 int posX;
 int posY;
 

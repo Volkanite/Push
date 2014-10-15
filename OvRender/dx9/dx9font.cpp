@@ -278,7 +278,7 @@ HRESULT Dx9Font::DrawText( FLOAT sx, FLOAT sy, DWORD dwColor, TCHAR* strText, DW
             sy += (m_fTexCoords[0][3]-m_fTexCoords[0][1])*m_dwTexHeight;
         }
 
-        if( (c-32) < 0 || (c-32) >= 128-32 )
+        if( (c-32) < 0 || (c-32) >= (NUMBER_OF_CHARACTERS+1)-32 )
             continue;
 
         FLOAT tx1 = m_fTexCoords[c-32][0];

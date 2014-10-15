@@ -12,6 +12,7 @@
 
 #define FONT_SIZE 10
 #define PIXEL_DEPTH 32
+#define NUMBER_OF_CHARACTERS 177
 
 
 #include <xmmintrin.h>
@@ -51,7 +52,7 @@ public:
     DWORD   m_dwTexHeight;
     DWORD   m_dwSpacing;
     FLOAT   m_fTextScale;
-    FLOAT   m_fTexCoords[128-32][4];
+    FLOAT   m_fTexCoords[ (NUMBER_OF_CHARACTERS+1) - 32 ][4];
     FLOAT   ScreenWidth;
     FLOAT   ScreenHeight;
 

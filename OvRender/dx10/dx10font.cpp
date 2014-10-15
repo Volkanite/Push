@@ -53,7 +53,6 @@ static D3DCompile_t FntD3DCompile;
 
 static BOOLEAN                        Initialized;
     #define START_CHAR 33
-#define END_CHAR 127
 
 static int posX;
 static int posY;

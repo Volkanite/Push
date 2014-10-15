@@ -3,6 +3,8 @@
 
 
 
+
+
 /* Structure for LockRect */
 typedef struct _D3DLOCKED_RECT
 {
@@ -117,7 +119,7 @@ Font::InitDeviceObjects()
     GetTextExtentPoint32( hDC, TEXT(" "), 1, &size );
     x = m_dwSpacing = (DWORD) ceil(size.cy * 0.3f);
 
-    for( TCHAR c=32; c<127; c++ )
+    for( TCHAR c=32; c < NUMBER_OF_CHARACTERS; c++ )
     {
         str[0] = c;
         GetTextExtentPoint32( hDC, str, 1, &size );
@@ -219,7 +221,7 @@ Font::GetTextExtent( TCHAR* strText, SIZE* pSize )
             fHeight  += fRowHeight;
         }
 
-        if( (c-32) < 0 || (c-32) >= 128-32 )
+        if( (c-32) < 0 || (c-32) >= (NUMBER_OF_CHARACTERS+1) - 32 )
             continue;
 
         FLOAT tx1 = m_fTexCoords[c-32][0];
