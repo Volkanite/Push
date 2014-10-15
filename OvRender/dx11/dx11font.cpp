@@ -455,7 +455,7 @@ Dx11Font::AddString( WCHAR *text, BOOLEAN overload)
     {
         WCHAR character = text[ i ];
 
-        if( character == ' ' || character == L'°')
+        if (character == ' ')
             posX += m_dwSpacing;
 
         else if( character == '\n' )
