@@ -16,11 +16,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="/DEBUG" />
-					<Add library="d3dcompiler.lib" />
-					<Add library="d3dx11.lib" />
 					<Add library="dxgi.lib" />
-					<Add library="d3dx10.lib" />
-					<Add library="effects11.lib" />
 					<Add library="gdiplus.lib" />
 					<Add library="sldetours.lib" />
 					<Add library="ntdll.lib" />
@@ -57,6 +53,7 @@
 		</Compiler>
 		<Linker>
 			<Add option='/NODEFAULTLIB:&quot;MSVCRT&quot;' />
+			<Add option='/NODEFAULTLIB:&quot;MSVCRTD&quot;' />
 			<Add library="user32.lib" />
 			<Add library="slmodule.lib" />
 			<Add library="gdi32.lib" />
