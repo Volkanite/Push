@@ -19,35 +19,35 @@ BOOLEAN MnuInitialized;
 VOID
 AddItems()
 {
-	MnuMenu->AddGroup(L"OSD", GroupOpt, &MnuOsd[0].Var);
+    MnuMenu->AddGroup(L"OSD", GroupOpt, &MnuOsd[0].Var);
 
-	if (MnuOsd[0].Var)
-	{
-		MnuMenu->AddItem(L"GPU Core utilization",    ItemOpt, &MnuOsd[1].Var);
-		MnuMenu->AddItem(L"GPU Core temperature",    ItemOpt, &MnuOsd[2].Var);
-		MnuMenu->AddItem(L"GPU Engine Clock",        ItemOpt, &MnuOsd[3].Var);
-		MnuMenu->AddItem(L"GPU Memory Clock",        ItemOpt, &MnuOsd[4].Var);
-		MnuMenu->AddItem(L"GPU VRAM usage",          ItemOpt, &MnuOsd[5].Var);
-		MnuMenu->AddItem(L"CPU utilization",         ItemOpt, &MnuOsd[6].Var);
-		MnuMenu->AddItem(L"CPU temperature",         ItemOpt, &MnuOsd[7].Var);
-		MnuMenu->AddItem(L"RAM usage",               ItemOpt, &MnuOsd[8].Var);
-		MnuMenu->AddItem(L"Max core usage",          ItemOpt, &MnuOsd[9].Var);
-		MnuMenu->AddItem(L"Max thread usage",        ItemOpt, &MnuOsd[10].Var);
-		MnuMenu->AddItem(L"Disk read-write rate",    ItemOpt, &MnuOsd[11].Var);
-		MnuMenu->AddItem(L"Disk response time",      ItemOpt, &MnuOsd[12].Var);
-		MnuMenu->AddItem(L"Frame Buffer count",      ItemOpt, &MnuOsd[13].Var);
-		MnuMenu->AddItem(L"Show Time",               ItemOpt, &MnuOsd[14].Var);
-	}
+    if (MnuOsd[0].Var)
+    {
+        MnuMenu->AddItem(L"GPU Core utilization",    ItemOpt, &MnuOsd[1].Var);
+        MnuMenu->AddItem(L"GPU Core temperature",    ItemOpt, &MnuOsd[2].Var);
+        MnuMenu->AddItem(L"GPU Engine Clock",        ItemOpt, &MnuOsd[3].Var);
+        MnuMenu->AddItem(L"GPU Memory Clock",        ItemOpt, &MnuOsd[4].Var);
+        MnuMenu->AddItem(L"GPU VRAM usage",          ItemOpt, &MnuOsd[5].Var);
+        MnuMenu->AddItem(L"CPU utilization",         ItemOpt, &MnuOsd[6].Var);
+        MnuMenu->AddItem(L"CPU temperature",         ItemOpt, &MnuOsd[7].Var);
+        MnuMenu->AddItem(L"RAM usage",               ItemOpt, &MnuOsd[8].Var);
+        MnuMenu->AddItem(L"Max core usage",          ItemOpt, &MnuOsd[9].Var);
+        MnuMenu->AddItem(L"Max thread usage",        ItemOpt, &MnuOsd[10].Var);
+        MnuMenu->AddItem(L"Disk read-write rate",    ItemOpt, &MnuOsd[11].Var);
+        MnuMenu->AddItem(L"Disk response time",      ItemOpt, &MnuOsd[12].Var);
+        MnuMenu->AddItem(L"Frame Buffer count",      ItemOpt, &MnuOsd[13].Var);
+        MnuMenu->AddItem(L"Show Time",               ItemOpt, &MnuOsd[14].Var);
+    }
 
-	MnuMenu->AddGroup(L"CACHE", GroupOpt, &MnuCache[0].Var);
+    MnuMenu->AddGroup(L"CACHE", GroupOpt, &MnuCache[0].Var);
 
-	if (MnuCache[0].Var)
-	{
-		MnuMenu->AddItem(L"NULL", ItemOpt, &MnuCache[1].Var);
-		MnuMenu->AddItem(L"NULL", ItemOpt, &MnuCache[2].Var);
-		MnuMenu->AddItem(L"NULL", ItemOpt, &MnuCache[3].Var);
-		MnuMenu->AddItem(L"NULL", ItemOpt, &MnuCache[4].Var);
-	}
+    if (MnuCache[0].Var)
+    {
+        MnuMenu->AddItem(L"NULL", ItemOpt, &MnuCache[1].Var);
+        MnuMenu->AddItem(L"NULL", ItemOpt, &MnuCache[2].Var);
+        MnuMenu->AddItem(L"NULL", ItemOpt, &MnuCache[3].Var);
+        MnuMenu->AddItem(L"NULL", ItemOpt, &MnuCache[4].Var);
+    }
 }
 
 
@@ -61,9 +61,8 @@ MnuRender( OvOverlay* Overlay )
     }
 
     if( MnuMenu->mSet.MaxItems == 0 )
-		AddItems();
+        AddItems();
 
-	//Call drawing and navigation functions
-	MnuMenu->Render(100, 200, Overlay);
-	MnuMenu->Navigate();
+    //Call drawing and navigation functions
+    MnuMenu->Render(100, 200, Overlay);
 }

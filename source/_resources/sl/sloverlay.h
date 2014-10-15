@@ -5,43 +5,42 @@
 
 struct MenuItems
 {
-	WCHAR* Title, ** Options;
-	int* Var, MaxValue, Type;
+    WCHAR* Title, ** Options;
+    int* Var, MaxValue, Type;
 };
 
 
 struct MenuSettings
 {
-	int DrawX, DrawY, MaxItems, SeletedIndex;
-	bool Show;
+    int DrawX, DrawY, MaxItems, SeletedIndex;
+    bool Show;
 };
 
 
 struct MenuVars
 {
-	int Var;
+    int Var;
 };
 
 
 class SlOverlayMenu
 {
 public:
-	MenuItems Items[50];
-	MenuSettings mSet;
-	int OpX;
+    MenuItems Items[50];
+    MenuSettings mSet;
+    int OpX;
 
-	void AddGroup(WCHAR* title, WCHAR** Options, int* Var)
-	{
-		AddItemToMenu(title, Options, Var, 2, GROUP);
-	}
+    void AddGroup(WCHAR* title, WCHAR** Options, int* Var)
+    {
+        AddItemToMenu(title, Options, Var, 2, GROUP);
+    }
 
-	void AddItem(WCHAR* Title, WCHAR** Options, int* Var, int MaxValue = 2)
-	{
-		AddItemToMenu(Title, Options, Var, MaxValue, ITEM);
-	}
+    void AddItem(WCHAR* Title, WCHAR** Options, int* Var, int MaxValue = 2)
+    {
+        AddItemToMenu(Title, Options, Var, MaxValue, ITEM);
+    }
 
-	SlOverlayMenu( int OptionsX );
-	void Navigate();
-	void Render( int X, int Y, OvOverlay* Overlay );
-	void AddItemToMenu(WCHAR* Title, WCHAR** Options, int* Var, int MaxValue, int Type);
+    SlOverlayMenu( int OptionsX );
+    void Render( int X, int Y, OvOverlay* Overlay );
+    void AddItemToMenu(WCHAR* Title, WCHAR** Options, int* Var, int MaxValue, int Type);
 };
