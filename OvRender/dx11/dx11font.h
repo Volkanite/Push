@@ -8,7 +8,7 @@ public:
     VOID Begin();
     VOID End();
     VOID DrawText( FLOAT sx, FLOAT sy, DWORD dwColor, WCHAR* Text );
-    VOID AddString( WCHAR *text, BOOLEAN overload);
+    VOID AddString( WCHAR *text, DWORD Color );
     VOID BeginBatch( ID3D11ShaderResourceView* texSRV );
     VOID DrawBatch( UINT startSpriteIndex, UINT spriteCount );
     VOID EndBatch( );

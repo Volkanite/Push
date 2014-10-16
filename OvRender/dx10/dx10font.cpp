@@ -329,7 +329,7 @@ Dx10Font::AddString( WCHAR *text, BOOLEAN overload)
 {
     UINT i, length = wcslen(text);
     int xbackup = posX;
-    XMCOLOR colorchanged = {0};
+    XMCOLOR colorchanged;
     int R = 255;
     int G = 255;
     int B = 0;

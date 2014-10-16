@@ -43,11 +43,6 @@ enum
 };
 
 
-// maps unsigned 8 bits/channel to D3DCOLOR
-#define D3DCOLOR_ARGB(a,r,g,b) \
-    ((DWORD)((((a)&0xff)<<24)|(((r)&0xff)<<16)|(((g)&0xff)<<8)|((b)&0xff)))
-
-
 ID3D11Device                          *device;
 ID3D11DeviceContext                          *FontDeviceContext;
 ID3D11Device                        *m_device11;
@@ -426,30 +421,11 @@ Draw( RECT* destinationRect,
 
 
 VOID
-Dx11Font::AddString( WCHAR *text, BOOLEAN overload)
+Dx11Font::AddString( WCHAR *text, DWORD Color )
 {
     UINT i, length = wcslen(text);
     int xbackup = posX;
-    XMCOLOR colorchanged = {0};
-    int R = 255;
-    int G = 255;
-    int B = 0;
-    int A = 255;
-    XMVECTOR Vec;
-
-    if (overload)
-    {
-        G = 0;
-    }
-
-    Vec = XMVectorSet( 
-            R ? (float)( R / 255.0f ) : 0.0f, 
-            G ? (float)( G / 255.0f ) : 0.0f, 
-            B ? (float)( B / 255.0f ) : 0.0f, 
-            A ? (float)( A / 255.0f ) : 0.0f 
-            );
-
-    XMStoreColor( &colorchanged, Vec );
+    XMCOLOR color = XMCOLOR(Color);
 
     for( i = 0; i < length; ++i )
     {
@@ -476,7 +452,7 @@ Dx11Font::AddString( WCHAR *text, BOOLEAN overload)
             int height = charRect.bottom - charRect.top;
             RECT rect = {posX, posY, posX + width, posY + height};
             
-            Draw( &rect, &charRect, colorchanged);
+            Draw( &rect, &charRect, color);
 
             posX += width + 1;
       }
@@ -492,17 +468,10 @@ Dx11Font::DrawText(
     WCHAR* Text 
     )
 {
-    BOOLEAN warning;
-
-    if (Color == D3DCOLOR_ARGB(255, 255, 0, 0))
-        warning = TRUE;
-    else
-        warning = FALSE;
-
     posX = sx;
     posY = sy;
 
-    AddString(Text, warning);
+    AddString(Text, Color);
 }
 
 
