@@ -425,7 +425,9 @@ Dx11Font::AddString( WCHAR *text, DWORD Color )
 {
     UINT i, length = wcslen(text);
     int xbackup = posX;
-    XMCOLOR color = XMCOLOR(Color);
+    XMCOLOR color;
+
+    color.c = Color;
 
     for( i = 0; i < length; ++i )
     {
