@@ -65,6 +65,12 @@ ProcessOptions()
     //too lazy to fill in the rest, someone help me out here
     //ima just add what i need.
 
+    if (MnuOsd[3].Var > 0)
+        PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
+
+    if (MnuOsd[4].Var > 0)
+        PushSharedMemory->OSDFlags |= OSD_GPU_M_CLK;
+
     if (MnuOsd[9].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_MCU;
 
