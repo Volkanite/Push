@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "overlay", "source\overlay[dll]\overlay.vcxproj", "{92A59583-EA15-461C-9249-64FAA431ABA5}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Push", "source\push[exe]\Push.vcxproj", "{35E23888-EDF5-4CC4-8C93-CC138F34E25E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "overlay", "source\overlay[dll]\overlay.vcxproj", "{92A59583-EA15-461C-9249-64FAA431ABA5}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "push0", "source\push0[sys]\push0.vcxproj", "{3B05AC8D-D127-D1CA-1A3D-D1ECCB873A14}"
 EndProject
