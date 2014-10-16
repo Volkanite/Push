@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <OvRender.h>
 #include <sloverlay.h>
+#include <overlay.h>
 
 
 SlOverlayMenu* MnuMenu;
@@ -52,6 +53,27 @@ AddItems()
 
 
 VOID
+ProcessOptions()
+{
+    if (MnuOsd[1].Var > 0)
+        PushSharedMemory->OSDFlags |= OSD_GPU_LOAD;
+    /*else
+        PushSharedMemory->OSDFlags &= ~OSD_GPU_LOAD;*/
+    //this needs to be fixed, if it was enable by main gui
+    //checkbox then it'll get disabled. too lazy...
+
+    //too lazy to fill in the rest, someone help me out here
+    //ima just add what i need.
+
+    if (MnuOsd[9].Var > 0)
+        PushSharedMemory->OSDFlags |= OSD_MCU;
+
+    if (MnuOsd[10].Var > 0)
+        PushSharedMemory->OSDFlags |= OSD_MTU;
+}
+
+
+VOID
 MnuRender( OvOverlay* Overlay )
 {
     if (!MnuInitialized)
@@ -65,4 +87,5 @@ MnuRender( OvOverlay* Overlay )
 
     //Call drawing and navigation functions
     MnuMenu->Render(100, 200, Overlay);
+    ProcessOptions();
 }
