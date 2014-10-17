@@ -1065,14 +1065,12 @@ PROFILE_GetSection(
 
     if(!Buffer) return 0;
 
-    //TRACE("%s,%p,%u\n", debugstr_w(section_name), buffer, len);
-
     while (Section)
     {
-        //if (section->Name[0] && !strcmpiW( section->name, section_name ))
         if (Section->Name[0] && !wcscmp( Section->Name, SectionName ))
         {
             UINT32 oldlen = Length;
+            UINT32 bufferLength;
 
             for (key = Section->Key; key; key = key->next)
             {
@@ -1090,10 +1088,13 @@ PROFILE_GetSection(
 
                 PROFILE_CopyEntry( Buffer, key->Name, Length - 1, 0 );
 
-                //len -= strlenW(buffer) + 1;
-                Length -= SlStringGetLength( Buffer ) + 1;
-                //Buffer += strlenW(Buffer) + 1;
-                Buffer += SlStringGetLength( Buffer ) + 1;
+                // Return if buffer too small
+                if (SlStringGetLength(key->Name) > (Length - 1))
+                    return oldlen - 2;
+
+                bufferLength = wcsnlen( Buffer, Length ) + 1;
+                Length -= bufferLength;
+                Buffer += bufferLength;
 
                 if (Length < 2)
                     break;
@@ -1104,9 +1105,7 @@ PROFILE_GetSection(
 
                     PROFILE_CopyEntry ( Buffer, key->Value, Length - 1, 0 );
 
-                    //Length -= strlenW(Buffer) + 1;
                     Length -= SlStringGetLength( Buffer ) + 1;
-                    //Buffer += strlenW(Buffer) + 1;
                     Buffer += SlStringGetLength( Buffer ) + 1;
                 }
             }
@@ -1114,11 +1113,9 @@ PROFILE_GetSection(
             *Buffer = '\0';
 
             if (Length <= 1)
-                /*If either lpszSection or lpszKey is NULL and the supplied
-                  destination buffer is too small to hold all the strings,
-                  the last string is truncated and followed by two null characters.
-                  In this case, the return value is equal to cchReturnBuffer
-                  minus two. */
+                // If either lpszSection or lpszKey is NULL and the supplied destination buffer is too small to hold all the 
+                // strings, the last string is truncated and followed by two null characters. In this case, the return value is 
+                // equal to cchReturnBuffer minus two.
             {
         Buffer[-1] = '\0';
                 return oldlen - 2;
