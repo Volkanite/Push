@@ -122,7 +122,7 @@ BfBatchFile::BfBatchFile( WCHAR* Game )
                 );
 
     // We got what we need, the file handle is no longer needed.
-    NtClose(fileHandle);
+    NtClose(fileHandle);// FIXME
 
     // Start our reads after the UTF16-LE character marker
     bufferOffset = (WCHAR*) buffer + 1;

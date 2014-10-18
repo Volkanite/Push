@@ -616,12 +616,6 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
 
                     if (HIWORD(wParam) == CBN_SELCHANGE)
                     {
-                        WCHAR   gamePath[260];
-                        UINT32  columnWidth;
-                        RECT    windowRect;
-                        RECT    treeListRect;
-                        WCHAR   *buffer;
-
                         static INT32 iControls = sizeof(MwCacheControls) / sizeof(MwCacheControls[0]);
                         INT32 j = 0;
 
@@ -639,54 +633,6 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                                                 PushMainWindow->Handle,
                                                 NULL
                                                 );
-
-                        buffer = IniReadSubKey(L"Game Settings", GetComboBoxData(), L"Path");
-
-                        wcscpy(gamePath, buffer);
-                        RtlFreeHeap(PushHeapHandle, 0, buffer);
-
-                        if (!FolderExists(gamePath))
-                        {
-                            MessageBoxW(0, L"Folder not exist!", 0,0);
-
-                            return 0;
-                        }
-
-                        MwBatchFile = new BfBatchFile(GetComboBoxData());
-
-                        FsEnumDirectory(gamePath, L"*", BuildGameFilesList);
-                        ListViewAddItems();
-
-                        CwListView->SortItems(ListViewCompareProc);
-                        CwListView->SetColumnWidth();
-
-                        columnWidth = CwListView->GetColumnWidth(0);
-                        columnWidth += CwListView->GetColumnWidth(1);
-                        columnWidth += 50;
-
-                        GetWindowRect(cacheWindow->Handle, &windowRect);
-
-                        if (columnWidth > (UINT32)(windowRect.right - windowRect.left))
-                        {
-                            SetWindowPos(cacheWindow->Handle,
-                                         0, 0, 0,
-                                         columnWidth,
-                                         windowRect.bottom - windowRect.top,
-                                         0x16); // SWP_NOMOVE|
-                                                // SWP_NOZORDER|
-                                                // SWP_NOACTIVATE
-
-                            GetWindowRect(CwListView->Handle, &treeListRect);
-
-                            SetWindowPos(
-                                CwListView->Handle,
-                                0,
-                                0,
-                                0,
-                                         columnWidth - 15,
-                                         treeListRect.bottom - treeListRect.top,
-                                         0x16);
-                        }
                     }
 
                 } break;

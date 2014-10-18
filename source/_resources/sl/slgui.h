@@ -15,34 +15,6 @@ VOID* SlCreateWindow(
 
 
 /**
-* Creates a Window along with a List View Control.
-*
-* \param WindowName The name of the window.
-* \param WndProc The window procedure.
-* \param Style The style of the List View Control.
-* \li \c LVS_EDITLABELS Create a List View Control with editable labels.
-* \param Checkboxes
-* \li \c TRUE The List View Control will be created with checkboxes.
-* \li \c FALSE The List View Control will be created without checkboxes
-* \param ColumnNames A pointer to an array of the List View Control's column names.
-* \param ColumnCount Amount of columns to create.
-* \param Id An identifier for the List View Control.
-* \param WindowHandle A pointer to the handle that will receive the created Window handle.
-* \return Handle to List View Control.
-*/
-/*VOID* SlCreateWindowWithListView(
-    WCHAR* WindowName,
-    VOID* WndProc,
-    DWORD Style,
-    BOOLEAN Checkboxes,
-    WCHAR** ColumnNames,
-    UINT8 ColumnCount,
-    UINT8 Id,
-    VOID** WindowHandle
-    );*/
-
-
-/**
 * Subclasses a control.
 *
 * \param ControlHandle A handle to the control.
@@ -65,12 +37,11 @@ VOID SlSubClassControl(
 
 class SlListView{
     UINT8 Columns;
-    UINT16 Items;
-
     VOID Initialize( VOID* Parent, UINT8 Id, DWORD Style );
 
 public:
     VOID* Handle;
+    UINT16 Items;
 
     SlListView( VOID* Parent, UINT8 Id );
     SlListView( VOID* Parent, UINT8 Id, DWORD Style );
@@ -78,7 +49,6 @@ public:
     UINT16 AddItem( WCHAR* Name, LONG Param );
     VOID EnableCheckboxes();
     BOOLEAN GetCheckState( UINT16 Index );
-    VOID GetItemCount();
     VOID GetItemState();
     VOID SetItemState( UINT16 Item, BOOLEAN State );
     VOID GetItemText( UINT16 Item, UINT8 SubItem, WCHAR* Text, UINT16 TextLength );
