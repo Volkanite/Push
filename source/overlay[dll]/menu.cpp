@@ -62,8 +62,8 @@ ProcessOptions()
     //this needs to be fixed, if it was enable by main gui
     //checkbox then it'll get disabled. too lazy...
 
-    //too lazy to fill in the rest, someone help me out here
-    //ima just add what i need.
+    if (MnuOsd[2].Var > 0)
+        PushSharedMemory->OSDFlags |= OSD_GPU_TEMP;
 
     if (MnuOsd[3].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
