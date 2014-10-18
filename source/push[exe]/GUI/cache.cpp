@@ -26,6 +26,11 @@ extern WINDOW* cacheWindow;
 SlListView* CwListView;
 
 
+#define SWP_NOMOVE      0x0002
+#define SWP_NOZORDER    0x0004
+#define SWP_NOACTIVATE  0x0010
+
+
 LONG __stdcall CacheWndProc( 
     VOID* Handle, 
     UINT32 uMessage, 
@@ -77,17 +82,19 @@ LONG __stdcall CacheWndProc(
             columnWidth += CwListView->GetColumnWidth(1);
             columnWidth += 50;
 
-            GetWindowRect(cacheWindow->Handle, &windowRect);
+            GetWindowRect(Handle, &windowRect);
 
             if (columnWidth > (UINT32)(windowRect.right - windowRect.left))
             {
-                SetWindowPos(cacheWindow->Handle,
-                             0, 0, 0,
-                             columnWidth,
-                             windowRect.bottom - windowRect.top,
-                             0x16); // SWP_NOMOVE|
-                                    // SWP_NOZORDER|
-                                    // SWP_NOACTIVATE
+                SetWindowPos(
+                    Handle,
+                    0, 
+                    0, 
+                    0,
+                    columnWidth,
+                    windowRect.bottom - windowRect.top,
+                    SWP_NOMOVE | SWP_NOZORDER| SWP_NOACTIVATE
+                    );
 
                 GetWindowRect(CwListView->Handle, &treeListRect);
 
@@ -96,9 +103,10 @@ LONG __stdcall CacheWndProc(
                     0,
                     0,
                     0,
-                             columnWidth - 15,
-                             treeListRect.bottom - treeListRect.top,
-                             0x16);
+                    columnWidth - 15,
+                    treeListRect.bottom - treeListRect.top,
+                    SWP_NOMOVE | SWP_NOZORDER| SWP_NOACTIVATE
+                    );
             }
 
         } break;
