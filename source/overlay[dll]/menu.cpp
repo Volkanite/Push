@@ -76,6 +76,9 @@ ProcessOptions()
 
     if (MnuOsd[10].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_MTU;
+
+    if (MnuOsd[14].Var > 0)
+        PushSharedMemory->OSDFlags |= OSD_TIME;
 }
 
 
