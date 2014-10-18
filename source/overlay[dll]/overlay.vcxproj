@@ -11,37 +11,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dx10\dx10font.h" />
-    <ClInclude Include="dx10\dx10overlay.h" />
-    <ClInclude Include="dx11\dx11font.h" />
-    <ClInclude Include="dx11\dx11overlay.h" />
-    <ClInclude Include="dx8\dx8font.h" />
-    <ClInclude Include="dx8\dx8overlay.h" />
-    <ClInclude Include="dx9\dx9font.h" />
-    <ClInclude Include="dx9\dx9hook.h" />
-    <ClInclude Include="dx9\dx9overlay.h" />
-    <ClInclude Include="dxgi\dxgioverlay.h" />
-    <ClInclude Include="font.h" />
+    <ClInclude Include="menu.h" />
     <ClInclude Include="osd.h" />
     <ClInclude Include="overlay.h" />
-    <ClInclude Include="ovl.h" />
     <ClInclude Include="render.h" />
     <ClInclude Include="thread.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dx10\dx10font.cpp" />
-    <ClCompile Include="dx10\dx10overlay.cpp" />
-    <ClCompile Include="dx11\dx11font.cpp" />
-    <ClCompile Include="dx11\dx11overlay.cpp" />
-    <ClCompile Include="dx8\dx8font.cpp" />
-    <ClCompile Include="dx8\dx8overlay.cpp" />
-    <ClCompile Include="dx9\dx9font.cpp" />
-    <ClCompile Include="dx9\dx9overlay.cpp" />
-    <ClCompile Include="dxgi\dxgioverlay.cpp" />
-    <ClCompile Include="font.cpp" />
+    <ClCompile Include="menu.cpp" />
     <ClCompile Include="osd.cpp" />
     <ClCompile Include="overlay.cpp" />
-    <ClCompile Include="ovl.cpp" />
     <ClCompile Include="render.cpp" />
     <ClCompile Include="thread.cpp" />
   </ItemGroup>
@@ -73,18 +52,18 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>D:\Code\Push\source\_resources\sl\sldetours;D:\Code\Push\source\_resources\sl;$(SolutionDir)source\_resources\directx\inc;$(ProjectDir);$(SolutionDir)source\_resources\directx\lib\Effects11\Inc;C:\Users\Volks\Desktop\dx8;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)source\_resources\OvRender;$(SolutionDir)source\_resources\sl;$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>$(SolutionDir)source\_resources\sl\lib;$(SolutionDir)source\_resources\ddk\lib;$(SolutionDir)source\_resources\detours;$(SolutionDir)source\_resources\directx\lib;D:\Code\Push\source\_resources\directx\lib\Effects11\Release;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)source\_resources\sl\lib;$(SolutionDir)source\_resources\ddk\lib;$(SolutionDir)source\_resources\OvRender;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(TEMP)\overlay</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(TEMP)\$(ProjectName)\</IntDir>
-    <IncludePath>D:\Code\Push\source\_resources\sl\sldetours;D:\Code\Push\source\_resources\sl;$(SolutionDir)source\_resources\directx\inc;$(ProjectDir);$(SolutionDir)source\_resources\directx\lib\Effects11\Inc;C:\Users\Volks\Desktop\dx8;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)source\_resources\sl\lib;$(SolutionDir)source\_resources\ddk\lib;$(SolutionDir)source\_resources\detours;$(SolutionDir)source\_resources\directx\lib;D:\Code\Push\source\_resources\directx\lib\Effects11\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)source\_resources\OvRender;$(SolutionDir)source\_resources\sl;$(ProjectDir);$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)source\_resources\sl\lib;$(SolutionDir)source\_resources\ddk\lib;$(SolutionDir)source\_resources\OvRender;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -99,7 +78,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3dcompiler.lib;d3dx11.lib;dxgi.lib;d3dx9.lib;d3d10.lib;d3dx10.lib;effects11.lib;gdiplus.lib;lde64.lib;sld3d9.lib;sldetours.lib;slmodule.lib;slc.lib;ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3dcompiler.lib;d3dx11.lib;dxgi.lib;d3dx9.lib;d3d10.lib;d3dx10.lib;gdiplus.lib;lde64.lib;sldetours.lib;slmodule.lib;slc.lib;ntdll.lib;sloverlay.lib;OvRender.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>MSVCRT.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -129,7 +108,7 @@
       <ImportLibrary>$(TEMP)\overlay\overlay.lib</ImportLibrary>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <LinkStatus>false</LinkStatus>
-      <AdditionalDependencies>d3dcompiler.lib;d3dx11.lib;dxgi.lib;d3dx9.lib;d3d10.lib;d3dx10.lib;effects11.lib;gdiplus.lib;lde64.lib;sld3d9.lib;sldetours.lib;slmodule.lib;slc.lib;ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3dcompiler.lib;d3dx11.lib;dxgi.lib;d3dx9.lib;d3d10.lib;d3dx10.lib;gdiplus.lib;lde64.lib;sldetours.lib;slmodule.lib;slc.lib;ntdll.lib;sloverlay.lib;OvRender.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
