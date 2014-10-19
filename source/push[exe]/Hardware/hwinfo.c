@@ -14,8 +14,8 @@
 //#include "..\thrd.h"
 
 #include "hwinfo.h"
-#include "GeForce\geforce.h"
-#include "Radeon\radeon.h"
+#include "Nvidia/geforce.h"
+#include "ATI/radeon.h"
 #include "Intel\intel.h"
 #include "disk.h"
 #include "d3dkmt.h"
