@@ -32,80 +32,35 @@ PUSH_HARDWARE_INFORMATION hardware;
 #define REGISTER_CLASSCODE  0x08
 #define REGISTER_BAR0       0x10
 #define REGISTER_BAR2       0x18
+#include "GPU\gpu.h"
+CGPU* HwGpu;
 
 
 UINT16
 GetEngineClock()
 {
-    if (hardware.DisplayDevice.VendorId == AMD)
-        return RdnGetEngineClock();
-    else
-        return 0;
+    return HwGpu->GetEngineClock();
 }
 
 
 UINT16
 GetMemoryClock()
 {
-    if (hardware.DisplayDevice.VendorId == AMD)
-        return RdnGetMemoryClock();
-    else
-        return 0;
+    return HwGpu->GetMemoryClock();
 }
 
 
 UINT8
 GetGpuTemp()
 {
-    switch (hardware.DisplayDevice.VendorId)
-    {
-    case NVIDIA:
-        {
-            return GetGeForceTemp();
-
-        } break;
-
-    case AMD:
-        {
-            return GetRadeonTemp();
-            //return GetRadeonTempADL();
-
-        } break;
-    }
-
-    return 0;
+    return HwGpu->GetTemperature();
 }
 
 
 UINT8
 GetGpuLoadHardware()
 {
-    switch (hardware.DisplayDevice.VendorId)
-    {
-    case NVIDIA:
-        {
-            return GetGeForceUsage();
-
-        } break;
-
-    case AMD:
-        {
-            return GetRadeonUsage();
-
-        } break;
-
-    case INTEL:
-        {
-            return 0;
-
-        } break;
-
-    default:
-        {
-            return 0;
-
-        } break;
-    }
+    return HwGpu->GetLoad();
 }
 
 
