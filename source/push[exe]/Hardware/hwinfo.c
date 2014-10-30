@@ -84,63 +84,17 @@ GetCpuTemp()
 UINT64
 D3DKMTGetMemoryUsage();
 
+
 UINT32
 GetVramUsed()
 {
-    INT32 iFree, used, total;
+    UINT64 total, free, used;
 
-    switch(hardware.DisplayDevice.VendorId)
-    {
-    case NVIDIA:
-        {
-            NVAPI_MEM_INFO memInfo;
+    total = HwGpu->GetTotalMemory();
+    free = HwGpu->GetFreeMemory();
+    used = total - free;
 
-            GetGeForceMemoryInfo( &memInfo );
-            /*(NvAPI_GetMemoryInfo)(displayHandles, mem_info_values);
-
-            total = mem_info_values[1];
-            iFree = mem_info_values[5];
-
-            used = total - iFree;
-
-            hardware.videoCard.vram.megabytes_total = total / 1024;
-            hardware.videoCard.vram.megabytes_used  = used / 1024;*/
-
-            total = memInfo.Total;
-            iFree = memInfo.Free;
-
-            used = total - iFree;
-
-            hardware.DisplayDevice.FrameBuffer.Total = total / 1024;
-            hardware.DisplayDevice.FrameBuffer.Used  = used / 1024;
-
-        } break;
-
-    case AMD:
-        {
-            used = D3DKMTGetMemoryUsage();
-            // 1 megabyte = 1048576 bytes
-            // used is in bytes, divide by 1048576 to get megabytes
-            used = used / 1048576;
-
-            /*total = EtGpuDedicatedLimit;
-            // 1 megabyte = 1048576 bytes
-            // total is in bytes, divide by 1048576 to get megabytes
-            total = total/1048576;*/
-            //total = hardware.videoCard.vram.Total;
-
-            //hardware.videoCard.vram.megabytes_total = total;
-            hardware.DisplayDevice.FrameBuffer.Used  = used;
-
-        } break;
-
-    case INTEL:
-        {
-
-        } break;
-    }
-
-    return hardware.DisplayDevice.FrameBuffer.Used;
+    return used / 1048576;
 }
 
 
@@ -154,10 +108,7 @@ GetVramUsage()
 UINT32
 GetFrameBufferSize()
 {
-    if (hardware.DisplayDevice.VendorId == AMD)
-        return GetRadeonMemorySize();
-    else
-        return 0;
+    return HwGpu->GetTotalMemory();
 }
 
 
@@ -324,7 +275,7 @@ GetDiskResponseTime()
 VOID
 HwForceMaxClocks()
 {
-    RdnSetMaxClocks();
+    HwGpu->ForceMaximumClocks();
 }
 
 
