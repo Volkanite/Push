@@ -170,7 +170,7 @@ MinimiseToTray( VOID *hWnd )
 
     windowClass.Size = sizeof(WNDCLASSEX);
     windowClass.Style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
-    windowClass.WndProc = TrayIconProc;
+    windowClass.WndProc = (VOID*) TrayIconProc;
     windowClass.Instance = PushInstance;
     windowClass.ClassName = L"TrayIconClass";
 

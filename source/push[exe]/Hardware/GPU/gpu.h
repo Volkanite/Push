@@ -6,5 +6,7 @@ public:
 	virtual UINT64 GetFreeMemory() = 0;
 	virtual UINT8 GetTemperature() = 0;
 	virtual UINT8 GetLoad() = 0;
+	virtual UINT16 GetMaximumEngineClock() = 0;
+	virtual UINT16 GetMaximumMemoryClock() = 0;
 	virtual VOID ForceMaximumClocks() = 0;
 };

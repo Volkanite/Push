@@ -14,11 +14,13 @@
 //#include "..\thrd.h"
 
 #include "hwinfo.h"
-#include "Nvidia/geforce.h"
-#include "ATI/radeon.h"
-#include "Intel\intel.h"
+//#include "Nvidia/geforce.h"
+//#include "ATI/radeon.h"
+//#include "Intel\intel.h"
+#include "CPU/intel.h"
 #include "disk.h"
-#include "d3dkmt.h"
+//#include "d3dkmt.h"
+#include "GPU/d3dkmt.h"
 
 
 UINT64  g_hNVPMContext;
@@ -343,7 +345,7 @@ ReadGpuRegister( DWORD Address )
 
     address = ((DWORD)HwMmio) + Address;
 
-    val = address;
+    val = (DWORD*)address;
     ret = *val;
     return ret;
 }
@@ -424,9 +426,9 @@ GetHardwareInfo()
 
     InitGpuHardware();
 
-    hardware.DisplayDevice.FrameBuffer.Total = GetFrameBufferSize();
-    hardware.DisplayDevice.EngineClockMax   = RdnGetEngineClockMax();
-    hardware.DisplayDevice.MemoryClockMax   = RdnGetMemoryClockMax();
+    hardware.DisplayDevice.FrameBuffer.Total = HwGpu->GetTotalMemory();
+    hardware.DisplayDevice.EngineClockMax   = HwGpu->GetMaximumEngineClock();
+    hardware.DisplayDevice.MemoryClockMax   = HwGpu->GetMaximumMemoryClock();
 
     if (IniReadBoolean(L"Settings", L"GpuUsageD3DKMT", FALSE))
     {
@@ -452,7 +454,7 @@ GetHardwareInfo()
 
     for (i = 0; i < hardware.Processor.NumberOfCores; i++)
     {
-        coreListEntry->nextEntry = RtlAllocateHeap(
+        coreListEntry->nextEntry = (CORE_LIST*)RtlAllocateHeap(
                                     PushHeapHandle,
                                     0,
                                     sizeof(CORE_LIST)

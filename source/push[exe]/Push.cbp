@@ -88,6 +88,7 @@
 		</Compiler>
 		<Linker>
 			<Add option='/NODEFAULTLIB:&quot;MSVCRT.lib&quot;' />
+			<Add option="-fpermissive" />
 			<Add library="sladl.lib" />
 			<Add directory="../_resources/sl/lib" />
 			<Add directory="../_resources/ddk/lib" />
@@ -123,7 +124,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Hardware/disk.h" />
-		<Unit filename="Hardware/hwinfo.c">
+		<Unit filename="Hardware/hwinfo.cpp">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Hardware/hwinfo.h" />
