@@ -31,11 +31,11 @@ SlListView* CwListView;
 #define SWP_NOACTIVATE  0x0010
 
 
-LONG __stdcall CacheWndProc( 
-    VOID* Handle, 
-    UINT32 uMessage, 
-    DWORD wParam, 
-    LONG lParam 
+LONG __stdcall CacheWndProc(
+    VOID* Handle,
+    UINT32 uMessage,
+    DWORD wParam,
+    LONG lParam
     )
 {
     switch(uMessage)
@@ -55,8 +55,8 @@ LONG __stdcall CacheWndProc(
             CwListView->AddColumn(L"Size");
 
             buffer = IniReadSubKey(
-                        L"Game Settings", 
-                        GetComboBoxData(), 
+                        L"Game Settings",
+                        GetComboBoxData(),
                         L"Path"
                         );
 
@@ -88,8 +88,8 @@ LONG __stdcall CacheWndProc(
             {
                 SetWindowPos(
                     Handle,
-                    0, 
-                    0, 
+                    0,
+                    0,
                     0,
                     columnWidth,
                     windowRect.bottom - windowRect.top,
@@ -136,7 +136,8 @@ LONG __stdcall CacheWndProc(
                 CwListView->GetItemText(message->Item, 1, fileSize, 260);
 
                 file.Name = fileName;
-                file.Bytes = _wtoi(fileSize);
+                //file.Bytes = _wtoi(fileSize);
+                file.Bytes = wcstol(fileSize, NULL, 10);
 
                 if (CwListView->GetCheckState(message->Item))
                 {
