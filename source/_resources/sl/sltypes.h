@@ -18,7 +18,8 @@ typedef SDWORD  LONG;
 typedef DWORD ULONG;
 typedef char    CHAR;
 typedef BYTE    UCHAR;
-typedef void    VOID;
+//typedef void    VOID;
+#define VOID void
 typedef float   FLOAT;
 typedef double  DOUBLE;
 typedef int  INTBOOL;
