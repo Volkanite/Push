@@ -1,7 +1,7 @@
 OvRender
 ========
 
-Unified renderer. Render in any games frame buffer.
+Unified renderer. Render in any games' frame buffer. Supports DirectX 8/9/10/11 games. OpenGL is not supported but can be easily implemented.
 
 Example
 -------
