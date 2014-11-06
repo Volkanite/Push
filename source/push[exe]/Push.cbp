@@ -59,21 +59,21 @@
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Linker>
-					<Add library="comctl32.lib" />
-					<Add library="d3d9.lib" />
-					<Add library="psapi.lib" />
-					<Add library="ntdll.lib" />
-					<Add library="advapi32.lib" />
-					<Add library="setupapi.lib" />
-					<Add library="user32.lib" />
-					<Add library="shell32.lib" />
-					<Add library="comdlg32.lib" />
-					<Add library="stdlibprocess.lib" />
-					<Add library="slgui.lib" />
-					<Add library="slc.lib" />
-					<Add library="slfile.lib" />
-					<Add library="sldriver.lib" />
-					<Add library="slmodule.lib" />
+					<Add library="comctl32" />
+					<Add library="d3d9" />
+					<Add library="psapi" />
+					<Add library="ntdll" />
+					<Add library="advapi32" />
+					<Add library="setupapi" />
+					<Add library="user32" />
+					<Add library="shell32" />
+					<Add library="comdlg32" />
+					<Add library="stdlibprocess" />
+					<Add library="slgui" />
+					<Add library="slc" />
+					<Add library="slfile" />
+					<Add library="sldriver" />
+					<Add library="slmodule" />
 				</Linker>
 			</Target>
 		</Build>
@@ -88,7 +88,7 @@
 		</Compiler>
 		<Linker>
 			<Add option="-fpermissive" />
-			<Add library="sladl.lib" />
+			<Add library="sladl" />
 			<Add directory="../_resources/sl/lib" />
 			<Add directory="../_resources/ddk/lib" />
 		</Linker>
