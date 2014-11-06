@@ -58,23 +58,6 @@
 				<Option output="../../bin/Push" prefix_auto="1" extension_auto="1" />
 				<Option type="0" />
 				<Option compiler="gcc" />
-				<Linker>
-					<Add library="comctl32" />
-					<Add library="d3d9" />
-					<Add library="psapi" />
-					<Add library="ntdll" />
-					<Add library="advapi32" />
-					<Add library="setupapi" />
-					<Add library="user32" />
-					<Add library="shell32" />
-					<Add library="comdlg32" />
-					<Add library="stdlibprocess" />
-					<Add library="slgui" />
-					<Add library="slc" />
-					<Add library="slfile" />
-					<Add library="sldriver" />
-					<Add library="slmodule" />
-				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
@@ -87,10 +70,24 @@
 			<Add directory="../_resources/sl" />
 		</Compiler>
 		<Linker>
-			<Add option="-fpermissive" />
+			<Add library="slc" />
 			<Add library="sladl" />
-			<Add directory="../_resources/sl/lib" />
+			<Add library="comctl32" />
+			<Add library="d3d9" />
+			<Add library="psapi" />
+			<Add library="ntdll" />
+			<Add library="advapi32" />
+			<Add library="setupapi" />
+			<Add library="user32" />
+			<Add library="shell32" />
+			<Add library="comdlg32" />
+			<Add library="stdlibprocess" />
+			<Add library="slgui" />
+			<Add library="slfile" />
+			<Add library="sldriver" />
+			<Add library="slmodule" />
 			<Add directory="../_resources/ddk/lib" />
+			<Add directory="../_resources/sl/lib" />
 		</Linker>
 		<ExtraCommands>
 			<Add after="mt.exe -manifest Push.exe.manifest -outputresource:..\..\bin\Push.exe;#1" />
