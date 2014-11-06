@@ -228,10 +228,10 @@ NormalizeNTPath( WCHAR* pszPath, size_t nMax )
             0 == SlStringCompare(szNTPath, pszPath, 260))
         {
             // Match
-            wcscat_s(szDrive, 260, L"\\");
-            wcscat_s(szDrive, 260, pszSlash+1);
+            wcscat(szDrive, L"\\");
+            wcscat(szDrive, pszSlash+1);
 
-            wcscpy_s(pszPath, nMax, szDrive);
+            wcscpy(pszPath, szDrive);
 
             return S_OK;
         }
@@ -241,9 +241,6 @@ NormalizeNTPath( WCHAR* pszPath, size_t nMax )
     *pszSlash = cSave;
     return E_FAIL;
 }
-
-
-
 
 
 VOID

@@ -87,7 +87,6 @@
 			<Add directory="../_resources/sl" />
 		</Compiler>
 		<Linker>
-			<Add option='/NODEFAULTLIB:&quot;MSVCRT.lib&quot;' />
 			<Add option="-fpermissive" />
 			<Add library="sladl.lib" />
 			<Add directory="../_resources/sl/lib" />
@@ -106,19 +105,9 @@
 		<Unit filename="GUI/gui.h" />
 		<Unit filename="GUI/main.cpp" />
 		<Unit filename="GUI/main.h" />
-		<Unit filename="Hardware/ATI/radeon.cpp" />
 		<Unit filename="Hardware/ATI/radeon.h" />
-		<Unit filename="Hardware/Intel/intel.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="Hardware/Intel/intel.h" />
-		<Unit filename="Hardware/Nvidia/geforce.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="Hardware/Nvidia/geforce.h" />
-		<Unit filename="Hardware/d3dkmt.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="Hardware/d3dkmt.h" />
 		<Unit filename="Hardware/disk.c">
 			<Option compilerVar="CC" />
