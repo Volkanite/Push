@@ -11,11 +11,11 @@
 #include "..\push.h"
 #include "..\ring0.h"
 #include "..\ini.h"
-//#include "..\thrd.h"
+
 
 #include "hwinfo.h"
-#include "GeForce\geforce.h"
-#include "Radeon\radeon.h"
+#include "Nvidia\geforce.h"
+#include "ATI\radeon.h"
 #include "Intel\intel.h"
 #include "disk.h"
 #include "d3dkmt.h"
@@ -23,7 +23,6 @@
 
 UINT64  g_hNVPMContext;
 BOOLEAN    PushGpuLoadD3DKMT = FALSE;
-//BOOLEAN    g_ThreadOptimization = FALSE;
 DWORD dwMappedMemAddr;
 PUSH_HARDWARE_INFORMATION hardware;
 
@@ -398,11 +397,13 @@ DWORD GetGpuAddress()
 
                 pciAddress = PciBusDevFunc(bus, dev, func);
 
-                PushReadPciConfig(pciAddress, 0, (BYTE *)conf, sizeof(conf));
+                if (!R0ReadPciConfig(pciAddress, 0, (BYTE *)conf, sizeof(conf)))
+                    return NULL;
 
                 if(func == 0) // Is Multi Function Device
                 {
-                    PushReadPciConfig(pciAddress, 0x0E, (BYTE *)&type, sizeof(type));
+                    if (!R0ReadPciConfig(pciAddress, 0x0E, (BYTE *)&type, sizeof(type)))
+                        return NULL;
 
                     if(type & 0x80)
                     {
@@ -448,7 +449,7 @@ GetBarAddress( DWORD Bar )
 {
     DWORD barAddress;
 
-    PushReadPciConfig(
+    R0ReadPciConfig(
         hardware.DisplayDevice.pciAddress,
         Bar,
         (BYTE *)&barAddress,
@@ -484,7 +485,7 @@ InitGpuHardware()
 
     hardware.DisplayDevice.pciAddress = GetGpuAddress();
 
-    PushReadPciConfig(
+    R0ReadPciConfig(
         hardware.DisplayDevice.pciAddress,
         REGISTER_VENDORID,
         (BYTE *) &hardware.DisplayDevice.VendorId,

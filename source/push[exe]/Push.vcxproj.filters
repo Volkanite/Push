@@ -20,14 +20,7 @@
     <ClCompile Include="ring0.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HWinfo\hwinfo.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HWinfo\GeForce\geforce.c" />
-    <ClCompile Include="HWinfo\Intel\intel.c" />
     <ClCompile Include="file.c" />
-    <ClCompile Include="HWinfo\disk.c" />
-    <ClCompile Include="HWinfo\d3dkmt.c" />
     <ClCompile Include="batch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -46,10 +39,15 @@
     <ClCompile Include="GUI\copy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HWinfo\Radeon\radeon.cpp">
+    <ClCompile Include="RAMdisk\ramdisk.c" />
+    <ClCompile Include="Hardware\hwinfo.c" />
+    <ClCompile Include="Hardware\ATI\radeon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RAMdisk\ramdisk.c" />
+    <ClCompile Include="Hardware\Nvidia\geforce.c" />
+    <ClCompile Include="Hardware\d3dkmt.c" />
+    <ClCompile Include="Hardware\Intel\intel.c" />
+    <ClCompile Include="Hardware\disk.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ring0.h">
@@ -98,6 +96,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GUI\copy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hardware\hwinfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hardware\ati\radeon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\Intel\intel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\Nvidia\geforce.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\d3dkmt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\disk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

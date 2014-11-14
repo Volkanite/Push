@@ -86,31 +86,23 @@ R0MapPhysicalMemory(
 }
 
 
-VOID
-PushReadPciConfig(
-    DWORD   xPciAddress,
-    DWORD   xRegAddress,
-    BYTE    *value,
-    UINT32  size
+BOOLEAN
+R0ReadPciConfig( 
+    DWORD PciAddress, 
+    DWORD RegAddress,
+    BYTE* Value,
+    UINT32 Size
     )
 {
     UINT32 returnedLength = 0;
-    READ_PCI_CONFIG_INPUT   inputBuffer;
+    READ_PCI_CONFIG_INPUT inputBuffer;
     IO_STATUS_BLOCK isb;
+    NTSTATUS status;
 
+    inputBuffer.PciAddress = PciAddress;
+    inputBuffer.PciOffset = RegAddress;
 
-    inputBuffer.PciAddress = xPciAddress;
-    inputBuffer.PciOffset = xRegAddress;
-
-    /*DeviceIoControl(PushDriverHandle,
-                    IOCTL_PUSH_READ_PCI_CONFIG,
-                    &inBuf, sizeof(inBuf),
-                    value, size,
-                    &returnedLength,
-                    NULL
-                    );*/
-
-    NtDeviceIoControlFile(
+    status = NtDeviceIoControlFile(
         R0DriverHandle,
         NULL,
         NULL,
@@ -119,9 +111,14 @@ PushReadPciConfig(
         IOCTL_PUSH_READ_PCI_CONFIG,
         &inputBuffer,
         sizeof(inputBuffer),
-        value,
-        size
+        Value,
+        Size
         );
+
+    if (!NT_SUCCESS(status))
+        return FALSE;
+    else
+        return TRUE;
 }
 
 

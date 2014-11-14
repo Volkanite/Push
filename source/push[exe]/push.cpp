@@ -18,10 +18,10 @@
 #include "ini.h"
 #include "file.h"
 #include "ring0.h"
-//#include "thrd.h"
+
 
 #include "RAMdisk\ramdisk.h"
-#include "HWinfo\hwinfo.h"
+#include "Hardware\hwinfo.h"
 #include "batch.h"
 
 
