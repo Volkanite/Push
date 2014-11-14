@@ -11,7 +11,7 @@
 #include <slc.h>
 #include <slfile.h>
 #include <sldriver.h>
-#include <gui.h>>
+#include <gui.h>
 #include <main.h>
 #include <copy.h>
 #include "push.h"

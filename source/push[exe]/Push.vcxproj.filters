@@ -40,14 +40,21 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RAMdisk\ramdisk.c" />
-    <ClCompile Include="Hardware\hwinfo.c" />
-    <ClCompile Include="Hardware\ATI\radeon.cpp">
+    <ClCompile Include="Hardware\disk.c" />
+    <ClCompile Include="Hardware\hwinfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Hardware\Nvidia\geforce.c" />
-    <ClCompile Include="Hardware\d3dkmt.c" />
-    <ClCompile Include="Hardware\Intel\intel.c" />
-    <ClCompile Include="Hardware\disk.c" />
+    <ClCompile Include="Hardware\CPU\intel.c" />
+    <ClCompile Include="Hardware\GPU\gpu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\d3dkmt.c" />
+    <ClCompile Include="Hardware\GPU\AmdGpu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\NvidiaGpu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ring0.h">
@@ -114,6 +121,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Hardware\disk.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hardware\gpu\d3dkmt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hardware\cpu\intel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hardware\gpu\gpu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\GPU\AmdGpu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\GPU\NvidiaGpu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -14,18 +14,8 @@
 
 
 #include "hwinfo.h"
-<<<<<<< HEAD:source/push[exe]/Hardware/hwinfo.cpp
-//#include "Nvidia/geforce.h"
-//#include "ATI/radeon.h"
-//#include "Intel\intel.h"
 #include "CPU/intel.h"
-=======
-#include "Nvidia\geforce.h"
-#include "ATI\radeon.h"
-#include "Intel\intel.h"
->>>>>>> master:source/push[exe]/Hardware/hwinfo.c
 #include "disk.h"
-//#include "d3dkmt.h"
 #include "GPU/d3dkmt.h"
 
 
@@ -46,6 +36,9 @@ CGPU* HwGpu;
 UINT16
 GetEngineClock()
 {
+	if (!HwGpu) 
+		return 0;
+
     return HwGpu->GetEngineClock();
 }
 
@@ -53,6 +46,9 @@ GetEngineClock()
 UINT16
 GetMemoryClock()
 {
+	if (!HwGpu) 
+		return 0;
+
     return HwGpu->GetMemoryClock();
 }
 
@@ -60,6 +56,9 @@ GetMemoryClock()
 UINT8
 GetGpuTemp()
 {
+	if (!HwGpu) 
+		return 0;
+
     return HwGpu->GetTemperature();
 }
 
@@ -67,6 +66,9 @@ GetGpuTemp()
 UINT8
 GetGpuLoadHardware()
 {
+	if (!HwGpu) 
+		return 0;
+
     return HwGpu->GetLoad();
 }
 
@@ -96,6 +98,9 @@ UINT32
 GetVramUsed()
 {
     UINT64 total, free, used;
+
+	if (!HwGpu) 
+		return 0;
 
     total = HwGpu->GetTotalMemory();
     free = HwGpu->GetFreeMemory();
@@ -433,9 +438,14 @@ GetHardwareInfo()
 
     InitGpuHardware();
 
-    hardware.DisplayDevice.FrameBuffer.Total = HwGpu->GetTotalMemory();
-    hardware.DisplayDevice.EngineClockMax   = HwGpu->GetMaximumEngineClock();
-    hardware.DisplayDevice.MemoryClockMax   = HwGpu->GetMaximumMemoryClock();
+	HwGpu = CreateGpuInterface( hardware.DisplayDevice.VendorId );
+
+	if (HwGpu)
+	{
+		hardware.DisplayDevice.FrameBuffer.Total = HwGpu->GetTotalMemory();
+		hardware.DisplayDevice.EngineClockMax   = HwGpu->GetMaximumEngineClock();
+		hardware.DisplayDevice.MemoryClockMax   = HwGpu->GetMaximumMemoryClock();
+	}
 
     if (IniReadBoolean(L"Settings", L"GpuUsageD3DKMT", FALSE))
     {

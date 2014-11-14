@@ -1,1 +1,1 @@
-UINT8 GetIntelTemp();
+extern "C" UINT8 GetIntelTemp();

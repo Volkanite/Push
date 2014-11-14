@@ -1,3 +1,6 @@
+#include "gpu.h"
+
+
 class AmdGpu : public CGPU{
 public:
 	UINT16 GetEngineClock();
@@ -6,5 +9,7 @@ public:
 	UINT64 GetFreeMemory();
 	UINT8 GetTemperature();
 	UINT8 GetLoad();
+	UINT16 GetMaximumEngineClock();
+	UINT16 GetMaximumMemoryClock();
 	VOID ForceMaximumClocks();
-}
+};

@@ -1,3 +1,7 @@
+#ifndef GPU_H
+#define GPU_H
+
+
 class CGPU{
 public:
 	virtual UINT16 GetEngineClock() = 0;
@@ -10,3 +14,8 @@ public:
 	virtual UINT16 GetMaximumMemoryClock() = 0;
 	virtual VOID ForceMaximumClocks() = 0;
 };
+
+
+CGPU* CreateGpuInterface( WORD VenderId );
+
+#endif

@@ -5,6 +5,7 @@
 #include <pushbase.h>
 #include <hwinfo.h>
 #include <sladl.h>
+#include "AmdGpu.h"
 
 
 #define R6XX_CONFIG_MEMSIZE 0x5428
@@ -101,4 +102,67 @@ VOID
 RdnSetMaxClocks()
 {
     RdnAdl.SetMaxClocks();
+}
+
+
+UINT16 
+AmdGpu::GetEngineClock()
+{
+	return 0;
+}
+
+
+UINT16 
+AmdGpu::GetMemoryClock()
+{
+	return 0;
+}
+
+
+UINT64 
+AmdGpu::GetTotalMemory()
+{
+	return 0;
+}
+
+
+UINT64 
+AmdGpu::GetFreeMemory()
+{
+	return 0;
+}
+
+
+UINT8 
+AmdGpu::GetTemperature()
+{
+	return 0;
+}
+
+
+UINT8 
+AmdGpu::GetLoad()
+{
+	return 0;
+}
+
+
+UINT16 
+AmdGpu::GetMaximumEngineClock()
+{
+	return 0;
+}
+
+
+UINT16 
+AmdGpu::GetMaximumMemoryClock()
+{
+	return 0;
+}
+
+
+VOID 
+AmdGpu::ForceMaximumClocks()
+{
+
 }

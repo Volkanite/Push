@@ -4,7 +4,7 @@
 #include <pushbase.h>
 #include <push.h>
 
-#include "geforce.h"
+#include "NvidiaGpu.h"
 #include <hwinfo.h>
 
 
@@ -12,7 +12,7 @@ BYTE GfCoreFamily = 0;
 LONG    m_dwDiodeGainMul;
 LONG GetDiodeGainMul( DWORD coreFamily );
     #define NVAPI_MAX_PHYSICAL_GPUS 64
-INT32* gpuHandles[NVAPI_MAX_PHYSICAL_GPUS];
+//INT32* gpuHandles[NVAPI_MAX_PHYSICAL_GPUS];
 #define NVAPI_MAX_USAGES_PER_GPU        34
 #define NVAPI_MAX_MEMORY_VALUES_PER_GPU 6
 #define NVAPI_MAX_PHYSICAL_GPUS 64
@@ -300,7 +300,7 @@ GetGeForceUsage()
 }
 
 
-VOID
+/*VOID
 GetGeForceMemoryInfo( NVAPI_MEM_INFO* MemInfo )
 {
     if (!InitNvapi())
@@ -310,4 +310,67 @@ GetGeForceMemoryInfo( NVAPI_MEM_INFO* MemInfo )
 
     MemInfo->Total = mem_info_values[1];
     MemInfo->Free = mem_info_values[5];
+}*/
+
+
+UINT16 
+NvidiaGpu::GetEngineClock()
+{
+	return 0;
+}
+
+
+UINT16 
+NvidiaGpu::GetMemoryClock()
+{
+	return 0;
+}
+
+
+UINT64 
+NvidiaGpu::GetTotalMemory()
+{
+	return 0;
+}
+
+
+UINT64 
+NvidiaGpu::GetFreeMemory()
+{
+	return 0;
+}
+
+
+UINT8 
+NvidiaGpu::GetTemperature()
+{
+	return 0;
+}
+
+
+UINT8 
+NvidiaGpu::GetLoad()
+{
+	return 0;
+}
+
+
+UINT16 
+NvidiaGpu::GetMaximumEngineClock()
+{
+	return 0;
+}
+
+
+UINT16 
+NvidiaGpu::GetMaximumMemoryClock()
+{
+	return 0;
+}
+
+
+VOID 
+NvidiaGpu::ForceMaximumClocks()
+{
+
 }
