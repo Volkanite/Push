@@ -32,11 +32,11 @@ DWORD PushReadMsr(
     DWORD Index
     );
 
-VOID PushReadPciConfig(
-    DWORD   xPciAddress,
-    DWORD   xRegAddress,
-    BYTE    *value,
-    UINT32  size
+BOOLEAN R0ReadPciConfig( 
+    DWORD PciAddress, 
+    DWORD RegAddress,
+    BYTE* Value,
+    UINT32 Size
     );
 
 DWORD PushReadPhysicalMemory(

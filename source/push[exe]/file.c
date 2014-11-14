@@ -460,7 +460,7 @@ FsFileCopy(
     UINT64 fileSize, bytesCopied = 0;
     IO_STATUS_BLOCK isb;
 
-    SlFileCreate(
+    status = SlFileCreate(
         &fileHandleSource,
         SourceFileName,
         SYNCHRONIZE | FILE_READ_ATTRIBUTES | GENERIC_READ,
@@ -468,6 +468,9 @@ FsFileCopy(
         FILE_OPEN,
         FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
         );
+
+    if (!NT_SUCCESS(status))
+        return;
 
     SlFileCreate(
         &fileHandleDest,

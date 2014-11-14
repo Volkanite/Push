@@ -25,12 +25,12 @@
     <ClCompile Include="GUI\copy.cpp" />
     <ClCompile Include="GUI\gui.cpp" />
     <ClCompile Include="GUI\main.cpp" />
-    <ClCompile Include="HWinfo\d3dkmt.c" />
-    <ClCompile Include="HWinfo\disk.c" />
-    <ClCompile Include="HWinfo\GeForce\geforce.c" />
-    <ClCompile Include="HWinfo\hwinfo.c" />
-    <ClCompile Include="HWinfo\Intel\intel.c" />
-    <ClCompile Include="HWinfo\Radeon\radeon.cpp" />
+    <ClCompile Include="Hardware\ATI\radeon.cpp" />
+    <ClCompile Include="Hardware\d3dkmt.c" />
+    <ClCompile Include="Hardware\disk.c" />
+    <ClCompile Include="Hardware\hwinfo.c" />
+    <ClCompile Include="Hardware\Intel\intel.c" />
+    <ClCompile Include="Hardware\Nvidia\geforce.c" />
     <ClCompile Include="ini.c" />
     <ClCompile Include="push.cpp" />
     <ClCompile Include="RAMdisk\ramdisk.c" />
@@ -43,6 +43,12 @@
     <ClInclude Include="GUI\copy.h" />
     <ClInclude Include="GUI\gui.h" />
     <ClInclude Include="GUI\main.h" />
+    <ClInclude Include="hardware\ati\radeon.h" />
+    <ClInclude Include="Hardware\d3dkmt.h" />
+    <ClInclude Include="Hardware\disk.h" />
+    <ClInclude Include="hardware\hwinfo.h" />
+    <ClInclude Include="Hardware\Intel\intel.h" />
+    <ClInclude Include="Hardware\Nvidia\geforce.h" />
     <ClInclude Include="hwinfo\d3dkmt.h" />
     <ClInclude Include="hwinfo\disk.h" />
     <ClInclude Include="HWinfo\GeForce\geforce.h" />
@@ -105,10 +111,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>$(SolutionDir)source\_resources\sl\lib;$(SolutionDir)source\_resources\ddk\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)resources\sl\lib;$(SolutionDir)resources\ddk\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(TEMP)\$(ProjectName)\</IntDir>
-    <IncludePath>$(SolutionDir)source\push[exe]\HWinfo;$(SolutionDir)source\push[exe]\RAMdisk;$(SolutionDir)source\push[exe]\GUI;$(SolutionDir)source\push[exe];$(SolutionDir)source\_resources\sl;$(SolutionDir)source\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)source\push[exe]\Hardware;$(SolutionDir)source\push[exe]\RAMdisk;$(SolutionDir)source\push[exe]\GUI;$(SolutionDir)source\push[exe];$(SolutionDir)resources\sl;$(SolutionDir)source\;$(IncludePath)</IncludePath>
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
@@ -120,9 +126,11 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(TEMP)\$(ProjectName)\</IntDir>
-    <LibraryPath>$(SolutionDir)source\_resources\sl\lib;$(SolutionDir)source\_resources\ddk\lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)source\push[exe]\HWinfo;$(SolutionDir)source\push[exe]\RAMdisk;$(SolutionDir)source\push[exe]\GUI;$(SolutionDir)source\push[exe];$(SolutionDir)source\_resources\sl;$(SolutionDir)source\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)resources\sl\lib;$(SolutionDir)resources\ddk\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)source\push[exe]\Hardware;$(SolutionDir)source\push[exe]\RAMdisk;$(SolutionDir)source\push[exe]\GUI;$(SolutionDir)source\push[exe];$(SolutionDir)resources\sl;$(SolutionDir)source\;$(IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
+    <EmbedManifest>true</EmbedManifest>
+    <GenerateManifest>true</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)bin\</OutDir>
@@ -134,7 +142,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>NO_STRICT;DEBUG;_WOW64_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ShowIncludes>true</ShowIncludes>
+      <ShowIncludes>false</ShowIncludes>
       <DisableSpecificWarnings>4996;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <TreatSpecificWarningsAsErrors>4013;4020;4005;4101;4142;4520;4700;4715;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
       <CompileAs>Default</CompileAs>
@@ -192,6 +200,8 @@
       <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;stdlibprocess.lib;slgui.lib;slc.lib;slfile.lib;sldriver.lib;slmodule.lib;sladl.lib</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>MSVCRT.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <PostBuildEvent>
       <Command>
