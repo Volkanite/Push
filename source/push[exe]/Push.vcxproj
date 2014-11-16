@@ -117,10 +117,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>$(SolutionDir)resources\sl\lib;$(SolutionDir)resources\ddk\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)resources\sl\lib;$(SolutionDir)resources\ddk\lib;$(SolutionDir)resources\SlAdl;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(TEMP)\$(ProjectName)\</IntDir>
-    <IncludePath>$(SolutionDir)source\push[exe]\Hardware;$(SolutionDir)source\push[exe]\RAMdisk;$(SolutionDir)source\push[exe]\GUI;$(SolutionDir)source\push[exe];$(SolutionDir)resources\sl;$(SolutionDir)source\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)source\push[exe]\Hardware;$(SolutionDir)source\push[exe]\RAMdisk;$(SolutionDir)source\push[exe]\GUI;$(SolutionDir)source\push[exe];$(SolutionDir)source;$(SolutionDir)resources\sl;$(SolutionDir)resources\SlAdl;$(IncludePath)</IncludePath>
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
@@ -132,8 +132,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(TEMP)\$(ProjectName)\</IntDir>
-    <LibraryPath>$(SolutionDir)resources\sl\lib;$(SolutionDir)resources\ddk\lib;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)source\push[exe]\Hardware;$(SolutionDir)source\push[exe]\RAMdisk;$(SolutionDir)source\push[exe]\GUI;$(SolutionDir)source\push[exe];$(SolutionDir)resources\sl;$(SolutionDir)source\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)resources\sl\lib;$(SolutionDir)resources\ddk\lib;$(SolutionDir)resources\SlAdl;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)source\push[exe]\Hardware;$(SolutionDir)source\push[exe]\RAMdisk;$(SolutionDir)source\push[exe]\GUI;$(SolutionDir)source\push[exe];$(SolutionDir)source;$(SolutionDir)resources\sl;$(SolutionDir)resources\SlAdl;$(IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <EmbedManifest>true</EmbedManifest>
     <GenerateManifest>true</GenerateManifest>

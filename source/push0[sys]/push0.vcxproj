@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="filter.h" />
     <ClInclude Include="imdproxy.h" />
     <ClInclude Include="ntkmapi.h" />
     <ClInclude Include="procmon.h" />
@@ -26,6 +27,7 @@
     <ClInclude Include="ramdisk.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="filter.c" />
     <ClCompile Include="gpu.c" />
     <ClCompile Include="msr.c" />
     <ClCompile Include="procmon.c" />
@@ -78,9 +80,9 @@
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(TEMP)\$(ProjectName)</IntDir>
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)source\_resources\sl;$(SolutionDir)source\_resources\ddk\inc;$(VCInstallDir)include</IncludePath>
+    <IncludePath>$(SolutionDir)resources\sl;C:\WinDDK\inc\api;C:\WinDDK\inc\ddk;$(VCInstallDir)include</IncludePath>
     <GenerateManifest>false</GenerateManifest>
-    <LibraryPath>$(SolutionDir)source\_resources\sl\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)resources\sl\lib\AMD64;C:\WinDDK\lib\win7\amd64;$(LibraryPath)</LibraryPath>
     <TargetExt>.sys</TargetExt>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
@@ -122,14 +124,14 @@
       <WarningLevel>Level3</WarningLevel>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>$(DDKROOT)\inc\wxp;$(DDKROOT)\inc\ddk\wxp;$(DDKROOT)\inc\ddk\wdm\wxp;$(DDKROOT)\inc\crt;$(DDKROOT)\inc\crt\gl;$(DDKROOT)\inc\crt\sys;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_AMD64_;_DEBUG;DBG=1;_WIN32_WINNT=0x0501</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_AMD64_;_WIN32_WINNT=0x0601;_WIN64</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Release\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\Release\phymem.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>.\Release\</ObjectFileName>
       <ProgramDataBaseFileName>.\Release\</ProgramDataBaseFileName>
       <CallingConvention>StdCall</CallingConvention>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <TreatSpecificWarningsAsErrors>4013;4020;4005;4101;4133;4142;4520;4700;4715;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
+      <TreatSpecificWarningsAsErrors>4020;4005;4101;4133;4142;4520;4700;4715;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -154,7 +156,7 @@
       <AdditionalOptions> /DRIVER  /subsystem:NATIVE,5.1  /IGNORE:4078 </AdditionalOptions>
       <SetChecksum>true</SetChecksum>
       <BaseAddress>0x10000</BaseAddress>
-      <AdditionalDependencies>ntoskrnl.lib;hal.lib;slpci.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ntoskrnl.lib;hal.lib;slpci.lib;fltmgr.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>262144</StackReserveSize>
       <StackCommitSize>4096</StackCommitSize>
       <EntryPointSymbol>DriverEntry</EntryPointSymbol>

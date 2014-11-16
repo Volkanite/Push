@@ -1,7 +1,7 @@
 #include "push0.h"
 
 
-/NTSTATUS ReadGpuRegister(
+NTSTATUS ReadGpuRegister(
 	void			*lpInBuffer,
 	unsigned long	nInBufferSize,
 	void			*lpOutBuffer,
