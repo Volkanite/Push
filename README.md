@@ -36,10 +36,6 @@ Credits
 - SlAdl (https://github.com/Volkanite/SlAdl)
 - DetourXS (https://github.com/DominicTobias/detourxs)
 
-Help
-----
-- Compiling: check wiki for compile help (https://github.com/Volkanite/Push/wiki)
-
 Notes
 -----
 
