@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="d3dcompiler.cpp" />
     <ClCompile Include="dx10\dx10font.cpp" />
     <ClCompile Include="dx10\dx10overlay.cpp" />
     <ClCompile Include="dx11\dx11font.cpp" />
@@ -27,6 +28,7 @@
     <ClCompile Include="overlay.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="d3dcompiler.h" />
     <ClInclude Include="dx10\dx10font.h" />
     <ClInclude Include="dx10\dx10overlay.h" />
     <ClInclude Include="dx11\dx11font.h" />
@@ -70,14 +72,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>D:\Code\OvRender\resources\directx\lib\Effects11\Inc;D:\Code\OvRender\resources\directx\dx8;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;D:\Code\sl;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>D:\Code\OvRender\resources\directx\lib\Effects11\Inc;D:\Code\OvRender\resources\directx\dx8;$(DXSDK_DIR)Include;D:\Code\sl;$(ProjectDir);$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
-    <LibraryPath>D:\Code\OvRender\resources\directx\lib;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;D:\Code\sl\lib\i386;$(LibraryPath)</LibraryPath>
+    <LibraryPath>D:\Code\OvRender\resources\directx\lib;$(DXSDK_DIR)Lib\x86;D:\Code\sl\lib\i386;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>D:\Code\OvRender\resources\directx\lib\Effects11\Inc;D:\Code\OvRender\resources\directx\dx8;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;D:\Code\sl;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>D:\Code\OvRender\resources\directx\lib\Effects11\Inc;D:\Code\OvRender\resources\directx\dx8;$(DXSDK_DIR)Include;D:\Code\sl;$(ProjectDir);$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
-    <LibraryPath>D:\Code\OvRender\resources\directx\lib;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x86;D:\Code\sl\lib\i386;$(LibraryPath)</LibraryPath>
+    <LibraryPath>D:\Code\OvRender\resources\directx\lib;$(DXSDK_DIR)Lib\x86;D:\Code\sl\lib\i386;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

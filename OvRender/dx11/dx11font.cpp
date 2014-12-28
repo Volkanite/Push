@@ -11,6 +11,7 @@ typedef struct _D3DLOCKED_RECT
 } D3DLOCKED_RECT;
 #include "dx11font.h"
 #include <d3dx11effect.h>
+#include "..\d3dcompiler.h"
 
 
 typedef INT32 (__stdcall *D3DCompile_t)(
@@ -159,24 +160,6 @@ GetCharMaxX( GpBitmap *bitmap )
     }
 
     return width - 1;
-}
-
-
-static HMODULE GetD3DCompiler()
-{
-    WCHAR buf[32];
-    int i;
-    HMODULE mod;
-
-    for (i = 50; i >= 30; i--)
-    {
-        swprintf_s(buf, ARRAYSIZE(buf), L"D3DCompiler_%d.dll", i);
-        mod = LoadLibraryExW(buf, NULL, NULL);
-        if (mod)
-            return mod;
-    }
-
-    return NULL;
 }
 
 
