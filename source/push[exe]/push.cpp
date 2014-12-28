@@ -54,7 +54,7 @@ TYPE_NtResumeProcess NtResumeProcess;
 TYPE_MuteJack MuteJack;
 
 
-extern "C" VOID* OpenProcess(
+extern "C" VOID* SlOpenProcess(
     UINT16 processID,
     DWORD rights);
 
@@ -392,7 +392,7 @@ OnProcessEvent( UINT16 processID )
     UINT32 iBytesRead;
     WCHAR *result = 0;
     CHAR szCommand[] = "MUTEPIN 1 a";
-    processHandle = OpenProcess(
+    processHandle = SlOpenProcess(
                         processID,
                         PROCESS_QUERY_INFORMATION |
                         PROCESS_SUSPEND_RESUME);
@@ -519,7 +519,7 @@ OnImageEvent( UINT16 processID )
 {
     VOID *processHandle = 0;
 
-    processHandle = OpenProcess(processID,
+    processHandle = SlOpenProcess(processID,
                                 PROCESS_VM_OPERATION |
                                 PROCESS_VM_READ |
                                 PROCESS_VM_WRITE |
@@ -547,7 +547,7 @@ OnImageEvent( UINT16 processID )
           }
 
           // Open it with WRITE_DAC access so that we can write to the DACL.
-          processHandle = OpenProcess(processID, (0x00040000L)); //WRITE_DAC
+          processHandle = SlOpenProcess(processID, (0x00040000L)); //WRITE_DAC
 
           if(processHandle == 0)
           {
@@ -578,7 +578,7 @@ OnImageEvent( UINT16 processID )
           processHandle = 0;
           LocalFree(secdesc);
 
-          processHandle = OpenProcess(
+          processHandle = SlOpenProcess(
                             processID,
                             PROCESS_VM_OPERATION |
                             PROCESS_VM_READ |
