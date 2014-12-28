@@ -1,0 +1,33 @@
+﻿Build started 12/28/2014 7:36:24 PM.
+     1>Project "D:\Code\OvRender\resources\Effects11\Effects11.vcxproj" on node 2 (rebuild target(s)).
+     1>_PrepareForClean:
+         Deleting file "Release\Effects11.lastbuildstate".
+       InitializeBuildStatus:
+         Creating "Release\Effects11.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         d:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I.\Binary /I.\Inc /I..\..\\Core /I..\..\\Optional /Zi /nologo /W4 /WX- /O2 /Oi /Oy- /D WIN32 /D NDEBUG /D _WINDOWS /D _LIB /D D3DXFX_LARGEADDRESS_HANDLE /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /arch:SSE2 /fp:fast /Zc:wchar_t /Zc:forScope /openmp- /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt d3dx11dbg.cpp d3dxGlobal.cpp EffectAPI.cpp EffectLoad.cpp EffectNonRuntime.cpp EffectReflection.cpp EffectRuntime.cpp  
+         d3dx11dbg.cpp
+         d3dxGlobal.cpp
+         EffectAPI.cpp
+         EffectLoad.cpp
+         EffectNonRuntime.cpp
+         EffectReflection.cpp
+         EffectRuntime.cpp
+         Generating Code...
+       Lib:
+         d:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\Lib.exe /OUT:"D:\Code\OvRender\Release\Effects11.lib" /NOLOGO Release\d3dx11dbg.obj
+         Release\d3dxGlobal.obj
+         Release\EffectAPI.obj
+         Release\EffectLoad.obj
+         Release\EffectNonRuntime.obj
+         Release\EffectReflection.obj
+         Release\EffectRuntime.obj
+         Effects11.vcxproj -> D:\Code\OvRender\Release\Effects11.lib
+       FinalizeBuildStatus:
+         Deleting file "Release\Effects11.unsuccessfulbuild".
+         Touching "Release\Effects11.lastbuildstate".
+     1>Done Building Project "D:\Code\OvRender\resources\Effects11\Effects11.vcxproj" (rebuild target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:15.84
