@@ -52,18 +52,18 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)source\_resources\OvRender;$(SolutionDir)source\_resources\sl;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)resources\OvRender;$(SolutionDir)resources\sl;$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>$(SolutionDir)source\_resources\sl\lib;$(SolutionDir)source\_resources\ddk\lib;$(SolutionDir)source\_resources\OvRender;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)resources\sl\lib;$(SolutionDir)resources\ddk\lib;$(SolutionDir)resources\OvRender;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(TEMP)\overlay</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(TEMP)\$(ProjectName)\</IntDir>
-    <IncludePath>$(SolutionDir)source\_resources\OvRender;$(SolutionDir)source\_resources\sl;$(ProjectDir);$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)source\_resources\sl\lib;$(SolutionDir)source\_resources\ddk\lib;$(SolutionDir)source\_resources\OvRender;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)resources\OvRender;$(SolutionDir)resources\sl;$(ProjectDir);$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)resources\sl\lib;$(SolutionDir)resources\ddk\lib;$(SolutionDir)resources\OvRender;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -78,7 +78,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3dcompiler.lib;d3dx11.lib;dxgi.lib;d3dx9.lib;d3d10.lib;d3dx10.lib;gdiplus.lib;lde64.lib;sldetours.lib;slmodule.lib;slc.lib;ntdll.lib;sloverlay.lib;OvRender.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxgi.lib;d3d10.lib;gdiplus.lib;lde64.lib;sldetours.lib;slmodule.lib;slc.lib;ntdll.lib;sloverlay.lib;OvRender.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>MSVCRT.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -108,7 +108,7 @@
       <ImportLibrary>$(TEMP)\overlay\overlay.lib</ImportLibrary>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <LinkStatus>false</LinkStatus>
-      <AdditionalDependencies>d3dcompiler.lib;d3dx11.lib;dxgi.lib;d3dx9.lib;d3d10.lib;d3dx10.lib;gdiplus.lib;lde64.lib;sldetours.lib;slmodule.lib;slc.lib;ntdll.lib;sloverlay.lib;OvRender.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxgi.lib;d3d10.lib;gdiplus.lib;lde64.lib;sldetours.lib;slmodule.lib;slc.lib;ntdll.lib;sloverlay.lib;OvRender.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
