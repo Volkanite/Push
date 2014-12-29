@@ -29,6 +29,7 @@
     <ClCompile Include="Hardware\disk.c" />
     <ClCompile Include="Hardware\GPU\AmdGpu.cpp" />
     <ClCompile Include="Hardware\GPU\d3dkmt.c" />
+    <ClCompile Include="Hardware\GPU\GenericGpu.cpp" />
     <ClCompile Include="Hardware\GPU\gpu.cpp" />
     <ClCompile Include="Hardware\GPU\NvidiaGpu.cpp" />
     <ClCompile Include="Hardware\hwinfo.cpp" />
@@ -50,6 +51,7 @@
     <ClInclude Include="Hardware\disk.h" />
     <ClInclude Include="Hardware\GPU\AmdGpu.h" />
     <ClInclude Include="hardware\gpu\d3dkmt.h" />
+    <ClInclude Include="Hardware\GPU\GenericGpu.h" />
     <ClInclude Include="hardware\gpu\gpu.h" />
     <ClInclude Include="Hardware\GPU\NvidiaGpu.h" />
     <ClInclude Include="hardware\hwinfo.h" />

@@ -3,6 +3,7 @@
 #include "gpu.h"
 #include "amdgpu.h"
 #include "nvidiagpu.h"
+#include "GenericGpu.h"
 
 
 #define NVIDIA  0x10DE
@@ -20,6 +21,6 @@ CreateGpuInterface( WORD VendorId )
 	case NVIDIA:
 		return new NvidiaGpu();
 	default:
-		return NULL;
+		return new GenericGpu();
 	}
 }
