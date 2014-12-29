@@ -3066,7 +3066,16 @@ typedef HRESULT (__stdcall *TYPE_D3DGetInputSignatureBlob)(
     SIZE_T SrcDataSize,
     ID3DBlob **ppSignatureBlob
 );
+
+typedef HRESULT (__stdcall *TYPE_D3DReflect)(
+	LPCVOID pSrcData,
+	SIZE_T SrcDataSize,
+	REFIID pInterface,
+	void **ppReflector
+);
+
 TYPE_D3DGetInputSignatureBlob IMP_D3DGetInputSignatureBlob;
+TYPE_D3DReflect IMP_D3DReflect;
 
 // Create shader reflection interface and grab dependency info
 HRESULT CEffectLoader::BuildShaderBlock(SShaderBlock *pShaderBlock)
@@ -3088,8 +3097,17 @@ HRESULT CEffectLoader::BuildShaderBlock(SShaderBlock *pShaderBlock)
         return S_OK;
     }
 
+	// Dynamic Imports
+	HMODULE d3dcompiler;
+
+	d3dcompiler = GetD3DCompiler();
+    
+	IMP_D3DGetInputSignatureBlob = (TYPE_D3DGetInputSignatureBlob) GetProcAddress(d3dcompiler, "D3DGetInputSignatureBlob");
+	IMP_D3DReflect = (TYPE_D3DReflect) GetProcAddress(d3dcompiler, "D3DReflect");
+
+
     // Initialize the reflection interface
-    VHD( D3DReflect( pShaderBlock->pReflectionData->pBytecode, pShaderBlock->pReflectionData->BytecodeLength, IID_ID3D11ShaderReflection, (void**)&pShaderBlock->pReflectionData->pReflection ),
+    VHD( IMP_D3DReflect( pShaderBlock->pReflectionData->pBytecode, pShaderBlock->pReflectionData->BytecodeLength, IID_ID3D11ShaderReflection, (void**)&pShaderBlock->pReflectionData->pReflection ),
          "Internal loading error: cannot create shader reflection object." );
 
     // Get dependencies
@@ -3099,10 +3117,6 @@ HRESULT CEffectLoader::BuildShaderBlock(SShaderBlock *pShaderBlock)
     if( EOT_VertexShader == pShaderBlock->GetShaderType() )
     {
         D3DXASSERT( pShaderBlock->pInputSignatureBlob == NULL );
-        HMODULE d3dcompiler;
-
-        d3dcompiler = GetD3DCompiler();
-        IMP_D3DGetInputSignatureBlob = (TYPE_D3DGetInputSignatureBlob) GetProcAddress(d3dcompiler, "D3DGetInputSignatureBlob");
         
         VHD( IMP_D3DGetInputSignatureBlob( pShaderBlock->pReflectionData->pBytecode, pShaderBlock->pReflectionData->BytecodeLength, &pShaderBlock->pInputSignatureBlob ),
              "Internal loading error: cannot get input signature." );
