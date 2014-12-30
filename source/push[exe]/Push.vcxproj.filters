@@ -58,6 +58,9 @@
     <ClCompile Include="Hardware\GPU\GenericGpu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Hardware\GPU\IntelGpu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ring0.h">
@@ -142,6 +145,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Hardware\GPU\GenericGpu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\GPU\IntelGpu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -3,6 +3,7 @@
 #include "gpu.h"
 #include "amdgpu.h"
 #include "nvidiagpu.h"
+#include "IntelGpu.h"
 #include "GenericGpu.h"
 
 
@@ -20,6 +21,8 @@ CreateGpuInterface( WORD VendorId )
 		return new AmdGpu();
 	case NVIDIA:
 		return new NvidiaGpu();
+	case INTEL:
+		return new IntelGpu();
 	default:
 		return new GenericGpu();
 	}
