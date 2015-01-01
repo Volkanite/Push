@@ -6,7 +6,7 @@ VOID* __stdcall OpenSCManagerW(
     WCHAR*  lpDatabaseName,
     DWORD   dwDesiredAccess
     );
-    
+
 VOID*
 __stdcall
 OpenServiceW(
@@ -77,20 +77,20 @@ INT32
 __stdcall
 CloseServiceHandle( VOID* hSCObject );
 
-BYTE __stdcall FlushFileBuffers( 
-    VOID *hFile 
+BYTE __stdcall FlushFileBuffers(
+    VOID *hFile
     );
-    
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-VOID __stdcall InitCommonControls( 
-    VOID 
+VOID __stdcall InitCommonControls(
+    VOID
     );
-    
-VOID* 
-__stdcall 
+
+VOID*
+__stdcall
 CreateWindowExW(
     DWORD   dwExStyle,
     WCHAR*  lpClassName,
@@ -176,7 +176,7 @@ SetTimer(
     FARPROC lpTimerFunc
     );
 
-UINT32             
+UINT32
 __stdcall
 RegisterWindowMessageW( WCHAR* lpString );
 
@@ -271,8 +271,8 @@ GetClientRect(
     RECT *lpRect
     );
 
-INT32 
-__stdcall 
+INT32
+__stdcall
 GetWindowRect(
     VOID *hWnd,
     RECT *lpRect
@@ -282,8 +282,8 @@ INT32
 __stdcall
 GetCursorPos( POINT *lpPoint );
 
-INT32 
-__stdcall 
+INT32
+__stdcall
 SetWindowPos(
     VOID    *hWnd,
     VOID    *hWndInsertAfter,
@@ -297,7 +297,7 @@ SetWindowPos(
 INT32
 __stdcall
 Shell_NotifyIconW(
-    DWORD dwMessage, 
+    DWORD dwMessage,
     NOTIFYICONDATA *lpData
     );
 
@@ -343,18 +343,18 @@ SendMessageW(
     );
 
 INT32
-__stdcall 
+__stdcall
 CreateDirectoryW(
     WCHAR*                  lpPathName,
     SECURITY_ATTRIBUTES*    lpSecurityAttributes
     );
 
-INT32 
-__stdcall 
+INT32
+__stdcall
 RemoveDirectoryW( WCHAR* lpPathName );
 
-INT32 
-__stdcall 
+INT32
+__stdcall
 DeleteFileW( WCHAR* lpFileName );
 
 int __stdcall FindNextFileW(
@@ -362,20 +362,20 @@ int __stdcall FindNextFileW(
     WIN32_FIND_DATA*    lpFindFileData
     );
 
-int 
-__stdcall 
+int
+__stdcall
 FindClose( VOID *hFindFile );
 
-BYTE 
-__stdcall 
+BYTE
+__stdcall
 CreateSymbolicLinkW(
     WCHAR*  lpSymlinkFileName,
     WCHAR*  lpTargetFileName,
     DWORD   dwFlags
     );
 
-DWORD 
-__stdcall 
+DWORD
+__stdcall
 GetFileAttributesW(
   WCHAR* lpFileName
 );
@@ -398,8 +398,8 @@ DWORD
 __stdcall
 GetLogicalDrives( VOID );
 
-INT32 
-__stdcall 
+INT32
+__stdcall
 GetOpenFileNameW( VOID* );
 
 VOID*
@@ -441,9 +441,9 @@ VirtualFreeEx(
     );
 
  INT32 __stdcall NtOpenProcess(
-     VOID **ProcessHandle, 
-     DWORD AccessMask, 
-     OBJECT_ATTRIBUTES *ObjectAttributes, 
+     VOID **ProcessHandle,
+     DWORD AccessMask,
+     OBJECT_ATTRIBUTES *ObjectAttributes,
      CLIENT_ID *ClientId );
 
 DWORD
@@ -487,7 +487,7 @@ CreateRemoteThread(
     DWORD                   *lpThreadId
     );
 
-INT32 
+INT32
 __stdcall ControlService(
   VOID *hService,
   DWORD dwControl,
@@ -517,8 +517,8 @@ INTBOOL __stdcall GetSystemTimes(
     FILETIME *lpUserTime
     );
 
-VOID 
-__stdcall 
+VOID
+__stdcall
 Sleep(
   DWORD dwMilliseconds
 );
@@ -564,7 +564,7 @@ WaitForMultipleObjects(
     BYTE    bWaitAll,
     DWORD   dwMilliseconds
     );*/
-    
+
 DWORD __stdcall WaitForMultipleObjectsEx(
     DWORD nCount,
     VOID** lpHandles,
@@ -663,12 +663,12 @@ SetupDiGetDeviceInterfaceDetailW(
     SP_DEVICE_INTERFACE_DATA            *DeviceInterfaceData,
     SP_DEVICE_INTERFACE_DETAIL_DATA_W   *DeviceInterfaceDetailData,
     DWORD                               DeviceInterfaceDetailDataSize,
-    DWORD                               *RequiredSize, 
+    DWORD                               *RequiredSize,
     SP_DEVINFO_DATA                     *DeviceInfoData
     );
 
 BYTE
-__stdcall 
+__stdcall
 RtlCreateUnicodeString(
     UNICODE_STRING  *DestinationString,
     const WCHAR     *SourceString
@@ -679,7 +679,7 @@ __stdcall
 RtlFreeUnicodeString( UNICODE_STRING *UnicodeString );
 
 
-    
+
 typedef
 VOID
 (__stdcall *PIO_APC_ROUTINE) (
@@ -703,12 +703,12 @@ VOID
 BYTE
 __stdcall
 NtClose( VOID *hObject );
- 
+
 DWORD
 __stdcall
 RtlNtStatusToDosError( long Status );
 
-  
+
 INT32 __stdcall AllocConsole(VOID);
 
 
@@ -721,7 +721,7 @@ LONG __stdcall NtQueryPerformanceCounter(
   LARGE_INTEGER* PerformanceCounter,
   LARGE_INTEGER* PerformanceFrequency
   );
-  
+
 INT32 __stdcall VirtualProtect(
   VOID* lpAddress,
   UINT_B dwSize,
@@ -759,7 +759,7 @@ DWORD __stdcall SetSecurityInfo(
 VOID* __stdcall LocalFree(
     VOID* hMem
     );
-    
+
 INT32 __stdcall MultiByteToWideChar(
     UINT32  CodePage,
     DWORD   dwFlags,
@@ -768,34 +768,34 @@ INT32 __stdcall MultiByteToWideChar(
     WCHAR*  lpWideCharStr,
     INT32   cchWideChar
     );
-    
+
 WORD __stdcall RegisterClassExW(
     WNDCLASSEX *lpwcx
     );
-    
+
 INTBOOL __stdcall SetPropW(
     VOID*   hWnd,
     WCHAR*  lpString,
     VOID*   hData
     );
-    
+
 // Nt
 
 TEB* __stdcall NtCurrentTeb(
     );
-    
-INT32 __stdcall NtOpenProcessToken(   
+
+INT32 __stdcall NtOpenProcessToken(
     VOID *ProcessHandle,
     DWORD DesiredAccess,
-    VOID **TokenHandle 
+    VOID **TokenHandle
     );
 
 INT32 __stdcall NtAdjustPrivilegesToken(
-    VOID *TokenHandle, 
-    BOOLEAN DisableAllPrivileges, 
-    TOKEN_PRIVILEGES *TokenPrivileges, 
-    DWORD PreviousPrivilegesLength, 
-    TOKEN_PRIVILEGES *PreviousPrivileges, 
+    VOID *TokenHandle,
+    BOOLEAN DisableAllPrivileges,
+    TOKEN_PRIVILEGES *TokenPrivileges,
+    DWORD PreviousPrivilegesLength,
+    TOKEN_PRIVILEGES *PreviousPrivileges,
     DWORD *RequiredLength
     );
 
@@ -813,28 +813,28 @@ INT32 __stdcall NtAdjustPrivilegesToken(
     UINT32 *ReturnLength );
 
  INT32 __stdcall NtAllocateVirtualMemory(
-    VOID *ProcessHandle, 
-    VOID **BaseAddress, 
-    UINT_B ZeroBits, 
+    VOID *ProcessHandle,
+    VOID **BaseAddress,
+    UINT_B ZeroBits,
     UINT_B *RegionSize,
-    UINT32 AllocationType, 
+    UINT32 AllocationType,
     UINT32 Protect );
 
  INT32 __stdcall NtFreeVirtualMemory(
-    VOID *ProcessHandle, 
-    VOID **BaseAddress, 
-    UINT32 *RegionSize, 
+    VOID *ProcessHandle,
+    VOID **BaseAddress,
+    UINT32 *RegionSize,
     UINT32 FreeType );
 
-INT32 __stdcall NtLoadDriver( 
-    UNICODE_STRING *pDrvName 
+INT32 __stdcall NtLoadDriver(
+    UNICODE_STRING *pDrvName
     );
 
 INT32 __stdcall NtOpenThread(
     VOID **ThreadHandle,
     DWORD DesiredAccess,
     OBJECT_ATTRIBUTES *ObjectAttributes,
-    CLIENT_ID *ClientId 
+    CLIENT_ID *ClientId
     );
 
 INT32 __stdcall NtWaitForSingleObject(
@@ -843,7 +843,7 @@ INT32 __stdcall NtWaitForSingleObject(
     LARGE_INTEGER *Timeout
     );
 
-LONG __stdcall NtQueryDirectoryFile(    
+LONG __stdcall NtQueryDirectoryFile(
     VOID*                   FileHandle,
     VOID*                   Event,
     PIO_APC_ROUTINE         ApcRoutine,
@@ -856,7 +856,7 @@ LONG __stdcall NtQueryDirectoryFile(
     UNICODE_STRING*         FileName,
     BOOLEAN                    RestartScan
     );
-    
+
 LONG __stdcall NtCreateFile(
     VOID**              FileHandle,
     DWORD               DesiredAccess,
@@ -870,8 +870,8 @@ LONG __stdcall NtCreateFile(
     VOID*               EaBuffer,
     ULONG               EaLength
     );
-    
-LONG __stdcall NtReadFile( 
+
+LONG __stdcall NtReadFile(
     VOID*               FileHandle,
     VOID*               Event,
     PIO_APC_ROUTINE     ApcRoutine,
@@ -882,8 +882,8 @@ LONG __stdcall NtReadFile(
     LARGE_INTEGER*      ByteOffset,
     ULONG*              Key
     );
-    
-LONG __stdcall NtWriteFile( 
+
+LONG __stdcall NtWriteFile(
     VOID*               FileHandle,
     VOID*               Event,
     PIO_APC_ROUTINE     ApcRoutine,
@@ -894,7 +894,7 @@ LONG __stdcall NtWriteFile(
     LARGE_INTEGER*      ByteOffset,
     ULONG*              Key
     );
-    
+
 LONG __stdcall NtSetInformationFile(
     VOID*                   FileHandle,
     IO_STATUS_BLOCK*        IoStatusBlock,
@@ -902,7 +902,7 @@ LONG __stdcall NtSetInformationFile(
     ULONG                   Length,
     FILE_INFORMATION_CLASS  FileInformationClass
     );
-    
+
 NTSTATUS
 __stdcall
 NtQueryInformationFile(
@@ -912,55 +912,69 @@ NtQueryInformationFile(
     ULONG Length,
     FILE_INFORMATION_CLASS FileInformationClass
     );
-    
+
 // Rtl
-    
-LONG __stdcall RtlInitializeCriticalSection(    
+
+LONG __stdcall RtlInitializeCriticalSection(
     RTL_CRITICAL_SECTION* CriticalSection
     );
 
-VOID* __stdcall RtlAllocateHeap(    
+VOID* __stdcall RtlAllocateHeap(
     VOID*           HeapHandle,
     DWORD           Flags,
     UINT_B    Size
     );
 
-BOOLEAN __stdcall RtlFreeHeap( 
+BOOLEAN __stdcall RtlFreeHeap(
     VOID* HeapHandle,
     DWORD Flags,
     VOID* HeapBase
     );
 
-#ifdef __cplusplus
-}
-#endif
+
 VOID* __stdcall RtlReAllocateHeap(
     VOID*   HeapHandle,
     DWORD   Flags,
     VOID*   MemoryPointer,
-    UINT32  Size 
+    UINT32  Size
     );
-    
+
 LONG __stdcall RtlCompareUnicodeString(
     UNICODE_STRING *String1,
     UNICODE_STRING *String2,
-    BOOLEAN CaseInSensitive 
+    BOOLEAN CaseInSensitive
     );
-    
+
 BOOLEAN __stdcall RtlDosPathNameToNtPathName_U(
     WCHAR*                  DosFileName,
     UNICODE_STRING*         NtFileName,
     WCHAR**                 FilePart,
     RTL_RELATIVE_NAME_U*    RelativeName
     );
-    
-LONG __stdcall RtlEnterCriticalSection( 
-    RTL_CRITICAL_SECTION* CriticalSection   
+
+NTSTATUS __stdcall NtCreateSection(
+    VOID** SectionHandle,
+    DWORD DesiredAccess,
+    OBJECT_ATTRIBUTES* ObjectAttributes,
+    LARGE_INTEGER* MaximumSize,
+    ULONG SectionPageProtection,
+    ULONG AllocationAttributes,
+    VOID* FileHandle
     );
-    
+
+#ifdef __cplusplus
+}
+#endif
+
+LONG __stdcall RtlEnterCriticalSection(
+    RTL_CRITICAL_SECTION* CriticalSection
+    );
+
 LONG __stdcall LdrLoadDll(
     WCHAR* SearchPath,
     DWORD* LoadFlags,
     UNICODE_STRING* Name,
     VOID** BaseAddress
     );
+
+

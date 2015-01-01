@@ -714,19 +714,8 @@ DWORD __stdcall MonitorThread( VOID* Parameter )
 
 #define WRITE_OWNER   0x00080000L
 
-    extern "C" LONG
-    __stdcall
-    NtCreateSection(
-    VOID** SectionHandle,
-    DWORD DesiredAccess,
-    OBJECT_ATTRIBUTES* ObjectAttributes,
-    LARGE_INTEGER* MaximumSize,
-    ULONG SectionPageProtection,
-    ULONG AllocationAttributes,
-    VOID* FileHandle
-    );
 
-     extern "C" LONG __stdcall NtOpenDirectoryObject   (   VOID**  FileHandle,
+extern "C" LONG __stdcall NtOpenDirectoryObject   (   VOID**  FileHandle,
         DWORD   DesiredAccess,
         OBJECT_ATTRIBUTES*  ObjectAttributes
         );
