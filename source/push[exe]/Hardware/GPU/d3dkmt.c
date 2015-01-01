@@ -116,49 +116,7 @@ AllocateGpuAdapter(UINT32 NumberOfSegments)
 }
 
 
-VOID
-UpdateNodeInformation()
-{
-    UINT32 j;
-    D3DKMT_QUERYSTATISTICS queryStatistics;
-    UINT64 totalRunningTime;
-    UINT64 systemRunningTime;
-    LARGE_INTEGER performanceCounter;
 
-
-    totalRunningTime = 0;
-    systemRunningTime = 0;
-
-    for (j = 0; j < g_GpuAdapter->NodeCount; j++)
-    {
-        memset(&queryStatistics, 0, sizeof(D3DKMT_QUERYSTATISTICS));
-
-        queryStatistics.Type                = D3DKMT_QUERYSTATISTICS_NODE;
-        queryStatistics.AdapterLuid         = g_GpuAdapter->AdapterLuid;
-        queryStatistics.QueryNode.NodeId    = j;
-
-        if (NT_SUCCESS(D3DKMTQueryStatistics(&queryStatistics)))
-        {
-            UINT32 nodeIndex;
-
-            nodeIndex = g_GpuAdapter->FirstNodeIndex + j;
-
-            PhUpdateDelta(
-                &EtGpuNodesTotalRunningTimeDelta[nodeIndex],
-                queryStatistics.QueryResult.NodeInformation.GlobalInformation.RunningTime.QuadPart
-                );
-
-            totalRunningTime += queryStatistics.QueryResult.NodeInformation.GlobalInformation.RunningTime.QuadPart;
-            systemRunningTime += queryStatistics.QueryResult.NodeInformation.SystemInformation.RunningTime.QuadPart;
-        }
-    }
-
-    NtQueryPerformanceCounter(&performanceCounter, &EtClockTotalRunningTimeFrequency);
-
-    PhUpdateDelta(&EtClockTotalRunningTimeDelta, performanceCounter.QuadPart);
-    PhUpdateDelta(&EtGpuTotalRunningTimeDelta, totalRunningTime);
-    PhUpdateDelta(&EtGpuSystemRunningTimeDelta, systemRunningTime);
-}
 
 
 UINT8
@@ -359,4 +317,56 @@ D3DKMTInitialize()
     EtGpuNodesTotalRunningTimeDelta = RtlAllocateHeap(PushHeapHandle, 0, sizeof(PH_UINT64_DELTA) * EtGpuTotalNodeCount);
 
     memset(EtGpuNodesTotalRunningTimeDelta, 0, sizeof(PH_UINT64_DELTA) * EtGpuTotalNodeCount);
+}
+
+
+VOID
+UpdateNodeInformation()
+{
+    UINT32 j;
+    D3DKMT_QUERYSTATISTICS queryStatistics;
+    UINT64 totalRunningTime;
+    UINT64 systemRunningTime;
+    LARGE_INTEGER performanceCounter;
+    static BOOLEAN initialized = FALSE;
+
+    //check if initialized
+    if (!initialized)
+    {
+        D3DKMTInitialize();
+        initialized = TRUE;
+    }
+
+    totalRunningTime = 0;
+    systemRunningTime = 0;
+
+    for (j = 0; j < g_GpuAdapter->NodeCount; j++)
+    {
+        memset(&queryStatistics, 0, sizeof(D3DKMT_QUERYSTATISTICS));
+
+        queryStatistics.Type                = D3DKMT_QUERYSTATISTICS_NODE;
+        queryStatistics.AdapterLuid         = g_GpuAdapter->AdapterLuid;
+        queryStatistics.QueryNode.NodeId    = j;
+
+        if (NT_SUCCESS(D3DKMTQueryStatistics(&queryStatistics)))
+        {
+            UINT32 nodeIndex;
+
+            nodeIndex = g_GpuAdapter->FirstNodeIndex + j;
+
+            PhUpdateDelta(
+                &EtGpuNodesTotalRunningTimeDelta[nodeIndex],
+                queryStatistics.QueryResult.NodeInformation.GlobalInformation.RunningTime.QuadPart
+                );
+
+            totalRunningTime += queryStatistics.QueryResult.NodeInformation.GlobalInformation.RunningTime.QuadPart;
+            systemRunningTime += queryStatistics.QueryResult.NodeInformation.SystemInformation.RunningTime.QuadPart;
+        }
+    }
+
+    NtQueryPerformanceCounter(&performanceCounter, &EtClockTotalRunningTimeFrequency);
+
+    PhUpdateDelta(&EtClockTotalRunningTimeDelta, performanceCounter.QuadPart);
+    PhUpdateDelta(&EtGpuTotalRunningTimeDelta, totalRunningTime);
+    PhUpdateDelta(&EtGpuSystemRunningTimeDelta, systemRunningTime);
 }
