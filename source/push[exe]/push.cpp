@@ -1,6 +1,4 @@
-#include <sltypes.h>
-#include <slnt.h>
-#include <slntuapi.h>
+#include <sl.h>
 #include <slgui.h>
 #include <pushbase.h>
 #include <stdlib.h>
@@ -704,90 +702,11 @@ DWORD __stdcall MonitorThread( VOID* Parameter )
 }
 
 
-
-
-#define OBJ_OPENIF   0x00000080L
-#define SEC_COMMIT   0x8000000
-
 #define DIRECTORY_ALL_ACCESS   (STANDARD_RIGHTS_REQUIRED | 0xF)
 #define WRITE_DAC   0x00040000L
 
 #define WRITE_OWNER   0x00080000L
 
-
-extern "C" LONG __stdcall NtOpenDirectoryObject   (   VOID**  FileHandle,
-        DWORD   DesiredAccess,
-        OBJECT_ATTRIBUTES*  ObjectAttributes
-        );
-VOID* BaseNamedObjectDirectory = NULL;
-#define DIRECTORY_QUERY   0x0001
-#define DIRECTORY_TRAVERSE   0x0002
-#define DIRECTORY_CREATE_OBJECT   0x0004
-#define DIRECTORY_CREATE_SUBDIRECTORY   0x0008
-
-
-VOID*
-PushBaseGetNamedObjectDirectory()
-{
-    OBJECT_ATTRIBUTES objAttrib;
-    UNICODE_STRING bnoString;
-    LONG Status;
-    UINT32 sessionId;
-    WCHAR baseNamedObjectDirectoryName[29];
-
-    sessionId = NtCurrentTeb()->ProcessEnvironmentBlock->SessionId;
-
-    swprintf(
-        baseNamedObjectDirectoryName,
-        29,
-        L"\\Sessions\\%u\\BaseNamedObjects",
-        sessionId
-        );
-
-    SlInitUnicodeString(&bnoString, baseNamedObjectDirectoryName);
-
-    if ( !BaseNamedObjectDirectory )
-    {
-
-        objAttrib.Length = sizeof(OBJECT_ATTRIBUTES);
-        objAttrib.RootDirectory = NULL;
-        objAttrib.Attributes = OBJ_CASE_INSENSITIVE;
-        objAttrib.ObjectName = &bnoString;
-        objAttrib.SecurityDescriptor = NULL;
-        objAttrib.SecurityQualityOfService = NULL;
-
-        Status = NtOpenDirectoryObject(
-            &BaseNamedObjectDirectory,
-            DIRECTORY_CREATE_OBJECT |
-            DIRECTORY_CREATE_SUBDIRECTORY |
-            DIRECTORY_QUERY |
-            DIRECTORY_TRAVERSE,
-            &objAttrib
-            );
-    }
-
-    return BaseNamedObjectDirectory;
-}
-
-
-typedef enum _SECTION_INHERIT
-{
-    ViewShare = 1,
-    ViewUnmap = 2
-} SECTION_INHERIT;
-
-extern "C" LONG __stdcall NtMapViewOfSection(
-    VOID* SectionHandle,
-    VOID* ProcessHandle,
-    VOID** BaseAddress,
-    UINT_B ZeroBits,
-    UINT_B CommitSize,
-    LARGE_INTEGER* SectionOffset,
-    UINT_B* ViewSize,
-    SECTION_INHERIT InheritDisposition,
-    ULONG AllocationType,
-    ULONG Win32Protect
-    );
 
 extern "C" 
 {
@@ -878,25 +797,23 @@ ExtractResource( WCHAR* ResourceName, WCHAR* OutputPath )
 }
 
 
-INT32
-__stdcall
-WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, INT32 iCmdShow )
+INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, INT32 iCmdShow )
 {
     VOID *sectionHandle = INVALID_HANDLE_VALUE, *hMutex;
     MSG messages;
     BOOLEAN bAlreadyRunning;
-    LONG status;
+    //LONG status;
     OBJECT_ATTRIBUTES objAttrib = {0};
-    UNICODE_STRING sectionName;
-    LARGE_INTEGER sectionSize, sectionOffset;
+    //UNICODE_STRING sectionName;
+    //LARGE_INTEGER sectionSize, sectionOffset;
 
-    #if DEBUG
+    /*#if DEBUG
     AllocConsole();
 
     freopen("CONIN$", "r", stdin);
     freopen("CONOUT$", "w", stdout);
     freopen("CONOUT$", "w", stderr);
-    #endif
+    #endif*/
 
     // Check if already running
     hMutex = CreateMutexW(0, FALSE, L"PushOneInstance");
@@ -933,7 +850,7 @@ WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, INT32 iCmdShow )
     // Create interface
     MwCreateMainWindow();
 
-    SlInitUnicodeString(&sectionName, PUSH_SECTION_NAME);
+    /*SlInitUnicodeString(&sectionName, PUSH_SECTION_NAME);
 
     objAttrib.Length = sizeof(OBJECT_ATTRIBUTES);
     objAttrib.RootDirectory = PushBaseGetNamedObjectDirectory();
@@ -968,7 +885,13 @@ WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, INT32 iCmdShow )
         ViewShare,
         0,
         PAGE_READWRITE
-        );
+        );*/
+
+	//Create file mapping
+	PushSharedMemory = (PUSH_SHARED_MEMORY*) SlCreateFileMapping(
+		PUSH_SECTION_NAME, 
+		sizeof(PUSH_SHARED_MEMORY)
+		);
 
     //zero struct
     memset(PushSharedMemory, 0, sizeof(PUSH_SHARED_MEMORY));
@@ -993,14 +916,7 @@ WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, INT32 iCmdShow )
 
     //start timer
     SetTimer(PushMainWindow->Handle, 0, 1000, 0);
-
-    // Copy important dlls to system32
-    //VerifyLib(L"d3dx9_43.dll");
-    //VerifyLib(L"d3dx10_43.dll");
-    //VerifyLib(L"d3dx11_43.dll");
-    //VerifyLib(L"D3DCompiler_43.dll");
     
-
     /*Activate process monitoring*/
     NtSuspendProcess = (TYPE_NtSuspendProcess) GetProcAddress(
                                                 GetModuleHandleW(L"ntdll.dll"),
