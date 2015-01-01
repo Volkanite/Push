@@ -459,22 +459,6 @@ closeandreturn:
 }
 
 
-/*VOID
-OnThreadEvent( THREAD_CALLBACK_INFO* threadInfo )
-{
-    if (PushSharedMemory->GameProcessID == threadInfo->threadOwner)
-    {
-        g_ThreadListLock = TRUE;
-
-        DestroyThreadList();
-
-        InitThreadMonitor( threadInfo->threadOwner );
-
-        g_ThreadListLock = FALSE;
-    }
-}*/
-
-
 VOID
 Inject( VOID *hProcess )
 {
@@ -636,56 +620,6 @@ RetrieveProcessEvent()
     //CloseHandle(ov.hEvent);
     NtClose(ov.hEvent);
 }
-
-
-//VOID
-//RetrieveThreadEvent()
-//{
-//    OVERLAPPED          ov          = { 0 };
-//    //BOOLEAN                bReturnCode = FALSE;
-//    UINT32              iBytesReturned;
-//    THREAD_CALLBACK_INFO threadInfo;
-//
-//
-//    // Create an event handle for async notification from the driver
-//
-//    ov.hEvent = CreateEventW(
-//        NULL,  // Default security
-//        TRUE,  // Manual reset
-//        FALSE, // non-signaled state
-//        NULL
-//        );
-//    //
-//    // Get the process info
-//    //
-//    /*bReturnCode = DeviceIoControl(
-//        PushDriverHandle,
-//        IOCTL_PUSH_GET_THREAD_INFO,
-//        0,
-//        0,
-//        &threadInfo, sizeof(THREAD_CALLBACK_INFO),
-//        &iBytesReturned,
-//        &ov
-//        );*/
-//
-//    PushGetThreadInfo(&threadInfo);
-//
-//    //
-//    // Wait here for the event handle to be set, indicating
-//    // that the IOCTL processing is completed.
-//    //
-//    GetOverlappedResult(
-//        R0DriverHandle,
-//        &ov,
-//        &iBytesReturned,
-//        TRUE
-//        );
-//
-//    OnThreadEvent(&threadInfo);
-//
-//    //CloseHandle(ov.hEvent);
-//    NtClose(ov.hEvent);
-//}
 
 
 VOID
@@ -866,6 +800,94 @@ extern "C" LONG __stdcall NtMapViewOfSection(
     ULONG Win32Protect
     );
 
+extern "C" 
+{
+
+HANDLE __stdcall FindResourceW(
+  HANDLE hModule,
+  WCHAR* lpName,
+  WCHAR* lpType
+);
+
+
+HANDLE __stdcall LoadResource(
+  HANDLE hModule,
+  HANDLE hResInfo
+);
+
+
+VOID* __stdcall LockResource(
+  HANDLE hResData
+);
+
+
+DWORD __stdcall SizeofResource(
+  HANDLE hModule,
+  HANDLE hResInfo
+);
+
+}
+
+
+BOOLEAN 
+ExtractResource( WCHAR* ResourceName, WCHAR* OutputPath )
+{
+    NTSTATUS status;
+    HANDLE fileHandle;
+    IO_STATUS_BLOCK isb;
+
+    HANDLE hResInfo = reinterpret_cast<HANDLE>(
+        ::FindResourceW(
+            NULL,
+            ResourceName,
+            ResourceName
+        )
+    );
+
+    if(!hResInfo) return false;
+
+    HANDLE hResData = ::LoadResource(NULL, hResInfo);
+
+    if(!hResData) return false;
+
+    VOID* pDeskbandBinData = ::LockResource(hResData);
+
+    if(!pDeskbandBinData) return false;
+
+    const DWORD dwDeskbandBinSize = ::SizeofResource(NULL, hResInfo);
+
+    if(!dwDeskbandBinSize) return false;
+
+    status = SlFileCreate(
+        &fileHandle,
+        OutputPath, 
+        FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE,
+        FILE_SHARE_READ | FILE_SHARE_WRITE,
+        FILE_OVERWRITE_IF,
+        FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
+        );
+
+    if (!NT_SUCCESS(status)) return false;
+
+    status = NtWriteFile(
+        fileHandle, 
+        NULL, 
+        NULL, 
+        NULL, 
+        &isb, 
+        pDeskbandBinData, 
+        dwDeskbandBinSize, 
+        NULL, 
+        NULL
+        );
+
+    if (!NT_SUCCESS(status)) return false;
+
+    NtClose(fileHandle);
+
+    return true;
+}
+
 
 INT32
 __stdcall
@@ -874,14 +896,7 @@ WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, INT32 iCmdShow )
     VOID *sectionHandle = INVALID_HANDLE_VALUE, *hMutex;
     MSG messages;
     BOOLEAN bAlreadyRunning;
-
-
-
-
-
-
     LONG status;
-
     OBJECT_ATTRIBUTES objAttrib = {0};
     UNICODE_STRING sectionName;
     LARGE_INTEGER sectionSize, sectionOffset;
@@ -909,6 +924,10 @@ WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, INT32 iCmdShow )
 
     thisPID = (UINT32) NtCurrentTeb()->ClientId.UniqueProcess;
     PushHeapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
+
+    //Extract necessary files
+    ExtractResource(L"OVERLAY", L"overlay.dll");
+    ExtractResource(L"DRIVER", L"push0.sys");
 
     // Start Driver
     R0DriverHandle = SlLoadDriver(
@@ -988,9 +1007,10 @@ WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, INT32 iCmdShow )
 
     // Copy important dlls to system32
     //VerifyLib(L"d3dx9_43.dll");
-    VerifyLib(L"d3dx10_43.dll");
-    VerifyLib(L"d3dx11_43.dll");
-    VerifyLib(L"D3DCompiler_43.dll");
+    //VerifyLib(L"d3dx10_43.dll");
+    //VerifyLib(L"d3dx11_43.dll");
+    //VerifyLib(L"D3DCompiler_43.dll");
+    
 
     /*Activate process monitoring*/
     NtSuspendProcess = (TYPE_NtSuspendProcess) GetProcAddress(
@@ -1007,8 +1027,15 @@ WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, INT32 iCmdShow )
 
     g_szPrevGame[5] = '\0';
 
-    //g_hThread = CreateThread(0,0, &MonitorThread, 0,0,0);
-    PushMonitorThreadHandle = CreateRemoteThread(NtCurrentProcess(), 0, 0, &MonitorThread, NULL, 0, NULL);
+    PushMonitorThreadHandle = CreateRemoteThread(
+        NtCurrentProcess(), 
+        0, 
+        0, 
+        &MonitorThread, 
+        NULL, 
+        0, 
+        NULL
+        );
 
 
     // Handle messages

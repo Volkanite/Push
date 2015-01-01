@@ -74,7 +74,7 @@
     <None Include="push.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="icon.rc" />
+    <ResourceCompile Include="push.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{35E23888-EDF5-4CC4-8C93-CC138F34E25E}</ProjectGuid>
