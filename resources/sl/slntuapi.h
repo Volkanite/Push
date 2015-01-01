@@ -961,6 +961,11 @@ NTSTATUS __stdcall NtCreateSection(
     ULONG AllocationAttributes,
     VOID* FileHandle
     );
+    
+    
+void __stdcall OutputDebugStringW(
+    WCHAR* lpOutputString
+);
 
 #ifdef __cplusplus
 }

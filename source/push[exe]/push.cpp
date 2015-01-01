@@ -802,18 +802,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     VOID *sectionHandle = INVALID_HANDLE_VALUE, *hMutex;
     MSG messages;
     BOOLEAN bAlreadyRunning;
-    //LONG status;
     OBJECT_ATTRIBUTES objAttrib = {0};
-    //UNICODE_STRING sectionName;
-    //LARGE_INTEGER sectionSize, sectionOffset;
-
-    /*#if DEBUG
-    AllocConsole();
-
-    freopen("CONIN$", "r", stdin);
-    freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);
-    #endif*/
 
     // Check if already running
     hMutex = CreateMutexW(0, FALSE, L"PushOneInstance");
@@ -850,48 +839,20 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     // Create interface
     MwCreateMainWindow();
 
-    /*SlInitUnicodeString(&sectionName, PUSH_SECTION_NAME);
+    //Create file mapping.
 
-    objAttrib.Length = sizeof(OBJECT_ATTRIBUTES);
-    objAttrib.RootDirectory = PushBaseGetNamedObjectDirectory();
-    objAttrib.Attributes = OBJ_OPENIF;
-    objAttrib.ObjectName = &sectionName;
-    objAttrib.SecurityDescriptor = NULL;
-    objAttrib.SecurityQualityOfService = NULL;
+    PushSharedMemory = NULL;
 
-    sectionSize.u.LowPart = sizeof(PUSH_SHARED_MEMORY);
-    sectionSize.u.HighPart = 0;
-
-    status = NtCreateSection(
-        &sectionHandle,
-        STANDARD_RIGHTS_REQUIRED |SECTION_MAP_READ | SECTION_MAP_WRITE | SECTION_QUERY,
-        &objAttrib,
-        &sectionSize,
-        PAGE_READWRITE,
-        SEC_COMMIT,
-        NULL
+    PushSharedMemory = (PUSH_SHARED_MEMORY*) SlCreateFileMapping(
+        PUSH_SECTION_NAME, 
+        sizeof(PUSH_SHARED_MEMORY)
         );
 
-    sectionOffset.QuadPart = 0;
-
-    NtMapViewOfSection(
-        sectionHandle,
-        NtCurrentProcess(),
-        (VOID**) &PushSharedMemory,
-        0,
-        0,
-        &sectionOffset,
-        &sectionSize.u.LowPart,
-        ViewShare,
-        0,
-        PAGE_READWRITE
-        );*/
-
-	//Create file mapping
-	PushSharedMemory = (PUSH_SHARED_MEMORY*) SlCreateFileMapping(
-		PUSH_SECTION_NAME, 
-		sizeof(PUSH_SHARED_MEMORY)
-		);
+    if (!PushSharedMemory)
+    {
+        OutputDebugStringW(L"Could not create shared memory");
+        return 0;
+    }
 
     //zero struct
     memset(PushSharedMemory, 0, sizeof(PUSH_SHARED_MEMORY));
@@ -951,6 +912,8 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 
         DispatchMessageW(&messages);
     }
+
+    return 0;
 }
 
 
