@@ -72,14 +72,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>D:\Code\OvRender\resources\Effects11\Inc;D:\Code\OvRender\resources\d3d8;$(DXSDK_DIR)Include;D:\Code\sl;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3d8;$(SolutionDir)resources\sl;$(DXSDK_DIR)Include;$(ProjectDir);$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
-    <LibraryPath>D:\Code\OvRender\Release;$(DXSDK_DIR)Lib\x86;D:\Code\sl\lib\i386;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Release;$(DXSDK_DIR)Lib\x86;$(SolutionDir)resources\sl\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>D:\Code\OvRender\resources\Effects11\Inc;D:\Code\OvRender\resources\d3d8;$(DXSDK_DIR)Include;D:\Code\sl;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3d8;$(SolutionDir)resources\sl;$(DXSDK_DIR)Include;$(ProjectDir);$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
-    <LibraryPath>D:\Code\OvRender\Release;$(DXSDK_DIR)Lib\x86;D:\Code\sl\lib\i386;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Release;$(DXSDK_DIR)Lib\x86;$(SolutionDir)resources\sl\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

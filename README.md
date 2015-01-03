@@ -25,6 +25,11 @@ Example
             
         return TRUE;
     }
+    
+Requirements
+------------
+
+DirectX SDK (June 2010)
 
 Credits
 -------
