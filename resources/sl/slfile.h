@@ -1,41 +1,9 @@
-#ifdef __cplusplus
-class SlFileManager{
-public:
-    VOID CopyFile();
-    VOID* CreateFile( WCHAR* FileName );
-	VOID CreateShortcut();
-    VOID CreateSymbolicLink();
-    VOID CompareSymbolicLink();
-    VOID DeleteFile();
-    VOID DeleteDirectory();
-    VOID EnumDirectory();
-    BOOLEAN FileExists();
-    BOOLEAN FolderExists();
-    VOID GetFileAttributes();
-    VOID GetFileIndex();
-    VOID GetFileSize( WCHAR* FileName );
-    VOID GetFileSize( VOID* FileHandle );
-	VOID GetLogicalCluster();
-	VOID GetLogicalClusters();
-	VOID GetNumberOfFragments();
-	VOID GetPhysicalSector();
-	VOID GetPhysicalSectors();
-	VOID* OpenFile( WCHAR* FileName );
-    VOID RenameFile();
-};
+typedef VOID (*TYPE_FsProgessRoutine)(
+    UINT64 TotalFileSize,
+    UINT64 TotalBytesTransferred
+    );
+    
 
-class SlFile
-{
-    VOID* FileHandle;
-public:
-    SlFile( WCHAR* FileName );
-    ~SlFile();
-
-    VOID Read();
-    VOID Write( VOID* Buffer, ULONG Length );
-    VOID Write( WCHAR* String );
-};
-#endif
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -51,6 +19,26 @@ NTSTATUS SlFileCreate(
 BOOLEAN SlFileExists( 
     WCHAR *fname 
     );
+    
+    
+/**
+* Copies an existing file to a new file.
+*
+* \param SourceFileName The Win32 file name of source file.
+* \param DestinationFileName The Win32 file name for the new
+* file.
+* \param ProgressRoutine The address of a callback function of
+* type TYPE_FsProgessRoutine that is called each time another
+* portion of the file has been copied. This parameter can be
+* NULL if no progress routine is required.
+*/
+
+VOID SlFileCopy(
+    WCHAR* SourceFileName,
+    WCHAR* DestinationFileName,
+    TYPE_FsProgessRoutine ProgressRoutine
+    );
+    
 #ifdef __cplusplus
 }
 #endif

@@ -10,11 +10,6 @@
 #include "batch.h"
 
 
-//WCHAR *BfBatchFile;
-//UINT64 BfBatchSize;
-//FILE_LIST* BfFileList;
-
-
 extern "C"
 WCHAR*
 memchrW(const WCHAR *ptr, WCHAR ch, UINT_B n);
@@ -59,7 +54,7 @@ GetBatchFile(
 
 BfBatchFile::BfBatchFile( WCHAR* Game )
 {
-    VOID *fileHandle = NULL;
+    VOID *fileHandle;
     NTSTATUS status;
     IO_STATUS_BLOCK isb;
     FILE_STANDARD_INFORMATION fileInformation;
@@ -70,7 +65,6 @@ BfBatchFile::BfBatchFile( WCHAR* Game )
     WCHAR line[260];
     UINT16 lineLength;
     WCHAR batchFile[260];
-    SlFileManager fileManager;
 
     FileList = NULL;
 
@@ -88,9 +82,16 @@ BfBatchFile::BfBatchFile( WCHAR* Game )
     wcscpy(BatchFileName, batchFile);
 
     // Open batch file with files to cache
-    fileHandle = fileManager.OpenFile(batchFile);
+    status = SlFileCreate(
+                &fileHandle,
+                batchFile,
+                SYNCHRONIZE | FILE_READ_ATTRIBUTES | GENERIC_READ,
+                FILE_SHARE_READ,
+                FILE_OPEN,
+                FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
+                );
 
-    if (!fileHandle)
+    if (!NT_SUCCESS(status))
         // Probably file doesn't exist?
         return;
 
@@ -122,7 +123,7 @@ BfBatchFile::BfBatchFile( WCHAR* Game )
                 );
 
     // We got what we need, the file handle is no longer needed.
-    NtClose(fileHandle);// FIXME
+    NtClose(fileHandle);
 
     // Start our reads after the UTF16-LE character marker
     bufferOffset = (WCHAR*) buffer + 1;
@@ -239,27 +240,69 @@ BfBatchFile::GetBatchSize()
 VOID
 BfBatchFile::SaveBatchFile()
 {
-    SlFile batchFile(BatchFileName);
+    VOID *fileHandle;
+    IO_STATUS_BLOCK isb;
     FILE_LIST_ENTRY *file;
     WCHAR marker = 0xFEFF;
     WCHAR end[] = L"\r\n";
 
+    SlFileCreate(
+        &fileHandle,
+        BatchFileName,
+        SYNCHRONIZE | FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE,
+        FILE_SHARE_READ | FILE_SHARE_WRITE,
+        FILE_OVERWRITE_IF,
+        FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
+        );
+
     file = (FILE_LIST_ENTRY*) FileList;
 
     // Write character marker
-    batchFile.Write(&marker, sizeof(marker));
+    NtWriteFile(
+        fileHandle,
+        NULL,
+        NULL,
+        NULL,
+        &isb,
+        &marker,
+        sizeof(marker),
+        NULL,
+        NULL
+        );
 
     // Write all batch items to file
     while (file != 0)
     {
         // Write a single item to batch file
-        batchFile.Write(file->Name);
+        NtWriteFile(
+            fileHandle,
+            NULL,
+            NULL,
+            NULL,
+            &isb,
+            file->Name,
+            SlStringGetLength(file->Name) * sizeof(WCHAR),
+            NULL,
+            NULL
+            );
 
         // Write new line
-        batchFile.Write(&end, 4);
+        NtWriteFile(
+            fileHandle,
+            NULL,
+            NULL,
+            NULL,
+            &isb,
+            &end,
+            4,
+            NULL,
+            NULL
+            );
 
         file = file->NextEntry;
     }
+
+    NtClose(fileHandle);
 }
 
 

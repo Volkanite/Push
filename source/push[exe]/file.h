@@ -20,11 +20,6 @@ typedef VOID (*FS_ENUM_DIRECTORY)(
     FILE_DIRECTORY_INFORMATION* Information
     );
 
-typedef VOID (*TYPE_FsProgessRoutine)(
-    UINT64 TotalFileSize,
-    UINT64 TotalBytesTransferred
-    );
-
 VOID FailSafe( WCHAR *pszGame );
 
 VOID MarkForCache( WCHAR *pszFilePath );
@@ -73,24 +68,6 @@ NTSTATUS FsEnumDirectory(
 VOID FsRenameFile(
     WCHAR* FilePath,
     WCHAR* NewFileName
-    );
-
-
-/**
-* Copies an existing file to a new file.
-*
-* \param SourceFileName The Win32 file name of source file.
-* \param DestinationFileName The Win32 file name for the new
-* file.
-* \param ProgressRoutine The address of a callback function of
-* type TYPE_FsProgessRoutine that is called each time another
-* portion of the file has been copied. This parameter can be
-* NULL if no progress routine is required.
-*/
-VOID FsFileCopy(
-    WCHAR* SourceFileName,
-    WCHAR* DestinationFileName,
-    TYPE_FsProgessRoutine ProgressRoutine
     );
 
 

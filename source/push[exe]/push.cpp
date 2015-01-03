@@ -135,7 +135,7 @@ CacheFile( WCHAR *FileName, CHAR cMountPoint )
 
     wcscat(destination, pszFileName);
 
-    FsFileCopy(FileName, destination, CopyProgress);
+    SlFileCopy(FileName, destination, CopyProgress);
 
     wcscpy(dosName, FileName);
 
@@ -917,7 +917,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 }
 
 
-VOID
+/*VOID
 VerifyLib( WCHAR *libName )
 {
     WCHAR libPath[260] = L"C:\\Windows\\SysWOW64\\";
@@ -929,18 +929,9 @@ VerifyLib( WCHAR *libName )
     {
         wcscat(fileName, libName);
 
-        /*CopyFileExW(
-            fileName,
-            libPath,
-            NULL,
-            NULL,
-            NULL,
-            COPY_FILE_FAIL_IF_EXISTS
-            );*/
-
-        FsFileCopy(fileName, libPath, NULL);
+        SlFileCopy(fileName, libPath, NULL);
     }
-}
+}*/
 
 
 WCHAR*
