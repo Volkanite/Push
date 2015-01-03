@@ -797,12 +797,73 @@ ExtractResource( WCHAR* ResourceName, WCHAR* OutputPath )
 }
 
 
+#define MB_ICONQUESTION 0x00000020L
+#define MB_YESNO        0x00000004L
+
+#define IDYES 6
+
+#define STARTF_USESHOWWINDOW    0x00000001
+#define SW_SHOWMINIMIZED    2
+
+
+typedef struct _STARTUPINFOW {
+    DWORD   cb;
+    WCHAR*  lpReserved;
+    WCHAR*  lpDesktop;
+    WCHAR*  lpTitle;
+    DWORD   dwX;
+    DWORD   dwY;
+    DWORD   dwXSize;
+    DWORD   dwYSize;
+    DWORD   dwXCountChars;
+    DWORD   dwYCountChars;
+    DWORD   dwFillAttribute;
+    DWORD   dwFlags;
+    WORD    wShowWindow;
+    WORD    cbReserved2;
+    BYTE*   lpReserved2;
+    HANDLE  hStdInput;
+    HANDLE  hStdOutput;
+    HANDLE  hStdError;
+} STARTUPINFO, *LPSTARTUPINFOW;
+
+typedef struct _PROCESS_INFORMATION {
+    HANDLE hProcess;
+    HANDLE hThread;
+    DWORD dwProcessId;
+    DWORD dwThreadId;
+} PROCESS_INFORMATION, *PPROCESS_INFORMATION, *LPPROCESS_INFORMATION;
+
+
+extern "C" {
+
+INTBOOL __stdcall Wow64DisableWow64FsRedirection (
+    VOID **OldValue
+    );
+
+INTBOOL __stdcall CreateProcessW(
+    WCHAR* lpApplicationName,
+    WCHAR* lpCommandLine,
+    SECURITY_ATTRIBUTES* lpProcessAttributes,
+    SECURITY_ATTRIBUTES* lpThreadAttributes,
+    INTBOOL bInheritHandles,
+    DWORD dwCreationFlags,
+    VOID* lpEnvironment,
+    WCHAR* lpCurrentDirectory,
+    LPSTARTUPINFOW lpStartupInfo,
+    LPPROCESS_INFORMATION lpProcessInformation
+    );
+
+}
+
+
 INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, INT32 iCmdShow )
 {
     VOID *sectionHandle = INVALID_HANDLE_VALUE, *hMutex;
     MSG messages;
     BOOLEAN bAlreadyRunning;
     OBJECT_ATTRIBUTES objAttrib = {0};
+    INT32 msgId;
 
     // Check if already running
     hMutex = CreateMutexW(0, FALSE, L"PushOneInstance");
@@ -832,6 +893,49 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
                         L"\\\\.\\Push",
                         TRUE
                         );
+
+    if (!R0DriverHandle)
+    {
+        //prompt user to enable test-signing.
+        msgId = MessageBoxW(
+            NULL, 
+            L"The driver failed to load because it isn't signed. "
+            L"It is required for Push to work correctly. "
+            L"Do you want to enable test-signing to be able to use driver functions?",
+            L"Driver Signing",
+            MB_ICONQUESTION | MB_YESNO
+            );
+
+        if (msgId == IDYES)
+        {
+            STARTUPINFO startupInfo = {0};
+            PROCESS_INFORMATION processInfo = {0};
+            BOOLEAN status;
+            DWORD error = NULL;
+            VOID* oldValue = NULL;
+
+            Wow64DisableWow64FsRedirection(&oldValue);
+
+            startupInfo.cb = sizeof(startupInfo);
+            startupInfo.dwFlags = STARTF_USESHOWWINDOW;
+            startupInfo.wShowWindow = SW_SHOWMINIMIZED;
+
+            status = CreateProcessW(
+                L"C:\\Windows\\System32\\bcdedit.exe", 
+                L"\"C:\\Windows\\System32\\bcdedit.exe\" /set TESTSIGNING ON",
+                NULL, 
+                NULL, 
+                FALSE,
+                NULL, 
+                NULL, 
+                L"C:\\Windows\\System32", 
+                &startupInfo, 
+                &processInfo
+                );
+
+            MessageBoxW(NULL, L"Restart your computer to load driver", L"Restart required", NULL);
+        }
+    }
 
     //initialize instance
     PushInstance = Instance;
@@ -915,23 +1019,6 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 
     return 0;
 }
-
-
-/*VOID
-VerifyLib( WCHAR *libName )
-{
-    WCHAR libPath[260] = L"C:\\Windows\\SysWOW64\\";
-    WCHAR fileName[260] = L"lib.3rd\\";
-
-    wcscat(libPath, libName);
-
-    if (!SlFileExists(libPath))
-    {
-        wcscat(fileName, libName);
-
-        SlFileCopy(fileName, libPath, NULL);
-    }
-}*/
 
 
 WCHAR*
