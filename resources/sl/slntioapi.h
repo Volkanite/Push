@@ -1,6 +1,7 @@
 // Create disposition
 
 #define FILE_OPEN           0x00000001
+#define FILE_CREATE         0x00000002
 #define FILE_OPEN_IF        0x00000003
 #define FILE_OVERWRITE_IF   0x00000005
 
