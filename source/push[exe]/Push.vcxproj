@@ -46,9 +46,7 @@
     <ClInclude Include="GUI\copy.h" />
     <ClInclude Include="GUI\gui.h" />
     <ClInclude Include="GUI\main.h" />
-    <ClInclude Include="hardware\ati\radeon.h" />
     <ClInclude Include="hardware\cpu\intel.h" />
-    <ClInclude Include="Hardware\d3dkmt.h" />
     <ClInclude Include="Hardware\disk.h" />
     <ClInclude Include="Hardware\GPU\AmdGpu.h" />
     <ClInclude Include="hardware\gpu\d3dkmt.h" />
@@ -57,14 +55,6 @@
     <ClInclude Include="Hardware\GPU\IntelGpu.h" />
     <ClInclude Include="Hardware\GPU\NvidiaGpu.h" />
     <ClInclude Include="hardware\hwinfo.h" />
-    <ClInclude Include="Hardware\Intel\intel.h" />
-    <ClInclude Include="Hardware\Nvidia\geforce.h" />
-    <ClInclude Include="hwinfo\d3dkmt.h" />
-    <ClInclude Include="hwinfo\disk.h" />
-    <ClInclude Include="HWinfo\GeForce\geforce.h" />
-    <ClInclude Include="HWinfo\hwinfo.h" />
-    <ClInclude Include="HWinfo\Intel\intel.h" />
-    <ClInclude Include="HWinfo\Radeon\radeon.h" />
     <ClInclude Include="ini.h" />
     <ClInclude Include="push.h" />
     <ClInclude Include="RAMdisk\ramdisk.h" />

@@ -72,28 +72,10 @@
     <ClInclude Include="ini.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HWinfo\hwinfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HWinfo\Radeon\radeon.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HWinfo\GeForce\geforce.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HWinfo\Intel\intel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="RAMdisk\ramdisk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="file.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="hwinfo\disk.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="hwinfo\d3dkmt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="batch.h">
@@ -112,18 +94,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="hardware\hwinfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="hardware\ati\radeon.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Hardware\Intel\intel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Hardware\Nvidia\geforce.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Hardware\d3dkmt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Hardware\disk.h">
