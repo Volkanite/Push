@@ -71,6 +71,9 @@ ProcessOptions()
     if (MnuOsd[4].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_GPU_M_CLK;
 
+    if (MnuOsd[7].Var > 0)
+        PushSharedMemory->OSDFlags |= OSD_CPU_TEMP;
+        
     if (MnuOsd[9].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_MCU;
 
