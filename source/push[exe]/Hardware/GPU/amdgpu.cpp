@@ -14,29 +14,17 @@
 SlAdl RdnAdl;
 
 
-/*extern "C"
-UINT8
-GetRadeonTemp()
-{
-    UINT32 temp;
-
-    temp = ReadGpuRegister(0x730);
-
-    //printf("Tremp %x\n", temp);
-
-    return temp;
-}*/
-
-
 extern "C"
 UINT16
 GetRadeonMemorySize()
 {
-    return ReadGpuRegister(R6XX_CONFIG_MEMSIZE);
+    return ReadGpuRegister(
+        R6XX_CONFIG_MEMSIZE
+        );
 }
 
 
-extern "C"
+/*extern "C"
 UINT16
 RdnGetEngineClock()
 {
@@ -49,7 +37,7 @@ UINT16
 RdnGetMemoryClock()
 {
     return RdnAdl.GetMemoryClock();
-}
+}*/
 
 
 extern "C"
@@ -79,14 +67,14 @@ RdnSetMaxClocks()
 UINT16 
 AmdGpu::GetEngineClock()
 {
-    return 0;
+    return RdnAdl.GetEngineClock();
 }
 
 
 UINT16 
 AmdGpu::GetMemoryClock()
 {
-    return 0;
+    return RdnAdl.GetMemoryClock();
 }
 
 
