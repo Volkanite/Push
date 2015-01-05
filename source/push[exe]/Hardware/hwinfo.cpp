@@ -316,13 +316,11 @@ DWORD GetGpuAddress()
 
                 pciAddress = PciBusDevFunc(bus, dev, func);
 
-                if (!R0ReadPciConfig(pciAddress, 0, (BYTE *)conf, sizeof(conf)))
-                    return NULL;
+                R0ReadPciConfig(pciAddress, 0, (BYTE *)conf, sizeof(conf));
 
                 if(func == 0) // Is Multi Function Device
                 {
-                    if (!R0ReadPciConfig(pciAddress, 0x0E, (BYTE *)&type, sizeof(type)))
-                        return NULL;
+                    R0ReadPciConfig(pciAddress, 0x0E, (BYTE *)&type, sizeof(type));
 
                     if(type & 0x80)
                     {
