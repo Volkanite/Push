@@ -238,11 +238,8 @@ typedef struct _PUSH_SHARED_MEMORY
     UCHAR           FrameLimit;
     UCHAR           ForceVsync;
     UCHAR           DisableRepeatKeys;
-    //unsigned short  GameProcessID;
-    //UCHAR           ThreadMonitorOSD;
-    //UCHAR           MaxCoreUsage;
+    UCHAR           KeepFps;
     UCHAR           GameUsesRamDisk;
-    //unsigned long long maxThreadCycleTime;
     long long       performanceFrequency;
     VOID*           WindowHandle;
     BOOLEAN         ThreadOptimization;

@@ -970,11 +970,10 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
         PushSharedMemory->FrameLimit = TRUE;
 
     if (IniReadBoolean(L"Settings", L"ThreadOptimization", FALSE))
-        //g_ThreadOptimization = TRUE;
         PushSharedMemory->ThreadOptimization = TRUE;
 
-    /*if (IniReadBoolean(L"Settings", L"OSDMTU", TRUE))
-        PushSharedMemory->OSDFlags = PushSharedMemory->OSDFlags | OSD_MTU;*/
+    if (IniReadBoolean(L"Settings", L"KeepFps", FALSE))
+        PushSharedMemory->KeepFps = TRUE;
 
     //initialize HWInfo
     GetHardwareInfo();
