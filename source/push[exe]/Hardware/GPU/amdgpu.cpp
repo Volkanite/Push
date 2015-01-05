@@ -28,7 +28,7 @@ GetRadeonTemp()
 }
 
 
-extern "C"
+/*extern "C"
 UINT8
 GetRadeonUsage()
 {
@@ -54,7 +54,7 @@ GetRadeonUsage()
     f1 = f1 / (float) reg6do;
 
     return f1;
-}
+}*/
 
 
 extern "C"
@@ -108,56 +108,73 @@ RdnSetMaxClocks()
 UINT16 
 AmdGpu::GetEngineClock()
 {
-	return 0;
+    return 0;
 }
 
 
 UINT16 
 AmdGpu::GetMemoryClock()
 {
-	return 0;
+    return 0;
 }
 
 
 UINT64 
 AmdGpu::GetTotalMemory()
 {
-	return 0;
+    return 0;
 }
 
 
 UINT64 
 AmdGpu::GetFreeMemory()
 {
-	return 0;
+    return 0;
 }
 
 
 UINT8 
 AmdGpu::GetTemperature()
 {
-	return 0;
+    return 0;
 }
 
 
 UINT8 
 AmdGpu::GetLoad()
 {
-	return 0;
+    DWORD usage, reg6do;
+    FLOAT f1;
+
+    usage = ReadGpuRegister(0x668);
+
+    reg6do = ReadGpuRegister(0x6D0);
+
+    reg6do = (reg6do & 0x0000ffff);
+
+    usage = (usage & 0x0000ffff);
+
+    f1 = usage;
+
+    f1 = f1 * 200.0f;
+
+    f1 = f1 / (float) reg6do;
+
+    return f1;
 }
 
 
 UINT16 
 AmdGpu::GetMaximumEngineClock()
 {
-	return 0;
+    return 0;
 }
 
 
 UINT16 
 AmdGpu::GetMaximumMemoryClock()
 {
-	return 0;
+    return 0;
 }
 
 
