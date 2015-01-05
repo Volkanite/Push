@@ -14,7 +14,7 @@
 SlAdl RdnAdl;
 
 
-extern "C"
+/*extern "C"
 UINT8
 GetRadeonTemp()
 {
@@ -25,35 +25,6 @@ GetRadeonTemp()
     //printf("Tremp %x\n", temp);
 
     return temp;
-}
-
-
-/*extern "C"
-UINT8
-GetRadeonUsage()
-{
-     //ADL_Usages(0, &ADLactinfo);
-
-    //return ADLactinfo.iActivityPercent;
-
-    DWORD usage, reg6do;
-    FLOAT f1;
-
-    usage = ReadGpuRegister(0x668);
-
-    reg6do = ReadGpuRegister(0x6D0);
-
-    reg6do = (reg6do & 0x0000ffff);
-
-    usage = (usage & 0x0000ffff);
-
-    f1 = usage;
-
-    f1 = f1 * 200.0f;
-
-    f1 = f1 / (float) reg6do;
-
-    return f1;
 }*/
 
 
@@ -136,7 +107,11 @@ AmdGpu::GetFreeMemory()
 UINT8 
 AmdGpu::GetTemperature()
 {
-    return 0;
+    UINT32 temp;
+
+    temp = ReadGpuRegister(0x730);
+
+    return temp;
 }
 
 
