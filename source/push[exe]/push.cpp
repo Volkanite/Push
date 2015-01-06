@@ -943,7 +943,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     // Create interface
     MwCreateMainWindow();
 
-    //Create file mapping.
+    // Create file mapping.
 
     PushSharedMemory = NULL;
 
@@ -964,16 +964,38 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     //initialize window handle used by overlay
     PushSharedMemory->WindowHandle = PushMainWindow->Handle;
 
+    if (SlFileExists(PUSH_SETTINGS_FILE))
+    {
+        WCHAR *buffer;
+        
+        // Check if file is UTF-16LE.
+        buffer = (WCHAR*) FsFileLoad(PUSH_SETTINGS_FILE, NULL);
 
-    // Init settings from ini file
-    if (IniReadBoolean(L"Settings", L"FrameLimit", FALSE))
-        PushSharedMemory->FrameLimit = TRUE;
+        if (buffer[0] == 0xFEFF)
+            //is UTF-LE. 
+        {
+            // Init settings from ini file.
 
-    if (IniReadBoolean(L"Settings", L"ThreadOptimization", FALSE))
-        PushSharedMemory->ThreadOptimization = TRUE;
+            if (IniReadBoolean(L"Settings", L"FrameLimit", FALSE))
+                PushSharedMemory->FrameLimit = TRUE;
 
-    if (IniReadBoolean(L"Settings", L"KeepFps", FALSE))
-        PushSharedMemory->KeepFps = TRUE;
+            if (IniReadBoolean(L"Settings", L"ThreadOptimization", FALSE))
+                PushSharedMemory->ThreadOptimization = TRUE;
+
+            if (IniReadBoolean(L"Settings", L"KeepFps", FALSE))
+                PushSharedMemory->KeepFps = TRUE;
+        }
+        else
+        {
+            MessageBoxW(
+                NULL, 
+                L"Settings file not UTF-16LE! "
+                L"Resave the file as \"Unicode\" or Push won't read it!",
+                L"Bad Settings file",
+                NULL
+                );
+        }
+    }
 
     //initialize HWInfo
     GetHardwareInfo();

@@ -54,10 +54,6 @@ GetBatchFile(
 
 BfBatchFile::BfBatchFile( WCHAR* Game )
 {
-    VOID *fileHandle;
-    NTSTATUS status;
-    IO_STATUS_BLOCK isb;
-    FILE_STANDARD_INFORMATION fileInformation;
     UINT64 fileSize;
     VOID *buffer, *bufferOffset;
     WCHAR *lineStart, *nextLine, *end;
@@ -73,63 +69,22 @@ BfBatchFile::BfBatchFile( WCHAR* Game )
 
     // Allocate some memory for the batchfile name
     BatchFileName = (WCHAR*) RtlAllocateHeap(
-                                PushHeapHandle,
-                                0,
-                                (SlStringGetLength(batchFile) + 1) * sizeof(WCHAR)
-                                );
+        PushHeapHandle,
+        0,
+        (SlStringGetLength(batchFile) + 1) * sizeof(WCHAR)
+        );
 
     // Save new batchfile name
     wcscpy(BatchFileName, batchFile);
 
-    // Open batch file with files to cache
-    status = SlFileCreate(
-                &fileHandle,
-                batchFile,
-                SYNCHRONIZE | FILE_READ_ATTRIBUTES | GENERIC_READ,
-                FILE_SHARE_READ,
-                FILE_OPEN,
-                FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
-                );
-
-    if (!NT_SUCCESS(status))
-        // Probably file doesn't exist?
-        return;
-
-    // Get file size
-    NtQueryInformationFile(
-        fileHandle,
-        &isb,
-        &fileInformation,
-        sizeof(FILE_STANDARD_INFORMATION),
-        FileStandardInformation
-        );
-
-    fileSize = fileInformation.EndOfFile.QuadPart;
-
-    // Allocate some memory
-    buffer = RtlAllocateHeap(PushHeapHandle, 0, fileSize);
-
-    // Read the entire file into memory
-    status = NtReadFile(
-                fileHandle,
-                NULL,
-                NULL,
-                NULL,
-                &isb,
-                buffer,
-                fileSize,
-                NULL,
-                NULL
-                );
-
-    // We got what we need, the file handle is no longer needed.
-    NtClose(fileHandle);
+    // Open the batchfile and read the entire file into memory
+    buffer = FsFileLoad(batchFile, &fileSize);
 
     // Start our reads after the UTF16-LE character marker
     bufferOffset = (WCHAR*) buffer + 1;
 
-    // Update fileSize to reflect. It is now invalid for use as
-    // the actual file size.
+    // Update fileSize to reflect. It is now invalid for use as the 
+    // actual file size.
     fileSize -= sizeof(WCHAR);
 
     // Get the end of the buffer

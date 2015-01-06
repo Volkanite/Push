@@ -4,7 +4,6 @@
 #include <pushbase.h>
 #include <slc.h>
 #include <slfile.h>
-//#include <slgui.h>
 #include <wchar.h>
 #include "push.h"
 #include "file.h"
@@ -12,29 +11,6 @@
 
 #define FIELD_OFFSET(type, field)    ((LONG)(UINT_B)&(((type *)0)->field))
 #define PTR_ADD_OFFSET(Pointer, Offset) ((VOID*)((UINT_B)(Pointer) + (UINT_B)(Offset)))
-
-
-
-
-
-
-
-/*BOOLEAN
-IsCacheFile( WCHAR *fileName )
-{
-    WCHAR *slash = SlStringFindLastChar(
-                    fileName,
-                    '\\'
-                    );
-
-    if (slash)
-        fileName = slash + 1;
-
-    if ( SlStringCompare(fileName, L"cache_", 6) == 0 )
-        return TRUE;
-    else
-        return FALSE;
-}*/
 
 
 BOOLEAN
@@ -129,12 +105,6 @@ CreateLink( WCHAR *name, WCHAR *dest )
         }
     }
 }
-
-
-
-
-
-
 
 
 WCHAR*
@@ -454,4 +424,71 @@ FsFileGetSize( WCHAR* FileName )
     NtClose(fileHandle);
 
     return fileInformation.EndOfFile.QuadPart;
+}
+
+
+/**
+* Loads a file into memory and returns the base address.
+*
+* \param FileName The Win32 file name.
+* \param FileSize Optional, returns the file size.
+*/
+
+VOID*
+FsFileLoad( WCHAR* FileName, UINT64* FileSize )
+{
+    HANDLE fileHandle;
+    NTSTATUS status;
+    IO_STATUS_BLOCK isb;
+    FILE_STANDARD_INFORMATION fileInformation;
+    UINT64 fileSize;
+    VOID *buffer;
+
+    status = SlFileCreate(
+        &fileHandle, 
+        FileName,
+        SYNCHRONIZE | FILE_READ_ATTRIBUTES | GENERIC_READ,
+        FILE_SHARE_READ,
+        FILE_OPEN,
+        FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
+        );
+
+    if (!NT_SUCCESS(status))
+        return NULL;
+
+    // Get file size
+    NtQueryInformationFile(
+        fileHandle, 
+        &isb, 
+        &fileInformation,
+        sizeof(FILE_STANDARD_INFORMATION),
+        FileStandardInformation
+        );
+
+    fileSize = fileInformation.EndOfFile.QuadPart;
+
+    // If the user wants it, give it to him
+    if (FileSize)
+        *FileSize = fileSize;
+
+    // Allocate some memory
+    buffer = RtlAllocateHeap(PushHeapHandle, 0, fileSize);
+
+    // Read the entire file into memory
+    status = NtReadFile(
+        fileHandle, 
+        NULL, 
+        NULL, 
+        NULL, 
+        &isb, 
+        buffer, 
+        fileSize, 
+        NULL, 
+        NULL
+        );
+
+    // We got what we need, the file handle is no longer needed.
+    NtClose(fileHandle);
+
+    return buffer;
 }
