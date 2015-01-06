@@ -71,6 +71,13 @@ VOID IniWriteSubKey(
     WCHAR *pszSubKey,
     WCHAR *pszValue );
 
+BOOLEAN IniWriteString( 
+    WCHAR* section, 
+    WCHAR* entry, 
+    WCHAR* string, 
+    WCHAR* filename 
+    );
+
 #ifdef __cplusplus
 }
 #endif

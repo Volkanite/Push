@@ -1229,12 +1229,7 @@ PROFILE_GetString(
 
 
 BOOLEAN
-WriteString(
-  WCHAR* section,
-  WCHAR* entry,
-  WCHAR* string,
-  WCHAR* filename
-  )
+IniWriteString( WCHAR* section, WCHAR* entry, WCHAR* string, WCHAR* filename )
 {
   BOOLEAN ret = FALSE;
 
@@ -1336,76 +1331,27 @@ GetString(
 
 
 VOID
-IniWriteBoolean(
-    WCHAR* Section,
-    WCHAR* Key,
-    BOOLEAN bolValue
-    )
+IniWriteBoolean( WCHAR* Section, WCHAR* Key, BOOLEAN bolValue )
 {
     WCHAR value[255];
 
-    SlFormatString(
-        value,
-        L"%ls",
-        bolValue ? L"True" : L"False"
-        );
-
-    /*WritePrivateProfileStringW(
-        szSection,
-        szKey,
-        szValue,
-        L".\\" PUSH_SETTINGS_FILE
-        );*/
-
-    WriteString(
-        Section,
-        Key,
-        value,
-        L".\\" PUSH_SETTINGS_FILE
-        );
+    SlFormatString(value, L"%ls", bolValue ? L"True" : L"False");
+    IniWriteString(Section, Key, value, L".\\" PUSH_SETTINGS_FILE);
 }
 
 
 VOID
-IniWriteSubKey(
-    WCHAR *Section,
-    WCHAR *pszMasterKey,
-    WCHAR *pszSubKey,
-    WCHAR *Value
-    )
+IniWriteSubKey( WCHAR *Section, WCHAR *pszMasterKey, WCHAR *pszSubKey, WCHAR *Value )
 {
     WCHAR key[260];
 
     wcscpy(key, L"(");
 
-    wcscat(
-        key,
-        pszMasterKey
-        );
+    wcscat(key, pszMasterKey);
+    wcscat(key, L").");
+    wcscat(key, pszSubKey);
 
-    wcscat(
-        key,
-        L")."
-        );
-
-    wcscat(
-        key,
-        pszSubKey
-        );
-
-    /*WritePrivateProfileStringW(
-        Section,
-        key,
-        Value,
-        L".\\" PUSH_SETTINGS_FILE
-        );*/
-
-    WriteString(
-        Section,
-        key,
-        Value,
-        L".\\" PUSH_SETTINGS_FILE
-        );
+    IniWriteString(Section, key, Value, L".\\" PUSH_SETTINGS_FILE);
 }
 
 

@@ -531,10 +531,11 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
 
             case BUTTON_ADDGAME:
                 {
-                    WCHAR filepath[260] = L"", path[260], *imageName, *slash;
+                    WCHAR filepath[260] = L"", path[260], *imageName, *slash, *games;
                     OPENFILENAME ofn = { 0 };
+                    UINT8 i;
+                    WCHAR indexString[10];
 
-                    //OpenFileGetPath(filepath);
                     ofn.lStructSize = sizeof(OPENFILENAME);
                     ofn.lpstrFilter = L"Executable (.EXE)\0*.exe\0";
                     ofn.lpstrFile = filepath;
@@ -548,29 +549,29 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     imageName = SlStringFindLastChar(filepath, '\\') + 1;
 
                     if (IniReadBoolean(L"Games", imageName, FALSE))
-                    {
                         imageName = filepath;
-                    }
 
-                    IniWriteBoolean(L"Games", filepath, TRUE);
+                    // Get free index.
 
-                    IniWriteSubKey(L"Game Settings",
-                                   filepath,
-                                   L"Name",
-                                   imageName);
+                    games = IniReadString(L"Games", NULL, NULL);
 
+                    // Get number of games
+                    for (i = 0; games[0] != '\0'; i++)
+                        games = SlStringFindLastChar(games, '\0') + 1;
+
+                    // Increment counter by 1, this is the new index
+                    i++;
+
+                    swprintf(indexString, 10, L"%i", i);
+                    IniWriteString(L"Games", filepath, indexString, L".\\" PUSH_SETTINGS_FILE);
                     GetPathOnly(filepath, path);
 
                     slash = SlStringFindLastChar(path, '\\');
-
                     *slash = '\0';
 
-                    IniWriteSubKey(L"Game Settings",
-                                   filepath,
-                                   L"Path",
-                                   path);
-
-                    IniWriteSubKey(L"Game Settings", filepath, L"UseRamDisk", L"True");
+                    IniWriteSubKey(L"Game Settings", indexString, L"Name", imageName);
+                    IniWriteSubKey(L"Game Settings", indexString, L"Path", path);
+                    IniWriteSubKey(L"Game Settings", indexString, L"UseRamDisk", L"True");
 
                 } break;
 
