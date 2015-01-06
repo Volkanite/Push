@@ -116,9 +116,6 @@ AllocateGpuAdapter(UINT32 NumberOfSegments)
 }
 
 
-
-
-
 UINT8
 D3DKMTGetGpuUsage()
 {
@@ -140,6 +137,14 @@ D3DKMTGetGpuUsage()
 
     if (EtGpuNodeUsage > 1)
         EtGpuNodeUsage = 1;
+
+     // Clip calculated usage to [0-100] range to filter calculation non-ideality.
+
+     if (usage < 0)
+         usage = 0;
+
+     if (usage > 100)
+         usage = 100;
 
     return usage;
 }
