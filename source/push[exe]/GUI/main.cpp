@@ -533,7 +533,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                 {
                     WCHAR filepath[260] = L"", path[260], *imageName, *slash, *games;
                     OPENFILENAME ofn = { 0 };
-                    UINT8 i;
+                    UINT8 i = 0;
                     WCHAR indexString[10];
 
                     ofn.lStructSize = sizeof(OPENFILENAME);
@@ -555,9 +555,12 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
 
                     games = IniReadString(L"Games", NULL, NULL);
 
-                    // Get number of games
-                    for (i = 0; games[0] != '\0'; i++)
-                        games = SlStringFindLastChar(games, '\0') + 1;
+                    if (games)
+                    {
+                        // Get number of games
+                        for (i = 0; games[0] != '\0'; i++)
+                            games = SlStringFindLastChar(games, '\0') + 1;
+                    }
 
                     // Increment counter by 1, this is the new index
                     i++;
