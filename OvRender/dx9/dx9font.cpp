@@ -176,6 +176,8 @@ HRESULT Dx9Font::RestoreDeviceObjects()
         m_pd3dDevice->SetSamplerState( 0, D3DSAMP_MINFILTER, D3DTEXF_POINT );
         m_pd3dDevice->SetSamplerState( 0, D3DSAMP_MAGFILTER, D3DTEXF_POINT );
         m_pd3dDevice->SetSamplerState( 0, D3DSAMP_MIPFILTER, D3DTEXF_NONE );
+        m_pd3dDevice->SetFVF( D3DFVF_FONT2DVERTEX );
+        m_pd3dDevice->SetPixelShader( NULL );
 
         if( which==0 )
             m_pd3dDevice->EndStateBlock( &m_pStateBlockSaved );
@@ -238,8 +240,8 @@ HRESULT Dx9Font::DrawText( FLOAT sx, FLOAT sy, DWORD dwColor, TCHAR* strText, DW
     // Setup renderstate
     m_pStateBlockSaved->Capture();
     m_pStateBlockDrawText->Apply();
-    m_pd3dDevice->SetFVF( D3DFVF_FONT2DVERTEX );
-    m_pd3dDevice->SetPixelShader( NULL );
+    //m_pd3dDevice->SetFVF( D3DFVF_FONT2DVERTEX );
+    //m_pd3dDevice->SetPixelShader( NULL );
     m_pd3dDevice->SetStreamSource( 0, m_pVB, 0, sizeof(FONT2DVERTEX) );
 
     // Set filter states
