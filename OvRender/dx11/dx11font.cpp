@@ -29,10 +29,6 @@ typedef INT32 (__stdcall *D3DCompile_t)(
     );
 
 
-
-
-
-
 enum
 {
     STYLE_NORMAL      = 0,
@@ -171,7 +167,7 @@ InitD3D11Sprite( )
     HRESULT hr;
     ID3D10Blob *    compiledFx = 0, * ErrorMsgs = 0;
     D3D11_SUBRESOURCE_DATA indexData = { 0 };
-    ID3DX11Effect *effect;
+    ID3DX11Effect *effect = NULL;
     ID3DX11EffectTechnique* effectTechnique;
     ID3DX11EffectVariable *effectVariable;
 
@@ -241,13 +237,19 @@ InitD3D11Sprite( )
         );
 
     // Create the UI effect object
-    D3DX11CreateEffectFromMemory(
+    hr = D3DX11CreateEffectFromMemory(
         compiledFx->GetBufferPointer(),
         compiledFx->GetBufferSize(),
         0,
-            m_device11,
-             &effect
-             );
+        m_device11,
+        &effect
+        );
+
+    if (FAILED(hr))
+    {
+        OutputDebugStringW(L"[OVRENDER] D3DX11CreateEffectFromMemory failed!");
+        return FALSE;
+    }
 
     compiledFx->Release();
 
@@ -268,8 +270,7 @@ InitD3D11Sprite( )
 
     if (FAILED(hr))
     {
-        OutputDebugStringW(L"[OVRENDER] ID3D10Device::CreateInputLayout failed!");
-
+        OutputDebugStringW(L"[OVRENDER] ID3D11Device::CreateInputLayout failed!");
         return FALSE;
     }
 
