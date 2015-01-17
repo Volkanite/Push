@@ -9,14 +9,12 @@
 <ItemGroup />
 <ItemGroup>
       <CLInclude Include="pchfx.h" />
-      <CLInclude Include=".\Inc\d3dx11dbg.h" />
       <CLInclude Include=".\Inc\d3dx11effect.h" />
       <CLInclude Include=".\Inc\d3dxglobal.h" />
       <CLInclude Include=".\Binary\EffectBinaryFormat.h" />
       <CLInclude Include=".\Binary\EffectStateBase11.h" />
       <CLInclude Include=".\Binary\EffectStates11.h" />
       <CLInclude Include=".\Binary\SOParser.h" />
-      <ClCompile Include="d3dx11dbg.cpp" />
       <ClCompile Include="d3dxGlobal.cpp" />
       <CLInclude Include="Effect.h" />
       <ClCompile Include="EffectAPI.cpp" />
@@ -26,11 +24,9 @@
       <ClCompile Include="EffectReflection.cpp" />
       <ClCompile Include="EffectRuntime.cpp" />
       <None Include="EffectVariable.inl" />
+      <CLInclude Include="IUnknownImp.h" />
   </ItemGroup>
-<ItemGroup>
-</ItemGroup>
-<ItemGroup>
-</ItemGroup>
-<ItemGroup>
-</ItemGroup>
+<ItemGroup></ItemGroup>
+<ItemGroup></ItemGroup>
+<ItemGroup></ItemGroup>
 </Project>
