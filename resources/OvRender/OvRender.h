@@ -27,8 +27,8 @@ public:
 
     virtual VOID DrawText( WCHAR* Text ) = 0;
     virtual VOID DrawText( WCHAR* Text, DWORD Color ) = 0;
-	virtual VOID DrawText( WCHAR* Text, int X, int Y, DWORD Color ) = 0;
-	virtual VOID DrawPrimitiveUP( OVPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void *VertexData, UINT VertexSize ) = 0;
+    virtual VOID DrawText( WCHAR* Text, int X, int Y, DWORD Color ) = 0;
+    virtual VOID DrawPrimitiveUP( OVPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, const void *VertexData, UINT VertexSize ) = 0;
     virtual VOID Begin() = 0;
     virtual VOID End() = 0;
 };
@@ -39,4 +39,3 @@ OvCreateOverlay( OV_RENDER RenderFunction );
 
 
 #endif
-
