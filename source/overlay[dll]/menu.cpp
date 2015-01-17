@@ -101,3 +101,160 @@ MnuRender( OvOverlay* Overlay )
     MnuMenu->Render(100, 200, Overlay);
     ProcessOptions();
 }
+
+
+#define GROUP 1
+#define ITEM  2
+#define HEIGHT 16
+
+
+DWORD LightBlue = 0xFF4DD0EB;
+DWORD Green     = 0xFF33FF00;
+DWORD White     = 0xFFE6E6E6;
+DWORD Blue      = 0xFF00A4C5;
+
+WNDPROC         OldWNDPROC;
+SlOverlayMenu*  OvmMenu;
+
+
+LONG WINAPI KeyboardHook( HWND Handle, UINT Message, WPARAM Character, LPARAM lParam )
+{
+    switch (Message)    
+    {   
+        case WM_KEYDOWN:
+        {
+            switch(Character)
+            {
+                case VK_INSERT:
+                    OvmMenu->mSet.Show = !OvmMenu->mSet.Show;
+                    break;
+                
+                case VK_UP:
+                    {
+                        if (!OvmMenu->mSet.Show)
+                            break;
+
+                        OvmMenu->mSet.SeletedIndex--;
+                        
+                        if (OvmMenu->mSet.SeletedIndex < 0)
+                            OvmMenu->mSet.SeletedIndex = OvmMenu->mSet.MaxItems - 1;
+
+                    } break;
+
+                case VK_DOWN:
+                    {
+                        if (!OvmMenu->mSet.Show)
+                            break;
+
+                        OvmMenu->mSet.SeletedIndex++;
+                        
+                        if (OvmMenu->mSet.SeletedIndex == OvmMenu->mSet.MaxItems)
+                            OvmMenu->mSet.SeletedIndex = 0;
+
+                    } break;
+
+                case VK_LEFT:
+                    {
+                        if (!OvmMenu->mSet.Show)
+                            break;
+
+                        if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var && *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var > 0)
+                        {
+                            *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var += -1;
+                            
+                            if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == GROUP)
+                                OvmMenu->mSet.MaxItems = 0;
+                        }
+
+                    } break;
+
+                case VK_RIGHT:
+                    {
+                        if (!OvmMenu->mSet.Show)
+                            break;
+
+                        if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var 
+                            && *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var < (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].MaxValue - 1))
+                        {
+                            *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var += 1;
+
+                            if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == GROUP)
+                                OvmMenu->mSet.MaxItems = 0;
+                        }
+
+
+                    } break;
+            }
+        }
+        break;
+    }
+    return CallWindowProc(OldWNDPROC, Handle, Message, Character, lParam);
+}
+
+
+SlOverlayMenu::SlOverlayMenu( int OptionsX )
+{
+    OpX = OptionsX;
+    
+    mSet.Show = FALSE;
+    mSet.MaxItems = 0;
+    mSet.SeletedIndex = 0;
+    
+    OvmMenu = this;
+    OldWNDPROC = (WNDPROC)SetWindowLongPtr(GetForegroundWindow(), GWL_WNDPROC, (LONG)KeyboardHook);
+}
+
+
+void SlOverlayMenu::AddItemToMenu(WCHAR* Title, WCHAR** Options, int* Var, int MaxValue, int Type)
+{
+    Items[mSet.MaxItems].Title = Title;
+    Items[mSet.MaxItems].Options= Options;
+    Items[mSet.MaxItems].Var = Var;
+    Items[mSet.MaxItems].MaxValue = MaxValue;
+    Items[mSet.MaxItems].Type = Type;
+    mSet.MaxItems++;
+}
+
+
+VOID 
+SlOverlayMenu::Render( int X, int Y, OvOverlay* Overlay )
+{
+    DWORD ColorOne, ColorTwo;
+    int ValueOne, ValueTwo;
+
+    if (!mSet.Show)
+        return;
+
+    for (int i = 0; i < mSet.MaxItems; i++)
+    {
+        ValueOne = (Items[i].Var) ? (*Items[i].Var) : 0;
+        ValueTwo = (Items[i].Var) ? (*Items[i].Var) : 0;
+
+        if (i == mSet.SeletedIndex)
+        {
+            ColorOne = LightBlue;
+            ColorTwo = (ValueTwo) ? Green : White;
+        }
+        else if (Items[i].Type == GROUP)
+        {
+            ColorOne = Blue;
+            ColorTwo = Blue;
+        }
+        else
+        {
+            ColorOne = (ValueOne) ? White : White;
+            ColorTwo = (ValueTwo) ? Green : White;
+        }
+
+        if (Items[i].Type == GROUP)
+            Overlay->DrawText(Items[i].Title, X, Y, ColorOne);
+
+        if (Items[i].Type == ITEM)
+            Overlay->DrawText(Items[i].Title, X + 20, Y, ColorOne);
+
+        if (Items[i].Options)
+            Overlay->DrawText(Items[i].Options[ValueTwo], OpX, Y, ColorTwo);
+
+        Y += HEIGHT;
+    }
+}
