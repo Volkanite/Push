@@ -5,7 +5,7 @@
 #include "dx9overlay.h"
 #include "dx9font.h"
 #include "dx9hook.h"
-#include "overlay.h"
+#include <OvRender.h>
 
 
 

@@ -1,5 +1,5 @@
 #include <windows.h>
-#include "overlay.h"
+#include <OvRender.h>
 #include "dx8/dx8overlay.h"
 #include "dx9/dx9overlay.h"
 #include "dxgi/dxgioverlay.h"
@@ -31,7 +31,7 @@ OvOverlay::Render()
 
 ULONG __stdcall CreateOverlay( LPVOID Param )
 {
-	if (GetModuleHandleA("d3d8.dll"))
+    if (GetModuleHandleA("d3d8.dll"))
     {
         if (OvDx8Overlay == NULL)
             OvDx8Overlay = new Dx8Overlay( OvUserRenderFunction );
@@ -56,7 +56,7 @@ ULONG __stdcall CreateOverlay( LPVOID Param )
 VOID
 OvCreateOverlay( OV_RENDER RenderFunction )
 {
-	OvUserRenderFunction = RenderFunction;
+    OvUserRenderFunction = RenderFunction;
 
-	CreateThread(0, 0, &CreateOverlay, 0, 0, 0);
+    CreateThread(0, 0, &CreateOverlay, 0, 0, 0);
 }

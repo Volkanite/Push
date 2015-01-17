@@ -1,4 +1,4 @@
-#include <overlay.h>
+#include <OvRender.h>
 
 
 class Dx10Overlay : public OvOverlay

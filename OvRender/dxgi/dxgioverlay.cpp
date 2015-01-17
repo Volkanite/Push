@@ -5,7 +5,7 @@
 #include <D3D11.h>
 #include <D3D10.h>
 
-#include "overlay.h"
+#include <OvRender.h>
 #include "dxgioverlay.h"
 #include "dx11/dx11overlay.h"
 #include "dx10/dx10overlay.h"
