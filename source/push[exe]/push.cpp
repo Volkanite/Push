@@ -298,25 +298,23 @@ PushAddToFileList( FILE_LIST* FileList, FILE_LIST_ENTRY *FileEntry )
 
 
 VOID
-Cache( WCHAR* Game )
+Cache( WCHAR* GameId )
 {
     WCHAR gamePath[260];
     WCHAR *buffer;
     CHAR mountPoint = 0;
     UINT64 bytes = 0, availableMemory = 0; // in bytes
     SYSTEM_BASIC_PERFORMANCE_INFORMATION performanceInfo;
-    BfBatchFile batchFile(Game);
+    BfBatchFile batchFile(GameId);
 
     // Check if game is already cached so we donot
     // have wait through another
-    if (wcscmp(g_szPrevGame,
-               Game) == 0 && !g_bRecache){
+    if (wcscmp(g_szPrevGame, GameId) == 0 && !g_bRecache)
         return;
-    }
 
     g_bRecache = FALSE;
 
-    buffer = IniReadSubKey(L"Game Settings", Game, L"Path");
+    buffer = IniReadSubKey(L"Game Settings", GameId, L"Path");
 
     wcscpy(gamePath, buffer);
     RtlFreeHeap(PushHeapHandle, 0, buffer);
@@ -370,15 +368,13 @@ Cache( WCHAR* Game )
     mountPoint = FindFreeDriveLetter();
 
     CreateRamDisk(bytes, mountPoint);
-
     FormatRamDisk();
-
     CacheFiles(mountPoint);
 
     // Release batchfile list
     PushFileList = NULL;
 
-    wcscpy(g_szPrevGame, Game);
+    wcscpy(g_szPrevGame, GameId);
 }
 
 
@@ -389,20 +385,19 @@ OnProcessEvent( UINT16 processID )
     VOID *processHandle = NULL;
     UINT32 iBytesRead;
     WCHAR *result = 0;
+    WCHAR *gameId;
     CHAR szCommand[] = "MUTEPIN 1 a";
-    processHandle = SlOpenProcess(
-                        processID,
-                        PROCESS_QUERY_INFORMATION |
-                        PROCESS_SUSPEND_RESUME);
+    
+    processHandle = SlOpenProcess(processID, PROCESS_QUERY_INFORMATION | PROCESS_SUSPEND_RESUME);
 
     if (!processHandle)
         return;
 
-    GetProcessImageFileNameW(processHandle,
-                            fileName,
-                            260);
-
+    GetProcessImageFileNameW(processHandle, fileName, 260);
     NormalizeNTPath(fileName, 260);
+
+    // Get game ID
+    gameId = IniReadString(L"Games", fileName, NULL);
 
     if (!IsGame(fileName))
     {
@@ -412,7 +407,7 @@ OnProcessEvent( UINT16 processID )
     }
     else
     {
-        if (IniReadSubKeyBoolean(L"Game Settings", fileName, L"UseRamDisk", FALSE))
+        if (IniReadSubKeyBoolean(L"Game Settings", gameId, L"UseRamDisk", FALSE))
             PushSharedMemory->GameUsesRamDisk = TRUE;
     }
 
@@ -420,16 +415,15 @@ OnProcessEvent( UINT16 processID )
         //suspend process to allow us time to cache files
     {
         NtSuspendProcess(processHandle);
-
-        Cache(fileName);
+        Cache(gameId);
     }
 
     //check for forced vsync
-    if (IniReadSubKeyBoolean(L"Game Settings", fileName, L"ForceVsync", FALSE))
+    if (IniReadSubKeyBoolean(L"Game Settings", gameId, L"ForceVsync", FALSE))
         PushSharedMemory->ForceVsync = TRUE;
 
     //check for key repeat
-    if (IniReadSubKeyBoolean(L"Game Settings", fileName, L"DisableRepeatKeys", FALSE))
+    if (IniReadSubKeyBoolean(L"Game Settings", gameId, L"DisableRepeatKeys", FALSE))
         PushSharedMemory->DisableRepeatKeys = TRUE;
 
     // Check if user wants maximum gpu engine and memory clocks

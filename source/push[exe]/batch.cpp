@@ -16,32 +16,17 @@ memchrW(const WCHAR *ptr, WCHAR ch, UINT_B n);
 
 
 VOID
-GetBatchFile(
-    WCHAR* Game,
-    WCHAR* Buffer
-    )
+GetBatchFile( WCHAR* GameId, WCHAR* Buffer )
 {
     WCHAR *gameName, *dot;
     WCHAR batchFile[260] = L"cache\\";
 
-    gameName = IniReadSubKey(
-                L"Game Settings",
-                Game,
-                L"Name"
-                );
+    gameName = IniReadSubKey(L"Game Settings", GameId, L"Name");
 
     wcscat(batchFile, gameName);
+    RtlFreeHeap(PushHeapHandle, 0, gameName);
 
-    RtlFreeHeap(
-        PushHeapHandle,
-        0,
-        gameName
-        );
-
-    dot = SlStringFindLastChar(
-            batchFile,
-            '.'
-            );
+    dot = SlStringFindLastChar(batchFile, '.');
 
     if (dot)
         wcscpy(dot, L".txt");
@@ -52,10 +37,10 @@ GetBatchFile(
 }
 
 
-BfBatchFile::BfBatchFile( WCHAR* Game )
+BfBatchFile::BfBatchFile( WCHAR* GameId )
 {
     UINT64 fileSize;
-    VOID *buffer, *bufferOffset;
+    VOID *buffer = NULL, *bufferOffset;
     WCHAR *lineStart, *nextLine, *end;
     FILE_LIST_ENTRY fileEntry;
     WCHAR line[260];
@@ -65,7 +50,7 @@ BfBatchFile::BfBatchFile( WCHAR* Game )
     FileList = NULL;
 
     // Get the batchfile name and path
-    GetBatchFile(Game, batchFile);
+    GetBatchFile(GameId, batchFile);
 
     // Allocate some memory for the batchfile name
     BatchFileName = (WCHAR*) RtlAllocateHeap(
@@ -79,6 +64,9 @@ BfBatchFile::BfBatchFile( WCHAR* Game )
 
     // Open the batchfile and read the entire file into memory
     buffer = FsFileLoad(batchFile, &fileSize);
+
+    if (!buffer) 
+        return;
 
     // Start our reads after the UTF16-LE character marker
     bufferOffset = (WCHAR*) buffer + 1;
