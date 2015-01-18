@@ -426,9 +426,9 @@ OnProcessEvent( UINT16 processID )
     if (IniReadSubKeyBoolean(L"Game Settings", gameId, L"DisableRepeatKeys", FALSE))
         PushSharedMemory->DisableRepeatKeys = TRUE;
 
-	// Check if user wants to emulate arrow keys with WASD keys
-	if (IniReadSubKeyBoolean(L"Game Settings", fileName, L"SwapWASD", FALSE))
-		PushSharedMemory->SwapWASD = TRUE;
+    // Check if user wants to emulate arrow keys with WASD keys
+    if (IniReadSubKeyBoolean(L"Game Settings", gameId, L"SwapWASD", FALSE))
+        PushSharedMemory->SwapWASD = TRUE;
 
     // Check if user wants maximum gpu engine and memory clocks
     if (IniReadBoolean(L"Settings", L"ForceMaxClocks", FALSE))
