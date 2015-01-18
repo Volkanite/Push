@@ -26,22 +26,6 @@ GetRadeonMemorySize()
 
 /*extern "C"
 UINT16
-RdnGetEngineClock()
-{
-    return RdnAdl.GetEngineClock();
-}
-
-
-extern "C"
-UINT16
-RdnGetMemoryClock()
-{
-    return RdnAdl.GetMemoryClock();
-}*/
-
-
-extern "C"
-UINT16
 RdnGetEngineClockMax()
 {
     return RdnAdl.GetEngineClockMax();
@@ -53,7 +37,7 @@ UINT16
 RdnGetMemoryClockMax()
 {
     return RdnAdl.GetMemoryClockMax();
-}
+}*/
 
 
 extern "C"
@@ -130,14 +114,14 @@ AmdGpu::GetLoad()
 UINT16 
 AmdGpu::GetMaximumEngineClock()
 {
-    return 0;
+    return RdnAdl.GetEngineClockMax();
 }
 
 
 UINT16 
 AmdGpu::GetMaximumMemoryClock()
 {
-    return 0;
+    return RdnAdl.GetMemoryClockMax();
 }
 
 
