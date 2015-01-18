@@ -42,7 +42,6 @@
     <ClInclude Include="dxgi\dxgihooks.h" />
     <ClInclude Include="dxgi\dxgioverlay.h" />
     <ClInclude Include="font.h" />
-    <ClInclude Include="overlay.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{99E0E745-ACD1-498F-B7EB-385EE594D30C}</ProjectGuid>

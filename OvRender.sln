@@ -2,6 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OvRender", "OvRender\OvRender.vcxproj", "{99E0E745-ACD1-498F-B7EB-385EE594D30C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DF460EAB-570D-4B50-9089-2E2FC801BF38} = {DF460EAB-570D-4B50-9089-2E2FC801BF38}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Effects11", "resources\Effects11\Effects11_2010_DXSDK.vcxproj", "{DF460EAB-570D-4B50-9089-2E2FC801BF38}"
 EndProject

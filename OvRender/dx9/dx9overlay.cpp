@@ -36,6 +36,10 @@ IDirect3DDevice9_ResetCallback(
     }
 
     Dx9OvFont = NULL;
+
+	// Force vsync?
+	if (OvDx9Overlay->ForceVsync)
+		PresentationParameters->PresentationInterval = 1;
 }
 
 

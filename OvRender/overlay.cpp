@@ -9,12 +9,11 @@ Dx8Overlay*     OvDx8Overlay;
 Dx9Overlay*     OvDx9Overlay;
 DxgiOverlay*    OvDxgiOverlay;
 
-OV_RENDER OvUserRenderFunction;
-
 
 OvOverlay::OvOverlay()
 {
     Line = 0;
+	ForceVsync = FALSE;
 }
 
 
@@ -31,24 +30,30 @@ OvOverlay::Render()
 
 ULONG __stdcall CreateOverlay( LPVOID Param )
 {
-    if (GetModuleHandleA("d3d8.dll"))
+    OV_HOOK_PARAMS *hookParams = (OV_HOOK_PARAMS*) Param;
+    OvOverlay *overlay = NULL;
+
+    if (GetModuleHandleA("d3d8.dll") && OvDx8Overlay == NULL)
     {
-        if (OvDx8Overlay == NULL)
-            OvDx8Overlay = new Dx8Overlay( OvUserRenderFunction );
+        OvDx8Overlay = new Dx8Overlay( hookParams->RenderFunction );
+        overlay = OvDx8Overlay;
     }
 
-    if (GetModuleHandleA("d3d9.dll"))
+    if (GetModuleHandleA("d3d9.dll") && OvDx9Overlay == NULL)
     {
-        if (OvDx9Overlay == NULL)
-            OvDx9Overlay = new Dx9Overlay( OvUserRenderFunction );
+        OvDx9Overlay = new Dx9Overlay( hookParams->RenderFunction );
+        overlay = OvDx9Overlay;
     }
 
-    if (GetModuleHandleA("dxgi.dll"))
+    if (GetModuleHandleA("dxgi.dll") && OvDxgiOverlay == NULL)
     {
-        if (OvDxgiOverlay == NULL)
-            OvDxgiOverlay = new DxgiOverlay( OvUserRenderFunction );
+        OvDxgiOverlay = new DxgiOverlay( hookParams->RenderFunction );
+        overlay = OvDx9Overlay;
     }
 
+	if (hookParams->ForceVsync && overlay)
+		overlay->ForceVsync = TRUE;
+		
     return NULL;
 }
 
@@ -56,7 +61,27 @@ ULONG __stdcall CreateOverlay( LPVOID Param )
 VOID
 OvCreateOverlay( OV_RENDER RenderFunction )
 {
-    OvUserRenderFunction = RenderFunction;
+	OV_HOOK_PARAMS hookParams = {0};
 
-    CreateThread(0, 0, &CreateOverlay, 0, 0, 0);
+    hookParams.RenderFunction = RenderFunction;
+
+    OvCreateOverlayEx(&hookParams);
+}
+
+
+VOID
+OvCreateOverlayEx( OV_HOOK_PARAMS* HookParameters )
+{
+    OV_HOOK_PARAMS *hookParams;
+
+    hookParams = (OV_HOOK_PARAMS*) HeapAlloc(
+        GetProcessHeap(), 
+        HEAP_ZERO_MEMORY, 
+        sizeof(OV_HOOK_PARAMS)
+        );
+
+    hookParams->RenderFunction = HookParameters->RenderFunction;
+    hookParams->ForceVsync = HookParameters->ForceVsync;
+    
+    CreateThread(0, 0, &CreateOverlay, hookParams, 0, 0);
 }
