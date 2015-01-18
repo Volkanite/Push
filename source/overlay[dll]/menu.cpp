@@ -117,78 +117,70 @@ WNDPROC         OldWNDPROC;
 SlOverlayMenu*  OvmMenu;
 
 
-LONG WINAPI KeyboardHook( HWND Handle, UINT Message, WPARAM Character, LPARAM lParam )
+VOID
+MenuKeyboardCallback( WORD Key )
 {
-    switch (Message)    
-    {   
-        case WM_KEYDOWN:
-        {
-            switch(Character)
+    switch(Key)
+    {
+        case VK_INSERT:
+            OvmMenu->mSet.Show = !OvmMenu->mSet.Show;
+            break;
+        
+        case VK_UP:
             {
-                case VK_INSERT:
-                    OvmMenu->mSet.Show = !OvmMenu->mSet.Show;
+                if (!OvmMenu->mSet.Show)
                     break;
+
+                OvmMenu->mSet.SeletedIndex--;
                 
-                case VK_UP:
-                    {
-                        if (!OvmMenu->mSet.Show)
-                            break;
+                if (OvmMenu->mSet.SeletedIndex < 0)
+                    OvmMenu->mSet.SeletedIndex = OvmMenu->mSet.MaxItems - 1;
 
-                        OvmMenu->mSet.SeletedIndex--;
-                        
-                        if (OvmMenu->mSet.SeletedIndex < 0)
-                            OvmMenu->mSet.SeletedIndex = OvmMenu->mSet.MaxItems - 1;
+            } break;
 
-                    } break;
+        case VK_DOWN:
+            {
+                if (!OvmMenu->mSet.Show)
+                    break;
 
-                case VK_DOWN:
-                    {
-                        if (!OvmMenu->mSet.Show)
-                            break;
+                OvmMenu->mSet.SeletedIndex++;
+                
+                if (OvmMenu->mSet.SeletedIndex == OvmMenu->mSet.MaxItems)
+                    OvmMenu->mSet.SeletedIndex = 0;
 
-                        OvmMenu->mSet.SeletedIndex++;
-                        
-                        if (OvmMenu->mSet.SeletedIndex == OvmMenu->mSet.MaxItems)
-                            OvmMenu->mSet.SeletedIndex = 0;
+            } break;
 
-                    } break;
+        case VK_LEFT:
+            {
+                if (!OvmMenu->mSet.Show)
+                    break;
 
-                case VK_LEFT:
-                    {
-                        if (!OvmMenu->mSet.Show)
-                            break;
+                if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var && *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var > 0)
+                {
+                    *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var += -1;
+                    
+                    if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == GROUP)
+                        OvmMenu->mSet.MaxItems = 0;
+                }
 
-                        if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var && *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var > 0)
-                        {
-                            *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var += -1;
-                            
-                            if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == GROUP)
-                                OvmMenu->mSet.MaxItems = 0;
-                        }
+            } break;
 
-                    } break;
+        case VK_RIGHT:
+            {
+                if (!OvmMenu->mSet.Show)
+                    break;
 
-                case VK_RIGHT:
-                    {
-                        if (!OvmMenu->mSet.Show)
-                            break;
+                if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var 
+                    && *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var < (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].MaxValue - 1))
+                {
+                    *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var += 1;
 
-                        if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var 
-                            && *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var < (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].MaxValue - 1))
-                        {
-                            *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var += 1;
+                    if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == GROUP)
+                        OvmMenu->mSet.MaxItems = 0;
+                }
 
-                            if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == GROUP)
-                                OvmMenu->mSet.MaxItems = 0;
-                        }
-
-
-                    } break;
-            }
-        }
-        break;
+            } break;
     }
-    return CallWindowProc(OldWNDPROC, Handle, Message, Character, lParam);
 }
 
 
@@ -201,7 +193,6 @@ SlOverlayMenu::SlOverlayMenu( int OptionsX )
     mSet.SeletedIndex = 0;
     
     OvmMenu = this;
-    OldWNDPROC = (WNDPROC)SetWindowLongPtr(GetForegroundWindow(), GWL_WNDPROC, (LONG)KeyboardHook);
 }
 
 
