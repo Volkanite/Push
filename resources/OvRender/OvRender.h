@@ -16,11 +16,18 @@ typedef enum _OVPRIMITIVETYPE {
     OVPT_TRIANGLEFAN           = 6,
 } OVPRIMITIVETYPE;
 
+typedef struct _OV_HOOK_PARAMS{
+	OV_RENDER RenderFunction;
+	BOOLEAN ForceVsync;
+	BOOLEAN ForceTrippleBuffering;
+}OV_HOOK_PARAMS;
+
 
 class OvOverlay{
 public:
     UINT8 Line;
     OV_RENDER UserRenderFunction;
+	BOOLEAN ForceVsync;
 
     OvOverlay();
     VOID Render();
@@ -36,6 +43,9 @@ public:
 
 VOID
 OvCreateOverlay( OV_RENDER RenderFunction );
+
+VOID
+OvCreateOverlayEx( OV_HOOK_PARAMS* HookParameters );
 
 
 #endif

@@ -80,36 +80,36 @@ TYPE_PeekMessageA       PushPeekMessageA;
 VOID
 PushKeySwapCallback( LPMSG Message )
 {
-	switch (Message->wParam)
-	{
-	case 'W':
-		Message->wParam = VK_UP;
-		break;
-	case 'A':
-		Message->wParam = VK_LEFT;
-		break;
-	case 'S':
-		Message->wParam = VK_DOWN;
-		break;
-	case 'D':
-		Message->wParam = VK_RIGHT;
-		break;
-	}
+    switch (Message->wParam)
+    {
+    case 'W':
+        Message->wParam = VK_UP;
+        break;
+    case 'A':
+        Message->wParam = VK_LEFT;
+        break;
+    case 'S':
+        Message->wParam = VK_DOWN;
+        break;
+    case 'D':
+        Message->wParam = VK_RIGHT;
+        break;
+    }
 }
 
 
 BOOLEAN
 ProcessMessage( LPMSG lpMsg )
 {
-	// Remap key?
-	if ( (lpMsg->message == WM_KEYDOWN || lpMsg->message == WM_KEYUP) 
-		&& PushSharedMemory->SwapWASD
-		)
-	{
-		PushKeySwapCallback( lpMsg );
-	}
+    // Remap key?
+    if ( (lpMsg->message == WM_KEYDOWN || lpMsg->message == WM_KEYUP) 
+        && PushSharedMemory->SwapWASD
+        )
+    {
+        PushKeySwapCallback( lpMsg );
+    }
     
-	if (lpMsg->message == WM_KEYDOWN || lpMsg->message == WM_CHAR)
+    if (lpMsg->message == WM_KEYDOWN || lpMsg->message == WM_CHAR)
     {
         MenuKeyboardCallback( lpMsg->wParam );
 
@@ -231,10 +231,8 @@ PeekMessageAHook(
 }
 
 
-
 BOOL __stdcall DllMain( 
-    HINSTANCE 
-    hinstDLL, 
+    HINSTANCE hinstDLL, 
     ULONG fdwReason, 
     LPVOID lpReserved 
     )
@@ -246,6 +244,7 @@ BOOL __stdcall DllMain(
             void *sectionHandle;
             DEVMODE devMode;
             SlHookManager hookManager;
+            OV_HOOK_PARAMS hookParams = {0};
 
             sectionHandle = OpenFileMappingW( 
                 FILE_MAP_ALL_ACCESS, 
@@ -264,31 +263,29 @@ BOOL __stdcall DllMain(
             hEvent = OpenEventW(
                 SYNCHRONIZE, 
                 FALSE, 
-                L"Global\\" 
-                PUSH_IMAGE_EVENT_NAME
+                L"Global\\" PUSH_IMAGE_EVENT_NAME
                 );
             
-            OvCreateOverlay( RnRender );
+            hookParams.RenderFunction = RnRender;
+            
+            if (PushSharedMemory->ForceVsync)
+                hookParams.ForceVsync = TRUE;
+
+            OvCreateOverlayEx( &hookParams );
             CreateThread(0, 0, &MonitorThread, 0, 0, 0);
             
-            EnumDisplaySettings(
-                NULL, 
-                ENUM_CURRENT_SETTINGS, 
-                &devMode
-                );
+            EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &devMode);
 
             PushRefreshRate = devMode.dmDisplayFrequency;
             PushAcceptableFps = PushRefreshRate - 5;
 
-            PushPeekMessageW = (TYPE_PeekMessageW) 
-                hookManager.DetourApi(
+            PushPeekMessageW = (TYPE_PeekMessageW) hookManager.DetourApi(
                 L"user32.dll", 
                 "PeekMessageW", 
                 (BYTE*) PeekMessageWHook
                 );
 
-            PushPeekMessageA = (TYPE_PeekMessageA) 
-                hookManager.DetourApi(
+            PushPeekMessageA = (TYPE_PeekMessageA) hookManager.DetourApi(
                 L"user32.dll", 
                 "PeekMessageA", 
                 (BYTE*) PeekMessageAHook
