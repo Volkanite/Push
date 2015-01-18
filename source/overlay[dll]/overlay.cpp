@@ -77,10 +77,39 @@ TYPE_PeekMessageW       PushPeekMessageW;
 TYPE_PeekMessageA       PushPeekMessageA;
 
 
+VOID
+PushKeySwapCallback( LPMSG Message )
+{
+	switch (Message->wParam)
+	{
+	case 'W':
+		Message->wParam = VK_UP;
+		break;
+	case 'A':
+		Message->wParam = VK_LEFT;
+		break;
+	case 'S':
+		Message->wParam = VK_DOWN;
+		break;
+	case 'D':
+		Message->wParam = VK_RIGHT;
+		break;
+	}
+}
+
+
 BOOLEAN
 ProcessMessage( LPMSG lpMsg )
 {
-    if (lpMsg->message == WM_KEYDOWN || lpMsg->message == WM_CHAR)
+	// Remap key?
+	if ( (lpMsg->message == WM_KEYDOWN || lpMsg->message == WM_KEYUP) 
+		&& PushSharedMemory->SwapWASD
+		)
+	{
+		PushKeySwapCallback( lpMsg );
+	}
+    
+	if (lpMsg->message == WM_KEYDOWN || lpMsg->message == WM_CHAR)
     {
         MenuKeyboardCallback( lpMsg->wParam );
 

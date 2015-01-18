@@ -238,6 +238,7 @@ typedef struct _PUSH_SHARED_MEMORY
     UCHAR           FrameLimit;
     UCHAR           ForceVsync;
     UCHAR           DisableRepeatKeys;
+	UCHAR			SwapWASD;
     UCHAR           KeepFps;
     UCHAR           GameUsesRamDisk;
     long long       performanceFrequency;
