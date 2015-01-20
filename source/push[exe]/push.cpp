@@ -391,10 +391,6 @@ OnProcessEvent( UINT16 processID )
 
     GetProcessImageFileNameW(processHandle, fileName, 260);
     NormalizeNTPath(fileName, 260);
-    
-    PushGame game(fileName);
-    
-    flags = game.GetFlags();
 
     if (!IsGame(fileName))
     {
@@ -402,6 +398,10 @@ OnProcessEvent( UINT16 processID )
 
         goto closeandreturn;
     }
+    
+    PushGame game(fileName);
+    
+    flags = game.GetFlags();
 
     if (flags & GAME_RAMDISK)
     {
@@ -425,12 +425,14 @@ OnProcessEvent( UINT16 processID )
     if (IniReadBoolean(L"Settings", L"ForceMaxClocks", FALSE))
         HwForceMaxClocks();
 
-    // i used this to disable one of my audio ports while gaming
-    // but of course it probably only works for IDT audio devices
+    // i used this to disable one of my audio ports while gaming but of course it probably only
+    // works for IDT audio devices
     CallNamedPipeW(
-        L"\\\\.\\pipe\\stacsv",
-        szCommand, sizeof(szCommand),
-        0,0,
+        L"\\\\.\\pipe\\stacsv", 
+        szCommand, 
+        sizeof(szCommand), 
+        0, 
+        0, 
         &iBytesRead,
         NMPWAIT_WAIT_FOREVER
         );

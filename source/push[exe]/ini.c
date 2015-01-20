@@ -1483,47 +1483,23 @@ IniReadSubKey(
 
 
 BOOLEAN
-IniReadSubKeyBoolean(
-    WCHAR *Section,
-    WCHAR *masterKey,
-    WCHAR *subKey,
-    BOOLEAN DefaultValue
-    )
+IniReadSubKeyBoolean( WCHAR* Section, WCHAR* MasterKey, WCHAR* subKey, BOOLEAN DefaultValue )
 {
     WCHAR result[255], defaultValue[255];
     WCHAR key[260];
     BOOLEAN bResult;
 
+    if (!MasterKey)
+        return FALSE;
+
     wcscpy(key, L"(");
 
-    wcscat(key, masterKey);
+    wcscat(key, MasterKey);
     wcscat(key, L").");
     wcscat(key, subKey);
 
-    SlFormatString(
-        defaultValue,
-        L"%ls",
-        DefaultValue?
-        L"True" : L"False"
-        );
-
-    /*GetPrivateProfileStringW(
-        section,
-        key,
-        szDefault,
-        szResult,
-        255,
-        L".\\" PUSH_SETTINGS_FILE
-        );*/
-
-    GetString(
-        Section,
-        key,
-        defaultValue,
-        result,
-        255,
-        L".\\" PUSH_SETTINGS_FILE
-        );
+    SlFormatString(defaultValue, L"%ls", DefaultValue? L"True" : L"False");
+    GetString(Section, key, defaultValue, result, 255, L".\\" PUSH_SETTINGS_FILE);
 
     bResult =  (wcscmp(result, L"True") == 0 ||
         wcscmp(result, L"true") == 0) ? TRUE : FALSE;
