@@ -68,6 +68,7 @@
     <ClCompile Include="ini.c" />
     <ClCompile Include="push.cpp" />
     <ClCompile Include="ring0.c" />
+    <ClCompile Include="game.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\cache.h">
@@ -117,6 +118,7 @@
     <ClInclude Include="file.h" />
     <ClInclude Include="ini.h" />
     <ClInclude Include="push.h" />
+    <ClInclude Include="game.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="push.ico">

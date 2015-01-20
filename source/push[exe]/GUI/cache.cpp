@@ -42,8 +42,7 @@ LONG __stdcall CacheWndProc(
     {
     case WM_CREATE:
         {
-            WCHAR *buffer;
-            WCHAR gamePath[260];
+            WCHAR* installPath;
             UINT32 columnWidth;
             RECT windowRect, treeListRect;
 
@@ -54,25 +53,21 @@ LONG __stdcall CacheWndProc(
             CwListView->AddColumn(L"File");
             CwListView->AddColumn(L"Size");
 
-            buffer = IniReadSubKey(
-                        L"Game Settings",
-                        GetComboBoxData(),
-                        L"Path"
-                        );
+            PushGame game(GetComboBoxData());
 
-            wcscpy(gamePath, buffer);
-            RtlFreeHeap(PushHeapHandle, 0, buffer);
+            installPath = game.GetInstallPath();
 
-            if (!FolderExists(gamePath))
+            if (!FolderExists(installPath))
             {
                 MessageBoxW(0, L"Folder not exist!", 0,0);
 
                 return 0;
             }
+            
+            MwBatchFile = new BfBatchFile(&game);
 
-            MwBatchFile = new BfBatchFile(GetComboBoxData());
-
-            FsEnumDirectory(gamePath, L"*", BuildGameFilesList);
+            FsEnumDirectory(installPath, L"*", BuildGameFilesList);
+            RtlFreeHeap(PushHeapHandle, 0, installPath);
             ListViewAddItems();
 
             CwListView->SortItems(ListViewCompareProc);

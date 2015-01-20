@@ -531,14 +531,14 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
 
             case BUTTON_ADDGAME:
                 {
-                    WCHAR filepath[260] = L"", path[260], *imageName, *slash, *games;
+                    WCHAR filePath[260] = L"", path[260], *imageName, *slash, *games;
                     OPENFILENAME ofn = { 0 };
                     UINT8 i = 0;
                     WCHAR indexString[10];
 
                     ofn.lStructSize = sizeof(OPENFILENAME);
                     ofn.lpstrFilter = L"Executable (.EXE)\0*.exe\0";
-                    ofn.lpstrFile = filepath;
+                    ofn.lpstrFile = filePath;
                     ofn.nMaxFile = 260;
                     ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR;
                     ofn.lpstrDefExt = L"";
@@ -546,10 +546,10 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
 
                     GetOpenFileNameW( &ofn );
 
-                    imageName = SlStringFindLastChar(filepath, '\\') + 1;
+                    imageName = SlStringFindLastChar(filePath, '\\') + 1;
 
                     if (IniReadBoolean(L"Games", imageName, FALSE))
-                        imageName = filepath;
+                        imageName = filePath;
 
                     // Get free index.
 
@@ -566,15 +566,17 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     i++;
 
                     swprintf(indexString, 10, L"%i", i);
-                    IniWriteString(L"Games", filepath, indexString, L".\\" PUSH_SETTINGS_FILE);
-                    GetPathOnly(filepath, path);
+                    IniWriteString(L"Games", filePath, indexString, L".\\" PUSH_SETTINGS_FILE);
+                    GetPathOnly(filePath, path);
 
                     slash = SlStringFindLastChar(path, '\\');
                     *slash = '\0';
 
-                    IniWriteSubKey(L"Game Settings", indexString, L"Name", imageName);
-                    IniWriteSubKey(L"Game Settings", indexString, L"Path", path);
-                    IniWriteSubKey(L"Game Settings", indexString, L"UseRamDisk", L"True");
+                    PushGame game(filePath);
+
+                    game.SetName(imageName);
+                    game.SetInstallPath(path);
+                    game.SetFlags(GAME_RAMDISK);
 
                 } break;
 
@@ -595,11 +597,13 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                             {
                                 for (i = 0; pszGames[0] != '\0'; i++)
                                 {
+                                    PushGame game(pszGames);
+
                                     SendMessageW(
                                         MwControlHandles[COMBOBOX_GAMES],
                                         CB_ADDSTRING,
                                         0,
-                                        (LONG) IniReadSubKey(L"Game Settings", pszGames, L"Name")
+                                        (LONG) game.GetName()
                                         );
 
                                     SendMessageW(

@@ -298,28 +298,23 @@ PushAddToFileList( FILE_LIST* FileList, FILE_LIST_ENTRY *FileEntry )
 
 
 VOID
-Cache( WCHAR* GameId )
+Cache( PushGame* Game )
 {
-    WCHAR gamePath[260];
-    WCHAR *buffer;
+    WCHAR *installPath;
     CHAR mountPoint = 0;
     UINT64 bytes = 0, availableMemory = 0; // in bytes
     SYSTEM_BASIC_PERFORMANCE_INFORMATION performanceInfo;
-    BfBatchFile batchFile(GameId);
+    BfBatchFile batchFile(Game);
 
-    // Check if game is already cached so we donot
-    // have wait through another
-    if (wcscmp(g_szPrevGame, GameId) == 0 && !g_bRecache)
+    installPath = Game->GetInstallPath();
+
+    // Check if game is already cached so we donot have wait through another
+    if (wcscmp(g_szPrevGame, installPath) == 0 && !g_bRecache)
         return;
 
     g_bRecache = FALSE;
 
-    buffer = IniReadSubKey(L"Game Settings", GameId, L"Path");
-
-    wcscpy(gamePath, buffer);
-    RtlFreeHeap(PushHeapHandle, 0, buffer);
-
-    if (!FolderExists(gamePath))
+    if (!FolderExists(installPath))
     {
         MessageBoxW(0, L"Folder not exist!", 0,0);
 
@@ -374,7 +369,8 @@ Cache( WCHAR* GameId )
     // Release batchfile list
     PushFileList = NULL;
 
-    wcscpy(g_szPrevGame, GameId);
+    wcscpy(g_szPrevGame, installPath);
+    RtlFreeHeap(PushHeapHandle, 0, installPath);
 }
 
 
@@ -385,8 +381,8 @@ OnProcessEvent( UINT16 processID )
     VOID *processHandle = NULL;
     UINT32 iBytesRead;
     WCHAR *result = 0;
-    WCHAR *gameId;
     CHAR szCommand[] = "MUTEPIN 1 a";
+    DWORD flags;
     
     processHandle = SlOpenProcess(processID, PROCESS_QUERY_INFORMATION | PROCESS_SUSPEND_RESUME);
 
@@ -395,9 +391,10 @@ OnProcessEvent( UINT16 processID )
 
     GetProcessImageFileNameW(processHandle, fileName, 260);
     NormalizeNTPath(fileName, 260);
-
-    // Get game ID
-    gameId = IniReadString(L"Games", fileName, NULL);
+    
+    PushGame game(fileName);
+    
+    flags = game.GetFlags();
 
     if (!IsGame(fileName))
     {
@@ -405,29 +402,23 @@ OnProcessEvent( UINT16 processID )
 
         goto closeandreturn;
     }
-    else
-    {
-        if (IniReadSubKeyBoolean(L"Game Settings", gameId, L"UseRamDisk", FALSE))
-            PushSharedMemory->GameUsesRamDisk = TRUE;
-    }
 
-    if (PushSharedMemory->GameUsesRamDisk)
+    if (flags & GAME_RAMDISK)
+    {
+        PushSharedMemory->GameUsesRamDisk = TRUE;
+
         //suspend process to allow us time to cache files
-    {
         NtSuspendProcess(processHandle);
-        Cache(gameId);
+        Cache(&game);
     }
 
-    //check for forced vsync
-    if (IniReadSubKeyBoolean(L"Game Settings", gameId, L"ForceVsync", FALSE))
+    if (flags & GAME_VSYNC)
         PushSharedMemory->ForceVsync = TRUE;
 
-    //check for key repeat
-    if (IniReadSubKeyBoolean(L"Game Settings", gameId, L"DisableRepeatKeys", FALSE))
+    if (flags & GAME_REPEAT_KEYS)
         PushSharedMemory->DisableRepeatKeys = TRUE;
 
-    // Check if user wants to emulate arrow keys with WASD keys
-    if (IniReadSubKeyBoolean(L"Game Settings", gameId, L"SwapWASD", FALSE))
+    if (flags & GAME_WASD)
         PushSharedMemory->SwapWASD = TRUE;
 
     // Check if user wants maximum gpu engine and memory clocks
@@ -450,7 +441,6 @@ OnProcessEvent( UINT16 processID )
 
 closeandreturn:
 
-    //CloseHandle(processHandle);
     NtClose(processHandle);
 }
 

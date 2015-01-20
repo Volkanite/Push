@@ -1,13 +1,17 @@
 #ifndef BATCH_H
 #define BATCH_H
 
+
+#include "game.h"
+
+
 class BfBatchFile{
     FILE_LIST FileList;
     WCHAR* BatchFileName;
     UINT64 BatchSize;
 
 public:
-    BfBatchFile( WCHAR* Game );
+    BfBatchFile( PushGame* Game );
     ~BfBatchFile();
     BOOLEAN IsBatchedFile( FILE_LIST_ENTRY* File );
     UINT64 GetBatchSize();
