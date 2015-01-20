@@ -24,8 +24,11 @@ VOID
 StartCounter()
 {
     LARGE_INTEGER li;
+    LARGE_INTEGER freq;
 
-    PCFreq = (double) PushSharedMemory->performanceFrequency / 1000.0;
+    QueryPerformanceFrequency(&freq);
+
+    PCFreq = (double) freq.QuadPart / 1000.0;
 
     QueryPerformanceCounter(&li);
     CounterStart = li.QuadPart;

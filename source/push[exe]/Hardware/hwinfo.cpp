@@ -154,99 +154,65 @@ GetRamUsage()
 }
 
 
-UINT8
-GetCpuLoad()
-{
-    ULARGE_INTEGER idle, kernel, user;
-    static ULARGE_INTEGER  idle_old, kernel_old, user_old;
-    INT32 usage;
-
-    GetSystemTimes( (FILETIME *) &idle, (FILETIME *) &kernel, (FILETIME *) &user);
-
-    usage = (((((kernel.QuadPart - kernel_old.QuadPart) + (user.QuadPart - user_old.QuadPart)) - (idle.QuadPart - idle_old.QuadPart)) * (100)) / ((kernel.QuadPart - kernel_old.QuadPart) + (user.QuadPart    - user_old.QuadPart)));
-
-    idle_old.QuadPart   = idle.QuadPart;
-    user_old.QuadPart   = user.QuadPart;
-    kernel_old.QuadPart = kernel.QuadPart;
-
-    return usage;
-}
-
 typedef struct _SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION
 {
-    LARGE_INTEGER   IdleTime;
-    LARGE_INTEGER   KernelTime;
-    LARGE_INTEGER   UserTime;
-    LARGE_INTEGER   Reserved1[2];
-    ULONG           Reserved2;
+    LARGE_INTEGER IdleTime;
+    LARGE_INTEGER KernelTime;
+    LARGE_INTEGER UserTime;
+    LARGE_INTEGER DpcTime;
+    LARGE_INTEGER InterruptTime;
+    ULONG InterruptCount;
 } SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION;
 
+typedef struct _PH_UINT64_DELTA
+{
+    UINT64 Value;
+    UINT64 Delta;
+} PH_UINT64_DELTA, *PPH_UINT64_DELTA;
 
-#define SUCCEEDED(hr) (((long)(hr)) >= 0)
+
+#define PhUpdateDelta(DltMgr, NewValue) \
+    ((DltMgr)->Delta = (NewValue) - (DltMgr)->Value, \
+    (DltMgr)->Value = (NewValue), (DltMgr)->Delta)
+
+FLOAT PhCpuKernelUsage;
+FLOAT PhCpuUserUsage;
+FLOAT *PhCpusKernelUsage;
+FLOAT* PhCpusUserUsage;
+
+PPH_UINT64_DELTA PhCpusKernelDelta;
+PPH_UINT64_DELTA PhCpusUserDelta;
+PPH_UINT64_DELTA PhCpusIdleDelta;
+
+PH_UINT64_DELTA PhCpuKernelDelta;
+PH_UINT64_DELTA PhCpuUserDelta;
+PH_UINT64_DELTA PhCpuIdleDelta;
+
+SYSTEM_BASIC_INFORMATION PhSystemBasicInformation;
+SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION *PhCpuInformation;
+
 
 
 FLOAT
-GetCpuCoreUsage( UINT8 coreNumber )
+GetCpuUsage( UINT8 Cpu );
+
+
+
+UINT8
+GetCpuLoad()
 {
-    LARGE_INTEGER perfCounter;
-    CORE_LIST *coreListEntry = &hardware.Processor.coreList;
-
-    while (coreListEntry->number != coreNumber)
-    {
-        coreListEntry = coreListEntry->nextEntry;
-    }
-
-    if (!PushSharedMemory->performanceFrequency)
-        //init high-resolution timer if it is not initialized yet
-        NtQueryPerformanceCounter(&perfCounter, (LARGE_INTEGER*) &PushSharedMemory->performanceFrequency );
-
-    if (PushSharedMemory->performanceFrequency)
-        //we can perform calcualtion only if high-resolution timer is available
-    {
-        NtQueryPerformanceCounter(&perfCounter, NULL);
-            //query high-resolution time counter
-
-        if (perfCounter.QuadPart - coreListEntry->perfCounter.QuadPart >= PushSharedMemory->performanceFrequency)
-            //update usage once per second
-        {
-            UINT32 size = sizeof(SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION) * hardware.Processor.NumberOfCores;
-
-            SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION *info = (SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION*) RtlAllocateHeap(PushHeapHandle, 0, size);
-
-            if (SUCCEEDED(NtQuerySystemInformation(SystemProcessorPerformanceInformation, info, size, NULL)))
-                //query CPU usage
-            {
-                if (coreListEntry->idleTime.QuadPart)
-                    //ensure that this function was already called at least once
-                    //and we have the previous idle time value
-                {
-                    coreListEntry->usage = 100.0f - 0.00001f * (info[coreListEntry->number].IdleTime.QuadPart - coreListEntry->idleTime.QuadPart) * PushSharedMemory->performanceFrequency / (perfCounter.QuadPart - coreListEntry->perfCounter.QuadPart);
-                        //calculate new CPU usage value by estimating amount of time
-                        //CPU was in idle during the last second
-
-                    //clip calculated CPU usage to [0-100] range to filter calculation non-ideality
-
-                    if (coreListEntry->usage < 0.0f)
-                        coreListEntry->usage = 0.0f;
-
-                    if (coreListEntry->usage > 100.0f)
-                        coreListEntry->usage = 100.0f;
-
-                }
-
-                coreListEntry->idleTime = info[coreListEntry->number].IdleTime;
-                    //save new idle time for specified CPU
-                coreListEntry->perfCounter = perfCounter;
-                    //save new performance counter for specified CPU
-
-                //SlFree(info);
-                RtlFreeHeap(PushHeapHandle, 0, info);
-            }
-        }
-    }
-
-    return coreListEntry->usage;
+    return (PhCpuUserUsage + PhCpuKernelUsage) * 100;
 }
+
+
+FLOAT
+GetCpuUsage( UINT8 Cpu )
+{
+    return (PhCpusUserUsage[Cpu] + PhCpusKernelUsage[Cpu]) * 100;
+}
+
+
+#define SUCCEEDED(hr) (((long)(hr)) >= 0)
 
 
 UINT8
@@ -258,7 +224,7 @@ GetMaxCoreLoad()
 
     for (i = 0; i < hardware.Processor.NumberOfCores; i++)
     {
-        usage = GetCpuCoreUsage(i);
+        usage = GetCpuUsage(i);
 
         if (usage > maxUsage)
         {
@@ -288,6 +254,126 @@ VOID
 HwForceMaxClocks()
 {
     HwGpu->ForceMaximumClocks();
+}
+
+
+VOID 
+PhProcessProviderInitialization()
+{
+    FLOAT *usageBuffer;
+    PPH_UINT64_DELTA deltaBuffer;
+
+    NtQuerySystemInformation(
+        SystemBasicInformation, 
+        &PhSystemBasicInformation, 
+        sizeof(SYSTEM_BASIC_INFORMATION), 
+        NULL
+        );
+
+    PhCpuInformation = (SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION*) RtlAllocateHeap(
+        PushHeapHandle, 
+        0, 
+        sizeof(SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION) * (ULONG)PhSystemBasicInformation.NumberOfProcessors
+        );
+
+    usageBuffer = (FLOAT*) RtlAllocateHeap(
+        PushHeapHandle, 
+        0, 
+        sizeof(FLOAT) * (ULONG)PhSystemBasicInformation.NumberOfProcessors * 2
+        );
+
+    deltaBuffer = (PPH_UINT64_DELTA) RtlAllocateHeap(
+        PushHeapHandle, 
+        0, 
+        sizeof(PH_UINT64_DELTA) * (ULONG)PhSystemBasicInformation.NumberOfProcessors * 3
+        );
+
+    PhCpusKernelUsage = usageBuffer;
+    PhCpusUserUsage = PhCpusKernelUsage + (ULONG)PhSystemBasicInformation.NumberOfProcessors;
+
+    PhCpusKernelDelta = deltaBuffer;
+    PhCpusUserDelta = PhCpusKernelDelta + (ULONG)PhSystemBasicInformation.NumberOfProcessors;
+    PhCpusIdleDelta = PhCpusUserDelta + (ULONG)PhSystemBasicInformation.NumberOfProcessors;
+
+    memset(deltaBuffer, 0, sizeof(PH_UINT64_DELTA) * (ULONG)PhSystemBasicInformation.NumberOfProcessors);
+}
+
+
+VOID 
+PhpUpdateCpuInformation()
+{
+    ULONG i;
+    UINT64 totalTime;
+    
+    SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION PhCpuTotals;
+    static BOOLEAN init = FALSE;
+
+    if (!init)
+    {
+        PhProcessProviderInitialization();
+
+        init = TRUE;
+    }
+
+    NtQuerySystemInformation(
+        SystemProcessorPerformanceInformation, 
+        PhCpuInformation, 
+        sizeof(SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION) * (ULONG)PhSystemBasicInformation.NumberOfProcessors, 
+        NULL
+        );
+
+    // Zero the CPU totals.
+    memset(&PhCpuTotals, 0, sizeof(SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION));
+
+    for (i = 0; i < (ULONG)PhSystemBasicInformation.NumberOfProcessors; i++)
+    {
+        SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION *cpuInfo = &PhCpuInformation[i];
+
+        // KernelTime includes idle time.
+        cpuInfo->KernelTime.QuadPart -= cpuInfo->IdleTime.QuadPart;
+        cpuInfo->KernelTime.QuadPart += cpuInfo->DpcTime.QuadPart + cpuInfo->InterruptTime.QuadPart;
+
+        PhCpuTotals.DpcTime.QuadPart += cpuInfo->DpcTime.QuadPart;
+        PhCpuTotals.IdleTime.QuadPart += cpuInfo->IdleTime.QuadPart;
+        PhCpuTotals.InterruptCount += cpuInfo->InterruptCount;
+        PhCpuTotals.InterruptTime.QuadPart += cpuInfo->InterruptTime.QuadPart;
+        PhCpuTotals.KernelTime.QuadPart += cpuInfo->KernelTime.QuadPart;
+        PhCpuTotals.UserTime.QuadPart += cpuInfo->UserTime.QuadPart;
+
+        PhUpdateDelta(&PhCpusKernelDelta[i], cpuInfo->KernelTime.QuadPart);
+        PhUpdateDelta(&PhCpusUserDelta[i], cpuInfo->UserTime.QuadPart);
+        PhUpdateDelta(&PhCpusIdleDelta[i], cpuInfo->IdleTime.QuadPart);
+
+        totalTime = PhCpusKernelDelta[i].Delta + PhCpusUserDelta[i].Delta + PhCpusIdleDelta[i].Delta;
+
+        if (totalTime != 0)
+        {
+            PhCpusKernelUsage[i] = (FLOAT)PhCpusKernelDelta[i].Delta / totalTime;
+            PhCpusUserUsage[i] = (FLOAT)PhCpusUserDelta[i].Delta / totalTime;
+        }
+        else
+        {
+            PhCpusKernelUsage[i] = 0;
+            PhCpusUserUsage[i] = 0;
+        }
+    }
+
+    PhUpdateDelta(&PhCpuKernelDelta, PhCpuTotals.KernelTime.QuadPart);
+    PhUpdateDelta(&PhCpuUserDelta, PhCpuTotals.UserTime.QuadPart);
+    PhUpdateDelta(&PhCpuIdleDelta, PhCpuTotals.IdleTime.QuadPart);
+
+    totalTime = PhCpuKernelDelta.Delta + PhCpuUserDelta.Delta + PhCpuIdleDelta.Delta;
+
+    if (totalTime != 0)
+    {
+        PhCpuKernelUsage = (FLOAT)PhCpuKernelDelta.Delta / totalTime;
+        PhCpuUserUsage = (FLOAT)PhCpuUserDelta.Delta / totalTime;
+    }
+    else
+    {
+        PhCpuKernelUsage = 0;
+        PhCpuUserUsage = 0;
+    }
 }
 
 
@@ -504,6 +590,8 @@ GetHardwareInfo()
 VOID
 RefreshHardwareInfo()
 {
+    PhpUpdateCpuInformation();
+
     hardware.Processor.Load                 = GetCpuLoad();
     hardware.Processor.MaxCoreUsage         = GetMaxCoreLoad();
     hardware.Processor.Temperature          = GetCpuTemp();
@@ -520,6 +608,7 @@ RefreshHardwareInfo()
 
     // We actually get some information from other sources
     hardware.Processor.MaxThreadUsage = PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage;
+    
 
 
     /*if (PushSharedMemory->ThreadMonitorOSD)
