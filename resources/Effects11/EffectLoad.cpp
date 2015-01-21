@@ -3057,6 +3057,58 @@ lExit:
     return hr;
 }
 
+HMODULE 
+GetD3DCompiler()
+{
+    WCHAR buf[32];
+    int i;
+    HMODULE mod;
+
+    for (i = 50; i >= 30; i--)
+    {
+        swprintf_s(
+            buf, 
+            ARRAYSIZE(buf), 
+            L"D3DCompiler_%d.dll", 
+            i
+            );
+
+        mod = LoadLibraryExW(
+            buf, 
+            NULL, 
+            NULL
+            );
+        
+        if (mod)
+            return mod;
+    }
+
+    return NULL;
+}
+
+
+
+typedef HRESULT (__stdcall *TYPE_D3DGetBlobPart)(
+    LPCVOID pSrcData,
+    SIZE_T SrcDataSize,
+    D3D_BLOB_PART Part,
+    UINT Flags,
+    ID3DBlob **ppBlob
+);
+
+typedef HRESULT (__stdcall *TYPE_D3DReflect)(
+    LPCVOID pSrcData,
+    SIZE_T SrcDataSize,
+    REFIID pInterface,
+    void **ppReflector
+);
+
+
+
+TYPE_D3DGetBlobPart IMP_D3DGetBlobPart;
+TYPE_D3DReflect     IMP_D3DReflect;
+
+
 // Create shader reflection interface and grab dependency info
 HRESULT CEffectLoader::BuildShaderBlock(SShaderBlock *pShaderBlock)
 {
@@ -3077,8 +3129,16 @@ HRESULT CEffectLoader::BuildShaderBlock(SShaderBlock *pShaderBlock)
         return S_OK;
     }
 
+    // Dynamic Imports
+    HMODULE d3dcompiler;
+
+    d3dcompiler = GetD3DCompiler();
+    
+    IMP_D3DGetBlobPart = (TYPE_D3DGetBlobPart) GetProcAddress(d3dcompiler, "D3DGetBlobPart");
+    IMP_D3DReflect = (TYPE_D3DReflect) GetProcAddress(d3dcompiler, "D3DReflect");
+
     // Initialize the reflection interface
-    VHD( D3DReflect( pShaderBlock->pReflectionData->pBytecode, pShaderBlock->pReflectionData->BytecodeLength, IID_ID3D11ShaderReflection, (void**)&pShaderBlock->pReflectionData->pReflection ),
+    VHD( IMP_D3DReflect( pShaderBlock->pReflectionData->pBytecode, pShaderBlock->pReflectionData->BytecodeLength, IID_ID3D11ShaderReflection, (void**)&pShaderBlock->pReflectionData->pReflection ),
          "Internal loading error: cannot create shader reflection object." );
 
     // Get dependencies
@@ -3088,7 +3148,7 @@ HRESULT CEffectLoader::BuildShaderBlock(SShaderBlock *pShaderBlock)
     if( EOT_VertexShader == pShaderBlock->GetShaderType() )
     {
         assert( pShaderBlock->pInputSignatureBlob == nullptr );
-        VHD( D3DGetBlobPart( pShaderBlock->pReflectionData->pBytecode, pShaderBlock->pReflectionData->BytecodeLength, 
+        VHD( IMP_D3DGetBlobPart( pShaderBlock->pReflectionData->pBytecode, pShaderBlock->pReflectionData->BytecodeLength, 
                              D3D_BLOB_INPUT_SIGNATURE_BLOB, 0,
                              &pShaderBlock->pInputSignatureBlob ),
              "Internal loading error: cannot get input signature." );

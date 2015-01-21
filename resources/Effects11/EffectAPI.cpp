@@ -182,6 +182,23 @@ lExit:
 }
 
 
+extern HMODULE GetD3DCompiler();
+
+typedef HRESULT (__stdcall *TYPE_D3DCompile)(
+    LPCVOID pSrcData,
+    SIZE_T SrcDataSize,
+    LPCSTR pSourceName,
+    const D3D_SHADER_MACRO *pDefines,
+    ID3DInclude *pInclude,
+    LPCSTR pEntrypoint,
+    LPCSTR pTarget,
+    UINT Flags1,
+    UINT Flags2,
+    ID3DBlob **ppCode,
+    ID3DBlob **ppErrorMsgs
+);
+
+TYPE_D3DCompile IMP_D3DCompile;
 //--------------------------------------------------------------------------------------
 
 _Use_decl_annotations_
@@ -199,7 +216,11 @@ HRESULT D3DX11CompileEffectFromMemory( LPCVOID pData, SIZE_T DataLength, LPCSTR 
     }
 
     ID3DBlob *blob = nullptr;
-    HRESULT hr = D3DCompile( pData, DataLength, srcName, pDefines, pInclude, "", "fx_5_0", HLSLFlags, FXFlags, &blob, ppErrors );
+    
+    // Dynamic Import
+    IMP_D3DCompile = (TYPE_D3DCompile) GetProcAddress(GetD3DCompiler(), "D3DCompile");
+    HRESULT hr = IMP_D3DCompile( pData, DataLength, srcName, pDefines, pInclude, "", "fx_5_0", HLSLFlags, FXFlags, &blob, ppErrors );
+    
     if ( FAILED(hr) )
     {
         DPF(0, "D3DCompile of fx_5_0 profile failed: %08X", hr );
@@ -279,7 +300,7 @@ HRESULT D3DX11CompileEffectFromFile( LPCWSTR pFileName,
         pstrName++;
     }
 
-    hr = D3DCompile( fileData.get(), size, pstrName, pDefines, pInclude, "", "fx_5_0", HLSLFlags, FXFlags, &blob, ppErrors );
+    hr = IMP_D3DCompile( fileData.get(), size, pstrName, pDefines, pInclude, "", "fx_5_0", HLSLFlags, FXFlags, &blob, ppErrors );
     if ( FAILED(hr) )
     {
         DPF(0, "D3DCompile of fx_5_0 profile failed: %08X", hr );
