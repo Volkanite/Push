@@ -34,10 +34,11 @@ AddItems()
         MnuMenu->AddItem(L"RAM usage",               ItemOpt, &MnuOsd[8].Var);
         MnuMenu->AddItem(L"Max core usage",          ItemOpt, &MnuOsd[9].Var);
         MnuMenu->AddItem(L"Max thread usage",        ItemOpt, &MnuOsd[10].Var);
-        MnuMenu->AddItem(L"Disk read-write rate",    ItemOpt, &MnuOsd[11].Var);
-        MnuMenu->AddItem(L"Disk response time",      ItemOpt, &MnuOsd[12].Var);
-        MnuMenu->AddItem(L"Frame Buffer count",      ItemOpt, &MnuOsd[13].Var);
-        MnuMenu->AddItem(L"Show Time",               ItemOpt, &MnuOsd[14].Var);
+        MnuMenu->AddItem(L"Estimated CPU usage",     ItemOpt, &MnuOsd[11].Var);
+        MnuMenu->AddItem(L"Disk read-write rate",    ItemOpt, &MnuOsd[12].Var);
+        MnuMenu->AddItem(L"Disk response time",      ItemOpt, &MnuOsd[13].Var);
+        MnuMenu->AddItem(L"Frame Buffer count",      ItemOpt, &MnuOsd[14].Var);
+        MnuMenu->AddItem(L"Show Time",               ItemOpt, &MnuOsd[15].Var);
     }
 
     MnuMenu->AddGroup(L"CACHE", GroupOpt, &MnuCache[0].Var);
