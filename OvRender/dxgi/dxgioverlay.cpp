@@ -96,18 +96,6 @@ DxgiOverlay::DrawText( WCHAR* Text, int X, int Y, DWORD Color )
 
 
 VOID
-DxgiOverlay::DrawPrimitiveUP( 
-    OVPRIMITIVETYPE PrimitiveType, 
-    UINT PrimitiveCount, 
-    const void *VertexData, 
-    UINT VertexSize 
-    )
-{
-
-}
-
-
-VOID
 DxgiOverlay::Begin()
 {
 

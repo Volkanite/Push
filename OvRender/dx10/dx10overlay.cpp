@@ -51,18 +51,6 @@ Dx10Overlay::DrawText( WCHAR* Text, int X, int Y, DWORD Color )
 
 
 VOID
-Dx10Overlay::DrawPrimitiveUP( 
-    OVPRIMITIVETYPE PrimitiveType, 
-    UINT PrimitiveCount, 
-    const void *VertexData, 
-    UINT VertexSize 
-    )
-{
-
-}
-
-
-VOID
 Dx10Overlay::Begin()
 {
     Dx10OvFont->Begin();

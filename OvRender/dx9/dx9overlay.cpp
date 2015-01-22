@@ -37,9 +37,9 @@ IDirect3DDevice9_ResetCallback(
 
     Dx9OvFont = NULL;
 
-	// Force vsync?
-	if (OvDx9Overlay->ForceVsync)
-		PresentationParameters->PresentationInterval = 1;
+    // Force vsync?
+    if (OvDx9Overlay->ForceVsync)
+        PresentationParameters->PresentationInterval = 1;
 }
 
 
@@ -113,23 +113,6 @@ VOID
 Dx9Overlay::DrawText( WCHAR* Text, int X, int Y, DWORD Color )
 {
     Dx9OvFont->DrawText(X, Y, Color, Text, NULL);
-}
-
-
-VOID
-Dx9Overlay::DrawPrimitiveUP( 
-    OVPRIMITIVETYPE PrimitiveType, 
-    UINT PrimitiveCount, 
-    const void *VertexData, 
-    UINT VertexSize 
-    )
-{
-    Dx9OvDevice->DrawPrimitiveUP( 
-        (D3DPRIMITIVETYPE)PrimitiveType, 
-        PrimitiveCount, 
-        VertexData, 
-        VertexSize 
-        );
 }
 
 

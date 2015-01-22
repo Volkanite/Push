@@ -55,18 +55,6 @@ Dx11Overlay::DrawText( WCHAR* Text, int X, int Y, DWORD Color )
 
 
 VOID
-Dx11Overlay::DrawPrimitiveUP( 
-    OVPRIMITIVETYPE PrimitiveType, 
-    UINT PrimitiveCount, 
-    const void *VertexData, 
-    UINT VertexSize 
-    )
-{
-
-}
-
-
-VOID
 Dx11Overlay::Begin()
 {
     Dx11OvFont->Begin();

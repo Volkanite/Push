@@ -75,18 +75,6 @@ Dx8Overlay::DrawText( WCHAR* Text, int X, int Y, DWORD Color )
 
 
 VOID
-Dx8Overlay::DrawPrimitiveUP( 
-    OVPRIMITIVETYPE PrimitiveType, 
-    UINT PrimitiveCount, 
-    const void *VertexData, 
-    UINT VertexSize 
-    )
-{
-
-}
-
-
-VOID
 Dx8Overlay::Begin()
 {
 
