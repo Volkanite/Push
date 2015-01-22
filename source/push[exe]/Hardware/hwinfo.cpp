@@ -531,7 +531,7 @@ GetHardwareInfo()
         hardware.DisplayDevice.MemoryClockMax   = HwGpu->GetMaximumMemoryClock();
     }
 
-    if (IniReadBoolean(L"Settings", L"GpuUsageD3DKMT", FALSE, L".\\" PUSH_SETTINGS_FILE))
+    if (SlIniReadBoolean(L"Settings", L"GpuUsageD3DKMT", FALSE, L".\\" PUSH_SETTINGS_FILE))
         PushGpuLoadD3DKMT = TRUE;
 
     // Get the number of processors in the system

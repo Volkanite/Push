@@ -548,12 +548,12 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
 
                     imageName = SlStringFindLastChar(filePath, '\\') + 1;
 
-                    if (IniReadBoolean(L"Games", imageName, FALSE, L".\\" PUSH_SETTINGS_FILE))
+                    if (SlIniReadBoolean(L"Games", imageName, FALSE, L".\\" PUSH_SETTINGS_FILE))
                         imageName = filePath;
 
                     // Get free index.
 
-                    games = IniReadString(L"Games", NULL, NULL, L".\\" PUSH_SETTINGS_FILE);
+                    games = SlIniReadString(L"Games", NULL, NULL, L".\\" PUSH_SETTINGS_FILE);
 
                     if (games)
                     {
@@ -566,7 +566,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     i++;
 
                     swprintf(indexString, 10, L"%i", i);
-                    IniWriteString(L"Games", filePath, indexString, L".\\" PUSH_SETTINGS_FILE);
+                    SlIniWriteString(L"Games", filePath, indexString, L".\\" PUSH_SETTINGS_FILE);
                     GetPathOnly(filePath, path);
 
                     slash = SlStringFindLastChar(path, '\\');
@@ -591,7 +591,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                             WCHAR *pszGames;
                             INT32   i;
 
-                            pszGames = IniReadString(L"Games", 0, 0, L".\\" PUSH_SETTINGS_FILE);
+                            pszGames = SlIniReadString(L"Games", 0, 0, L".\\" PUSH_SETTINGS_FILE);
 
                             if (pszGames)
                             {

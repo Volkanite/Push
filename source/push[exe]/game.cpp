@@ -29,9 +29,9 @@ PushGame::GetName()
 {
     WCHAR* gameId;
 
-    gameId = IniReadString(L"Games", GameWin32Name, NULL, L".\\" PUSH_SETTINGS_FILE);
+    gameId = SlIniReadString(L"Games", GameWin32Name, NULL, L".\\" PUSH_SETTINGS_FILE);
     
-    return IniReadSubKey(L"Game Settings", gameId, L"Name", L".\\" PUSH_SETTINGS_FILE);
+    return SlIniReadSubKey(L"Game Settings", gameId, L"Name", L".\\" PUSH_SETTINGS_FILE);
 }
 
 
@@ -40,9 +40,9 @@ PushGame::SetName( WCHAR* Name )
 {
     WCHAR* gameId;
 
-    gameId = IniReadString(L"Games", GameWin32Name, NULL, L".\\" PUSH_SETTINGS_FILE);
+    gameId = SlIniReadString(L"Games", GameWin32Name, NULL, L".\\" PUSH_SETTINGS_FILE);
 
-    IniWriteSubKey(L"Game Settings", gameId, L"Name", Name, L".\\" PUSH_SETTINGS_FILE);
+    SlIniWriteSubKey(L"Game Settings", gameId, L"Name", Name, L".\\" PUSH_SETTINGS_FILE);
 }
 
 
@@ -51,9 +51,9 @@ PushGame::GetInstallPath()
 {
     WCHAR* gameId;
 
-    gameId = IniReadString(L"Games", GameWin32Name, NULL, L".\\" PUSH_SETTINGS_FILE);
+    gameId = SlIniReadString(L"Games", GameWin32Name, NULL, L".\\" PUSH_SETTINGS_FILE);
 
-    return IniReadSubKey(L"Game Settings", gameId, GAME_INSTALL_PATH, L".\\" PUSH_SETTINGS_FILE);
+    return SlIniReadSubKey(L"Game Settings", gameId, GAME_INSTALL_PATH, L".\\" PUSH_SETTINGS_FILE);
 }
 
 
@@ -62,9 +62,9 @@ PushGame::SetInstallPath( WCHAR* Path )
 {
     WCHAR* gameId;
 
-    gameId = IniReadString(L"Games", GameWin32Name, NULL, L".\\" PUSH_SETTINGS_FILE);
+    gameId = SlIniReadString(L"Games", GameWin32Name, NULL, L".\\" PUSH_SETTINGS_FILE);
 
-    IniWriteSubKey(L"Game Settings", gameId, GAME_INSTALL_PATH, Path, L".\\" PUSH_SETTINGS_FILE);
+    SlIniWriteSubKey(L"Game Settings", gameId, GAME_INSTALL_PATH, Path, L".\\" PUSH_SETTINGS_FILE);
 }
 
 
@@ -74,22 +74,22 @@ PushGame::GetFlags()
     DWORD flags = 0;
     WCHAR* gameId;
 
-    gameId = IniReadString(L"Games", GameWin32Name, NULL, L".\\" PUSH_SETTINGS_FILE);
+    gameId = SlIniReadString(L"Games", GameWin32Name, NULL, L".\\" PUSH_SETTINGS_FILE);
 
     // Need ramdisk?
-    if (IniReadSubKeyBoolean(L"Game Settings", gameId, L"UseRamDisk", FALSE, L".\\" PUSH_SETTINGS_FILE))
+    if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"UseRamDisk", FALSE, L".\\" PUSH_SETTINGS_FILE))
         flags |= GAME_RAMDISK;
 
     //check for forced vsync
-    if (IniReadSubKeyBoolean(L"Game Settings", gameId, L"ForceVsync", FALSE, L".\\" PUSH_SETTINGS_FILE))
+    if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"ForceVsync", FALSE, L".\\" PUSH_SETTINGS_FILE))
         flags |= GAME_VSYNC;
 
     //check for key repeat
-    if (IniReadSubKeyBoolean(L"Game Settings", gameId, L"DisableRepeatKeys", FALSE, L".\\" PUSH_SETTINGS_FILE))
+    if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"DisableRepeatKeys", FALSE, L".\\" PUSH_SETTINGS_FILE))
         flags |= GAME_REPEAT_KEYS;
 
     // Check if user wants to emulate arrow keys with WASD keys
-    if (IniReadSubKeyBoolean(L"Game Settings", gameId, L"SwapWASD", FALSE, L".\\" PUSH_SETTINGS_FILE))
+    if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"SwapWASD", FALSE, L".\\" PUSH_SETTINGS_FILE))
         flags |= GAME_WASD;
 
     return flags;
@@ -101,8 +101,8 @@ PushGame::SetFlags( DWORD Flags )
 {
     WCHAR* gameId;
 
-    gameId = IniReadString(L"Games", GameWin32Name, NULL, L".\\" PUSH_SETTINGS_FILE);
+    gameId = SlIniReadString(L"Games", GameWin32Name, NULL, L".\\" PUSH_SETTINGS_FILE);
 
     if (Flags & GAME_RAMDISK)
-        IniWriteSubKey(L"Game Settings", gameId, L"UseRamDisk", L"True", L".\\" PUSH_SETTINGS_FILE);
+        SlIniWriteSubKey(L"Game Settings", gameId, L"UseRamDisk", L"True", L".\\" PUSH_SETTINGS_FILE);
 }

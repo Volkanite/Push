@@ -4,14 +4,14 @@
 
 
 INT32
-IniReadInteger(
+SlIniReadInteger(
     char* szSection,
     char* szKey,
     INT32 iDefaultValue
     );
 
 FLOAT
-IniReadFloat(
+SlIniReadFloat(
     CHAR* szSection,
     CHAR* szKey,
     FLOAT fltDefaultValue
@@ -21,64 +21,62 @@ IniReadFloat(
 extern "C" {
 #endif
 
-BOOLEAN IniReadBoolean(
+BOOLEAN SlIniReadBoolean(
     WCHAR* section,
     WCHAR* key,
     BOOLEAN defaultValue,
-	WCHAR* File
+    WCHAR* File
     );
 
-WCHAR* IniReadString(
+WCHAR* SlIniReadString(
     WCHAR* section,
     WCHAR* key,
     WCHAR* defaultValue,
-	WCHAR* File
+    WCHAR* File
     );
 
-WCHAR*
-IniReadSubKey(
+WCHAR* SlIniReadSubKey(
     WCHAR *section,
     WCHAR *masterKey,
     WCHAR *subKey,
-	WCHAR* File
+    WCHAR* File
     );
 
-BOOLEAN IniReadSubKeyBoolean(
+BOOLEAN SlIniReadSubKeyBoolean(
     WCHAR *section,
     WCHAR *masterKey,
     WCHAR *subKey,
     BOOLEAN defaultValue,
-	WCHAR* File
+    WCHAR* File
     );
 
-VOID
-IniWriteInteger(
+VOID SlIniWriteInteger(
     CHAR* szSection,
     CHAR* szKey,
     INT32 iValue
     );
 
-VOID IniWriteFloat(
+VOID SlIniWriteFloat(
     CHAR* szSection,
     CHAR* szKey,
     FLOAT fltValue );
 
-VOID IniWriteBoolean(
+VOID SlIniWriteBoolean(
     WCHAR* szSection,
     WCHAR* szKey,
     BOOLEAN bolValue,
-	WCHAR* File
+    WCHAR* File
     );
 
-VOID IniWriteSubKey(
+VOID SlIniWriteSubKey(
     WCHAR *pszSection,
     WCHAR *pszMasterKey,
     WCHAR *pszSubKey,
     WCHAR *pszValue,
-	WCHAR* File
-	);
+    WCHAR* File
+    );
 
-BOOLEAN IniWriteString( 
+BOOLEAN SlIniWriteString( 
     WCHAR* section, 
     WCHAR* entry, 
     WCHAR* string, 
