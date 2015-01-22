@@ -2,7 +2,7 @@
 #include <slntuapi.h>
 #include <slgui.h>
 #include <wchar.h>
-#include <ini.h>
+#include <slini.h>
 #include <file.h>
 
 #include "gui.h"

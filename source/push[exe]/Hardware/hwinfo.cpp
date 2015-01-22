@@ -10,7 +10,7 @@
 
 #include "..\push.h"
 #include "..\ring0.h"
-#include "..\ini.h"
+#include <slini.h>
 
 
 #include "hwinfo.h"
@@ -531,20 +531,11 @@ GetHardwareInfo()
         hardware.DisplayDevice.MemoryClockMax   = HwGpu->GetMaximumMemoryClock();
     }
 
-    if (IniReadBoolean(L"Settings", L"GpuUsageD3DKMT", FALSE))
+    if (IniReadBoolean(L"Settings", L"GpuUsageD3DKMT", FALSE, L".\\" PUSH_SETTINGS_FILE))
         PushGpuLoadD3DKMT = TRUE;
 
-    /*if (PushGpuLoadD3DKMT || hardware.DisplayDevice.VendorId)
-        //InitializeD3DKMT();
-        D3DKMTInitialize();*/
-
     // Get the number of processors in the system
-    NtQuerySystemInformation(
-        SystemBasicInformation,
-        &basicInfo,
-        sizeof(SYSTEM_BASIC_INFORMATION),
-        0
-        );
+    NtQuerySystemInformation(SystemBasicInformation, &basicInfo, sizeof(SYSTEM_BASIC_INFORMATION), 0);
 
     hardware.Processor.NumberOfCores = basicInfo.NumberOfProcessors;
     PushPageSize = basicInfo.PageSize;

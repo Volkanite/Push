@@ -35,7 +35,6 @@
     <ClCompile Include="Hardware\GPU\IntelGpu.cpp" />
     <ClCompile Include="Hardware\GPU\NvidiaGpu.cpp" />
     <ClCompile Include="Hardware\hwinfo.cpp" />
-    <ClCompile Include="ini.c" />
     <ClCompile Include="push.cpp" />
     <ClCompile Include="RAMdisk\ramdisk.c" />
     <ClCompile Include="ring0.c" />
@@ -57,7 +56,6 @@
     <ClInclude Include="Hardware\GPU\IntelGpu.h" />
     <ClInclude Include="Hardware\GPU\NvidiaGpu.h" />
     <ClInclude Include="hardware\hwinfo.h" />
-    <ClInclude Include="ini.h" />
     <ClInclude Include="push.h" />
     <ClInclude Include="RAMdisk\ramdisk.h" />
     <ClInclude Include="ring0.h" />
@@ -153,7 +151,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;slprocess.lib;slgui.lib;slc.lib;slfile.lib;slmodule.lib;sladl.lib;slmem.lib;sldriver.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;slprocess.lib;slgui.lib;slc.lib;slfile.lib;slini.lib;slmodule.lib;sladl.lib;slmem.lib;sldriver.lib</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <AdditionalOptions>/NODEFAULTLIB:MSVCRT %(AdditionalOptions)</AdditionalOptions>
       <IgnoreSpecificDefaultLibraries>MSVCRT.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -199,7 +197,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ProgramDatabaseFile>$(TEMP)\$(TargetName)\$(TargetName).pdb</ProgramDatabaseFile>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;slprocess.lib;slgui.lib;slc.lib;slfile.lib;sldriver.lib;slmodule.lib;sladl.lib;slmem.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;slprocess.lib;slgui.lib;slc.lib;slfile.lib;slini.lib;sldriver.lib;slmodule.lib;sladl.lib;slmem.lib</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>MSVCRT.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>

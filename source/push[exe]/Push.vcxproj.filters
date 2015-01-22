@@ -65,7 +65,6 @@
       <Filter>RAMdisk</Filter>
     </ClCompile>
     <ClCompile Include="batch.cpp" />
-    <ClCompile Include="ini.c" />
     <ClCompile Include="push.cpp" />
     <ClCompile Include="ring0.c" />
     <ClCompile Include="game.cpp" />
@@ -116,7 +115,6 @@
     <ClInclude Include="batch.h" />
     <ClInclude Include="ring0.h" />
     <ClInclude Include="file.h" />
-    <ClInclude Include="ini.h" />
     <ClInclude Include="push.h" />
     <ClInclude Include="game.h" />
   </ItemGroup>

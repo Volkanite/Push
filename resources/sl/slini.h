@@ -24,27 +24,31 @@ extern "C" {
 BOOLEAN IniReadBoolean(
     WCHAR* section,
     WCHAR* key,
-    BOOLEAN defaultValue
+    BOOLEAN defaultValue,
+	WCHAR* File
     );
 
 WCHAR* IniReadString(
     WCHAR* section,
     WCHAR* key,
-    WCHAR* defaultValue
+    WCHAR* defaultValue,
+	WCHAR* File
     );
 
 WCHAR*
 IniReadSubKey(
     WCHAR *section,
     WCHAR *masterKey,
-    WCHAR *subKey
+    WCHAR *subKey,
+	WCHAR* File
     );
 
 BOOLEAN IniReadSubKeyBoolean(
     WCHAR *section,
     WCHAR *masterKey,
     WCHAR *subKey,
-    BOOLEAN defaultValue
+    BOOLEAN defaultValue,
+	WCHAR* File
     );
 
 VOID
@@ -62,14 +66,17 @@ VOID IniWriteFloat(
 VOID IniWriteBoolean(
     WCHAR* szSection,
     WCHAR* szKey,
-    BOOLEAN bolValue
+    BOOLEAN bolValue,
+	WCHAR* File
     );
 
 VOID IniWriteSubKey(
     WCHAR *pszSection,
     WCHAR *pszMasterKey,
     WCHAR *pszSubKey,
-    WCHAR *pszValue );
+    WCHAR *pszValue,
+	WCHAR* File
+	);
 
 BOOLEAN IniWriteString( 
     WCHAR* section, 

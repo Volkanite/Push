@@ -6,7 +6,7 @@
 
 #include "push.h"
 #include "file.h"
-#include "ini.h"
+#include <slini.h>
 #include "batch.h"
 
 

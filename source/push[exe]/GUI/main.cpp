@@ -4,7 +4,7 @@
 #include <slc.h>
 #include <wchar.h>
 #include <ramdisk.h>
-#include <ini.h>
+#include <slini.h>
 #include <file.h>
 #include <pushbase.h>
 #include <ring0.h>
@@ -548,12 +548,12 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
 
                     imageName = SlStringFindLastChar(filePath, '\\') + 1;
 
-                    if (IniReadBoolean(L"Games", imageName, FALSE))
+                    if (IniReadBoolean(L"Games", imageName, FALSE, L".\\" PUSH_SETTINGS_FILE))
                         imageName = filePath;
 
                     // Get free index.
 
-                    games = IniReadString(L"Games", NULL, NULL);
+                    games = IniReadString(L"Games", NULL, NULL, L".\\" PUSH_SETTINGS_FILE);
 
                     if (games)
                     {
@@ -591,7 +591,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                             WCHAR *pszGames;
                             INT32   i;
 
-                            pszGames = IniReadString(L"Games", 0,0);
+                            pszGames = IniReadString(L"Games", 0, 0, L".\\" PUSH_SETTINGS_FILE);
 
                             if (pszGames)
                             {

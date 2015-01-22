@@ -13,7 +13,7 @@
 #include <main.h>
 #include <copy.h>
 #include "push.h"
-#include "ini.h"
+#include <slini.h>
 #include "file.h"
 #include "ring0.h"
 
@@ -62,13 +62,10 @@ IsGame( WCHAR *pszExecutable )
 {
     WCHAR *ps;
 
-    ps = IniReadString(L"Games",
-                       pszExecutable,
-                       0);
+    ps = IniReadString(L"Games", pszExecutable, 0, L".\\" PUSH_SETTINGS_FILE);
 
     if (ps != 0)
     {
-        //SlFree( ps );
         RtlFreeHeap(PushHeapHandle, 0, ps);
 
         return TRUE;
@@ -422,7 +419,7 @@ OnProcessEvent( UINT16 processID )
         PushSharedMemory->SwapWASD = TRUE;
 
     // Check if user wants maximum gpu engine and memory clocks
-    if (IniReadBoolean(L"Settings", L"ForceMaxClocks", FALSE))
+    if (IniReadBoolean(L"Settings", L"ForceMaxClocks", FALSE, L".\\" PUSH_SETTINGS_FILE))
         HwForceMaxClocks();
 
     // i used this to disable one of my audio ports while gaming but of course it probably only
@@ -966,13 +963,13 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
         {
             // Init settings from ini file.
 
-            if (IniReadBoolean(L"Settings", L"FrameLimit", FALSE))
+            if (IniReadBoolean(L"Settings", L"FrameLimit", FALSE, L".\\" PUSH_SETTINGS_FILE))
                 PushSharedMemory->FrameLimit = TRUE;
 
-            if (IniReadBoolean(L"Settings", L"ThreadOptimization", FALSE))
+            if (IniReadBoolean(L"Settings", L"ThreadOptimization", FALSE, L".\\" PUSH_SETTINGS_FILE))
                 PushSharedMemory->ThreadOptimization = TRUE;
 
-            if (IniReadBoolean(L"Settings", L"KeepFps", FALSE))
+            if (IniReadBoolean(L"Settings", L"KeepFps", FALSE, L".\\" PUSH_SETTINGS_FILE))
                 PushSharedMemory->KeepFps = TRUE;
         }
         else
