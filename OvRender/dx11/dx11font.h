@@ -13,6 +13,8 @@ public:
     VOID DrawBatch( UINT startSpriteIndex, UINT spriteCount );
     VOID EndBatch( );
     VOID DrawString();
+    BOOLEAN InitD3D11Sprite( );
+    VOID Draw( RECT* destinationRect, RECT* sourceRect, XMCOLOR color );
 
     // Standard functions
     DWORD GetMaxTextureWidth();

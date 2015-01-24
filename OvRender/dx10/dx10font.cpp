@@ -46,10 +46,6 @@ static ID3D10EffectShaderResourceVariable    *effectSRV;
 static ID3D10Device                        *m_device10;
 static ID3D10BlendState                    *m_pFontBlendState10;
 static ID3D10EffectPass *effectPass;
-static Sprite *sprites;
-static UINT64 FntSpriteListSize = 0;
-static UINT64 g_NumberOfSprites = 0;
-static VOID* FntHeapHandle;
 static D3DCompile_t FntD3DCompile;
 
 static BOOLEAN                        Initialized;
@@ -70,13 +66,6 @@ extern "C" BOOL __stdcall RtlFreeHeap(
     VOID* HeapBase
     );
 
-extern "C" VOID* __stdcall RtlReAllocateHeap(
-    VOID*   HeapHandle,
-    DWORD   Flags,
-    VOID*   MemoryPointer,
-    UINT32  Size
-    );
-
 
 static
 VOID
@@ -93,9 +82,8 @@ Init()
 }
 
 
-static
 BOOLEAN
-InitD3D11Sprite( )
+Dx10Font::InitD3D10Sprite( )
 {
     WORD indices[3072];
     UINT16 i;
@@ -234,9 +222,10 @@ InitD3D11Sprite( )
 
     FntDevice->CreateBlendState( &transparentDesc, &TransparentBS );
 
-    FntHeapHandle = GetProcessHeap();
-    sprites = (Sprite*) RtlAllocateHeap(
-        FntHeapHandle, 
+    HeapHandle = GetProcessHeap();
+    
+    Sprites = (Sprite*) RtlAllocateHeap(
+        HeapHandle, 
         HEAP_GENERATE_EXCEPTIONS, 
         sizeof(Sprite)
         );
@@ -255,45 +244,12 @@ Dx10Font::Dx10Font(
    FntDevice = Device;
 
    InitDeviceObjects();
-   InitD3D11Sprite();
+   InitD3D10Sprite();
 }
 
 
-static
 VOID
-AddSprite( Sprite *sprite )
-{
-    if ( (g_NumberOfSprites + 1) * sizeof(Sprite) > FntSpriteListSize )
-        // resize sprite list
-    {
-        sprites = (Sprite*) RtlReAllocateHeap(
-                            FntHeapHandle,
-                            HEAP_GENERATE_EXCEPTIONS,
-                            sprites,
-                            FntSpriteListSize + sizeof(Sprite)
-                            );
-
-        //adjust sprite list size counter
-        FntSpriteListSize += sizeof(Sprite);
-    }
-
-    //add sprite to sprite list
-    sprites[g_NumberOfSprites].Angle    = sprite->Angle;
-    sprites[g_NumberOfSprites].Color    = sprite->Color;
-    sprites[g_NumberOfSprites].DestRect = sprite->DestRect;
-    sprites[g_NumberOfSprites].Scale    = sprite->Scale;
-    sprites[g_NumberOfSprites].SrcRect  = sprite->SrcRect;
-    sprites[g_NumberOfSprites].Z        = sprite->Z;
-
-    g_NumberOfSprites++;
-}
-
-
-static
-VOID
-Draw( RECT* destinationRect,
-                RECT* sourceRect,
-                XMCOLOR color )
+Dx10Font::Draw( RECT* destinationRect, RECT* sourceRect, XMCOLOR color )
 {
     Sprite sprite;
     sprite.SrcRect  = *sourceRect;
@@ -440,7 +396,7 @@ Dx10Font::DrawBatch(
 
     for( i = 0; i < spriteCount; ++i )
     {
-        Sprite *sprite = &sprites[ startSpriteIndex + i ];
+        Sprite *sprite = &Sprites[ startSpriteIndex + i ];
 
         SpriteVertex quad[ 4 ];
 
@@ -493,7 +449,7 @@ Dx10Font::EndBatch( )
     effectSRV->SetResource(BatchTexSRV);
     effectPass->Apply(0);
 
-    spritesToDraw = g_NumberOfSprites;
+    spritesToDraw = NumberOfSprites;
     startIndex = 0;
 
     while( spritesToDraw > 0 )
@@ -527,7 +483,7 @@ Dx10Font::EndBatch( )
 VOID
 Dx10Font::Begin()
 {
-        g_NumberOfSprites = 0;
+    NumberOfSprites = 0;
 }
 
 

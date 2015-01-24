@@ -12,6 +12,8 @@ public:
     VOID BeginBatch();
     VOID DrawBatch( UINT startSpriteIndex, UINT spriteCount );
     VOID EndBatch();
+    BOOLEAN InitD3D10Sprite( );
+    VOID Draw( RECT* destinationRect, RECT* sourceRect, XMCOLOR color );
 
     // Standard functions
     DWORD GetMaxTextureWidth();

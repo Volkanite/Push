@@ -52,10 +52,6 @@ ID3D11Texture2D                     *m_texture11;
 ID3D11Texture2D                     *m_texturepass;
 ID3D10Texture2D                     *m_texture10;
 ID3DX11EffectShaderResourceVariable    *effectSRV;
-Sprite *sprites;
-UINT64 FntSpriteListSize = 0;
-UINT64 g_NumberOfSprites = 0;
-VOID* FntHeapHandle;
 D3DCompile_t FntD3DCompile;
 ID3DX11EffectPass *effectPass;
 
@@ -75,13 +71,6 @@ extern "C" BOOL __stdcall RtlFreeHeap(
     VOID* HeapHandle,
     DWORD Flags,
     VOID* HeapBase
-    );
-
-extern "C" VOID* __stdcall RtlReAllocateHeap(
-    VOID*   HeapHandle,
-    DWORD   Flags,
-    VOID*   MemoryPointer,
-    UINT32  Size
     );
 
 
@@ -160,7 +149,7 @@ GetCharMaxX( GpBitmap *bitmap )
 
 
 BOOLEAN
-InitD3D11Sprite( )
+Dx11Font::InitD3D11Sprite( )
 {
     WORD indices[3072];
     UINT16 i;
@@ -320,8 +309,8 @@ InitD3D11Sprite( )
 
     device->CreateBlendState( &transparentDesc, &TransparentBS );
 
-    FntHeapHandle = GetProcessHeap();
-    sprites = (Sprite*) RtlAllocateHeap(FntHeapHandle, 0, sizeof(Sprite));
+    HeapHandle = GetProcessHeap();
+    Sprites = (Sprite*) RtlAllocateHeap(HeapHandle, 0, sizeof(Sprite));
     Initialized = TRUE;
 
     return TRUE;
@@ -352,45 +341,8 @@ Dx11Font::Dx11Font( ID3D11Device *Device )
 }
 
 
-/*void    SetInsertionPos( int x, int y )
-{
-        m_pt.x = x; m_pt.y = y;
-    }*/
-
-
 VOID
-AddSprite( Sprite *sprite )
-{
-    if ( (g_NumberOfSprites + 1) * sizeof(Sprite) > FntSpriteListSize )
-        // resize sprite list
-    {
-        sprites = (Sprite*) RtlReAllocateHeap(
-                            FntHeapHandle,
-                            HEAP_GENERATE_EXCEPTIONS,
-                            sprites,
-                            FntSpriteListSize + sizeof(Sprite)
-                            );
-
-        //adjust sprite list size counter
-        FntSpriteListSize += sizeof(Sprite);
-    }
-
-    //add sprite to sprite list
-    sprites[g_NumberOfSprites].Angle    = sprite->Angle;
-    sprites[g_NumberOfSprites].Color    = sprite->Color;
-    sprites[g_NumberOfSprites].DestRect = sprite->DestRect;
-    sprites[g_NumberOfSprites].Scale    = sprite->Scale;
-    sprites[g_NumberOfSprites].SrcRect  = sprite->SrcRect;
-    sprites[g_NumberOfSprites].Z        = sprite->Z;
-
-    g_NumberOfSprites++;
-}
-
-
-VOID
-Draw( RECT* destinationRect,
-                RECT* sourceRect,
-                XMCOLOR color )
+Dx11Font::Draw( RECT* destinationRect, RECT* sourceRect, XMCOLOR color )
 {
     Sprite sprite;
     sprite.SrcRect  = *sourceRect;
@@ -510,7 +462,7 @@ Dx11Font::DrawBatch(
 
     for( i = 0; i < spriteCount; ++i )
     {
-        Sprite *sprite = &sprites[ startSpriteIndex + i ];
+        Sprite *sprite = &Sprites[ startSpriteIndex + i ];
 
         SpriteVertex quad[ 4 ];
 
@@ -550,7 +502,7 @@ Dx11Font::EndBatch( )
     effectSRV->SetResource( BatchTexSRV );
     effectPass->Apply(0, FontDeviceContext);
     
-    spritesToDraw = g_NumberOfSprites;
+    spritesToDraw = NumberOfSprites;
     startIndex = 0;
 
     while( spritesToDraw > 0 )
@@ -587,12 +539,7 @@ Dx11Font::DrawString()
 VOID
 Dx11Font::Begin()
 {
-    //SetInsertionPos( 5, 15 );
-
-        //posX = 20;
-        //posY = 100;
-
-        g_NumberOfSprites = 0;
+    NumberOfSprites = 0;
 }
 
 

@@ -2,9 +2,6 @@
 #include <tchar.h>
 
 
-
-
-
 /* Structure for LockRect */
 typedef struct _D3DLOCKED_RECT
 {
@@ -14,6 +11,14 @@ typedef struct _D3DLOCKED_RECT
 
 
 #include "font.h"
+
+
+extern "C" VOID* __stdcall RtlReAllocateHeap(
+    VOID*   HeapHandle,
+    DWORD   Flags,
+    VOID*   MemoryPointer,
+    UINT32  Size
+    );
 
 
 Font::Font()
@@ -32,6 +37,10 @@ Font::Font()
     m_dwSpacing            = 0;
     ScreenWidth     = 0.0f ;
     ScreenHeight    = 0.0f ;
+    NumberOfSprites = 0;
+    SpriteListSize = 0;
+    Sprites = NULL;
+    HeapHandle = NULL;
 }
 
 
@@ -237,6 +246,38 @@ Font::GetTextExtent( TCHAR* strText, SIZE* pSize )
     pSize->cy = (int)fHeight;
 
     return S_OK;
+}
+
+
+VOID
+Font::AddSprite( Sprite *sprite )
+{
+    if ( (NumberOfSprites + 1) * sizeof(Sprite) > SpriteListSize )
+        // resize sprite list
+    {
+        Sprites = (Sprite*) RtlReAllocateHeap(
+            HeapHandle,
+            HEAP_GENERATE_EXCEPTIONS,
+            Sprites,
+            SpriteListSize + sizeof(Sprite)
+            );
+
+        //adjust sprite list size counter
+        SpriteListSize += sizeof(Sprite);
+    }
+
+    if (!Sprites)
+        return;
+
+    //add sprite to sprite list
+    Sprites[NumberOfSprites].Angle    = sprite->Angle;
+    Sprites[NumberOfSprites].Color    = sprite->Color;
+    Sprites[NumberOfSprites].DestRect = sprite->DestRect;
+    Sprites[NumberOfSprites].Scale    = sprite->Scale;
+    Sprites[NumberOfSprites].SrcRect  = sprite->SrcRect;
+    Sprites[NumberOfSprites].Z        = sprite->Z;
+
+    NumberOfSprites++;
 }
 
 

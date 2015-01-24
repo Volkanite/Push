@@ -55,10 +55,15 @@ public:
     FLOAT   m_fTexCoords[ (NUMBER_OF_CHARACTERS+1) - 32 ][4];
     FLOAT   ScreenWidth;
     FLOAT   ScreenHeight;
+    UINT64  NumberOfSprites;
+    UINT64  SpriteListSize;
+    Sprite* Sprites;
+    VOID*   HeapHandle;
 
     Font();
     HRESULT GetTextExtent( TCHAR* strText, SIZE* pSize );
     HRESULT InitDeviceObjects();
+    VOID AddSprite( Sprite *sprite );
     VOID BuildSpriteQuad( Sprite *sprite, SpriteVertex v[ 4 ] );
 
     virtual DWORD GetMaxTextureWidth() = 0;
