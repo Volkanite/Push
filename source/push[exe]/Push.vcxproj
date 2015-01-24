@@ -28,6 +28,7 @@
     <ClCompile Include="GUI\main.cpp" />
     <ClCompile Include="Hardware\CPU\intel.c" />
     <ClCompile Include="Hardware\disk.c" />
+    <ClCompile Include="Hardware\GPU\adl.cpp" />
     <ClCompile Include="Hardware\GPU\AmdGpu.cpp" />
     <ClCompile Include="Hardware\GPU\d3dkmt.c" />
     <ClCompile Include="Hardware\GPU\GenericGpu.cpp" />
@@ -49,6 +50,7 @@
     <ClInclude Include="GUI\main.h" />
     <ClInclude Include="hardware\cpu\intel.h" />
     <ClInclude Include="Hardware\disk.h" />
+    <ClInclude Include="Hardware\GPU\adl.h" />
     <ClInclude Include="Hardware\GPU\AmdGpu.h" />
     <ClInclude Include="hardware\gpu\d3dkmt.h" />
     <ClInclude Include="Hardware\GPU\GenericGpu.h" />
@@ -114,7 +116,7 @@
     <LibraryPath>$(SolutionDir)resources\sl\lib;$(SolutionDir)resources\ddk\lib;$(SolutionDir)resources\SlAdl;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(TEMP)\$(ProjectName)\</IntDir>
-    <IncludePath>$(SolutionDir)source\push[exe]\Hardware;$(SolutionDir)source\push[exe]\RAMdisk;$(SolutionDir)source\push[exe]\GUI;$(SolutionDir)source\push[exe];$(SolutionDir)source;$(SolutionDir)resources\sl;$(SolutionDir)resources\SlAdl;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)source\push[exe]\Hardware;$(SolutionDir)source\push[exe]\RAMdisk;$(SolutionDir)source\push[exe]\GUI;$(SolutionDir)source\push[exe];$(SolutionDir)source;$(SolutionDir)resources\sl;$(SolutionDir)resources\ADL;$(IncludePath)</IncludePath>
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
   </PropertyGroup>
@@ -127,7 +129,7 @@
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(TEMP)\$(ProjectName)\</IntDir>
     <LibraryPath>$(SolutionDir)resources\sl\lib;$(SolutionDir)resources\ddk\lib;$(SolutionDir)resources\SlAdl;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)source\push[exe]\Hardware;$(SolutionDir)source\push[exe]\RAMdisk;$(SolutionDir)source\push[exe]\GUI;$(SolutionDir)source\push[exe];$(SolutionDir)source;$(SolutionDir)resources\sl;$(SolutionDir)resources\SlAdl;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)source\push[exe]\Hardware;$(SolutionDir)source\push[exe]\RAMdisk;$(SolutionDir)source\push[exe]\GUI;$(SolutionDir)source\push[exe];$(SolutionDir)source;$(SolutionDir)resources\sl;$(SolutionDir)resources\ADL;$(IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <EmbedManifest>true</EmbedManifest>
     <GenerateManifest>true</GenerateManifest>
@@ -151,7 +153,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;slgui.lib;slc.lib;sladl.lib;sl.lib;sldriver.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;sl.lib;sldriver.lib</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <AdditionalOptions>/NODEFAULTLIB:MSVCRT %(AdditionalOptions)</AdditionalOptions>
       <IgnoreSpecificDefaultLibraries>MSVCRT.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -188,8 +190,10 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PreprocessorDefinitions>NO_STRICT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CompileAs>Default</CompileAs>
-      <TreatSpecificWarningsAsErrors>4013;4020;4005;4101;4142;4520;4700;4715;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
+      <TreatSpecificWarningsAsErrors>
+      </TreatSpecificWarningsAsErrors>
       <DisableSpecificWarnings>4996;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -197,11 +201,12 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ProgramDatabaseFile>$(TEMP)\$(TargetName)\$(TargetName).pdb</ProgramDatabaseFile>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;slgui.lib;slc.lib;sladl.lib;sl.lib;</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;sl.lib;</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>MSVCRT.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
     </Link>
     <PostBuildEvent>
       <Command>

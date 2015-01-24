@@ -68,6 +68,9 @@
     <ClCompile Include="push.cpp" />
     <ClCompile Include="ring0.c" />
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="Hardware\GPU\adl.cpp">
+      <Filter>Hardware\GPU</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\cache.h">
@@ -117,6 +120,9 @@
     <ClInclude Include="file.h" />
     <ClInclude Include="push.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="Hardware\GPU\adl.h">
+      <Filter>Hardware\GPU</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="push.ico">

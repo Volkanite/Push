@@ -389,56 +389,54 @@ OnProcessEvent( UINT16 processID )
     GetProcessImageFileNameW(processHandle, fileName, 260);
     NormalizeNTPath(fileName, 260);
 
-    if (!IsGame(fileName))
+    if (IsGame(fileName))
+    {
+        PushGame game(fileName);
+    
+        flags = game.GetFlags();
+
+        if (flags & GAME_RAMDISK)
+        {
+            PushSharedMemory->GameUsesRamDisk = TRUE;
+
+            //suspend process to allow us time to cache files
+            NtSuspendProcess(processHandle);
+            Cache(&game);
+        }
+
+        if (flags & GAME_VSYNC)
+            PushSharedMemory->ForceVsync = TRUE;
+
+        if (flags & GAME_REPEAT_KEYS)
+            PushSharedMemory->DisableRepeatKeys = TRUE;
+
+        if (flags & GAME_WASD)
+            PushSharedMemory->SwapWASD = TRUE;
+
+        // Check if user wants maximum gpu engine and memory clocks
+        if (SlIniReadBoolean(L"Settings", L"ForceMaxClocks", FALSE, L".\\" PUSH_SETTINGS_FILE))
+            HwForceMaxClocks();
+
+        // i used this to disable one of my audio ports while gaming but of course it probably only
+        // works for IDT audio devices
+        CallNamedPipeW(
+            L"\\\\.\\pipe\\stacsv", 
+            szCommand, 
+            sizeof(szCommand), 
+            0, 
+            0, 
+            &iBytesRead,
+            NMPWAIT_WAIT_FOREVER
+            );
+
+        if (PushSharedMemory->GameUsesRamDisk)
+            //resume process
+            NtResumeProcess(processHandle);
+    }
+    else
     {
         PushSharedMemory->GameUsesRamDisk = FALSE;
-
-        goto closeandreturn;
     }
-    
-    PushGame game(fileName);
-    
-    flags = game.GetFlags();
-
-    if (flags & GAME_RAMDISK)
-    {
-        PushSharedMemory->GameUsesRamDisk = TRUE;
-
-        //suspend process to allow us time to cache files
-        NtSuspendProcess(processHandle);
-        Cache(&game);
-    }
-
-    if (flags & GAME_VSYNC)
-        PushSharedMemory->ForceVsync = TRUE;
-
-    if (flags & GAME_REPEAT_KEYS)
-        PushSharedMemory->DisableRepeatKeys = TRUE;
-
-    if (flags & GAME_WASD)
-        PushSharedMemory->SwapWASD = TRUE;
-
-    // Check if user wants maximum gpu engine and memory clocks
-    if (SlIniReadBoolean(L"Settings", L"ForceMaxClocks", FALSE, L".\\" PUSH_SETTINGS_FILE))
-        HwForceMaxClocks();
-
-    // i used this to disable one of my audio ports while gaming but of course it probably only
-    // works for IDT audio devices
-    CallNamedPipeW(
-        L"\\\\.\\pipe\\stacsv", 
-        szCommand, 
-        sizeof(szCommand), 
-        0, 
-        0, 
-        &iBytesRead,
-        NMPWAIT_WAIT_FOREVER
-        );
-
-    if (PushSharedMemory->GameUsesRamDisk)
-        //resume process
-        NtResumeProcess(processHandle);
-
-closeandreturn:
 
     NtClose(processHandle);
 }

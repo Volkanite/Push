@@ -38,31 +38,17 @@ PushReadPhysicalMemory( DWORD Address )
 
 
 //map physical memory to user space
-VOID*
-R0MapPhysicalMemory(
-    DWORD phyAddr,
-    DWORD memSize
+VOID* R0MapPhysicalMemory( 
+    DWORD phyAddr, 
+    DWORD memSize 
     )
 {
-    UINT64 virtualAddress=NULL;   //mapped virtual addr
-    //DWORD dwBytes=0;
-    //BOOLEAN bRet=FALSE;
+    VOID* virtualAddress=NULL;   
     PHYSICAL_MEMORY physicalMemory;
     IO_STATUS_BLOCK isb;
 
-    physicalMemory.pvAddr= phyAddr; //physical address
-    physicalMemory.dwSize=memSize;  //memory size
-
-    /*bRet=DeviceIoControl(
-            PushDriverHandle,
-            IOCTL_PUSH_MAP_PHYSICAL_MEMORY,
-            &pm,
-            sizeof(PHYMEM_MEM),
-            &pVirAddr,
-            sizeof(UINT64),
-            &dwBytes,
-            NULL
-            );*/
+    physicalMemory.pvAddr= phyAddr; 
+    physicalMemory.dwSize=memSize;
 
     NtDeviceIoControlFile(
         R0DriverHandle,
@@ -76,11 +62,6 @@ R0MapPhysicalMemory(
         &virtualAddress,
         sizeof(UINT64)
         );
-
-    /*if (dwBytes==sizeof(UINT64))
-        return virtualAddress;
-    else
-        return NULL;*/
 
     return virtualAddress;
 }

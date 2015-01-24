@@ -17,4 +17,3 @@ public:
     VOID SetVoltage( FLOAT Voltage );
     VOID SetMaxClocks();
 };
-

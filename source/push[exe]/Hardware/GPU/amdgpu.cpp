@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <pushbase.h>
 #include <hwinfo.h>
-#include <sladl.h>
+#include "adl.h"
 #include "AmdGpu.h"
 
 
@@ -22,22 +22,6 @@ GetRadeonMemorySize()
         R6XX_CONFIG_MEMSIZE
         );
 }
-
-
-/*extern "C"
-UINT16
-RdnGetEngineClockMax()
-{
-    return RdnAdl.GetEngineClockMax();
-}
-
-
-extern "C"
-UINT16
-RdnGetMemoryClockMax()
-{
-    return RdnAdl.GetMemoryClockMax();
-}*/
 
 
 extern "C"
