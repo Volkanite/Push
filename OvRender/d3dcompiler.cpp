@@ -9,7 +9,7 @@ GetD3DCompiler()
     int i;
     HMODULE mod;
 
-    for (i = 50; i >= 30; i--)
+    for (i = 43; i >= 30; i--)
     {
         swprintf_s(
             buf, 

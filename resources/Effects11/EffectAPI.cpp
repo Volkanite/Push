@@ -182,7 +182,7 @@ lExit:
 }
 
 
-extern HMODULE GetD3DCompiler();
+HMODULE GetD3DCompiler();
 
 typedef HRESULT (__stdcall *TYPE_D3DCompile)(
     LPCVOID pSrcData,
