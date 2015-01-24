@@ -153,7 +153,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;sl.lib;sldriver.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;sl.lib</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <AdditionalOptions>/NODEFAULTLIB:MSVCRT %(AdditionalOptions)</AdditionalOptions>
       <IgnoreSpecificDefaultLibraries>MSVCRT.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>

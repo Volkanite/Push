@@ -43,7 +43,7 @@ VOID* R0MapPhysicalMemory(
     DWORD memSize 
     )
 {
-    VOID* virtualAddress=NULL;   
+    QWORD virtualAddress=NULL;   
     PHYSICAL_MEMORY physicalMemory;
     IO_STATUS_BLOCK isb;
 
@@ -63,7 +63,7 @@ VOID* R0MapPhysicalMemory(
         sizeof(UINT64)
         );
 
-    return virtualAddress;
+    return (VOID*) virtualAddress;
 }
 
 
