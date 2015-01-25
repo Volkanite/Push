@@ -12,36 +12,36 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="d3dcompiler.cpp" />
-    <ClCompile Include="dx10\dx10font.cpp" />
-    <ClCompile Include="dx10\dx10overlay.cpp" />
-    <ClCompile Include="dx11\dx11font.cpp" />
-    <ClCompile Include="dx11\dx11overlay.cpp" />
-    <ClCompile Include="dx8\dx8font.cpp" />
-    <ClCompile Include="dx8\dx8hooks.cpp" />
-    <ClCompile Include="dx8\dx8overlay.cpp" />
-    <ClCompile Include="dx9\dx9font.cpp" />
-    <ClCompile Include="dx9\dx9hook.cpp" />
-    <ClCompile Include="dx9\dx9overlay.cpp" />
-    <ClCompile Include="dxgi\dxgihooks.cpp" />
-    <ClCompile Include="dxgi\dxgioverlay.cpp" />
-    <ClCompile Include="font.cpp" />
-    <ClCompile Include="overlay.cpp" />
+    <ClCompile Include="font\dx10font.cpp" />
+    <ClCompile Include="font\dx11font.cpp" />
+    <ClCompile Include="font\dx8font.cpp" />
+    <ClCompile Include="font\dx9font.cpp" />
+    <ClCompile Include="font\font.cpp" />
+    <ClCompile Include="hook\dx8hook.cpp" />
+    <ClCompile Include="hook\dx9hook.cpp" />
+    <ClCompile Include="hook\dxgihook.cpp" />
+    <ClCompile Include="overlay\dx10overlay.cpp" />
+    <ClCompile Include="overlay\dx11overlay.cpp" />
+    <ClCompile Include="overlay\dx8overlay.cpp" />
+    <ClCompile Include="overlay\dx9overlay.cpp" />
+    <ClCompile Include="overlay\dxgioverlay.cpp" />
+    <ClCompile Include="overlay\overlay.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3dcompiler.h" />
-    <ClInclude Include="dx10\dx10font.h" />
-    <ClInclude Include="dx10\dx10overlay.h" />
-    <ClInclude Include="dx11\dx11font.h" />
-    <ClInclude Include="dx11\dx11overlay.h" />
-    <ClInclude Include="dx8\dx8font.h" />
-    <ClInclude Include="dx8\dx8hooks.h" />
-    <ClInclude Include="dx8\dx8overlay.h" />
-    <ClInclude Include="dx9\dx9font.h" />
-    <ClInclude Include="dx9\dx9hook.h" />
-    <ClInclude Include="dx9\dx9overlay.h" />
-    <ClInclude Include="dxgi\dxgihooks.h" />
-    <ClInclude Include="dxgi\dxgioverlay.h" />
-    <ClInclude Include="font.h" />
+    <ClInclude Include="font\dx10font.h" />
+    <ClInclude Include="font\dx11font.h" />
+    <ClInclude Include="font\dx8font.h" />
+    <ClInclude Include="font\dx9font.h" />
+    <ClInclude Include="font\font.h" />
+    <ClInclude Include="hook\dx8hook.h" />
+    <ClInclude Include="hook\dx9hook.h" />
+    <ClInclude Include="hook\dxgihook.h" />
+    <ClInclude Include="overlay\dx10overlay.h" />
+    <ClInclude Include="overlay\dx11overlay.h" />
+    <ClInclude Include="overlay\dx8overlay.h" />
+    <ClInclude Include="overlay\dx9overlay.h" />
+    <ClInclude Include="overlay\dxgioverlay.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{99E0E745-ACD1-498F-B7EB-385EE594D30C}</ProjectGuid>
@@ -71,12 +71,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3d8;$(SolutionDir)resources\sl;$(DXSDK_DIR)Include;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3d8;$(SolutionDir)resources\sl;$(DXSDK_DIR)Include;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
     <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x86;$(SolutionDir)resources\sl\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3d8;$(SolutionDir)resources\sl;$(DXSDK_DIR)Include;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3d8;$(SolutionDir)resources\sl;$(DXSDK_DIR)Include;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
     <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x86;$(SolutionDir)resources\sl\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>

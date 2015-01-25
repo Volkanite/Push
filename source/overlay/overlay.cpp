@@ -1,8 +1,8 @@
 #include <windows.h>
 #include <OvRender.h>
-#include "dx8/dx8overlay.h"
-#include "dx9/dx9overlay.h"
-#include "dxgi/dxgioverlay.h"
+#include "dx8overlay.h"
+#include "dx9overlay.h"
+#include "dxgioverlay.h"
 
 
 Dx8Overlay*     OvDx8Overlay;

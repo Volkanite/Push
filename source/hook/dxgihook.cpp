@@ -2,7 +2,7 @@
 #include <DXGI.h>
 #include <D3D10.h>
 #include <sldetours.h>
-#include "dxgihooks.h"
+#include "dxgihook.h"
 
 
 typedef HRESULT (WINAPI* TYPE_IDXGISwapChain_Present) (

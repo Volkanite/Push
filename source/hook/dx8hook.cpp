@@ -3,7 +3,7 @@
 #include <sldetours.h>
 #include <slmodule.h>
 
-#include "dx8hooks.h"
+#include "dx8hook.h"
 
 
 typedef IDirect3D8* (WINAPI* TYPE_Direct3DCreate8)(

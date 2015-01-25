@@ -3,7 +3,7 @@
 
 #include "dx8font.h"
 #include "dx8overlay.h"
-#include "dx8hooks.h"
+#include "dx8hook.h"
 
 
 Dx8Font* Dx8OvFont;

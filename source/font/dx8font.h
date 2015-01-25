@@ -2,7 +2,7 @@
 #define D3DFONT_H
 #include <tchar.h>
 #include <D3D8.h>
-#include <font.h>
+#include "font.h"
 
 
 //-----------------------------------------------------------------------------
