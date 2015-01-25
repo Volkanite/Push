@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="d3dcompiler.cpp" />
+    <ClCompile Include="dx10\dx10font.cpp">
+      <Filter>font</Filter>
+    </ClCompile>
+    <ClCompile Include="dx10\dx10overlay.cpp">
+      <Filter>overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="dx11\dx11font.cpp">
+      <Filter>font</Filter>
+    </ClCompile>
+    <ClCompile Include="dx11\dx11overlay.cpp">
+      <Filter>overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="dx8\dx8font.cpp">
+      <Filter>font</Filter>
+    </ClCompile>
+    <ClCompile Include="dx8\dx8hooks.cpp">
+      <Filter>hook</Filter>
+    </ClCompile>
+    <ClCompile Include="dx8\dx8overlay.cpp">
+      <Filter>overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="dx9\dx9font.cpp">
+      <Filter>font</Filter>
+    </ClCompile>
+    <ClCompile Include="dx9\dx9hook.cpp">
+      <Filter>hook</Filter>
+    </ClCompile>
+    <ClCompile Include="dx9\dx9overlay.cpp">
+      <Filter>overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="dxgi\dxgihooks.cpp">
+      <Filter>hook</Filter>
+    </ClCompile>
+    <ClCompile Include="dxgi\dxgioverlay.cpp">
+      <Filter>overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="font.cpp">
+      <Filter>font</Filter>
+    </ClCompile>
+    <ClCompile Include="overlay.cpp">
+      <Filter>overlay</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="d3dcompiler.h" />
+    <ClInclude Include="dx10\dx10font.h">
+      <Filter>font</Filter>
+    </ClInclude>
+    <ClInclude Include="dx10\dx10overlay.h">
+      <Filter>overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="dx11\dx11font.h">
+      <Filter>font</Filter>
+    </ClInclude>
+    <ClInclude Include="dx11\dx11overlay.h">
+      <Filter>overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="dx8\dx8font.h">
+      <Filter>font</Filter>
+    </ClInclude>
+    <ClInclude Include="dx8\dx8hooks.h">
+      <Filter>hook</Filter>
+    </ClInclude>
+    <ClInclude Include="dx8\dx8overlay.h">
+      <Filter>overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="dx9\dx9font.h">
+      <Filter>font</Filter>
+    </ClInclude>
+    <ClInclude Include="dx9\dx9hook.h">
+      <Filter>hook</Filter>
+    </ClInclude>
+    <ClInclude Include="dx9\dx9overlay.h">
+      <Filter>overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgi\dxgihooks.h">
+      <Filter>overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgi\dxgioverlay.h">
+      <Filter>font</Filter>
+    </ClInclude>
+    <ClInclude Include="font.h">
+      <Filter>font</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="font">
+      <UniqueIdentifier>{78796fa3-183a-4220-9066-a09f305e5fbf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hook">
+      <UniqueIdentifier>{a102f8a0-cb1e-47d6-89b2-af341547a9cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="overlay">
+      <UniqueIdentifier>{bba1eec7-2ba4-4695-b26d-945eed2c4e68}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
