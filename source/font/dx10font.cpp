@@ -281,9 +281,9 @@ Dx10Font::AddString( WCHAR *text, BOOLEAN overload)
     }
 
     Vec = XMVectorSet( 
-            R ? (float)( R / 255.0f ) : 0.0f, 
-            G ? (float)( G / 255.0f ) : 0.0f, 
             B ? (float)( B / 255.0f ) : 0.0f, 
+            G ? (float)( G / 255.0f ) : 0.0f, 
+            R ? (float)( R / 255.0f ) : 0.0f, 
             A ? (float)( A / 255.0f ) : 0.0f 
             );
 
