@@ -1,0 +1,4 @@
+BOOLEAN 
+NvtdInitialize();
+FLOAT
+NvtdGetTemperature();

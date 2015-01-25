@@ -6,7 +6,7 @@
 
 #include "NvidiaGpu.h"
 #include <hwinfo.h>
-
+#include "NvThermalDiode\NvThermalDiode.h"
 
 BYTE GfCoreFamily = 0;
 LONG    m_dwDiodeGainMul;
@@ -87,6 +87,8 @@ InitGeForce()
     m_dwDiodeGainMul = GetDiodeGainMul(GfCoreFamily);
     GfInitialized = TRUE;
 
+    NvtdInitialize();
+
     return TRUE;
 }
 
@@ -137,161 +139,6 @@ GetDiodeGainMul( DWORD coreFamily )
 }
 
 
-//////////////////////////////////////////////////////////////////////
-// Get GPU fuse state by fuse number
-//////////////////////////////////////////////////////////////////////
-LONG
-GetFuseStateByNumber( DWORD dwFuse, DWORD coreFamily )
-{
-    if (coreFamily >= 0x50)
-        //G80+ fuses reading implementation
-    {
-        if (dwFuse >= 0xA0)
-            return 0;
-
-        if (dwFuse >= 0x80)
-            return 1 & (ReadGpuRegister(0x2101C)>>(dwFuse - 0x80));
-
-        if (dwFuse >= 0x60)
-            return 1 & (ReadGpuRegister(0x21018)>>(dwFuse - 0x60));
-
-        if (dwFuse >= 0x40)
-            return 1 & (ReadGpuRegister(0x21014)>>(dwFuse - 0x40));
-
-        if (dwFuse >= 0x20)
-            return 1 & (ReadGpuRegister(0x21010)>>(dwFuse - 0x20));
-
-        return 1 & (ReadGpuRegister(0x2100C)>>dwFuse);
-    }
-    else
-        //NV4X fuses reading implementation
-    {
-        if (dwFuse >= 0xA0)
-            return 0;
-
-        if (dwFuse >= 0x80)
-            return 1 & (ReadGpuRegister(0xC030)>>(dwFuse - 0x80));
-
-        if (dwFuse >= 0x60)
-            return 1 & (ReadGpuRegister(0xC01C)>>(dwFuse - 0x60));
-
-        if (dwFuse >= 0x40)
-            return 1 & (ReadGpuRegister(0xC018)>>(dwFuse - 0x40));
-
-        if (dwFuse >= 0x20)
-            return 1 & (ReadGpuRegister(0xC014)>>(dwFuse - 0x20));
-
-        return 1 & (ReadGpuRegister(0xC010)>>dwFuse);
-    }
-
-    return 0;
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// Read diode specific binary offset
-//////////////////////////////////////////////////////////////////////
-LONG
-GetDiodeOffsetBin( DWORD coreFamily )
-{
-    //starting from G71, each GPU diode is additionally calibrated during
-    //manufacturing and each diode has personal binary temperature offset
-    //defined with GPU fuses
-
-    LONG diodeOffsetBin = 0;
-
-    switch (coreFamily)
-    {
-    case 0x46:
-        diodeOffsetBin  =    GetFuseStateByNumber(0x82, coreFamily)     |
-                                (GetFuseStateByNumber(0x83, coreFamily)<<1) |
-                                (GetFuseStateByNumber(0x86, coreFamily)<<2);
-        break;
-    case 0x49:
-    case 0x4B:
-        diodeOffsetBin  =    GetFuseStateByNumber(0x39, coreFamily)     |
-                                (GetFuseStateByNumber(0x3A, coreFamily)<<1) |
-                                (GetFuseStateByNumber(0x3B, coreFamily)<<2) |
-                                (GetFuseStateByNumber(0x3C, coreFamily)<<3);
-        break;
-    case 0x50:
-        diodeOffsetBin  =    GetFuseStateByNumber(0x31, coreFamily)     |
-                                (GetFuseStateByNumber(0x32, coreFamily)<<1) |
-                                (GetFuseStateByNumber(0x33, coreFamily)<<2) |
-                                (GetFuseStateByNumber(0x34, coreFamily)<<3) |
-                                (GetFuseStateByNumber(0x35, coreFamily)<<4);
-    }
-
-    return diodeOffsetBin;
-}
-
-
-//////////////////////////////////////////////////////////////////////
-// Convert diode specific offset from binary format to °C
-//////////////////////////////////////////////////////////////////////
-LONG
-GetDiodeOffsetBinMul( DWORD coreFamily )
-{
-    LONG dwDiodeOffsetBin = 0, dwDiodeOffsetBinMul = 0;
-
-    dwDiodeOffsetBin= GetDiodeOffsetBin(coreFamily);
-
-    switch (coreFamily)
-    {
-    case 0x46:
-        {
-            const LONG map[8] = { 0, 45, 25, -15, -45, -75, -105, 0 };
-
-            dwDiodeOffsetBinMul = map[dwDiodeOffsetBin];
-        }
-        break;
-    case 0x49:
-    case 0x4B:
-        {
-            const LONG map[16] = { 0, 7, 5, 3, 1, -1, -3, -5, -7, -9, -11, -13, -15, -17, -19, -21 };
-
-            dwDiodeOffsetBinMul = map[dwDiodeOffsetBin];
-        }
-        break;
-    }
-
-    return dwDiodeOffsetBinMul;
-}
-
-
-UINT8
-GetGeForceTemp()
-{
-    if (!InitGeForce())
-        return 0;
-
-    if (GfCoreFamily == 0x92)
-    {
-        //get raw thermal diode readings
-        INT32 rawTemp = ReadGpuRegister(0x20008) & 0x3fff;
-
-        //calibrate thermal diode readings
-        return ( (rawTemp * /*10*/m_dwDiodeGainMul) + -130963 ) / 187;
-    }
-    else
-    {
-        return ReadGpuRegister(0x20400);
-    }
-}
-
-
-/*UINT8
-GetGeForceUsage()
-{
-    if (!InitNvapi())
-        return 0;
-
-    (*NvAPI_GPU_GetUsages)(gpuHandles[0], gpuUsages);
-
-    return gpuUsages[3];
-}*/
-
-
 UINT16 
 NvidiaGpu::GetEngineClock()
 {
@@ -323,7 +170,10 @@ NvidiaGpu::GetFreeMemory()
 UINT8 
 NvidiaGpu::GetTemperature()
 {
-    return 0;
+    if (!InitGeForce())
+        return 0;
+
+    return NvtdGetTemperature();
 }
 
 

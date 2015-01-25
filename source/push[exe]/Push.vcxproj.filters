@@ -19,6 +19,9 @@
     <Filter Include="Hardware\GPU">
       <UniqueIdentifier>{ed925027-83b8-45b5-805b-65c7fbe42c4a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Hardware\GPU\NvThermalDiode">
+      <UniqueIdentifier>{72c39318-b7be-4599-a6e8-d4b8378f0cb3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="file.c" />
@@ -71,6 +74,12 @@
     <ClCompile Include="Hardware\GPU\adl.cpp">
       <Filter>Hardware\GPU</Filter>
     </ClCompile>
+    <ClCompile Include="Hardware\GPU\NvThermalDiode\NVThermalDiode.cpp">
+      <Filter>Hardware\GPU\NvThermalDiode</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\NvThermalDiode\Context.cpp">
+      <Filter>Hardware\GPU\NvThermalDiode</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\cache.h">
@@ -122,6 +131,12 @@
     <ClInclude Include="game.h" />
     <ClInclude Include="Hardware\GPU\adl.h">
       <Filter>Hardware\GPU</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\GPU\NvThermalDiode\Context.h">
+      <Filter>Hardware\GPU\NvThermalDiode</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\GPU\NvThermalDiode\NvThermalDiode.h">
+      <Filter>Hardware\GPU\NvThermalDiode</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
