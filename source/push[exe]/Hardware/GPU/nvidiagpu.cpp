@@ -39,14 +39,6 @@ TYPE_NvAPI_GetMemoryInfo    NvAPI_GetMemoryInfo     = NULL;
 TYPE_NvAPI_GPU_GetUsages    NvAPI_GPU_GetUsages     = NULL;
 
 
-/*VOID
-InitGeForce( BYTE coreFamily )
-{
-    GfCoreFamily = coreFamily;
-    m_dwDiodeGainMul = GetDiodeGainMul(coreFamily);
-}*/
-
-
 BOOLEAN
 InitNvapi()
 {
@@ -288,7 +280,7 @@ GetGeForceTemp()
 }
 
 
-UINT8
+/*UINT8
 GetGeForceUsage()
 {
     if (!InitNvapi())
@@ -297,75 +289,67 @@ GetGeForceUsage()
     (*NvAPI_GPU_GetUsages)(gpuHandles[0], gpuUsages);
 
     return gpuUsages[3];
-}
-
-
-/*VOID
-GetGeForceMemoryInfo( NVAPI_MEM_INFO* MemInfo )
-{
-    if (!InitNvapi())
-        return;
-
-    (NvAPI_GetMemoryInfo)(displayHandles, mem_info_values);
-
-    MemInfo->Total = mem_info_values[1];
-    MemInfo->Free = mem_info_values[5];
 }*/
 
 
 UINT16 
 NvidiaGpu::GetEngineClock()
 {
-	return 0;
+    return 0;
 }
 
 
 UINT16 
 NvidiaGpu::GetMemoryClock()
 {
-	return 0;
+    return 0;
 }
 
 
 UINT64 
 NvidiaGpu::GetTotalMemory()
 {
-	return 0;
+    return 0;
 }
 
 
 UINT64 
 NvidiaGpu::GetFreeMemory()
 {
-	return 0;
+    return 0;
 }
 
 
 UINT8 
 NvidiaGpu::GetTemperature()
 {
-	return 0;
+    return 0;
 }
 
 
 UINT8 
 NvidiaGpu::GetLoad()
 {
-	return 0;
+     if (!InitNvapi())
+        return 0;
+
+    (*NvAPI_GPU_GetUsages)(gpuHandles[0], gpuUsages);
+
+    return gpuUsages[3];
 }
 
 
 UINT16 
 NvidiaGpu::GetMaximumEngineClock()
 {
-	return 0;
+    return 0;
 }
 
 
 UINT16 
 NvidiaGpu::GetMaximumMemoryClock()
 {
-	return 0;
+    return 0;
 }
 
 
