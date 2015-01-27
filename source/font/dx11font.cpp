@@ -12,6 +12,7 @@ typedef struct _D3DLOCKED_RECT
 #include "dx11font.h"
 #include <d3dx11effect.h>
 #include "..\d3dcompiler.h"
+#include "effects11.h"
 
 
 typedef INT32 (__stdcall *D3DCompile_t)(
@@ -52,7 +53,6 @@ ID3D11Texture2D                     *m_texture11;
 ID3D11Texture2D                     *m_texturepass;
 ID3D10Texture2D                     *m_texture10;
 ID3DX11EffectShaderResourceVariable    *effectSRV;
-D3DCompile_t FntD3DCompile;
 ID3DX11EffectPass *effectPass;
 
     BOOLEAN                        Initialized;
@@ -154,7 +154,6 @@ Dx11Font::InitD3D11Sprite( )
     WORD indices[3072];
     UINT16 i;
     HRESULT hr;
-    ID3D10Blob *    compiledFx = 0, * ErrorMsgs = 0;
     D3D11_SUBRESOURCE_DATA indexData = { 0 };
     ID3DX11Effect *effect = NULL;
     ID3DX11EffectTechnique* effectTechnique;
@@ -172,63 +171,10 @@ Dx11Font::InitD3D11Sprite( )
         { "COLOR", 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 }
     };
 
-    CHAR effectFile[ ] = \
-        "Texture2D SpriteTex;"
-        "SamplerState samLinear {"
-        "     Filter = MIN_MAG_MIP_LINEAR;"
-        "     AddressU = WRAP;"
-        "     AddressV = WRAP;"
-        "};"
-        "struct VertexIn {"
-        "     float3 PosNdc : POSITION;"
-        "     float2 Tex    : TEXCOORD;"
-        "     float4 Color  : COLOR;"
-        "};"
-        "struct VertexOut {"
-        "     float4 PosNdc : SV_POSITION;"
-        "     float2 Tex    : TEXCOORD;"
-        "     float4 Color  : COLOR;"
-        "};"
-        "VertexOut VS(VertexIn vin) {"
-        "     VertexOut vout;"
-        "     vout.PosNdc = float4(vin.PosNdc, 1.0f);"
-        "     vout.Tex    = vin.Tex;"
-        "     vout.Color  = vin.Color;"
-        "     return vout;"
-        "};"
-        "float4 PS(VertexOut pin) : SV_Target {"
-        "     return pin.Color*SpriteTex.Sample(samLinear, pin.Tex);"
-        "};"
-        "technique11 SpriteTech {"
-        "     pass P0 {"
-        "         SetVertexShader( CompileShader( vs_5_0, VS() ) );"
-        "         SetHullShader( NULL );"
-        "         SetDomainShader( NULL );"
-        "         SetGeometryShader( NULL );"
-        "         SetPixelShader( CompileShader( ps_5_0, PS() ) );"
-        "     }"
-        "}";
-
-    FntD3DCompile = (D3DCompile_t) GetProcAddress(GetD3DCompiler(), "D3DCompile");
-
-    FntD3DCompile(
-        effectFile, 
-        strlen( effectFile ), 
-        0, 
-        0, 
-        0, 
-        "SpriteTech", 
-        "fx_5_0", 
-        0, 
-        0, 
-        &compiledFx, 
-        &ErrorMsgs 
-        );
-
     // Create the UI effect object
     hr = D3DX11CreateEffectFromMemory(
-        compiledFx->GetBufferPointer(),
-        compiledFx->GetBufferSize(),
+        Effects11_cso,
+        sizeof(Effects11_cso),
         0,
         m_device11,
         &effect
@@ -239,8 +185,6 @@ Dx11Font::InitD3D11Sprite( )
         OutputDebugStringW(L"[OVRENDER] D3DX11CreateEffectFromMemory failed!");
         return FALSE;
     }
-
-    compiledFx->Release();
 
     effectTechnique = effect->GetTechniqueByName("SpriteTech");
     effectVariable = effect->GetVariableByName("SpriteTex");

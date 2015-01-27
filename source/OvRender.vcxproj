@@ -33,6 +33,8 @@
     <ClInclude Include="font\dx11font.h" />
     <ClInclude Include="font\dx8font.h" />
     <ClInclude Include="font\dx9font.h" />
+    <ClInclude Include="font\effects10.h" />
+    <ClInclude Include="font\effects11.h" />
     <ClInclude Include="font\font.h" />
     <ClInclude Include="hook\dx8hook.h" />
     <ClInclude Include="hook\dx9hook.h" />

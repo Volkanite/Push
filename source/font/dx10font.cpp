@@ -11,6 +11,7 @@ typedef struct _D3DLOCKED_RECT
 } D3DLOCKED_RECT;
 #include "dx10font.h"
 #include "..\d3dcompiler.h"
+#include "effects10.h"
 
 
 typedef INT32 (__stdcall *D3DCompile_t)(
@@ -46,7 +47,6 @@ static ID3D10EffectShaderResourceVariable    *effectSRV;
 static ID3D10Device                        *m_device10;
 static ID3D10BlendState                    *m_pFontBlendState10;
 static ID3D10EffectPass *effectPass;
-static D3DCompile_t FntD3DCompile;
 
 static BOOLEAN                        Initialized;
     #define START_CHAR 33
@@ -88,7 +88,6 @@ Dx10Font::InitD3D10Sprite( )
     WORD indices[3072];
     UINT16 i;
     HRESULT hr;
-    ID3D10Blob *    compiledFx = 0, * ErrorMsgs = 0;
     D3D10_SUBRESOURCE_DATA indexData = { 0 };
     ID3D10Effect *effect;
     ID3D10EffectVariable *effectVariable;
@@ -104,58 +103,16 @@ Dx10Font::InitD3D10Sprite( )
         { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D10_INPUT_PER_VERTEX_DATA, 0 },
         { "COLOR", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 20, D3D10_INPUT_PER_VERTEX_DATA, 0 }
     };
-        CHAR effectFile[ ] = \
-        "Texture2D SpriteTex;"
-        "SamplerState samLinear {"
-        "     Filter = MIN_MAG_MIP_LINEAR;"
-        "     AddressU = WRAP;"
-        "     AddressV = WRAP;"
-        "};"
-        "struct VertexIn {"
-        "     float3 PosNdc : POSITION;"
-        "     float2 Tex    : TEXCOORD;"
-        "     float4 Color  : COLOR;"
-        "};"
-        "struct VertexOut {"
-        "     float4 PosNdc : SV_POSITION;"
-        "     float2 Tex    : TEXCOORD;"
-        "     float4 Color  : COLOR;"
-        "};"
-        "VertexOut VS(VertexIn vin) {"
-        "     VertexOut vout;"
-        "     vout.PosNdc = float4(vin.PosNdc, 1.0f);"
-        "     vout.Tex    = vin.Tex;"
-        "     vout.Color  = vin.Color;"
-        "     return vout;"
-        "};"
-        "float4 PS(VertexOut pin) : SV_Target {"
-        "     return pin.Color*SpriteTex.Sample(samLinear, pin.Tex);"
-        "};"
-        "technique10 SpriteTech {"
-        "     pass P0 {"
-        "         SetVertexShader( CompileShader( vs_4_0, VS() ) );"
-        "         SetGeometryShader( NULL );"
-        "         SetPixelShader( CompileShader( ps_4_0, PS() ) );"
-        "     }"
-        "}";
-
-    FntD3DCompile = (D3DCompile_t) GetProcAddress(GetD3DCompiler(), "D3DCompile");
-
-    hr = FntD3DCompile(effectFile, strlen( effectFile ), 0, 0, 0, "SpriteTech", "fx_4_0", 0, 0, &compiledFx, &ErrorMsgs );
-
-    printf("FntD3DCompile() => 0x%x\n", hr);
 
     // Create the UI effect object
     D3D10CreateEffectFromMemory(
-            compiledFx->GetBufferPointer(),
-            compiledFx->GetBufferSize(),
-            0,
-            FntDevice,
-            NULL,
-             &effect
-             );
-
-    compiledFx->Release();
+        (VOID*)Effects10_cso,
+        sizeof(Effects10_cso),
+        0,
+        FntDevice,
+        NULL,
+        &effect
+        );
 
     spriteTech = effect->GetTechniqueByName( "SpriteTech" );
     effectVariable = effect->GetVariableByName( "SpriteTex" );
