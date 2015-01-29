@@ -52,7 +52,7 @@ RunFrameStatistics()
     static double newTickCount = 0.0, lastTickCount = 0.0,
                   oldTick = 0.0, delta = 0.0,
                   oldTick2 = 0.0, frameTime = 0.0,
-                  fps = 0.0;
+                  fps = 0.0, acceptableFrameTime = 0.0;
 
     static UINT32 frames = 0;
     static UINT64 lcyclesWaited;
@@ -63,10 +63,12 @@ RunFrameStatistics()
       StartCounter();
       inited = TRUE;
     }
-
+    
     newTickCount = GetPerformanceCounter();
     delta = newTickCount - oldTick;
-
+    acceptableFrameTime = (double)1000 / (double)PushAcceptableFps; //80 fps
+    frameTime = newTickCount- lastTickCount;
+    
     frames++;
 
     if (delta > 1000)
@@ -91,8 +93,10 @@ RunFrameStatistics()
                 PushOptimizeThreads();
         }
     }
+    
+    // Simple Diagnostics.
 
-    if (fps < PushAcceptableFps)
+    if (frameTime < acceptableFrameTime)
     {
         if (PushSharedMemory->HarwareInformation.Processor.Load > 95)
             PushSharedMemory->Overloads |= OSD_CPU_LOAD;
@@ -138,8 +142,6 @@ RunFrameStatistics()
     if (PushSharedMemory->FrameLimit)
     {
         double frameTimeMin = (double)1000 / (double)80; //80 fps
-
-        frameTime = newTickCount- lastTickCount;
 
         if (frameTime < frameTimeMin)
         {
