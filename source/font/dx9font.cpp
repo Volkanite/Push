@@ -88,15 +88,15 @@ Dx9Font::CreateTexture()
         format = D3DFMT_A8R8G8B8;
 
     hr = m_pd3dDevice->CreateTexture(
-                        m_dwTexWidth,
-                        m_dwTexHeight,
-                        1,
-                        0,
-                        format,
-                        D3DPOOL_MANAGED,
-                        &m_pTexture,
-                        NULL
-                        );
+        m_dwTexWidth, 
+        m_dwTexHeight, 
+        1, 
+        D3DUSAGE_DYNAMIC, 
+        format, 
+        D3DPOOL_DEFAULT, 
+        &m_pTexture, 
+        NULL
+        );
 
     return hr;
 }
