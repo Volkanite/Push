@@ -39,6 +39,19 @@ VOID SlFileCopy(
     TYPE_FsProgessRoutine ProgressRoutine
     );
     
+    
+/**
+* Loads a file into memory and returns the base address.
+*
+* \param FileName The Win32 file name.
+* \param FileSize Optional, returns the file size.
+*/
+
+VOID* SlFileLoad( 
+    WCHAR* FileName, 
+    UINT64* FileSize 
+    );
+    
 #ifdef __cplusplus
 }
 #endif

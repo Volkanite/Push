@@ -954,7 +954,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
         WCHAR *buffer;
         
         // Check if file is UTF-16LE.
-        buffer = (WCHAR*) FsFileLoad(PUSH_SETTINGS_FILE, NULL);
+        buffer = (WCHAR*) SlFileLoad(PUSH_SETTINGS_FILE, NULL);
 
         if (buffer[0] == 0xFEFF)
             //is UTF-LE. 

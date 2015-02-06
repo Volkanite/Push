@@ -63,7 +63,7 @@ BfBatchFile::BfBatchFile( PushGame* Game )
     wcscpy(BatchFileName, batchFile);
 
     // Open the batchfile and read the entire file into memory
-    buffer = FsFileLoad(batchFile, &fileSize);
+    buffer = SlFileLoad(batchFile, &fileSize);
 
     if (!buffer) 
         return;
