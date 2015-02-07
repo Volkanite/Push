@@ -102,12 +102,16 @@ PushKeySwapCallback( LPMSG Message )
 BOOLEAN
 MessageHook( LPMSG Message )
 {
+    static BOOLEAN ignoreRawInput = FALSE;
+
     switch (Message->message)    
     {   
         case WM_KEYDOWN:
             {
+                ignoreRawInput = TRUE;
+
                 MenuKeyboardHook(Message->wParam);
-                
+
                 if (PushSharedMemory->SwapWASD)
                 {
                     PushKeySwapCallback( Message );
@@ -149,6 +153,9 @@ MessageHook( LPMSG Message )
                 UINT dwSize;
                 RAWINPUT *buffer;
 
+                if(ignoreRawInput)
+                    return TRUE;
+                
                 // Request size of the raw input buffer to dwSize
                 GetRawInputData(
                     (HRAWINPUT)Message->lParam, 
