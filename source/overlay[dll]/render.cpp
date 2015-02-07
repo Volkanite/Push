@@ -62,11 +62,11 @@ RunFrameStatistics()
     {
       StartCounter();
       inited = TRUE;
+      acceptableFrameTime = (double)1000 / (double)PushAcceptableFps;
     }
     
     newTickCount = GetPerformanceCounter();
     delta = newTickCount - oldTick;
-    acceptableFrameTime = (double)1000 / (double)PushAcceptableFps; //80 fps
     frameTime = newTickCount- lastTickCount;
     
     frames++;
@@ -96,7 +96,7 @@ RunFrameStatistics()
     
     // Simple Diagnostics.
 
-    if (frameTime < acceptableFrameTime)
+    if (frameTime > acceptableFrameTime)
     {
         if (PushSharedMemory->HarwareInformation.Processor.Load > 95)
             PushSharedMemory->Overloads |= OSD_CPU_LOAD;
