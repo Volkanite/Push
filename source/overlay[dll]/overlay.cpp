@@ -15,6 +15,7 @@ void            *hEvent = NULL;
 BOOLEAN dxgiHooked              = FALSE;
 BOOLEAN g_DXGI                  = FALSE;
 ThreadMonitor* PushThreadMonitor;
+HANDLE PushProcessHeap;
 
 
 VOID
@@ -99,77 +100,80 @@ PushKeySwapCallback( LPMSG Message )
 
 
 BOOLEAN
-ProcessMessage( LPMSG lpMsg )
+MessageHook( LPMSG Message )
 {
-    // Remap key?
-    if ( (lpMsg->message == WM_KEYDOWN || lpMsg->message == WM_KEYUP) 
-        && PushSharedMemory->SwapWASD
-        )
-    {
-        PushKeySwapCallback( lpMsg );
-    }
-    
-    if (lpMsg->message == WM_KEYDOWN || lpMsg->message == WM_CHAR)
-    {
-        MenuKeyboardCallback( lpMsg->wParam );
-
-        if (PushSharedMemory->DisableRepeatKeys)
-        {
-            int repeatCount = (lpMsg->lParam & 0x40000000);
-
-            if (repeatCount) 
-                return FALSE;
-        }
-    }
-
-    // Game uses raw input?
-    if (lpMsg->message == WM_INPUT)
-    {
-        UINT dwSize;
-        RAWINPUT *buffer;
-
-        // request size of the raw input buffer to dwSize
-        GetRawInputData(
-            (HRAWINPUT)lpMsg->lParam, 
-            RID_INPUT, 
-            NULL, 
-            &dwSize, 
-            sizeof(RAWINPUTHEADER)
-            );
-         
-        // allocate buffer for input data
-        buffer = (RAWINPUT*)HeapAlloc(GetProcessHeap(), 0, dwSize);
-         
-        if (GetRawInputData(
-            (HRAWINPUT)lpMsg->lParam, 
-            RID_INPUT, 
-            buffer, 
-            &dwSize, 
-            sizeof(RAWINPUTHEADER)))
+    switch (Message->message)    
+    {   
+        case WM_KEYDOWN:
             {
-                // if this is keyboard message and WM_KEYDOWN, 
-                // process the key
-                if(buffer->header.dwType == RIM_TYPEKEYBOARD 
-                    && buffer->data.keyboard.Message == WM_KEYDOWN)
+                MenuKeyboardHook(Message->wParam);
+                
+                if (PushSharedMemory->SwapWASD)
                 {
-                    static DWORD time;
-
-                    // Check if same message
-                    if (lpMsg->time == time)
-                        // Return if same message
-                        return TRUE;
-
-                    // Update new time
-                    time = lpMsg->time;
-
-                    MenuKeyboardCallback( 
-                        buffer->data.keyboard.VKey 
-                        );
+                    PushKeySwapCallback( Message );
                 }
-            }
+
+                if (PushSharedMemory->DisableRepeatKeys)
+                {
+                    int repeatCount = (Message->lParam & 0x40000000);
+
+                    if (repeatCount) 
+                        return FALSE;
+                }
+
+            } break;
+
+        case WM_KEYUP:
+            {
+                if (PushSharedMemory->SwapWASD)
+                {
+                    PushKeySwapCallback( Message );
+                }
+
+            } break;
+
+        case WM_CHAR:
+            {
+                if (PushSharedMemory->DisableRepeatKeys)
+                {
+                    int repeatCount = (Message->lParam & 0x40000000);
+
+                    if (repeatCount) 
+                        return FALSE;
+                }
+
+            } break;
+
+        case WM_INPUT:
+            {
+                UINT dwSize;
+                RAWINPUT *buffer;
+
+                // Request size of the raw input buffer to dwSize
+                GetRawInputData(
+                    (HRAWINPUT)Message->lParam, 
+                    RID_INPUT, 
+                    NULL, 
+                    &dwSize, 
+                    sizeof(RAWINPUTHEADER)
+                    );
          
-            // free the buffer
-            HeapFree(GetProcessHeap(), 0, buffer);
+                // allocate buffer for input data
+                buffer = (RAWINPUT*)HeapAlloc(PushProcessHeap, 0, dwSize);
+         
+                if (GetRawInputData((HRAWINPUT)Message->lParam, RID_INPUT, buffer, &dwSize, sizeof(RAWINPUTHEADER)))
+                {
+                    // if this is keyboard message and WM_KEYDOWN, process the key
+                    if(buffer->header.dwType == RIM_TYPEKEYBOARD 
+                        && buffer->data.keyboard.Message == WM_KEYDOWN)
+                    {
+                        MenuKeyboardHook(buffer->data.keyboard.VKey);
+                    }
+                }
+         
+                // free the buffer
+                HeapFree(PushProcessHeap, 0, buffer);
+            } break;
     }
 
     return TRUE;
@@ -178,64 +182,39 @@ ProcessMessage( LPMSG lpMsg )
 
 BOOL
 WINAPI
-PeekMessageWHook( 
-    LPMSG lpMsg, 
-    HWND hWnd, 
-    UINT wMsgFilterMin, 
-    UINT wMsgFilterMax, 
-    UINT wRemoveMsg 
-    )
+PeekMessageWHook( LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, UINT wRemoveMsg )
 {
     BOOL result;
+
+    result = PushPeekMessageW( lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg );
+
+    if (result)
+    {
+        result = MessageHook( lpMsg );
+    }
     
-
-    result = PushPeekMessageW( 
-        lpMsg, 
-        hWnd, 
-        wMsgFilterMin, 
-        wMsgFilterMax, 
-        wRemoveMsg 
-        );
-
-    if (ProcessMessage( lpMsg ))
-        return result;
-    else
-        return FALSE;
+    return result;
 }
 
 
 BOOL
 WINAPI
-PeekMessageAHook( 
-    LPMSG lpMsg, 
-    HWND hWnd, 
-    UINT wMsgFilterMin, 
-    UINT wMsgFilterMax, 
-    UINT wRemoveMsg 
-    )
+PeekMessageAHook( LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, UINT wRemoveMsg )
 {
     BOOL result;
 
-    result = PushPeekMessageA( 
-        lpMsg, 
-        hWnd, 
-        wMsgFilterMin, 
-        wMsgFilterMax, 
-        wRemoveMsg 
-        );
+    result = PushPeekMessageA( lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg );
+    
+    if (result)
+    {
+        result = MessageHook( lpMsg );
+    }
 
-    if (ProcessMessage( lpMsg ))
-        return result;
-    else
-        return FALSE;
+    return result;
 }
 
 
-BOOL __stdcall DllMain( 
-    HINSTANCE hinstDLL, 
-    ULONG fdwReason, 
-    LPVOID lpReserved 
-    )
+BOOL __stdcall DllMain( HINSTANCE Instance, ULONG fdwReason, LPVOID lpReserved )
 {
     switch(fdwReason)
     {
@@ -246,11 +225,7 @@ BOOL __stdcall DllMain(
             SlHookManager hookManager;
             OV_HOOK_PARAMS hookParams = {0};
 
-            sectionHandle = OpenFileMappingW( 
-                FILE_MAP_ALL_ACCESS, 
-                FALSE, 
-                PUSH_SECTION_NAME 
-                );
+            sectionHandle = OpenFileMappingW( FILE_MAP_ALL_ACCESS, FALSE, PUSH_SECTION_NAME );
 
             PushSharedMemory = (PUSH_SHARED_MEMORY *) MapViewOfFile(
                                     sectionHandle,
@@ -260,11 +235,7 @@ BOOL __stdcall DllMain(
                                     sizeof(PUSH_SHARED_MEMORY)
                                     );
 
-            hEvent = OpenEventW(
-                SYNCHRONIZE, 
-                FALSE, 
-                L"Global\\" PUSH_IMAGE_EVENT_NAME
-                );
+            hEvent = OpenEventW( SYNCHRONIZE, FALSE, L"Global\\" PUSH_IMAGE_EVENT_NAME );
             
             hookParams.RenderFunction = RnRender;
             
@@ -278,6 +249,7 @@ BOOL __stdcall DllMain(
 
             PushRefreshRate = devMode.dmDisplayFrequency;
             PushAcceptableFps = PushRefreshRate - 5;
+            PushProcessHeap = GetProcessHeap();
 
             PushPeekMessageW = (TYPE_PeekMessageW) hookManager.DetourApi(
                 L"user32.dll", 

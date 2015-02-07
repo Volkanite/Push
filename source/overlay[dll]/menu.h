@@ -1,5 +1,6 @@
 VOID
 MnuRender( OvOverlay* Overlay );
 
-VOID
-MenuKeyboardCallback( WORD Key );
+VOID MenuKeyboardHook( 
+    WPARAM Key 
+    );
