@@ -105,7 +105,6 @@ MnuRender( OvOverlay* Overlay )
 
     //Call drawing and navigation functions
     MnuMenu->Render(100, 200, Overlay);
-    ProcessOptions();
 }
 
 
@@ -188,6 +187,9 @@ MenuKeyboardHook( WPARAM Key )
 
             } break;
     }
+
+    // Update osd items.
+    ProcessOptions();
 }
 
 
