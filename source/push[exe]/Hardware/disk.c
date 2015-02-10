@@ -195,13 +195,8 @@ typedef struct
     ULONG TransferSize;
     ULONG ResponseTime;
     UINT64 ByteOffset;
-#if defined (_WOW64_)
     UINT64 FileObject;
     UINT64 Irp;
-#else
-    UINT_B FileObject;
-    UINT_B Irp;
-#endif
     UINT64 HighResResponseTime;
     ULONG IssuingThreadId;
 } DiskIo_TypeGroup1;
