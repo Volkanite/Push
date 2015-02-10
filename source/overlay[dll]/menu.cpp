@@ -6,7 +6,7 @@
 
 SlOverlayMenu* MnuMenu;
 
-MenuVars MnuOsd[20];
+MenuVars MenuOsd[20];
 MenuVars MnuCache[10];
 
 WCHAR* GroupOpt[] = {L"", L""};
@@ -20,24 +20,24 @@ HANDLE MenuProcessHeap;
 VOID
 AddItems()
 {
-    MnuMenu->AddGroup(L"OSD", GroupOpt, &MnuOsd[0].Var);
+    MnuMenu->AddGroup(L"OSD", GroupOpt, &MenuOsd[0].Var);
 
-    if (MnuOsd[0].Var)
+    if (MenuOsd[0].Var)
     {
-        MnuMenu->AddItem(L"GPU Core utilization",    ItemOpt, &MnuOsd[1].Var);
-        MnuMenu->AddItem(L"GPU Core temperature",    ItemOpt, &MnuOsd[2].Var);
-        MnuMenu->AddItem(L"GPU Engine Clock",        ItemOpt, &MnuOsd[3].Var);
-        MnuMenu->AddItem(L"GPU Memory Clock",        ItemOpt, &MnuOsd[4].Var);
-        MnuMenu->AddItem(L"GPU VRAM usage",          ItemOpt, &MnuOsd[5].Var);
-        MnuMenu->AddItem(L"CPU utilization",         ItemOpt, &MnuOsd[6].Var);
-        MnuMenu->AddItem(L"CPU temperature",         ItemOpt, &MnuOsd[7].Var);
-        MnuMenu->AddItem(L"RAM usage",               ItemOpt, &MnuOsd[8].Var);
-        MnuMenu->AddItem(L"Max core usage",          ItemOpt, &MnuOsd[9].Var);
-        MnuMenu->AddItem(L"Max thread usage",        ItemOpt, &MnuOsd[10].Var);
-        MnuMenu->AddItem(L"Disk read-write rate",    ItemOpt, &MnuOsd[11].Var);
-        MnuMenu->AddItem(L"Disk response time",      ItemOpt, &MnuOsd[12].Var);
-        MnuMenu->AddItem(L"Frame Buffer count",      ItemOpt, &MnuOsd[13].Var);
-        MnuMenu->AddItem(L"Show Time",               ItemOpt, &MnuOsd[14].Var);
+        MnuMenu->AddItem(L"GPU Core utilization",    ItemOpt, &MenuOsd[1].Var);
+        MnuMenu->AddItem(L"GPU Core temperature",    ItemOpt, &MenuOsd[2].Var);
+        MnuMenu->AddItem(L"GPU Engine Clock",        ItemOpt, &MenuOsd[3].Var);
+        MnuMenu->AddItem(L"GPU Memory Clock",        ItemOpt, &MenuOsd[4].Var);
+        MnuMenu->AddItem(L"GPU VRAM usage",          ItemOpt, &MenuOsd[5].Var);
+        MnuMenu->AddItem(L"CPU utilization",         ItemOpt, &MenuOsd[6].Var);
+        MnuMenu->AddItem(L"CPU temperature",         ItemOpt, &MenuOsd[7].Var);
+        MnuMenu->AddItem(L"RAM usage",               ItemOpt, &MenuOsd[8].Var);
+        MnuMenu->AddItem(L"Max core usage",          ItemOpt, &MenuOsd[9].Var);
+        MnuMenu->AddItem(L"Max thread usage",        ItemOpt, &MenuOsd[10].Var);
+        MnuMenu->AddItem(L"Disk read-write rate",    ItemOpt, &MenuOsd[11].Var);
+        MnuMenu->AddItem(L"Disk response time",      ItemOpt, &MenuOsd[12].Var);
+        MnuMenu->AddItem(L"Frame Buffer count",      ItemOpt, &MenuOsd[13].Var);
+        MnuMenu->AddItem(L"Show Time",               ItemOpt, &MenuOsd[14].Var);
     }
 
     MnuMenu->AddGroup(L"CACHE", GroupOpt, &MnuCache[0].Var);
@@ -55,32 +55,38 @@ AddItems()
 VOID
 ProcessOptions()
 {
-    if (MnuOsd[1].Var > 0)
+    if (MenuOsd[1].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_GPU_LOAD;
     /*else
         PushSharedMemory->OSDFlags &= ~OSD_GPU_LOAD;*/
     //this needs to be fixed, if it was enable by main gui
     //checkbox then it'll get disabled. too lazy...
 
-    if (MnuOsd[2].Var > 0)
+    if (MenuOsd[2].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_GPU_TEMP;
 
-    if (MnuOsd[3].Var > 0)
+    if (MenuOsd[3].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
 
-    if (MnuOsd[4].Var > 0)
+    if (MenuOsd[4].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_GPU_M_CLK;
 
-    if (MnuOsd[7].Var > 0)
+    if (MenuOsd[7].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_CPU_TEMP;
         
-    if (MnuOsd[9].Var > 0)
+    if (MenuOsd[9].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_MCU;
 
-    if (MnuOsd[10].Var > 0)
+    if (MenuOsd[10].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_MTU;
 
-    if (MnuOsd[14].Var > 0)
+    if (MenuOsd[11].Var > 0)
+        PushSharedMemory->OSDFlags |= OSD_DISK_RWRATE;
+
+    if (MenuOsd[12].Var > 0)
+        PushSharedMemory->OSDFlags |= OSD_DISK_RESPONSE;
+
+    if (MenuOsd[14].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_TIME;
 }
 
