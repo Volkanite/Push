@@ -7,74 +7,15 @@
 #include "NvidiaGpu.h"
 #include <hwinfo.h>
 #include "NvThermalDiode\NvThermalDiode.h"
+#include "nvapi.h"
+
 
 BYTE GfCoreFamily = 0;
 LONG    m_dwDiodeGainMul;
 LONG GetDiodeGainMul( DWORD coreFamily );
-    #define NVAPI_MAX_PHYSICAL_GPUS 64
-//INT32* gpuHandles[NVAPI_MAX_PHYSICAL_GPUS];
-#define NVAPI_MAX_USAGES_PER_GPU        34
-#define NVAPI_MAX_MEMORY_VALUES_PER_GPU 6
-#define NVAPI_MAX_PHYSICAL_GPUS 64
-#define NVAPI_MAX_USAGES_PER_GPU 34
-DWORD gpuUsages[NVAPI_MAX_USAGES_PER_GPU] = { 0 };
-DWORD mem_info_values[NVAPI_MAX_MEMORY_VALUES_PER_GPU] = { 0 };
-INT32 *gpuHandles[NVAPI_MAX_PHYSICAL_GPUS] = { NULL };
+
 INT32 *displayHandles;
-INT32 gpuCount = 0;
-BOOLEAN GfNvapiInitialized;
 BOOLEAN GfInitialized;
-
-
-typedef INT32 *(*TYPE_NvAPI_QueryInterface)(UINT32 offset);
-typedef INT32 (*TYPE_NvAPI_Initialize)();
-typedef INT32 (*TYPE_NvAPI_EnumPhysicalGPUs)(INT32 **handles, INT32* count);
-typedef INT32 (*TYPE_NvAPI_GetMemoryInfo)(INT32 *hPhysicalGpu, UINT32* memInfo);
-typedef INT32 (*TYPE_NvAPI_GPU_GetUsages)(INT32 *handle, UINT32* usages);
-
-TYPE_NvAPI_QueryInterface   NvAPI_QueryInterface    = NULL;
-TYPE_NvAPI_Initialize       NvAPI_Initialize        = NULL;
-TYPE_NvAPI_EnumPhysicalGPUs NvAPI_EnumPhysicalGPUs  = NULL;
-TYPE_NvAPI_GetMemoryInfo    NvAPI_GetMemoryInfo     = NULL;
-TYPE_NvAPI_GPU_GetUsages    NvAPI_GPU_GetUsages     = NULL;
-
-
-BOOLEAN
-InitNvapi()
-{
-    VOID *nvapi = NULL;
-
-    if (GfNvapiInitialized)
-        return TRUE;
-
-    nvapi = SlLoadLibrary(L"nvapi.dll");
-
-    if (!nvapi)
-        return FALSE;
-
-    // nvapi_QueryInterface is a function used to retrieve other internal functions in nvapi.dll
-    NvAPI_QueryInterface = (TYPE_NvAPI_QueryInterface) GetProcAddress(nvapi, "nvapi_QueryInterface");
-
-    // some useful internal functions that aren't exported by nvapi.dll
-    NvAPI_GetMemoryInfo     = (TYPE_NvAPI_GetMemoryInfo)    (*NvAPI_QueryInterface)(0x774AA982);
-    NvAPI_Initialize        = (TYPE_NvAPI_Initialize)       (*NvAPI_QueryInterface)(0x0150E828);
-    NvAPI_EnumPhysicalGPUs  = (TYPE_NvAPI_EnumPhysicalGPUs) (*NvAPI_QueryInterface)(0xE5AC921F);
-    NvAPI_GPU_GetUsages     = (TYPE_NvAPI_GPU_GetUsages)    (*NvAPI_QueryInterface)(0x189A1FDF);
-
-    //gpu usages
-    gpuUsages[0] = (NVAPI_MAX_USAGES_PER_GPU * 4) | 0x10000;
-
-    // initialize NvAPI library, call it once before calling any other NvAPI functions
-    (*NvAPI_Initialize)();
-
-    mem_info_values[0]  = (NVAPI_MAX_MEMORY_VALUES_PER_GPU * 4) | 0x20000;
-    // get ur gpu handles, &gpucount"
-    (*NvAPI_EnumPhysicalGPUs)(gpuHandles, &gpuCount);
-
-    GfNvapiInitialized = TRUE;
-
-    return TRUE;
-}
 
 
 BOOLEAN
@@ -139,17 +80,23 @@ GetDiodeGainMul( DWORD coreFamily )
 }
 
 
+NvidiaGpu::NvidiaGpu()
+{
+    Nvapi_Initialize();
+}
+
+
 UINT16 
 NvidiaGpu::GetEngineClock()
 {
-    return 0;
+    return Nvapi_GetEngineClock();
 }
 
 
 UINT16 
 NvidiaGpu::GetMemoryClock()
 {
-    return 0;
+    return Nvapi_GetMemoryClock();
 }
 
 
@@ -180,12 +127,7 @@ NvidiaGpu::GetTemperature()
 UINT8 
 NvidiaGpu::GetLoad()
 {
-     if (!InitNvapi())
-        return 0;
-
-    (*NvAPI_GPU_GetUsages)(gpuHandles[0], gpuUsages);
-
-    return gpuUsages[3];
+    return Nvapi_GetActivity();
 }
 
 

@@ -80,6 +80,9 @@
     <ClCompile Include="Hardware\GPU\NvThermalDiode\Context.cpp">
       <Filter>Hardware\GPU\NvThermalDiode</Filter>
     </ClCompile>
+    <ClCompile Include="Hardware\GPU\nvapi.c">
+      <Filter>Hardware\GPU</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\cache.h">
@@ -137,6 +140,9 @@
     </ClInclude>
     <ClInclude Include="Hardware\GPU\NvThermalDiode\NvThermalDiode.h">
       <Filter>Hardware\GPU\NvThermalDiode</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\GPU\nvapi.h">
+      <Filter>Hardware\GPU</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
