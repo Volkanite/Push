@@ -73,6 +73,9 @@ ProcessOptions()
 
     if (MenuOsd[7].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_CPU_TEMP;
+
+    if (MenuOsd[8].Var > 0)
+        PushSharedMemory->OSDFlags |= OSD_RAM;
         
     if (MenuOsd[9].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_MCU;
