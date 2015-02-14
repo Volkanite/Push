@@ -105,8 +105,8 @@ RunFrameStatistics()
             PushSharedMemory->Overloads |= OSD_MCU;
 
         if (PushSharedMemory->HarwareInformation.DisplayDevice.Load > 95
-            && PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock == PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax
-            && PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock == PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax)
+            && PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock >= PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax
+            && PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock >= PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax)
             PushSharedMemory->Overloads |= OSD_GPU_LOAD;
 
         if (PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage > 95)
