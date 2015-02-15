@@ -16,12 +16,12 @@ memchrW(const WCHAR *ptr, WCHAR ch, UINT_B n);
 
 
 VOID
-GetBatchFile( PushGame* Game, WCHAR* Buffer )
+GetBatchFile( PUSH_GAME* Game, WCHAR* Buffer )
 {
     WCHAR *gameName, *dot;
     WCHAR batchFile[260] = L"cache\\";
 
-    gameName = Game->GetName();
+    gameName = Game->Name;
 
     wcscat(batchFile, gameName);
     RtlFreeHeap(PushHeapHandle, 0, gameName);
@@ -37,7 +37,7 @@ GetBatchFile( PushGame* Game, WCHAR* Buffer )
 }
 
 
-BfBatchFile::BfBatchFile( PushGame* Game )
+BfBatchFile::BfBatchFile( PUSH_GAME* Game )
 {
     UINT64 fileSize;
     VOID *buffer = NULL, *bufferOffset;

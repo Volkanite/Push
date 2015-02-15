@@ -70,7 +70,6 @@
     <ClCompile Include="batch.cpp" />
     <ClCompile Include="push.cpp" />
     <ClCompile Include="ring0.c" />
-    <ClCompile Include="game.cpp" />
     <ClCompile Include="Hardware\GPU\adl.cpp">
       <Filter>Hardware\GPU</Filter>
     </ClCompile>
@@ -83,6 +82,7 @@
     <ClCompile Include="Hardware\GPU\nvapi.c">
       <Filter>Hardware\GPU</Filter>
     </ClCompile>
+    <ClCompile Include="game.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\cache.h">

@@ -222,6 +222,15 @@ typedef struct _PUSH_HARDWARE_INFORMATION
 #pragma pack(pop)
 
 
+typedef enum _PUSH_VSYNC_OVERRIDE_MODE
+{
+    PUSH_VSYNC_UNCHANGED = 0,
+    PUSH_VSYNC_FORCE_ON,
+    PUSH_VSYNC_FORCE_OFF,
+
+} PUSH_VSYNC_OVERRIDE_MODE;
+
+
 // Structure for shared memory
 
 typedef struct _PUSH_SHARED_MEMORY
@@ -235,15 +244,15 @@ typedef struct _PUSH_SHARED_MEMORY
     unsigned int    Overloads;
 
     //Other
-    UCHAR           FrameLimit;
-    UCHAR           ForceVsync;
-    UCHAR           DisableRepeatKeys;
-	UCHAR			SwapWASD;
-    UCHAR           KeepFps;
-    UCHAR           GameUsesRamDisk;
-    long long       performanceFrequency;
-    VOID*           WindowHandle;
-    BOOLEAN         ThreadOptimization;
+    UCHAR                       FrameLimit;
+    PUSH_VSYNC_OVERRIDE_MODE    VsyncOverrideMode;
+    UCHAR                       DisableRepeatKeys;
+    UCHAR                       SwapWASD;
+    UCHAR                       KeepFps;
+    UCHAR                       GameUsesRamDisk;
+    long long                   performanceFrequency;
+    VOID*                       WindowHandle;
+    BOOLEAN                     ThreadOptimization;
 
 } PUSH_SHARED_MEMORY;
 

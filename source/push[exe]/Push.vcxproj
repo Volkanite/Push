@@ -21,7 +21,7 @@
   <ItemGroup>
     <ClCompile Include="batch.cpp" />
     <ClCompile Include="file.c" />
-    <ClCompile Include="game.cpp" />
+    <ClCompile Include="game.c" />
     <ClCompile Include="GUI\cache.cpp" />
     <ClCompile Include="GUI\copy.cpp" />
     <ClCompile Include="GUI\gui.cpp" />

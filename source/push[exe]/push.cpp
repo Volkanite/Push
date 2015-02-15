@@ -295,23 +295,20 @@ PushAddToFileList( FILE_LIST* FileList, FILE_LIST_ENTRY *FileEntry )
 
 
 VOID
-Cache( PushGame* Game )
+Cache( PUSH_GAME* Game )
 {
-    WCHAR *installPath;
     CHAR mountPoint = 0;
     UINT64 bytes = 0, availableMemory = 0; // in bytes
     SYSTEM_BASIC_PERFORMANCE_INFORMATION performanceInfo;
     BfBatchFile batchFile(Game);
 
-    installPath = Game->GetInstallPath();
-
     // Check if game is already cached so we donot have wait through another
-    if (wcscmp(g_szPrevGame, installPath) == 0 && !g_bRecache)
+    if (wcscmp(g_szPrevGame, Game->InstallPath) == 0 && !g_bRecache)
         return;
 
     g_bRecache = FALSE;
 
-    if (!FolderExists(installPath))
+    if (!FolderExists(Game->InstallPath))
     {
         MessageBoxW(0, L"Folder not exist!", 0,0);
 
@@ -366,8 +363,7 @@ Cache( PushGame* Game )
     // Release batchfile list
     PushFileList = NULL;
 
-    wcscpy(g_szPrevGame, installPath);
-    RtlFreeHeap(PushHeapHandle, 0, installPath);
+    wcscpy(g_szPrevGame, Game->InstallPath);
 }
 
 
@@ -379,7 +375,6 @@ OnProcessEvent( UINT16 processID )
     UINT32 iBytesRead;
     WCHAR *result = 0;
     CHAR szCommand[] = "MUTEPIN 1 a";
-    DWORD flags;
     
     processHandle = SlOpenProcess(processID, PROCESS_QUERY_INFORMATION | PROCESS_SUSPEND_RESUME);
 
@@ -391,11 +386,11 @@ OnProcessEvent( UINT16 processID )
 
     if (IsGame(fileName))
     {
-        PushGame game(fileName);
-    
-        flags = game.GetFlags();
+        PUSH_GAME game;
 
-        if (flags & GAME_RAMDISK)
+        Game_Initialize(fileName, &game);
+
+        if (game.GameSettings.UseRamDisk)
         {
             PushSharedMemory->GameUsesRamDisk = TRUE;
 
@@ -404,14 +399,9 @@ OnProcessEvent( UINT16 processID )
             Cache(&game);
         }
 
-        if (flags & GAME_VSYNC)
-            PushSharedMemory->ForceVsync = TRUE;
-
-        if (flags & GAME_REPEAT_KEYS)
-            PushSharedMemory->DisableRepeatKeys = TRUE;
-
-        if (flags & GAME_WASD)
-            PushSharedMemory->SwapWASD = TRUE;
+        PushSharedMemory->DisableRepeatKeys = game.GameSettings.DisableRepeatKeys;
+        PushSharedMemory->SwapWASD = game.GameSettings.SwapWASD;
+        PushSharedMemory->VsyncOverrideMode = game.GameSettings.VsyncOverrideMode;
 
         // Check if user wants maximum gpu engine and memory clocks
         if (SlIniReadBoolean(L"Settings", L"ForceMaxClocks", FALSE, L".\\" PUSH_SETTINGS_FILE))

@@ -246,8 +246,10 @@ BOOL __stdcall DllMain( HINSTANCE Instance, ULONG fdwReason, LPVOID lpReserved )
             
             hookParams.RenderFunction = RnRender;
             
-            if (PushSharedMemory->ForceVsync)
-                hookParams.ForceVsync = TRUE;
+            if (PushSharedMemory->VsyncOverrideMode == PUSH_VSYNC_FORCE_ON)
+                hookParams.VsyncOverrideMode = VSYNC_FORCE_ON;
+            else if (PushSharedMemory->VsyncOverrideMode == PUSH_VSYNC_FORCE_OFF)
+                hookParams.VsyncOverrideMode = VSYNC_FORCE_OFF;
 
             OvCreateOverlayEx( &hookParams );
             CreateThread(0, 0, &MonitorThread, 0, 0, 0);

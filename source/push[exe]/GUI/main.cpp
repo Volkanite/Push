@@ -535,6 +535,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     OPENFILENAME ofn = { 0 };
                     UINT8 i = 0;
                     WCHAR indexString[10];
+                    PUSH_GAME game;
 
                     ofn.lStructSize = sizeof(OPENFILENAME);
                     ofn.lpstrFilter = L"Executable (.EXE)\0*.exe\0";
@@ -572,11 +573,10 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     slash = SlStringFindLastChar(path, '\\');
                     *slash = '\0';
 
-                    PushGame game(filePath);
-
-                    game.SetName(imageName);
-                    game.SetInstallPath(path);
-                    game.SetFlags(GAME_RAMDISK);
+                    Game_Initialize(filePath, &game);
+                    Game_SetName(&game, imageName);
+                    Game_SetInstallPath(&game, path);
+                    Game_SetFlags(&game, GAME_RAMDISK);
 
                 } break;
 
@@ -588,32 +588,34 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
 
                         if (!gamesInited)
                         {
-                            WCHAR *pszGames;
+                            WCHAR *games;
                             INT32   i;
 
-                            pszGames = SlIniReadString(L"Games", 0, 0, L".\\" PUSH_SETTINGS_FILE);
+                            games = SlIniReadString(L"Games", 0, 0, L".\\" PUSH_SETTINGS_FILE);
 
-                            if (pszGames)
+                            if (games)
                             {
-                                for (i = 0; pszGames[0] != '\0'; i++)
+                                for (i = 0; games[0] != '\0'; i++)
                                 {
-                                    PushGame game(pszGames);
+                                    PUSH_GAME game;
+
+                                    Game_Initialize(games, &game);
 
                                     SendMessageW(
                                         MwControlHandles[COMBOBOX_GAMES],
                                         CB_ADDSTRING,
                                         0,
-                                        (LONG) game.GetName()
+                                        (LONG) game.Name
                                         );
 
                                     SendMessageW(
                                         MwControlHandles[COMBOBOX_GAMES],
                                         CB_SETITEMDATA,
                                         i,
-                                        (LONG) pszGames
+                                        (LONG) games
                                         );
 
-                                    pszGames = SlStringFindLastChar(pszGames, '\0') + 1;
+                                    games = SlStringFindLastChar(games, '\0') + 1;
                                 }
                             }
 

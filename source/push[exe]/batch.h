@@ -11,7 +11,7 @@ class BfBatchFile{
     UINT64 BatchSize;
 
 public:
-    BfBatchFile( PushGame* Game );
+    BfBatchFile( PUSH_GAME* Game );
     ~BfBatchFile();
     BOOLEAN IsBatchedFile( FILE_LIST_ENTRY* File );
     UINT64 GetBatchSize();

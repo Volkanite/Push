@@ -42,9 +42,9 @@ LONG __stdcall CacheWndProc(
     {
     case WM_CREATE:
         {
-            WCHAR* installPath;
             UINT32 columnWidth;
             RECT windowRect, treeListRect;
+            PUSH_GAME game;
 
             CwListView = new SlListView(Handle, LISTVIEW);
 
@@ -53,11 +53,9 @@ LONG __stdcall CacheWndProc(
             CwListView->AddColumn(L"File");
             CwListView->AddColumn(L"Size");
 
-            PushGame game(GetComboBoxData());
+            Game_Initialize(GetComboBoxData(), &game);
 
-            installPath = game.GetInstallPath();
-
-            if (!FolderExists(installPath))
+            if (!FolderExists(game.InstallPath))
             {
                 MessageBoxW(0, L"Folder not exist!", 0,0);
 
@@ -66,8 +64,7 @@ LONG __stdcall CacheWndProc(
             
             MwBatchFile = new BfBatchFile(&game);
 
-            FsEnumDirectory(installPath, L"*", BuildGameFilesList);
-            RtlFreeHeap(PushHeapHandle, 0, installPath);
+            FsEnumDirectory(game.InstallPath, L"*", BuildGameFilesList);
             ListViewAddItems();
 
             CwListView->SortItems(ListViewCompareProc);
