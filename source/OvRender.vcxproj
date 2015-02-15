@@ -97,7 +97,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>dxgi.lib;d3d10.lib;d3dcompiler.lib;effects11.lib;gdiplus.lib;ntdll.lib;sldetours.lib;slmodule.lib;slc.lib;lde64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxgi.lib;d3d10.lib;d3dcompiler.lib;effects11.lib;gdiplus.lib;ntdll.lib;sl.lib;sldetours.lib;lde64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Lib>
@@ -127,7 +127,7 @@
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <Lib>
-      <AdditionalDependencies>dxgi.lib;d3d10.lib;d3dcompiler.lib;effects11.lib;gdiplus.lib;ntdll.lib;sldetours.lib;slmodule.lib;slc.lib;lde64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxgi.lib;d3d10.lib;d3dcompiler.lib;effects11.lib;gdiplus.lib;ntdll.lib;sl.lib;sldetours.lib;lde64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Lib>
