@@ -88,3 +88,9 @@ Dx8Overlay::End()
 }
 
 
+VOID*
+Dx8Overlay::GetDevice()
+{
+	return NULL;
+}
+

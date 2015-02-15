@@ -107,3 +107,10 @@ DxgiOverlay::End()
 {
 
 }
+
+
+VOID*
+DxgiOverlay::GetDevice()
+{
+	return NULL;
+}

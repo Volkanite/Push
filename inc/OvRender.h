@@ -27,6 +27,7 @@ public:
     virtual VOID DrawText( WCHAR* Text, int X, int Y, DWORD Color ) = 0;
     virtual VOID Begin() = 0;
     virtual VOID End() = 0;
+	virtual VOID* GetDevice() = 0;
 };
 
 
