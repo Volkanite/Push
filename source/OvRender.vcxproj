@@ -97,11 +97,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-<<<<<<< HEAD
       <AdditionalDependencies>dxgi.lib;d3d10.lib;d3dcompiler.lib;effects11.lib;gdiplus.lib;ntdll.lib;sl.lib;sldetours.lib;lde64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-=======
-      <AdditionalDependencies>dxgi.lib;d3d10.lib;d3dcompiler.lib;effects11.lib;gdiplus.lib;ntdll.lib;sl.lib;lde64.lib;%(AdditionalDependencies)</AdditionalDependencies>
->>>>>>> GetDevice
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Lib>
@@ -131,11 +127,7 @@
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <Lib>
-<<<<<<< HEAD
       <AdditionalDependencies>dxgi.lib;d3d10.lib;d3dcompiler.lib;effects11.lib;gdiplus.lib;ntdll.lib;sl.lib;sldetours.lib;lde64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-=======
-      <AdditionalDependencies>dxgi.lib;d3d10.lib;d3dcompiler.lib;effects11.lib;gdiplus.lib;ntdll.lib;sl.lib;lde64.lib;%(AdditionalDependencies)</AdditionalDependencies>
->>>>>>> GetDevice
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Lib>
