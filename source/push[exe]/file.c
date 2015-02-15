@@ -70,7 +70,7 @@ SymLinkTargetCmp( WCHAR *Name, WCHAR *dest )
 
     reparseData = (BYTE *) &reparseInfo->SymbolicLinkReparseBuffer.PathBuffer;
 
-    SlStringCopy(
+    SlStringCopyN(
         szName,
         (WCHAR *) (reparseData + reparseInfo->SymbolicLinkReparseBuffer.SubstituteNameOffset),
         reparseInfo->SymbolicLinkReparseBuffer.SubstituteNameLength );
@@ -79,7 +79,7 @@ SymLinkTargetCmp( WCHAR *Name, WCHAR *dest )
 
     NtClose(fileHandle);
 
-    if (SlStringCompare(dest, szName + 6, wcslen(dest)) != 0)
+    if (SlStringCompareN(dest, szName + 6, wcslen(dest)) != 0)
         return FALSE;
     else
         return TRUE;
@@ -119,7 +119,7 @@ GetPointerToFilePath( WCHAR *Path, WCHAR *File )
                             (wcslen(Path) + wcslen(File) + 2) * 2
                             );
 
-    wcscpy(filePath, Path);
+    SlStringCopy(filePath, Path);
 
     wcscat(filePath, L"\\");
     wcscat(filePath, File);

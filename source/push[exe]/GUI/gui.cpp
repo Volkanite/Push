@@ -199,7 +199,7 @@ MinimiseToTray( VOID *hWnd )
     PushIconData.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP;
     PushIconData.uCallbackMessage = WM_ICON_NOTIFY;
 
-    SlStringCopy(PushIconData.szTip, L"Push", 64);
+    SlStringCopyN(PushIconData.szTip, L"Push", 64);
 
     bResult = Shell_NotifyIconW(NIM_ADD, &PushIconData);
 

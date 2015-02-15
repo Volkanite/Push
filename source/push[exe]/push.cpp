@@ -134,7 +134,7 @@ CacheFile( WCHAR *FileName, CHAR cMountPoint )
 
     SlFileCopy(FileName, destination, CopyProgress);
 
-    wcscpy(dosName, FileName);
+    SlStringCopy(dosName, FileName);
 
     slash = SlStringFindChar(dosName, '\\');
     *slash = L'\0';
@@ -220,13 +220,13 @@ NormalizeNTPath( WCHAR* pszPath, size_t nMax )
         szDrive[0] = cDrive;
         szNTPath[0] = 0;
         if (0 != QueryDosDeviceW(szDrive, szNTPath, 260) &&
-            0 == SlStringCompare(szNTPath, pszPath, 260))
+            0 == SlStringCompareN(szNTPath, pszPath, 260))
         {
             // Match
             wcscat(szDrive, L"\\");
             wcscat(szDrive, pszSlash+1);
 
-            wcscpy(pszPath, szDrive);
+            SlStringCopy(pszPath, szDrive);
 
             return S_OK;
         }
@@ -250,7 +250,7 @@ PushAddToFileList( FILE_LIST* FileList, FILE_LIST_ENTRY *FileEntry )
             (SlStringGetLength(FileEntry->Name) + 1) * sizeof(WCHAR)
             );
 
-    wcscpy(name, FileEntry->Name);
+    SlStringCopy(name, FileEntry->Name);
 
     if (*FileList == NULL)
     {
@@ -303,7 +303,7 @@ Cache( PUSH_GAME* Game )
     BfBatchFile batchFile(Game);
 
     // Check if game is already cached so we donot have wait through another
-    if (wcscmp(g_szPrevGame, Game->InstallPath) == 0 && !g_bRecache)
+    if (SlStringCompare(g_szPrevGame, Game->InstallPath) == 0 && !g_bRecache)
         return;
 
     g_bRecache = FALSE;
@@ -363,7 +363,7 @@ Cache( PUSH_GAME* Game )
     // Release batchfile list
     PushFileList = NULL;
 
-    wcscpy(g_szPrevGame, Game->InstallPath);
+    SlStringCopy(g_szPrevGame, Game->InstallPath);
 }
 
 

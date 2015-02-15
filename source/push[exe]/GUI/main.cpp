@@ -150,7 +150,7 @@ GetPathOnly( WCHAR *pszFilePath, WCHAR *pszBuffer )
 
     pszLastSlash = SlStringFindLastChar(pszFilePath, '\\');
 
-    SlStringCopy(pszBuffer,
+    SlStringCopyN(pszBuffer,
             pszFilePath,
             (pszLastSlash - pszFilePath) + 1);
 
@@ -244,7 +244,7 @@ AppendFileNameToPath(
     WCHAR* Buffer
     )
 {
-    wcscpy(Buffer, Path);
+    SlStringCopy(Buffer, Path);
 
     wcscat(Buffer, L"\\");
     wcscat(Buffer, FileName);

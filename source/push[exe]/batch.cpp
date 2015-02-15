@@ -29,11 +29,11 @@ GetBatchFile( PUSH_GAME* Game, WCHAR* Buffer )
     dot = SlStringFindLastChar(batchFile, '.');
 
     if (dot)
-        wcscpy(dot, L".txt");
+        SlStringCopy(dot, L".txt");
     else
         wcscat(batchFile, L".txt");
 
-    wcscpy(Buffer, batchFile);
+    SlStringCopy(Buffer, batchFile);
 }
 
 
@@ -60,7 +60,7 @@ BfBatchFile::BfBatchFile( PUSH_GAME* Game )
         );
 
     // Save new batchfile name
-    wcscpy(BatchFileName, batchFile);
+    SlStringCopy(BatchFileName, batchFile);
 
     // Open the batchfile and read the entire file into memory
     buffer = SlFileLoad(batchFile, &fileSize);
@@ -150,7 +150,7 @@ BfBatchFile::IsBatchedFile( FILE_LIST_ENTRY* File )
     while (file != NULL)
     {
         if (File->Bytes == file->Bytes
-            && wcscmp(File->Name, file->Name) == 0)
+            && SlStringCompare(File->Name, file->Name) == 0)
             return TRUE;
 
         file = file->NextEntry;
@@ -294,7 +294,7 @@ BfBatchFile::RemoveItem( FILE_LIST_ENTRY* File )
     while (file != 0)
     {
         if (file->Bytes == File->Bytes
-            && wcscmp(file->Name, File->Name) == 0)
+            && SlStringCompare(file->Name, File->Name) == 0)
         {
             if (file == FileList)
                 FileList = file->NextEntry;

@@ -1,19 +1,28 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 VOID SlInitUnicodeString( 
     UNICODE_STRING* DestinationString, 
     WCHAR* SourceString 
     );
-    
+
 INT32 SlStringCompare( 
+    WCHAR* src, 
+    WCHAR* dst 
+    );
+    
+INT32 SlStringCompareN( 
     WCHAR* s1, 
     WCHAR* s2, 
     int n
     );
-
+    
 WCHAR* SlStringCopy(
+    WCHAR* dst,
+    WCHAR* src
+    );
+
+WCHAR* SlStringCopyN(
     WCHAR* dst,
     WCHAR* src, 
     UINT32 n
@@ -39,7 +48,7 @@ SlStringFindCharAnsi(
     CHAR* String,
     CHAR Character
     );
-
+    
 WCHAR* SlStringFindLastChar(
     WCHAR* s, 
     WCHAR c
@@ -49,7 +58,6 @@ INT32
 SlStringGetLength(
     WCHAR* s 
     );
-    
 #ifdef __cplusplus
 }
 #endif

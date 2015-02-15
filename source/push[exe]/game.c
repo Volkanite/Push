@@ -17,7 +17,7 @@ HeapedString( WCHAR* String )
 
     buffer = (WCHAR*) RtlAllocateHeap( PushHeapHandle, 0, (SlStringGetLength(String) + 1) * sizeof(WCHAR) );
     
-    wcscpy(buffer, String);
+    SlStringCopy(buffer, String);
 
     return buffer;
 }
@@ -32,6 +32,10 @@ Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
     gameId = SlIniReadString(L"Games", Game->Win32Name, NULL, L".\\" PUSH_SETTINGS_FILE);
     
     buffer = SlIniReadSubKey(L"Game Settings", gameId, L"Name", L".\\" PUSH_SETTINGS_FILE);
+
+    if (!buffer)
+        return;
+
     Game->Name = HeapedString(buffer);
 
     buffer = SlIniReadSubKey(L"Game Settings", gameId, GAME_INSTALL_PATH, L".\\" PUSH_SETTINGS_FILE);
@@ -50,9 +54,9 @@ Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
 
     buffer = SlIniReadSubKey(L"Game Settings", gameId, L"ForceVsync", L".\\" PUSH_SETTINGS_FILE);
     
-    if (wcscmp(buffer, L"FORCE_ON") == 0)
+    if (SlStringCompare(buffer, L"FORCE_ON") == 0)
         Game->GameSettings.VsyncOverrideMode = PUSH_VSYNC_FORCE_ON;
-    else if (wcscmp(buffer, L"FORCE_OFF") == 0)
+    else if (SlStringCompare(buffer, L"FORCE_OFF") == 0)
         Game->GameSettings.VsyncOverrideMode = PUSH_VSYNC_FORCE_OFF;
 }
 
