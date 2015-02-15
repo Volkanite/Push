@@ -12,5 +12,6 @@ public:
     VOID DrawText( WCHAR* Text, int X, int Y, DWORD Color );
     VOID Begin();
     VOID End();
+	VOID* GetDevice();
 };
 

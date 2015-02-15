@@ -66,3 +66,10 @@ Dx11Overlay::End()
 {
     Dx11OvFont->End();
 }
+
+
+VOID*
+Dx11Overlay::GetDevice()
+{
+	return NULL;
+}

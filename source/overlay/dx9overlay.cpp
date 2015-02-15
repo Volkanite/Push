@@ -160,3 +160,9 @@ Dx9Overlay::End()
 
 }
 
+
+VOID*
+Dx9Overlay::GetDevice()
+{
+	return Dx9OvDevice;
+}
