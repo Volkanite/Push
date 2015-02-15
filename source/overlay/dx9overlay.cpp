@@ -20,7 +20,12 @@ IDirect3D_CreateDeviceCallback(
     D3DPRESENT_PARAMETERS* PresentationParameters
     )
 {
+    // Force vsync?
 
+    if (OvDx9Overlay->VsyncOverrideMode == VSYNC_FORCE_ON)
+        PresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+    else if (OvDx9Overlay->VsyncOverrideMode == VSYNC_FORCE_OFF)
+        PresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 }
 
 
