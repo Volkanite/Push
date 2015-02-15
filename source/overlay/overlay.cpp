@@ -13,7 +13,7 @@ DxgiOverlay*    OvDxgiOverlay;
 OvOverlay::OvOverlay()
 {
     Line = 0;
-	ForceVsync = FALSE;
+    VsyncOverrideMode = VSYNC_UNCHANGED;
 }
 
 
@@ -51,9 +51,9 @@ ULONG __stdcall CreateOverlay( LPVOID Param )
         overlay = OvDx9Overlay;
     }
 
-	if (hookParams->ForceVsync && overlay)
-		overlay->ForceVsync = TRUE;
-		
+    if (overlay)
+        overlay->VsyncOverrideMode = hookParams->VsyncOverrideMode;
+        
     return NULL;
 }
 
@@ -61,7 +61,7 @@ ULONG __stdcall CreateOverlay( LPVOID Param )
 VOID
 OvCreateOverlay( OV_RENDER RenderFunction )
 {
-	OV_HOOK_PARAMS hookParams = {0};
+    OV_HOOK_PARAMS hookParams = {0};
 
     hookParams.RenderFunction = RenderFunction;
 
@@ -81,7 +81,7 @@ OvCreateOverlayEx( OV_HOOK_PARAMS* HookParameters )
         );
 
     hookParams->RenderFunction = HookParameters->RenderFunction;
-    hookParams->ForceVsync = HookParameters->ForceVsync;
+    hookParams->VsyncOverrideMode = HookParameters->VsyncOverrideMode;
     
     CreateThread(0, 0, &CreateOverlay, hookParams, 0, 0);
 }

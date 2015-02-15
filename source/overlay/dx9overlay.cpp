@@ -25,9 +25,7 @@ IDirect3D_CreateDeviceCallback(
 
 
 VOID
-IDirect3DDevice9_ResetCallback(
-    D3DPRESENT_PARAMETERS* PresentationParameters
-    )
+IDirect3DDevice9_ResetCallback( D3DPRESENT_PARAMETERS* PresentationParameters )
 {
     if (Dx9OvFont)
     {
@@ -38,8 +36,11 @@ IDirect3DDevice9_ResetCallback(
     Dx9OvFont = NULL;
 
     // Force vsync?
-    if (OvDx9Overlay->ForceVsync)
-        PresentationParameters->PresentationInterval = 1;
+
+    if (OvDx9Overlay->VsyncOverrideMode == VSYNC_FORCE_ON)
+        PresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+    else if (OvDx9Overlay->VsyncOverrideMode == VSYNC_FORCE_OFF)
+        PresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 }
 
 
@@ -164,5 +165,5 @@ Dx9Overlay::End()
 VOID*
 Dx9Overlay::GetDevice()
 {
-	return Dx9OvDevice;
+    return Dx9OvDevice;
 }
