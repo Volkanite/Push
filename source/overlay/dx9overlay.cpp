@@ -46,6 +46,10 @@ IDirect3DDevice9_ResetCallback(
 VOID
 Dx9OvRender( IDirect3DDevice9* Device )
 {
+    IDirect3DSurface9 *renderTarget = NULL;
+    IDirect3DSurface9 *backBuffer = NULL;
+    D3DVIEWPORT9 viewport;
+
     if (Dx9OvFont == NULL)
     {
         Dx9OvFont = new Dx9Font(Device);
@@ -56,7 +60,34 @@ Dx9OvRender( IDirect3DDevice9* Device )
         Dx9OvDevice = Device;
     }
 
+    // Backup render target.
+    
+    Device->GetRenderTarget( 0, &renderTarget );
+    Device->GetViewport(&viewport);
+
+    // Set backbuffer as new render target.
+    
+    Device->GetBackBuffer( 
+        0, 
+        0, 
+        D3DBACKBUFFER_TYPE_MONO, 
+        &backBuffer 
+        );
+
+    Device->SetRenderTarget( 0, backBuffer );
+    
+    // Render our stuff.
     OvDx9Overlay->Render();
+
+    // Restore render target.
+
+    Device->SetRenderTarget( 0, renderTarget );
+    Device->SetViewport(&viewport);
+
+    // Cleanup.
+
+    backBuffer->Release();
+    renderTarget->Release();
 }
 
 
