@@ -128,6 +128,9 @@ SlOverlayMenu*  OvmMenu;
 VOID
 MenuKeyboardHook( WPARAM Key )
 {
+    if (!OvmMenu)
+        return;
+
     switch( Key )
     {
         case VK_INSERT:

@@ -8,7 +8,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Push", "source\push[exe]\Pu
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "overlay", "source\overlay[dll]\overlay.vcxproj", "{92A59583-EA15-461C-9249-64FAA431ABA5}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "push0", "source\push0[sys]\push0.vcxproj", "{6498F17A-34E7-D425-FC4C-B50680DE7F9B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "push0", "source\push0[sys]\push0.vcxproj", "{76309B41-A554-B920-3148-F5A7AAE4B42E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,11 +31,11 @@ Global
 		{92A59583-EA15-461C-9249-64FAA431ABA5}.Release|x64 Driver + x86 App.Build.0 = Release|Win32
 		{92A59583-EA15-461C-9249-64FAA431ABA5}.Release|x86 Driver + x86 App.ActiveCfg = Release|Win32
 		{92A59583-EA15-461C-9249-64FAA431ABA5}.Release|x86 Driver + x86 App.Build.0 = Release|Win32
-		{6498F17A-34E7-D425-FC4C-B50680DE7F9B}.Debug|x64 Driver + x86 App.ActiveCfg = Debug|x64
-		{6498F17A-34E7-D425-FC4C-B50680DE7F9B}.Debug|x86 Driver + x86 App.ActiveCfg = Debug|x64
-		{6498F17A-34E7-D425-FC4C-B50680DE7F9B}.Release|x64 Driver + x86 App.ActiveCfg = Release|x64
-		{6498F17A-34E7-D425-FC4C-B50680DE7F9B}.Release|x64 Driver + x86 App.Build.0 = Release|x64
-		{6498F17A-34E7-D425-FC4C-B50680DE7F9B}.Release|x86 Driver + x86 App.ActiveCfg = Release|x64
+		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Debug|x64 Driver + x86 App.ActiveCfg = Debug|x64
+		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Debug|x86 Driver + x86 App.ActiveCfg = Debug|x64
+		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Release|x64 Driver + x86 App.ActiveCfg = Release|x64
+		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Release|x64 Driver + x86 App.Build.0 = Release|x64
+		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Release|x86 Driver + x86 App.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
