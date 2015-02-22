@@ -832,6 +832,21 @@ INTBOOL __stdcall CreateProcessW(
 }
 
 
+#define DRIVE_REMOTE      4
+extern "C"
+UINT32
+__stdcall
+GetDriveTypeW(
+    __in_opt WCHAR* lpRootPathName
+    );
+extern "C"
+DWORD __stdcall GetTempPathW(
+  _In_   DWORD nBufferLength,
+  _Out_  WCHAR* lpBuffer
+);
+#define STATUS_INVALID_IMAGE_HASH        ((NTSTATUS)0xC0000428L)
+
+
 INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, INT32 iCmdShow )
 {
     VOID *sectionHandle = INVALID_HANDLE_VALUE, *hMutex;
@@ -839,6 +854,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     BOOLEAN bAlreadyRunning;
     OBJECT_ATTRIBUTES objAttrib = {0};
     INT32 msgId;
+    NTSTATUS status;
 
     // Check if already running
     hMutex = CreateMutexW(0, FALSE, L"PushOneInstance");
@@ -860,55 +876,92 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     ExtractResource(L"OVERLAY", L"overlay.dll");
     ExtractResource(L"DRIVER", L"push0.sys");
 
-    // Start Driver
-    R0DriverHandle = SlLoadDriver(
-                        L"PUSH",
-                        L"push0.sys",
-                        L"Push Kernel-Mode Driver",
-                        L"\\\\.\\Push",
-                        TRUE
-                        );
+    // Start Driver.
 
-    if (!R0DriverHandle)
+    WCHAR dir[260];
+    WCHAR *ptr;
+    WCHAR driverPath[260];
+
+    GetModuleFileNameW(NULL, dir, 260);
+    if((ptr = SlStringFindLastChar(dir, '\\')) != NULL)
     {
-        //prompt user to enable test-signing.
-        msgId = MessageBoxW(
-            NULL, 
-            L"The driver failed to load because it isn't signed. "
-            L"It is required for Push to work correctly. "
-            L"Do you want to enable test-signing to be able to use driver functions?",
-            L"Driver Signing",
-            MB_ICONQUESTION | MB_YESNO
-            );
+        *ptr = '\0';
+    }
+    swprintf(driverPath, 260, L"%s\\%s", dir, L"push0.sys");
 
-        if (msgId == IDYES)
+    WCHAR root[4];
+    root[0] = driverPath[0];
+    root[1] = ':';
+    root[2] = '\\';
+    root[3] = '\0';
+
+    if(root[0] == '\\' || GetDriveTypeW((WCHAR*)root) == DRIVE_REMOTE)
+    {
+        WCHAR tempPath[260];
+
+        GetTempPathW(260, tempPath);
+        wcscat(tempPath, L"push0.sys");
+        SlFileCopy(driverPath, tempPath, NULL);
+        SlStringCopy(driverPath, tempPath);
+    }
+
+    status = SlLoadDriver( 
+        L"PUSH", 
+        driverPath, 
+        L"Push Kernel-Mode Driver", 
+        L"\\\\.\\Push", 
+        TRUE,
+        &R0DriverHandle
+        );
+
+    if (!NT_SUCCESS(status))
+    {
+        if (status == STATUS_OBJECT_NAME_NOT_FOUND)
         {
-            STARTUPINFO startupInfo = {0};
-            PROCESS_INFORMATION processInfo = {0};
-            BOOLEAN status;
-            DWORD error = NULL;
-            VOID* oldValue = NULL;
+            MessageBoxW(NULL, L"Driver file not found!", L"Error", 0);
+        }
 
-            Wow64DisableWow64FsRedirection(&oldValue);
-
-            startupInfo.cb = sizeof(startupInfo);
-            startupInfo.dwFlags = STARTF_USESHOWWINDOW;
-            startupInfo.wShowWindow = SW_SHOWMINIMIZED;
-
-            status = CreateProcessW(
-                L"C:\\Windows\\System32\\bcdedit.exe", 
-                L"\"C:\\Windows\\System32\\bcdedit.exe\" /set TESTSIGNING ON",
+        if (status == STATUS_INVALID_IMAGE_HASH)
+        {
+            //prompt user to enable test-signing.
+            msgId = MessageBoxW(
                 NULL, 
-                NULL, 
-                FALSE,
-                NULL, 
-                NULL, 
-                L"C:\\Windows\\System32", 
-                &startupInfo, 
-                &processInfo
+                L"The driver failed to load because it isn't signed. "
+                L"It is required for Push to work correctly. "
+                L"Do you want to enable test-signing to be able to use driver functions?",
+                L"Driver Signing",
+                MB_ICONQUESTION | MB_YESNO
                 );
 
-            MessageBoxW(NULL, L"Restart your computer to load driver", L"Restart required", NULL);
+            if (msgId == IDYES)
+            {
+                STARTUPINFO startupInfo = {0};
+                PROCESS_INFORMATION processInfo = {0};
+                BOOLEAN status;
+                DWORD error = NULL;
+                VOID* oldValue = NULL;
+
+                Wow64DisableWow64FsRedirection(&oldValue);
+
+                startupInfo.cb = sizeof(startupInfo);
+                startupInfo.dwFlags = STARTF_USESHOWWINDOW;
+                startupInfo.wShowWindow = SW_SHOWMINIMIZED;
+
+                status = CreateProcessW(
+                    L"C:\\Windows\\System32\\bcdedit.exe", 
+                    L"\"C:\\Windows\\System32\\bcdedit.exe\" /set TESTSIGNING ON",
+                    NULL, 
+                    NULL, 
+                    FALSE,
+                    NULL, 
+                    NULL, 
+                    L"C:\\Windows\\System32", 
+                    &startupInfo, 
+                    &processInfo
+                    );
+
+                MessageBoxW(NULL, L"Restart your computer to load driver", L"Restart required", NULL);
+            }
         }
     }
 

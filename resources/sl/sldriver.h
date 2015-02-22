@@ -1,15 +1,9 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-VOID* SlLoadDriver( 
-    WCHAR* ServiceName, 
-    WCHAR* BinaryName, 
-    WCHAR* DisplayName, 
-    WCHAR* DeviceName,
-    BOOLEAN Filter
+extern "C" 
+NTSTATUS SlLoadDriver( 
+    _In_ WCHAR* ServiceName, 
+    _In_ WCHAR* DriverPath, 
+    _In_ WCHAR* DisplayName, 
+    _In_ WCHAR* DeviceName, 
+    _In_ BOOLEAN Filter, 
+    _Out_ VOID** DriverHandle
     );
-
-#ifdef __cplusplus
-}
-#endif
