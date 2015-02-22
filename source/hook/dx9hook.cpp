@@ -1,363 +1,332 @@
-#include <sltypes.h>
-#include <slnt.h>
+#include <Windows.h>
+#include <d3d9.h>
 #include <sldetours.h>
-#include <slntuapi.h>
 #include <slmodule.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdarg.h>
-#include <stdlib.h>
 
-#include <sld3d9.h>
+#include "dx9hook.h"
 
-	typedef struct _RGNDATAHEADER {
-  DWORD dwSize;
-  DWORD iType;
-  DWORD nCount;
-  DWORD nRgnSize;
-  RECT  rcBound;
-} RGNDATAHEADER, *PRGNDATAHEADER;
-	typedef struct _RGNDATA {
-  RGNDATAHEADER rdh;
-  char          Buffer[1];
-} RGNDATA, *PRGNDATA;
-	typedef struct tagPALETTEENTRY {
-    BYTE        peRed;
-    BYTE        peGreen;
-    BYTE        peBlue;
-    BYTE        peFlags;
-} PALETTEENTRY;
+
 typedef struct _HOOK_PARAMS
 {
 
-	D3DPRESENT_PARAMETERS*	presentationParameters;
-	VOID*	device;
+    D3DPRESENT_PARAMETERS*  presentationParameters;
+    VOID*   device;
 
 } HOOK_PARAMS;
-typedef LONG HRESULT;
+/*Callbacks*/
+
+
 
 typedef IDirect3D9* (__stdcall *TYPE_Direct3DCreate9)(
-	UINT32 SDKVersion);
+    UINT32 SDKVersion);
+
+typedef HRESULT (__stdcall *TYPE_Direct3DCreate9Ex)(
+  _In_   UINT SDKVersion,
+  _Out_  IDirect3D9Ex **ppD3D
+  );
 
 typedef LONG (__stdcall* TYPE_IDirect3D9_GetAdapterDisplayMode)(
-	IDirect3D9* Object,
-	UINT32 Adapter,
-	D3DDISPLAYMODE* pMode
-	);
+    IDirect3D9* Object,
+    UINT32 Adapter,
+    D3DDISPLAYMODE* pMode
+    );
 
 typedef LONG (__stdcall* TYPE_IDirect3D9_CreateDevice)(
-	IDirect3D9 *d3dObj,
-	UINT32 Adapter,
-	UINT32 DeviceType,
-	VOID* hFocusWindow,
-	DWORD BehaviorFlags,
-	D3DPRESENT_PARAMETERS *pPresentationParameters,
-	IDirect3DDevice9 **ppReturnedDeviceInterface);
+    IDirect3D9 *d3dObj,
+    UINT32 Adapter,
+    UINT32 DeviceType,
+    VOID* hFocusWindow,
+    DWORD BehaviorFlags,
+    D3DPRESENT_PARAMETERS *pPresentationParameters,
+    IDirect3DDevice9 **ppReturnedDeviceInterface);
 
 typedef LONG (__stdcall *TYPE_IDirect3DDevice9_Present) (
-	IDirect3DDevice9* pDevice,
-	const RECT* pSourceRect,
-	const RECT* pDestRect,
-	VOID* hDestWindowOverride,
-	const RGNDATA* pDirtyRegion
+    IDirect3DDevice9* pDevice,
+    const RECT* pSourceRect,
+    const RECT* pDestRect,
+    VOID* hDestWindowOverride,
+    const RGNDATA* pDirtyRegion
 );
 
 typedef LONG (__stdcall *TYPE_IDirect3DDevice9_Reset) (
-	IDirect3DDevice9* pDevice,
-	D3DPRESENT_PARAMETERS* pPresentationParameters
+    IDirect3DDevice9* pDevice,
+    D3DPRESENT_PARAMETERS* pPresentationParameters
 );
 
 typedef LONG (__stdcall *TYPE_IDirect3DDevice9_GetSwapChain)(
-	IDirect3DDevice9* device,
-	UINT32 iSwapChain,
-	IDirect3DSwapChain9** pSwapChain
-	);
+    IDirect3DDevice9* device,
+    UINT32 iSwapChain,
+    IDirect3DSwapChain9** pSwapChain
+    );
 
 
 //IDirect3DSwapChain9
 
 typedef LONG (__stdcall *TYPE_IDirect3DSwapChain9_Present)(
-	IDirect3DSwapChain9* OBJECT_IDirect3DSwapChain9,
-	const RECT* pSourceRect,
-	const RECT* pDestRect,
-	VOID* hDestWindowOverride,
-	const RGNDATA* pDirtyRegion,
-	unsigned long dwFlags
-	);
+    IDirect3DSwapChain9* OBJECT_IDirect3DSwapChain9,
+    const RECT* pSourceRect,
+    const RECT* pDestRect,
+    VOID* hDestWindowOverride,
+    const RGNDATA* pDirtyRegion,
+    unsigned long dwFlags
+    );
 
 typedef LONG (__stdcall *TYPE_IDirect3DSwapChain9_GetDevice)(
-	IDirect3DSwapChain9* OBJECT_IDirect3DSwapChain9,
-	IDirect3DDevice9** ppDevice
-	);
+    IDirect3DSwapChain9* OBJECT_IDirect3DSwapChain9,
+    IDirect3DDevice9** ppDevice
+    );
 
 
-/*Callbacks*/
+//
+typedef HRESULT (__stdcall *TYPE_IDirect3DDevice9Ex_PresentEx)( 
+    IDirect3DDevice9Ex* Device, 
+    CONST RECT* SourceRect, 
+    CONST RECT* DestRect, 
+    HWND DestWindowOverride,
+    CONST RGNDATA* DirtyRegion,
+    DWORD Flags
+    );
 
-typedef VOID (*TYPE_PresentCallback) (
-	IDirect3DDevice9* OBJECT_IDirect3DDevice9
-	);
 
-typedef VOID (*TYPE_ResetCallback)(
-	D3DPRESENT_PARAMETERS* PresentationParameters
-	);
+
 
 
 TYPE_Direct3DCreate9                    HkDirect3DCreate9;
-TYPE_IDirect3D9_GetAdapterDisplayMode	IDirect3D9_GetAdapterDisplayMode;
-TYPE_IDirect3D9_CreateDevice			HkIDirect3D9_CreateDevice;
-TYPE_IDirect3DDevice9_GetSwapChain		IDirect3DDevice9_GetSwapChain;
-TYPE_IDirect3DSwapChain9_Present		HkIDirect3DSwapChain9_Present;
-TYPE_IDirect3DSwapChain9_GetDevice		IDirect3DSwapChain9_GetDevice;
-TYPE_IDirect3DDevice9_Present				HkIDirect3DDevice9_Present = 0;
-TYPE_IDirect3DDevice9_Reset					HkIDirect3DDevice9_Reset = 0;
+TYPE_Direct3DCreate9Ex                  Dx9Hook_Direct3DCreate9Ex;
+//TYPE_IDirect3D9_GetAdapterDisplayMode   IDirect3D9_GetAdapterDisplayMode;
+TYPE_IDirect3D9_CreateDevice            Dx9Hook_IDirect3D9_CreateDevice;
+TYPE_IDirect3DDevice9_GetSwapChain      IDirect3DDevice9_GetSwapChain;
+TYPE_IDirect3DSwapChain9_Present        Dx9Hook_IDirect3DSwapChain9_Present;
+TYPE_IDirect3DSwapChain9_GetDevice      IDirect3DSwapChain9_GetDevice;
+TYPE_IDirect3DDevice9_Present           Dx9Hook_IDirect3DDevice9_Present;
+TYPE_IDirect3DDevice9_Reset             Dx9Hook_IDirect3DDevice9_Reset;
+TYPE_IDirect3DDevice9Ex_PresentEx       Dx9Hook_IDirect3DDevice9Ex_PresentEx;
 
-TYPE_PresentCallback	HkIDirect3DDevice9_PresentCallback;
-TYPE_PresentCallback	HkIDirect3DSwapChain9_PresentCallback;
-TYPE_ResetCallback		HkIDirect3DDevice9_ResetCallback;
-TYPE_ResetCallback		HkIDirect3D9_CreateDeviceCallback;
+DX9HOOK_PRESENT_CALLBACK    Dx9Hook_Present;
+DX9HOOK_RESET_CALLBACK      Dx9Hook_Reset;
+DX9HOOK_RESET_CALLBACK      Dx9Hook_CreateDevice;
 
 HOOK_PARAMS hookParams;
 D3DPRESENT_PARAMETERS PresentParams;
 
-#define SUCCEEDED(hr) (((LONG)(hr)) >= 0)
-extern "C" VOID* __stdcall GetDesktopWindow(void);
 
-LONG
-__stdcall
-IDirect3DDevice9_PresentHook(
-	IDirect3DDevice9* OBJECT_IDirect3DDevice9,
-	const RECT* pSourceRect,
-	const RECT* pDestRect,
-	VOID *hDestWindowOverride,
-	const RGNDATA* pDirtyRegion
-)
+HRESULT STDMETHODCALLTYPE Dx9Hook_IDirect3DDevice9_Present_Detour(
+    IDirect3DDevice9* Device,
+    CONST RECT* SourceRect,
+    CONST RECT* DestRect,
+    VOID* DestWindowOverride,
+    CONST RGNDATA* DirtyRegion
+    )
 {
-	HkIDirect3DDevice9_PresentCallback(
-		OBJECT_IDirect3DDevice9
-		);
+    HRESULT result;
 
-	return HkIDirect3DDevice9_Present(
-			OBJECT_IDirect3DDevice9,
-			pSourceRect,
-			pDestRect,
-			hDestWindowOverride,
-			pDirtyRegion
-			);
+    Dx9Hook_Present( Device );
+
+    result = Dx9Hook_IDirect3DDevice9_Present(
+        Device,
+        SourceRect,
+        DestRect,
+        DestWindowOverride,
+        DirtyRegion
+        );
+
+    return result;
 }
 
 
-LONG
-__stdcall
-IDirect3DDevice9_ResetHook(
-	IDirect3DDevice9* pDevice,
-	D3DPRESENT_PARAMETERS* PresentationParameters
-)
+HRESULT STDMETHODCALLTYPE Dx9Hook_IDirect3DDevice9Ex_PresentEx_Detour( 
+    IDirect3DDevice9Ex* Device, 
+    CONST RECT* SourceRect, 
+    CONST RECT* DestRect, 
+    HWND DestWindowOverride,
+    CONST RGNDATA* DirtyRegion,
+    DWORD Flags
+    )
 {
-	HkIDirect3DDevice9_ResetCallback( PresentationParameters );
+    HRESULT result;
 
-	return HkIDirect3DDevice9_Reset(
-			pDevice,
-			PresentationParameters
-			);
+    Dx9Hook_Present( Device );
+
+    result = Dx9Hook_IDirect3DDevice9Ex_PresentEx( 
+        Device, 
+        SourceRect, 
+        DestRect, 
+        DestWindowOverride,
+        DirtyRegion,
+        Flags
+        );
+
+    return result;
 }
 
 
-LONG
-__stdcall
-IDirect3DSwapChain9_PresentHook(
-	IDirect3DSwapChain9 *OBJECT_IDirect3DSwapChain9,
-	const RECT *pSourceRect,
-	const RECT *pDestRect,
-	VOID* hDestWindowOverride,
-	const RGNDATA *pDirtyRegion,
-	unsigned long dwFlags
-	)
+HRESULT STDMETHODCALLTYPE Dx9Hook_IDirect3DSwapChain9_Present_Detour(
+    IDirect3DSwapChain9 *Swap,
+    CONST RECT* SourceRect,
+    CONST RECT* DestRect,
+    VOID* DestWindowOverride,
+    CONST RGNDATA* DirtyRegion,
+    DWORD Flags
+    )
 {
-	static IDirect3DDevice9 *OBJECT_IDirect3DDevice9 = NULL;
+    static IDirect3DDevice9 *device = NULL;
+    HRESULT result;
 
-	if (!OBJECT_IDirect3DDevice9)
-	{
-		VOID **vmt;
+    if (!device)
+    {   
+        Swap->GetDevice(&device);
+    }
 
-		vmt = (VOID**) OBJECT_IDirect3DSwapChain9;
-		vmt = (VOID**) vmt[0];
+    Dx9Hook_Present( device );
 
-		IDirect3DSwapChain9_GetDevice = (TYPE_IDirect3DSwapChain9_GetDevice) vmt[8];
+    result = Dx9Hook_IDirect3DSwapChain9_Present(
+        Swap,
+        SourceRect,
+        DestRect,
+        DestWindowOverride,
+        DirtyRegion,
+        Flags
+        );
 
-		IDirect3DSwapChain9_GetDevice(
-			OBJECT_IDirect3DSwapChain9,
-			&OBJECT_IDirect3DDevice9
-			);
-	}
-
-	HkIDirect3DSwapChain9_PresentCallback( OBJECT_IDirect3DDevice9 );
-
-	return HkIDirect3DSwapChain9_Present(
-			OBJECT_IDirect3DSwapChain9,
-			pSourceRect,
-			pDestRect,
-			hDestWindowOverride,
-			pDirtyRegion,
-			dwFlags
-			);
+    return result;
 }
 
 
-LONG __stdcall IDirect3D9_CreateDeviceHook(
-	IDirect3D9* D3D9,
-	UINT32 Adapter,
-	UINT32 DeviceType,
-	VOID* FocusWindow,
-	DWORD BehaviorFlags,
-	D3DPRESENT_PARAMETERS *PresentationParameters,
-	IDirect3DDevice9 **ReturnedDeviceInterface
-	)
+HRESULT STDMETHODCALLTYPE Dx9Hook_IDirect3DDevice9_Detour(
+    IDirect3DDevice9* Device,
+    D3DPRESENT_PARAMETERS* PresentationParameters
+    )
 {
-    HRESULT hr;
+    HRESULT result;
 
-	HkIDirect3D9_CreateDeviceCallback( PresentationParameters );
+    Dx9Hook_Reset( PresentationParameters );
 
-    hr = HkIDirect3D9_CreateDevice(
-            D3D9,
-            Adapter,
-            DeviceType,
-            FocusWindow,
-            BehaviorFlags,
-            PresentationParameters,
-            ReturnedDeviceInterface
-            );
+    result = Dx9Hook_IDirect3DDevice9_Reset( Device, PresentationParameters );
 
-	return hr;
+    return result;
 }
 
 
-IDirect3D9* __stdcall Direct3DCreate9Hook( UINT32 SDKVersion )
+HRESULT STDMETHODCALLTYPE Dx9Hook_IDirect3D9_CreateDevice_Detour(
+    IDirect3D9* D3D9,
+    UINT32 Adapter,
+    UINT32 DeviceType,
+    VOID* FocusWindow,
+    DWORD BehaviorFlags,
+    D3DPRESENT_PARAMETERS *PresentationParameters,
+    IDirect3DDevice9 **ReturnedDeviceInterface
+    )
 {
-    IDirect3D9* d3d9 = NULL;
-    VOID **vmt;
+    HRESULT result;
+
+    Dx9Hook_CreateDevice( PresentationParameters );
+
+    result = Dx9Hook_IDirect3D9_CreateDevice(
+        D3D9,
+        Adapter,
+        DeviceType,
+        FocusWindow,
+        BehaviorFlags,
+        PresentationParameters,
+        ReturnedDeviceInterface
+        );
+
+    return result;
+}
+
+
+VOID 
+Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
+{
+    VOID *base = NULL, **vmt;
     SlHookManager hookManager;
+    HRESULT result;
+    IDirect3D9Ex *d3d9ex;
+    D3DDISPLAYMODE d3dDisplayMode;
+    D3DPRESENT_PARAMETERS presentationParameters;
+    IDirect3DDevice9Ex *deviceEx;
+    IDirect3DSwapChain9 *swap;
 
-    d3d9 = HkDirect3DCreate9(SDKVersion);
+    Dx9Hook_Present = HookParams->PresentCallback;
+    Dx9Hook_Reset = HookParams->ResetCallback;
+    Dx9Hook_CreateDevice = HookParams->CreateDeviceCallback;
 
-    if (d3d9 == NULL)
-        return NULL;
+    // Get module handle
+    base = SlLoadLibrary(L"d3d9.dll");
+   
+    Dx9Hook_Direct3DCreate9Ex = (TYPE_Direct3DCreate9Ex)GetProcAddress(
+        (HMODULE)base, 
+        "Direct3DCreate9Ex"
+        );
 
-    // hook
-	vmt = (VOID**) d3d9;
-	vmt = (VOID**) vmt[0];
+    if (Dx9Hook_Direct3DCreate9Ex == NULL)
+        return;
 
-	if (HkIDirect3D9_CreateDeviceCallback)
-	{
-        HkIDirect3D9_CreateDevice = (TYPE_IDirect3D9_CreateDevice) hookManager.DetourFunction(
-                                        (BYTE*)vmt[16],
-                                        (BYTE*)IDirect3D9_CreateDeviceHook
-                                        );
-	}
+    result = Dx9Hook_Direct3DCreate9Ex( D3D_SDK_VERSION, &d3d9ex );
 
-    return d3d9;
-}
+    if (FAILED(result))
+        return;
 
+    ZeroMemory(&presentationParameters, sizeof(D3DPRESENT_PARAMETERS));
 
-VOID
-SlHookD3D9(
-	VOID* IDirect3DDevice9_PresentCallback,
-	VOID* IDirect3DSwapChain9_PresentCallback,
-	VOID* IDirect3DDevice9_ResetCallback,
-	VOID* IDirect3D9_CreateDeviceCallback
-	)
-{
-	VOID *base = NULL, **vmt;
-	IDirect3D9 *d3d = NULL;
-	D3DDISPLAYMODE d3dDisplayMode;
-	D3DPRESENT_PARAMETERS d3dPresentParameters = {0};
-	LONG result;
-	IDirect3DDevice9 *OBJECT_IDirect3DDevice9;
-	SlHookManager hookManager;
+    d3d9ex->GetAdapterDisplayMode( D3DADAPTER_DEFAULT, &d3dDisplayMode );
 
-	HkIDirect3DDevice9_PresentCallback = (TYPE_PresentCallback) IDirect3DDevice9_PresentCallback;
-	HkIDirect3DSwapChain9_PresentCallback = (TYPE_PresentCallback) IDirect3DSwapChain9_PresentCallback;
-	HkIDirect3DDevice9_ResetCallback = (TYPE_ResetCallback) IDirect3DDevice9_ResetCallback;
-	HkIDirect3D9_CreateDeviceCallback = (TYPE_ResetCallback) IDirect3D9_CreateDeviceCallback;
+    presentationParameters.Windowed                 = TRUE;
+    presentationParameters.SwapEffect               = D3DSWAPEFFECT_DISCARD;
+    presentationParameters.BackBufferFormat         = d3dDisplayMode.Format;
 
-	// Get module handle
-	base = SlLoadLibrary(L"d3d9.dll");
+    result = d3d9ex->CreateDeviceEx(
+        D3DADAPTER_DEFAULT, 
+        D3DDEVTYPE_HAL, 
+        GetDesktopWindow(),
+        D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_DISABLE_DRIVER_MANAGEMENT,
+        &presentationParameters, 
+        NULL, 
+        &deviceEx
+        );
 
-	// Get IDirect3D9
-	HkDirect3DCreate9 = (TYPE_Direct3DCreate9) GetProcAddress(base, "Direct3DCreate9");
-	d3d = HkDirect3DCreate9(32);
+    if (FAILED(result))
+        return;
+    
+    vmt = (VOID**) d3d9ex;
+    vmt = (VOID**) vmt[0];
 
-	// Get IDirect3DDevice9
-	vmt = (VOID**) d3d;
-	vmt = (VOID**) vmt[0];
+    Dx9Hook_IDirect3D9_CreateDevice = (TYPE_IDirect3D9_CreateDevice) hookManager.DetourFunction(
+        (BYTE*)vmt[16],
+        (BYTE*)Dx9Hook_IDirect3D9_CreateDevice_Detour
+        );
 
-	IDirect3D9_GetAdapterDisplayMode = (TYPE_IDirect3D9_GetAdapterDisplayMode) vmt[8];
-	HkIDirect3D9_CreateDevice = (TYPE_IDirect3D9_CreateDevice) vmt[16];
+    vmt = (VOID**) deviceEx;
+    vmt = (VOID**) vmt[0];
 
-	IDirect3D9_GetAdapterDisplayMode(
-		d3d,
-		D3DADAPTER_DEFAULT,
-		&d3dDisplayMode
-		);
+    Dx9Hook_IDirect3DDevice9_Present = (TYPE_IDirect3DDevice9_Present) hookManager.DetourFunction(
+        (BYTE*)vmt[17],
+        (BYTE*)Dx9Hook_IDirect3DDevice9_Present_Detour
+        );
 
-	d3dPresentParameters.Windowed = TRUE;
-	d3dPresentParameters.SwapEffect = D3DSWAPEFFECT_DISCARD;
-	d3dPresentParameters.BackBufferFormat = d3dDisplayMode.Format;
+    Dx9Hook_IDirect3DDevice9Ex_PresentEx = (TYPE_IDirect3DDevice9Ex_PresentEx) hookManager.DetourFunction(
+        (BYTE*)vmt[121],
+        (BYTE*)Dx9Hook_IDirect3DDevice9Ex_PresentEx_Detour
+        );
 
-	result = HkIDirect3D9_CreateDevice(
-		d3d,
-		D3DADAPTER_DEFAULT,
-		D3DDEVTYPE_HAL,
-		GetDesktopWindow(),
-		D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_DISABLE_DRIVER_MANAGEMENT,
-		&d3dPresentParameters,
-		&OBJECT_IDirect3DDevice9
-		);
+    Dx9Hook_IDirect3DDevice9_Reset = (TYPE_IDirect3DDevice9_Reset) hookManager.DetourFunction(
+        (BYTE*)vmt[16],
+        (BYTE*)Dx9Hook_IDirect3DDevice9_Detour
+        );
 
-	if (!SUCCEEDED(result))
-	    return;
+    result = deviceEx->GetSwapChain(0, &swap);
 
-	if (IDirect3D9_CreateDeviceCallback)
-	{
-        HkIDirect3D9_CreateDevice = (TYPE_IDirect3D9_CreateDevice) hookManager.DetourFunction(
-                                        (BYTE*)vmt[16],
-                                        (BYTE*)IDirect3D9_CreateDeviceHook
-                                        );
-	}
+    if (FAILED(result))
+        return;
 
-	// Get method addresses
-	vmt = (VOID**) OBJECT_IDirect3DDevice9;
-	vmt = (VOID**) vmt[0];
+    vmt = (VOID**) swap;
+    vmt = (VOID**) vmt[0];
 
-	if (IDirect3DDevice9_PresentCallback)
-	{
-        HkIDirect3DDevice9_Present = (TYPE_IDirect3DDevice9_Present) hookManager.DetourFunction(
-                                        (BYTE*)vmt[17],
-                                        (BYTE*)IDirect3DDevice9_PresentHook
-                                        );
-	}
+    Dx9Hook_IDirect3DSwapChain9_Present = (TYPE_IDirect3DSwapChain9_Present) hookManager.DetourFunction(
+        (BYTE*)vmt[3],
+        (BYTE*)Dx9Hook_IDirect3DSwapChain9_Present_Detour
+        );
 
-	if (IDirect3DDevice9_ResetCallback)
-	{
-        HkIDirect3DDevice9_Reset = (TYPE_IDirect3DDevice9_Reset) hookManager.DetourFunction(
-                                    (BYTE*)vmt[16],
-                                    (BYTE*)IDirect3DDevice9_ResetHook
-                                    );
-	}
-
-	if (IDirect3DSwapChain9_PresentCallback)
-	{
-		IDirect3DSwapChain9 *OBJECT_IDirect3DSwapChain9;
-
-		IDirect3DDevice9_GetSwapChain = (TYPE_IDirect3DDevice9_GetSwapChain) vmt[14];
-
-		IDirect3DDevice9_GetSwapChain(OBJECT_IDirect3DDevice9, 0, &OBJECT_IDirect3DSwapChain9);
-
-		vmt = (VOID**) OBJECT_IDirect3DSwapChain9;
-		vmt = (VOID**) vmt[0];
-
-        HkIDirect3DSwapChain9_Present = (TYPE_IDirect3DSwapChain9_Present) hookManager.DetourFunction(
-                                            (BYTE*)vmt[3],
-                                            (BYTE*)IDirect3DSwapChain9_PresentHook
-                                            );
-	}
+    deviceEx->Release();
+    d3d9ex->Release();
 }

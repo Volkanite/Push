@@ -16,9 +16,7 @@ IDirect3DDevice9* Dx9OvDevice;
 
 
 VOID
-IDirect3D_CreateDeviceCallback(
-    D3DPRESENT_PARAMETERS* PresentationParameters
-    )
+Dx9Overlay_CreateDevice( D3DPRESENT_PARAMETERS* PresentationParameters )
 {
     // Force vsync?
 
@@ -30,7 +28,7 @@ IDirect3D_CreateDeviceCallback(
 
 
 VOID
-IDirect3DDevice9_ResetCallback( D3DPRESENT_PARAMETERS* PresentationParameters )
+Dx9Overlay_Reset( D3DPRESENT_PARAMETERS* PresentationParameters )
 {
     if (Dx9OvFont)
     {
@@ -98,18 +96,7 @@ Dx9OvRender( IDirect3DDevice9* Device )
 
 
 VOID
-IDirect3DDevice9_PresentCallback(
-    IDirect3DDevice9* Device
-    )
-{
-    Dx9OvRender(Device);
-}
-
-
-VOID
-IDirect3DSwapChain9_PresentCallback(
-    IDirect3DDevice9* Device
-    )
+Dx9Overlay_Present( IDirect3DDevice9* Device )
 {
     Dx9OvRender(Device);
 }
@@ -119,12 +106,13 @@ Dx9Overlay::Dx9Overlay(
     OV_RENDER RenderFunction
     )
 {
-    SlHookD3D9(
-        IDirect3DDevice9_PresentCallback,
-        IDirect3DSwapChain9_PresentCallback,
-        IDirect3DDevice9_ResetCallback,
-        IDirect3D_CreateDeviceCallback
-        );
+    D3D9HOOK_PARAMS hookParams;
+
+    hookParams.PresentCallback = Dx9Overlay_Present;
+    hookParams.ResetCallback = Dx9Overlay_Reset;
+    hookParams.CreateDeviceCallback = Dx9Overlay_CreateDevice;
+
+    Dx9Hook_Initialize(&hookParams);
 
     UserRenderFunction = RenderFunction;
 }

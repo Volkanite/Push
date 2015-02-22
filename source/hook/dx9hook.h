@@ -23,11 +23,21 @@ VOID IDirect3DDevice9_ResetCallback(
 #ifdef __cplusplus
 }
 #endif
+typedef VOID (*DX9HOOK_PRESENT_CALLBACK) (
+    IDirect3DDevice9* OBJECT_IDirect3DDevice9
+    );
 
-VOID
-SlHookD3D9(
-	VOID* IDirect3DDevice9_PresentCallback,
-	VOID* IDirect3DSwapChain9_PresentCallback,
-	VOID* IDirect3DDevice9_ResetCallback,
-	VOID* IDirect3D9_CreateDeviceCallback
-	);
+typedef VOID (*DX9HOOK_RESET_CALLBACK)(
+    D3DPRESENT_PARAMETERS* PresentationParameters
+    );
+
+
+typedef struct _DX9HOOK_PARAMS
+{
+    DX9HOOK_PRESENT_CALLBACK    PresentCallback;
+    DX9HOOK_RESET_CALLBACK      ResetCallback;
+    DX9HOOK_RESET_CALLBACK      CreateDeviceCallback;
+
+} D3D9HOOK_PARAMS;
+VOID 
+Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams );
