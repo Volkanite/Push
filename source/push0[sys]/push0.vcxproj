@@ -80,7 +80,7 @@
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(TEMP)\$(ProjectName)</IntDir>
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)resources\sl;C:\WinDDK\inc\api;C:\WinDDK\inc\ddk;$(VCInstallDir)include</IncludePath>
+    <IncludePath>$(SolutionDir)resources\sl;C:\WinDDK\inc\api;C:\WinDDK\inc\ddk;C:\WinDDK\inc\crt</IncludePath>
     <GenerateManifest>false</GenerateManifest>
     <LibraryPath>$(SolutionDir)resources\sl\lib\AMD64;C:\WinDDK\lib\win7\amd64;$(LibraryPath)</LibraryPath>
     <TargetExt>.sys</TargetExt>
