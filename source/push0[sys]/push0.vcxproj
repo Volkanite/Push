@@ -100,9 +100,9 @@
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>.\Debug\</IntDir>
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\WinDDK\7600.16385.1\inc\crt;C:\WinDDK\7600.16385.1\inc\api;C:\WinDDK\7600.16385.1\inc\ddk</IncludePath>
+    <IncludePath>$(SolutionDir)resources\sl;C:\WinDDK\inc\api;C:\WinDDK\inc\ddk;C:\WinDDK\inc\crt</IncludePath>
     <GenerateManifest>false</GenerateManifest>
-    <LibraryPath>C:\WinDDK\7600.16385.1\lib\win7\amd64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)resources\sl\lib\AMD64;C:\WinDDK\lib\win7\amd64;$(LibraryPath)</LibraryPath>
     <TargetExt>.sys</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -231,7 +231,7 @@
       <WarningLevel>Level3</WarningLevel>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>$(DDKROOT)\inc\wxp;$(DDKROOT)\inc\ddk\wxp;$(DDKROOT)\inc\ddk\wdm\wxp;$(DDKROOT)\inc\crt;$(DDKROOT)\inc\crt\gl;$(DDKROOT)\inc\crt\sys;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_AMD64_;_DEBUG;DBG=1;_WIN32_WINNT=0x0501</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_AMD64_;_WIN32_WINNT=0x0601;_WIN64</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Debug\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\Debug\phymem.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>.\Debug\</ObjectFileName>
@@ -262,7 +262,7 @@
       <AdditionalLibraryDirectories>$(DDKROOT)\lib\wxp\i386;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions> /DRIVER  /subsystem:NATIVE,5.1  /IGNORE:4078 </AdditionalOptions>
       <BaseAddress>0x10000</BaseAddress>
-      <AdditionalDependencies>wdm.lib;ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ntoskrnl.lib;hal.lib;slpci.lib;fltmgr.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>262144</StackReserveSize>
       <StackCommitSize>4096</StackCommitSize>
       <EntryPointSymbol>DriverEntry</EntryPointSymbol>
