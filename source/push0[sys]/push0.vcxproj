@@ -166,7 +166,7 @@
       </DataExecutionPrevention>
     </Link>
     <PostBuildEvent>
-      <Command>D:\Code\Push\source\push0[sys]\sign.bat</Command>
+      <Command>sign.bat</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -272,7 +272,7 @@
       </DataExecutionPrevention>
     </Link>
     <PostBuildEvent>
-      <Command>D:\Code\Push\source\push0[sys]\sign.bat</Command>
+      <Command>sign.bat</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
