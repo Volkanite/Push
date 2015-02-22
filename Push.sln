@@ -33,6 +33,7 @@ Global
 		{92A59583-EA15-461C-9249-64FAA431ABA5}.Release|x86 Driver + x86 App.ActiveCfg = Release|Win32
 		{92A59583-EA15-461C-9249-64FAA431ABA5}.Release|x86 Driver + x86 App.Build.0 = Release|Win32
 		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Debug|x64 Driver + x86 App.ActiveCfg = Debug|x64
+		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Debug|x64 Driver + x86 App.Build.0 = Debug|x64
 		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Debug|x86 Driver + x86 App.ActiveCfg = Debug|x64
 		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Release|x64 Driver + x86 App.ActiveCfg = Release|x64
 		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Release|x64 Driver + x86 App.Build.0 = Release|x64
