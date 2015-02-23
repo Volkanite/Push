@@ -44,7 +44,7 @@ PETP_GPU_ADAPTER AllocateGpuAdapter(
 
 
 UINT32 EtGpuTotalNodeCount;
-PETP_GPU_ADAPTER g_GpuAdapter;
+PETP_GPU_ADAPTER D3dkmt_GpuAdapter;
 UINT32 EtGpuTotalNodeCount;
 UINT32 EtGpuTotalSegmentCount;
 UINT32 EtGpuNextNodeIndex = 0;
@@ -159,12 +159,12 @@ D3DKMTGetMemoryUsage()
 
     dedicatedUsage = 0;
 
-    for (i = 0; i < g_GpuAdapter->SegmentCount; i++)
+    for (i = 0; i < D3dkmt_GpuAdapter->SegmentCount; i++)
     {
         memset(&queryStatistics, 0, sizeof(D3DKMT_QUERYSTATISTICS));
 
         queryStatistics.Type = D3DKMT_QUERYSTATISTICS_SEGMENT;
-        queryStatistics.AdapterLuid = g_GpuAdapter->AdapterLuid;
+        queryStatistics.AdapterLuid = D3dkmt_GpuAdapter->AdapterLuid;
         queryStatistics.QuerySegment.SegmentId = i;
 
         if (NT_SUCCESS(D3DKMTQueryStatistics(&queryStatistics)))
@@ -173,7 +173,7 @@ D3DKMTGetMemoryUsage()
 
             bytesCommitted = queryStatistics.QueryResult.SegmentInformationV1.BytesCommitted;
 
-            if (!RtlCheckBit(&g_GpuAdapter->ApertureBitMap, i))
+            if (!RtlCheckBit(&D3dkmt_GpuAdapter->ApertureBitMap, i))
                 dedicatedUsage += bytesCommitted;
         }
     }
@@ -260,31 +260,31 @@ D3DKMTInitialize()
                 {
                     UINT32 i;
 
-                    g_GpuAdapter = AllocateGpuAdapter(queryStatistics.QueryResult.AdapterInformation.NbSegments);
+                    D3dkmt_GpuAdapter = AllocateGpuAdapter(queryStatistics.QueryResult.AdapterInformation.NbSegments);
 
-                    g_GpuAdapter->AdapterLuid       = openAdapterFromDeviceName.AdapterLuid;
-                    g_GpuAdapter->NodeCount     = queryStatistics.QueryResult.AdapterInformation.NodeCount;
-                    g_GpuAdapter->SegmentCount  = queryStatistics.QueryResult.AdapterInformation.NbSegments;
+                    D3dkmt_GpuAdapter->AdapterLuid       = openAdapterFromDeviceName.AdapterLuid;
+                    D3dkmt_GpuAdapter->NodeCount     = queryStatistics.QueryResult.AdapterInformation.NodeCount;
+                    D3dkmt_GpuAdapter->SegmentCount  = queryStatistics.QueryResult.AdapterInformation.NbSegments;
 
                     RtlInitializeBitMap(
-                        &g_GpuAdapter->ApertureBitMap,
-                        g_GpuAdapter->ApertureBitMapBuffer,
+                        &D3dkmt_GpuAdapter->ApertureBitMap,
+                        D3dkmt_GpuAdapter->ApertureBitMapBuffer,
                         queryStatistics.QueryResult.AdapterInformation.NbSegments
                         );
 
-                    EtGpuTotalNodeCount += g_GpuAdapter->NodeCount;
+                    EtGpuTotalNodeCount += D3dkmt_GpuAdapter->NodeCount;
 
-                    EtGpuTotalSegmentCount += g_GpuAdapter->SegmentCount;
+                    EtGpuTotalSegmentCount += D3dkmt_GpuAdapter->SegmentCount;
 
-                    g_GpuAdapter->FirstNodeIndex = EtGpuNextNodeIndex;
-                    EtGpuNextNodeIndex += g_GpuAdapter->NodeCount;
+                    D3dkmt_GpuAdapter->FirstNodeIndex = EtGpuNextNodeIndex;
+                    EtGpuNextNodeIndex += D3dkmt_GpuAdapter->NodeCount;
 
-                    for (i = 0; i < g_GpuAdapter->SegmentCount; i++)
+                    for (i = 0; i < D3dkmt_GpuAdapter->SegmentCount; i++)
                     {
                         memset(&queryStatistics, 0, sizeof(D3DKMT_QUERYSTATISTICS));
 
                         queryStatistics.Type = D3DKMT_QUERYSTATISTICS_SEGMENT;
-                        queryStatistics.AdapterLuid = g_GpuAdapter->AdapterLuid;
+                        queryStatistics.AdapterLuid = D3dkmt_GpuAdapter->AdapterLuid;
                         queryStatistics.QuerySegment.SegmentId = i;
 
                         if (NT_SUCCESS(D3DKMTQueryStatistics(&queryStatistics)))
@@ -296,7 +296,7 @@ D3DKMTInitialize()
                             aperature = queryStatistics.QueryResult.SegmentInformationV1.Aperture;
 
                             if (aperature)
-                                RtlSetBits(&g_GpuAdapter->ApertureBitMap, i, 1);
+                                RtlSetBits(&D3dkmt_GpuAdapter->ApertureBitMap, i, 1);
                             else
                                 EtGpuDedicatedLimit += commitLimit;
                         }
@@ -345,19 +345,24 @@ UpdateNodeInformation()
     totalRunningTime = 0;
     systemRunningTime = 0;
 
-    for (j = 0; j < g_GpuAdapter->NodeCount; j++)
+    if (D3dkmt_GpuAdapter == NULL)
+    {
+        return;
+    }
+
+    for (j = 0; j < D3dkmt_GpuAdapter->NodeCount; j++)
     {
         memset(&queryStatistics, 0, sizeof(D3DKMT_QUERYSTATISTICS));
 
         queryStatistics.Type                = D3DKMT_QUERYSTATISTICS_NODE;
-        queryStatistics.AdapterLuid         = g_GpuAdapter->AdapterLuid;
+        queryStatistics.AdapterLuid         = D3dkmt_GpuAdapter->AdapterLuid;
         queryStatistics.QueryNode.NodeId    = j;
 
         if (NT_SUCCESS(D3DKMTQueryStatistics(&queryStatistics)))
         {
             UINT32 nodeIndex;
 
-            nodeIndex = g_GpuAdapter->FirstNodeIndex + j;
+            nodeIndex = D3dkmt_GpuAdapter->FirstNodeIndex + j;
 
             PhUpdateDelta(
                 &EtGpuNodesTotalRunningTimeDelta[nodeIndex],
