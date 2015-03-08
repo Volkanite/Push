@@ -1110,44 +1110,6 @@ PushOnTimer()
 }
 
 
-LONG
-__stdcall
-TrayIconProc(VOID *hWnd,
-             UINT32 message,
-             UINT32 wParam,
-             LONG lParam)
-{
-    // The option here is to maintain a list of all TrayIcon windows,
-    // and iterate through them. If you do this, remove these 3 lines.
-    //CSystemTray* pTrayIcon = m_pThis;
-    if (g_hTrayIcon != hWnd)
-    {
-        return DefWindowProcW(hWnd, message, wParam, lParam);
-    }
-
-    // If maintaining a list of TrayIcon windows, then the following...
-    // pTrayIcon = GetFirstTrayIcon()
-    // while (pTrayIcon != NULL)
-    // {
-    //    if (pTrayIcon->GetSafeHwnd() != hWnd) continue;
-
-          // Taskbar has been recreated - all TrayIcons must process this.
-    if (message == g_iTaskbarCreatedMsg)
-    {
-        return OnTaskbarCreated(wParam, lParam);
-    }
-
-    // Is the message from the icon for this TrayIcon?
-    if (message == WM_ICON_NOTIFY)
-    {
-        return TrayIconNotification(wParam, lParam);
-    }
-
-    // Message has not been processed, so default.
-    return DefWindowProcW(hWnd, message, wParam, lParam);
-}
-
-
 VOID
 GetTime(CHAR *pszBuffer)
 {
