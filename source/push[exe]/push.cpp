@@ -39,7 +39,7 @@ PUSH_SHARED_MEMORY* PushSharedMemory;
 UINT32  PushPageSize;
 WCHAR g_szLastDir[260];
 
-//BfBatchFile* PushCacheBatchFile;
+#define STATUS_INVALID_IMAGE_HASH        ((NTSTATUS)0xC0000428L)
 
 
 typedef long (__stdcall *TYPE_NtSuspendProcess)( VOID* hProcessHandle );
@@ -832,21 +832,6 @@ INTBOOL __stdcall CreateProcessW(
 }
 
 
-#define DRIVE_REMOTE      4
-extern "C"
-UINT32
-__stdcall
-GetDriveTypeW(
-    __in_opt WCHAR* lpRootPathName
-    );
-extern "C"
-DWORD __stdcall GetTempPathW(
-  _In_   DWORD nBufferLength,
-  _Out_  WCHAR* lpBuffer
-);
-#define STATUS_INVALID_IMAGE_HASH        ((NTSTATUS)0xC0000428L)
-
-
 INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, INT32 iCmdShow )
 {
     VOID *sectionHandle = INVALID_HANDLE_VALUE, *hMutex;
@@ -878,36 +863,9 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 
     // Start Driver.
 
-    WCHAR dir[260];
-    WCHAR *ptr;
-    WCHAR driverPath[260];
-
-    GetModuleFileNameW(NULL, dir, 260);
-    if((ptr = SlStringFindLastChar(dir, '\\')) != NULL)
-    {
-        *ptr = '\0';
-    }
-    swprintf(driverPath, 260, L"%s\\%s", dir, L"push0.sys");
-
-    WCHAR root[4];
-    root[0] = driverPath[0];
-    root[1] = ':';
-    root[2] = '\\';
-    root[3] = '\0';
-
-    if(root[0] == '\\' || GetDriveTypeW((WCHAR*)root) == DRIVE_REMOTE)
-    {
-        WCHAR tempPath[260];
-
-        GetTempPathW(260, tempPath);
-        wcscat(tempPath, L"push0.sys");
-        SlFileCopy(driverPath, tempPath, NULL);
-        SlStringCopy(driverPath, tempPath);
-    }
-
     status = SlLoadDriver( 
         L"PUSH", 
-        driverPath, 
+        L"push0.sys",
         L"Push Kernel-Mode Driver", 
         L"\\\\.\\Push", 
         TRUE,
