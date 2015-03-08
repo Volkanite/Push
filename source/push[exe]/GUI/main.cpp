@@ -525,6 +525,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     PushMainWindow->Handle, 
                     Gui_IconImageHandle, 
                     L"Push",
+                    IDM_RESTORE,
                     &Gui_InvisibleWindowHandle, 
                     &Gui_TrayIconHandle
                     );

@@ -9,6 +9,7 @@
 #include <slc.h>
 #include <slfile.h>
 #include <sldriver.h>
+#include <slresource.h>
 #include <gui.h>
 #include <main.h>
 #include <copy.h>
@@ -679,98 +680,7 @@ DWORD __stdcall MonitorThread( VOID* Parameter )
 
 #define DIRECTORY_ALL_ACCESS   (STANDARD_RIGHTS_REQUIRED | 0xF)
 #define WRITE_DAC   0x00040000L
-
 #define WRITE_OWNER   0x00080000L
-
-
-extern "C" 
-{
-
-HANDLE __stdcall FindResourceW(
-  HANDLE hModule,
-  WCHAR* lpName,
-  WCHAR* lpType
-);
-
-
-HANDLE __stdcall LoadResource(
-  HANDLE hModule,
-  HANDLE hResInfo
-);
-
-
-VOID* __stdcall LockResource(
-  HANDLE hResData
-);
-
-
-DWORD __stdcall SizeofResource(
-  HANDLE hModule,
-  HANDLE hResInfo
-);
-
-}
-
-
-BOOLEAN 
-ExtractResource( WCHAR* ResourceName, WCHAR* OutputPath )
-{
-    NTSTATUS status;
-    HANDLE fileHandle;
-    IO_STATUS_BLOCK isb;
-
-    HANDLE hResInfo = reinterpret_cast<HANDLE>(
-        ::FindResourceW(
-            NULL,
-            ResourceName,
-            ResourceName
-        )
-    );
-
-    if(!hResInfo) return false;
-
-    HANDLE hResData = ::LoadResource(NULL, hResInfo);
-
-    if(!hResData) return false;
-
-    VOID* pDeskbandBinData = ::LockResource(hResData);
-
-    if(!pDeskbandBinData) return false;
-
-    const DWORD dwDeskbandBinSize = ::SizeofResource(NULL, hResInfo);
-
-    if(!dwDeskbandBinSize) return false;
-
-    status = SlFileCreate(
-        &fileHandle,
-        OutputPath, 
-        FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE,
-        FILE_SHARE_READ | FILE_SHARE_WRITE,
-        /*FILE_OVERWRITE_IF*/ FILE_CREATE,
-        FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
-        );
-
-    if (!NT_SUCCESS(status)) return false;
-
-    status = NtWriteFile(
-        fileHandle, 
-        NULL, 
-        NULL, 
-        NULL, 
-        &isb, 
-        pDeskbandBinData, 
-        dwDeskbandBinSize, 
-        NULL, 
-        NULL
-        );
-
-    if (!NT_SUCCESS(status)) return false;
-
-    NtClose(fileHandle);
-
-    return true;
-}
-
 
 #define MB_ICONQUESTION 0x00000020L
 #define MB_YESNO        0x00000004L
@@ -858,8 +768,8 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     PushHeapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
 
     //Extract necessary files
-    ExtractResource(L"OVERLAY", L"overlay.dll");
-    ExtractResource(L"DRIVER", L"push0.sys");
+    SlExtractResource(L"OVERLAY", L"overlay.dll");
+    SlExtractResource(L"DRIVER", L"push0.sys");
 
     // Start Driver.
 
