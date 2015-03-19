@@ -1,5 +1,4 @@
-#include <sltypes.h>
-#include <slntuapi.h>
+#include <sl.h>
 #include <sldetours.h>
 #include <stdio.h>
 
@@ -133,34 +132,6 @@ VOID* __stdcall CreateThreadHook(
 
     return threadHandle;
 }
-
-
-
-/*VOID
-DestroyThreadList()
-{
-    THREAD_LIST_ENTRY *threadListEntry = 0;
-
-    threadListEntry = threadListFirstEntry;
-
-    while (threadListEntry != 0)
-    {
-        THREAD_LIST_ENTRY *nextEntry;
-
-        nextEntry = threadListEntry->nextEntry;
-
-        //SlFree(threadListEntry);
-        RtlFreeHeap(
-            PushHeapHandle,
-            0,
-            threadListEntry
-            );
-
-        threadListEntry = nextEntry;
-    }
-
-    threadListFirstEntry = 0;
-}*/
 
 
 extern "C"

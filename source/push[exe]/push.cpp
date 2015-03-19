@@ -1,27 +1,18 @@
 #include <sl.h>
-#include <slgui.h>
-#include <pushbase.h>
+#include <slresource.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
-#include <malloc.h>
 #include <time.h>
-#include <slc.h>
-#include <slfile.h>
-#include <sldriver.h>
-#include <slresource.h>
+#include <pushbase.h>
 #include <gui.h>
-#include <main.h>
-#include <copy.h>
+
 #include "push.h"
-#include <slini.h>
-#include "file.h"
-#include "ring0.h"
-
-
 #include "RAMdisk\ramdisk.h"
 #include "Hardware\hwinfo.h"
 #include "batch.h"
+#include "ring0.h"
+#include "file.h"
 
 
 CHAR g_szDllDir[260];
@@ -742,6 +733,74 @@ INTBOOL __stdcall CreateProcessW(
 }
 
 
+typedef VOID* PSECURITY_DESCRIPTOR;
+
+#define SECURITY_DESCRIPTOR_REVISION     (1)
+#define DACL_SECURITY_INFORMATION        (0x00000004L)
+#define READ_CONTROL                     (0x00020000L)
+#define STANDARD_RIGHTS_WRITE            (READ_CONTROL)
+#define KEY_SET_VALUE           (0x0002)
+#define KEY_CREATE_SUB_KEY      (0x0004)
+#define KEY_WRITE               ((STANDARD_RIGHTS_WRITE      |\
+                                  KEY_SET_VALUE              |\
+                                  KEY_CREATE_SUB_KEY)         \
+                                  &                           \
+                                 (~SYNCHRONIZE))
+#define REG_BINARY                  ( 3 )   // Free form binary
+
+
+extern "C"
+{
+
+NTSTATUS __stdcall RtlCreateSecurityDescriptor(
+    VOID* SecurityDescriptor,
+    ULONG Revision
+);
+
+NTSTATUS __stdcall RtlSetDaclSecurityDescriptor (
+    VOID* SecurityDescriptor,
+    BOOLEAN DaclPresent,
+    ACL* Dacl,
+    BOOLEAN DaclDefaulted
+);
+
+NTSTATUS __stdcall RtlMakeSelfRelativeSD(
+    VOID* AbsoluteSecurityDescriptor,
+    VOID* SelfRelativeSecurityDescriptor,
+    ULONG* BufferLength
+    );
+
+NTSTATUS __stdcall NtSetSecurityObject(
+    _In_ HANDLE Handle,
+    _In_ ULONG SecurityInformation,
+    _In_ VOID* SecurityDescriptor
+    );
+
+}
+
+
+VOID*
+OpenKey( WCHAR* KeyName, DWORD DesiredAccess )
+{
+    UNICODE_STRING keyName;
+    OBJECT_ATTRIBUTES objectAttributes;
+    HANDLE keyHandle = NULL;
+
+    SlInitUnicodeString(&keyName, KeyName);
+
+    objectAttributes.Length = sizeof(OBJECT_ATTRIBUTES);
+    objectAttributes.RootDirectory = NULL;
+    objectAttributes.ObjectName = &keyName;
+    objectAttributes.Attributes = OBJ_CASE_INSENSITIVE;
+    objectAttributes.SecurityDescriptor = NULL;
+    objectAttributes.SecurityQualityOfService = NULL;
+
+    NtOpenKey(&keyHandle, DesiredAccess, &objectAttributes);
+
+    return keyHandle;
+}
+
+
 INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, INT32 iCmdShow )
 {
     VOID *sectionHandle = INVALID_HANDLE_VALUE, *hMutex;
@@ -754,13 +813,12 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     // Check if already running
     hMutex = CreateMutexW(0, FALSE, L"PushOneInstance");
 
-    bAlreadyRunning = (GetLastError() == ERROR_ALREADY_EXISTS ||
-                            GetLastError() == ERROR_ACCESS_DENIED);
+    bAlreadyRunning = (GetLastError() == ERROR_ALREADY_EXISTS 
+                        || GetLastError() == ERROR_ACCESS_DENIED);
 
     if (bAlreadyRunning)
     {
         MessageBoxW(0, L"Only one instance!", 0,0);
-
         ExitProcess(0);
     }
 
@@ -791,7 +849,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 
         if (status == STATUS_INVALID_IMAGE_HASH)
         {
-            //prompt user to enable test-signing.
+            // Prompt user to enable test-signing.
             msgId = MessageBoxW(
                 NULL, 
                 L"The driver failed to load because it isn't signed. "
@@ -803,31 +861,65 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 
             if (msgId == IDYES)
             {
-                STARTUPINFO startupInfo = {0};
-                PROCESS_INFORMATION processInfo = {0};
-                BOOLEAN status;
-                DWORD error = NULL;
-                VOID* oldValue = NULL;
+                HANDLE keyHandle;
+                DWORD size = 255;
+                WCHAR buffer[255];
+                unsigned char p[9000];
+                PSECURITY_DESCRIPTOR psecdesc = (PSECURITY_DESCRIPTOR)p;
+                VOID* selfSecurityDescriptor;
+                BYTE value = 0x01;
+                UNICODE_STRING valueName;
+                SYSTEM_BOOT_ENVIRONMENT_INFORMATION bootEnvironmentInformation;
+                UINT32 returnLength;
+                UNICODE_STRING guidAsUnicodeString;
+                WCHAR guidAsWideChar[40];
+                ULONG bufferLength = 20;
 
-                Wow64DisableWow64FsRedirection(&oldValue);
+                // Get boot GUID.
 
-                startupInfo.cb = sizeof(startupInfo);
-                startupInfo.dwFlags = STARTF_USESHOWWINDOW;
-                startupInfo.wShowWindow = SW_SHOWMINIMIZED;
-
-                status = CreateProcessW(
-                    L"C:\\Windows\\System32\\bcdedit.exe", 
-                    L"\"C:\\Windows\\System32\\bcdedit.exe\" /set TESTSIGNING ON",
-                    NULL, 
-                    NULL, 
-                    FALSE,
-                    NULL, 
-                    NULL, 
-                    L"C:\\Windows\\System32", 
-                    &startupInfo, 
-                    &processInfo
+                NtQuerySystemInformation(
+                    SystemBootEnvironmentInformation,
+                    &bootEnvironmentInformation,
+                    sizeof(SYSTEM_BOOT_ENVIRONMENT_INFORMATION),
+                    &returnLength
                     );
 
+                RtlStringFromGUID(&bootEnvironmentInformation.BootIdentifier, &guidAsUnicodeString);
+                SlStringCopyN(guidAsWideChar, guidAsUnicodeString.Buffer, 39);
+
+                guidAsWideChar[39] = L'\0';
+
+                swprintf(
+                    buffer, 
+                    255, 
+                    L"\\Registry\\Machine\\BCD00000000\\Objects\\%s\\Elements\\16000049", 
+                    guidAsWideChar
+                    );
+
+                // Change key permissions to allow us to set values.
+
+                keyHandle = OpenKey(buffer, WRITE_DAC);
+
+                RtlCreateSecurityDescriptor(psecdesc, SECURITY_DESCRIPTOR_REVISION);
+                RtlSetDaclSecurityDescriptor(psecdesc, TRUE, NULL, TRUE);
+                
+                selfSecurityDescriptor = RtlAllocateHeap(
+                    NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap, 
+                    0, 
+                    20
+                    );
+
+                RtlMakeSelfRelativeSD (psecdesc, selfSecurityDescriptor, &bufferLength);
+                NtSetSecurityObject(keyHandle, DACL_SECURITY_INFORMATION, selfSecurityDescriptor);
+                NtClose(keyHandle);
+
+                // Enable test-signing mode.
+
+                keyHandle = OpenKey(buffer, KEY_WRITE);
+                
+                SlInitUnicodeString(&valueName, L"Element");
+                NtSetValueKey(keyHandle, &valueName, 0, REG_BINARY, &value, sizeof(BYTE));
+                NtClose(keyHandle);
                 MessageBoxW(NULL, L"Restart your computer to load driver", L"Restart required", NULL);
             }
         }

@@ -1,12 +1,8 @@
-#include <sltypes.h>
-#include <slntuapi.h>
-#include <slfile.h>
-#include <slc.h>
-#include <wchar.h>
+#include <sl.h>
+#include <string.h>
 
 #include "push.h"
 #include "file.h"
-#include <slini.h>
 #include "batch.h"
 
 

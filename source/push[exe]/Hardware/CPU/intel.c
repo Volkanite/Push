@@ -1,9 +1,7 @@
-#include <sltypes.h>
-#include <slnt.h>
-#include <slntuapi.h>
-#include <pushbase.h>
+#include <sl.h>
+#include <ring0.h>
 
-#include "..\..\ring0.h"
+
 #define IA32_THERM_STATUS_MSR 0x019C
 
 UINT8 

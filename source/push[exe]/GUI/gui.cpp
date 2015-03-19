@@ -1,12 +1,4 @@
-#include <sltypes.h>
-#include <slnt.h>
-#include <slntuapi.h>
-#include <pushbase.h>
-#include <string.h>
-#include <slc.h>
-#include <wchar.h>
-#include "push.h"
-#include "gui.h"
+#include <sl.h>
 
 
 HANDLE  Gui_InvisibleWindowHandle;

@@ -1,19 +1,11 @@
-#include <sltypes.h>
-#include <slntuapi.h>
-#include <slgui.h>
-#include <slc.h>
-#include <wchar.h>
-#include <ramdisk.h>
-#include <slini.h>
+#include <sl.h>
 #include <sltray.h>
+#include <stdio.h>
+#include <string.h>
 #include <file.h>
-#include <pushbase.h>
-#include <ring0.h>
+#include <ramdisk.h>
 
 #include "gui.h"
-#include "main.h"
-#include "cache.h"
-#include "copy.h"
 
 
 WINDOW tab;

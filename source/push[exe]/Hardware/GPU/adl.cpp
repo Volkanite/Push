@@ -1,6 +1,5 @@
-#include <sltypes.h>
-#include <slntuapi.h>
-#include <slmodule.h>
+#include <sl.h>
+
 #include "adl.h"
 #include "adl_structures.h"
 

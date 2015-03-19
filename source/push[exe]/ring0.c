@@ -1,8 +1,6 @@
-#include <sltypes.h>
-#include <slnt.h>
-#include <slntuapi.h>
-#include <pushbase.h>
+#include <sl.h>
 
+#include "push.h"
 #include "ring0.h"
 
 

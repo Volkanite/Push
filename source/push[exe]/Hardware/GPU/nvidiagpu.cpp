@@ -1,7 +1,4 @@
-#include <sltypes.h>
-#include <slntuapi.h>
-#include <slmodule.h>
-#include <pushbase.h>
+#include <sl.h>
 #include <push.h>
 
 #include "NvidiaGpu.h"

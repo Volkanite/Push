@@ -1,5 +1,4 @@
 #include "push.h"
-#include "batch.h"
 
 
 enum CONTROLS
@@ -94,18 +93,11 @@ VOID SetListViewItemState(
      BOOLEAN state
      );
 
-INT32 __stdcall ListViewCompareProc(
-    LONG lParam1,
-    LONG lParam2,
-    LONG lParamSort );
+
 
  VOID ListViewAddItems();
 
  WCHAR* GetComboBoxData();
-
-VOID MaximiseFromTray (VOID* hWnd);
-
-
 
 VOID GuiCreate();
 
@@ -113,14 +105,27 @@ VOID GuiCreate();
 }
 #endif
 
+
+VOID MaximiseFromTray (
+    VOID* hWnd
+    );
+    
+INT32 __stdcall ListViewCompareProc(
+    LONG lParam1,
+    LONG lParam2,
+    LONG lParamSort
+    );
+    
 VOID CreateControl(
     WINDOW* window,
     CONTROL* Control
     );
 
 
-
-
+#include "batch.h"
+#include "main.h"
+#include "copy.h"
+#include "cache.h"
 
 
 

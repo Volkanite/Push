@@ -556,15 +556,6 @@ WaitForSingleObject(
     DWORD   dwMilliseconds
     );
 
-/*DWORD
-__stdcall
-WaitForMultipleObjects(
-    DWORD   nCount,
-    VOID    **lpHandles,
-    BYTE    bWaitAll,
-    DWORD   dwMilliseconds
-    );*/
-
 DWORD __stdcall WaitForMultipleObjectsEx(
     DWORD nCount,
     VOID** lpHandles,
@@ -700,10 +691,6 @@ VOID
     UINT32 OutputBufferLength
 );
 
-BYTE
-__stdcall
-NtClose( VOID *hObject );
-
 DWORD
 __stdcall
 RtlNtStatusToDosError( long Status );
@@ -799,12 +786,6 @@ INT32 __stdcall NtAdjustPrivilegesToken(
     DWORD *RequiredLength
     );
 
-  INT32 __stdcall NtQuerySystemInformation(
-    SYSTEM_INFORMATION_CLASS SystemInformationClass,
-    VOID *SystemInformation,
-    UINT32 SystemInformationLength,
-    UINT32 *ReturnLength);
-
  INT32 __stdcall NtQueryInformationThread(
     VOID *ThreadHandle,
     UINT32 ThreadInformationClass,
@@ -872,18 +853,6 @@ LONG __stdcall NtCreateFile(
     );
 
 LONG __stdcall NtReadFile(
-    VOID*               FileHandle,
-    VOID*               Event,
-    PIO_APC_ROUTINE     ApcRoutine,
-    VOID*               ApcContext,
-    IO_STATUS_BLOCK*    IoStatusBlock,
-    VOID*               Buffer,
-    ULONG               Length,
-    LARGE_INTEGER*      ByteOffset,
-    ULONG*              Key
-    );
-
-LONG __stdcall NtWriteFile(
     VOID*               FileHandle,
     VOID*               Event,
     PIO_APC_ROUTINE     ApcRoutine,

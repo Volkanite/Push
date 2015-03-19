@@ -88,4 +88,31 @@ BuildGameFilesList(
     FILE_DIRECTORY_INFORMATION* Information
     );
 
- #endif //PUSH_H
+
+    
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+VOID PushToggleProcessMonitoring(
+    BOOLEAN Activate
+    );
+    
+VOID PushGetProcessInfo(
+    PROCESS_CALLBACK_INFO* ProcessInformation
+    );
+
+VOID PushGetThreadInfo(
+    THREAD_CALLBACK_INFO* ThreadInformation
+    );
+
+VOID PushGetImageInfo(
+    IMAGE_CALLBACK_INFO* ImageInformation
+    );
+    
+#ifdef __cplusplus
+}
+#endif //__cplusplus
+
+
+#endif //PUSH_H

@@ -29,12 +29,12 @@ VOID SlSubClassControl(
  VOID SlHandleMessages(
      );
 
-     
  #ifdef __cplusplus
  }
  #endif
- 
 
+
+#ifdef __cplusplus
 class SlListView{
     UINT8 Columns;
     VOID Initialize( VOID* Parent, UINT8 Id, DWORD Style );
@@ -59,6 +59,10 @@ public:
     VOID SetItem( WCHAR* Name, UINT16 Item, UINT8 SubItem );
     VOID SortItems( VOID* CompareFunction );
 };
+#endif
+ 
+
+
 
 
 
