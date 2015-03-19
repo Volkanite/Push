@@ -903,11 +903,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
                 RtlCreateSecurityDescriptor(psecdesc, SECURITY_DESCRIPTOR_REVISION);
                 RtlSetDaclSecurityDescriptor(psecdesc, TRUE, NULL, TRUE);
                 
-                selfSecurityDescriptor = RtlAllocateHeap(
-                    NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap, 
-                    0, 
-                    20
-                    );
+                selfSecurityDescriptor = RtlAllocateHeap(PushHeapHandle, 0, 20);
 
                 RtlMakeSelfRelativeSD (psecdesc, selfSecurityDescriptor, &bufferLength);
                 NtSetSecurityObject(keyHandle, DACL_SECURITY_INFORMATION, selfSecurityDescriptor);
