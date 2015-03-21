@@ -15,20 +15,28 @@ extern Dx9Overlay* OvDx9Overlay;
 IDirect3DDevice9* Dx9OvDevice;
 
 
-VOID
-Dx9Overlay_CreateDevice( D3DPRESENT_PARAMETERS* PresentationParameters )
+VOID UpdatePresentationParameters( D3DPRESENT_PARAMETERS* PresentationParameters )
 {
     // Force vsync?
-
+    
     if (OvDx9Overlay->VsyncOverrideMode == VSYNC_FORCE_ON)
+    {
         PresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+    }
     else if (OvDx9Overlay->VsyncOverrideMode == VSYNC_FORCE_OFF)
+    {
         PresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+    }
 }
 
 
-VOID
-Dx9Overlay_Reset( D3DPRESENT_PARAMETERS* PresentationParameters )
+VOID Dx9Overlay_CreateDevice( D3DPRESENT_PARAMETERS* PresentationParameters )
+{
+    UpdatePresentationParameters(PresentationParameters);
+}
+
+
+VOID Dx9Overlay_Reset( D3DPRESENT_PARAMETERS* PresentationParameters )
 {
     if (Dx9OvFont)
     {
@@ -38,12 +46,7 @@ Dx9Overlay_Reset( D3DPRESENT_PARAMETERS* PresentationParameters )
 
     Dx9OvFont = NULL;
 
-    // Force vsync?
-
-    if (OvDx9Overlay->VsyncOverrideMode == VSYNC_FORCE_ON)
-        PresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_ONE;
-    else if (OvDx9Overlay->VsyncOverrideMode == VSYNC_FORCE_OFF)
-        PresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+    UpdatePresentationParameters(PresentationParameters);
 }
 
 

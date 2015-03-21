@@ -87,13 +87,15 @@ typedef HRESULT (__stdcall *TYPE_IDirect3DDevice9Ex_PresentEx)(
     DWORD Flags
     );
 
-
-
+typedef HRESULT (__stdcall *TYPE_IDirect3DDevice9Ex_ResetEx)(
+    IDirect3DDevice9* pDevice,
+    D3DPRESENT_PARAMETERS *pPresentationParameters,
+    D3DDISPLAYMODEEX *pFullscreenDisplayMode
+    );
 
 
 TYPE_Direct3DCreate9                    HkDirect3DCreate9;
 TYPE_Direct3DCreate9Ex                  Dx9Hook_Direct3DCreate9Ex;
-//TYPE_IDirect3D9_GetAdapterDisplayMode   IDirect3D9_GetAdapterDisplayMode;
 TYPE_IDirect3D9_CreateDevice            Dx9Hook_IDirect3D9_CreateDevice;
 TYPE_IDirect3DDevice9_GetSwapChain      IDirect3DDevice9_GetSwapChain;
 TYPE_IDirect3DSwapChain9_Present        Dx9Hook_IDirect3DSwapChain9_Present;
@@ -101,6 +103,7 @@ TYPE_IDirect3DSwapChain9_GetDevice      IDirect3DSwapChain9_GetDevice;
 TYPE_IDirect3DDevice9_Present           Dx9Hook_IDirect3DDevice9_Present;
 TYPE_IDirect3DDevice9_Reset             Dx9Hook_IDirect3DDevice9_Reset;
 TYPE_IDirect3DDevice9Ex_PresentEx       Dx9Hook_IDirect3DDevice9Ex_PresentEx;
+TYPE_IDirect3DDevice9Ex_ResetEx         Dx9Hook_IDirect3DDevice9Ex_ResetEx;
 
 DX9HOOK_PRESENT_CALLBACK    Dx9Hook_Present;
 DX9HOOK_RESET_CALLBACK      Dx9Hook_Reset;
@@ -192,16 +195,32 @@ HRESULT STDMETHODCALLTYPE Dx9Hook_IDirect3DSwapChain9_Present_Detour(
 }
 
 
-HRESULT STDMETHODCALLTYPE Dx9Hook_IDirect3DDevice9_Detour(
+HRESULT STDMETHODCALLTYPE Dx9Hook_IDirect3DDevice9_Reset_Detour(
     IDirect3DDevice9* Device,
     D3DPRESENT_PARAMETERS* PresentationParameters
     )
 {
     HRESULT result;
-
+    
     Dx9Hook_Reset( PresentationParameters );
 
     result = Dx9Hook_IDirect3DDevice9_Reset( Device, PresentationParameters );
+
+    return result;
+}
+
+
+HRESULT STDMETHODCALLTYPE Dx9Hook_IDirect3DDevice9Ex_ResetEx_Detour(
+    IDirect3DDevice9* Device,
+    D3DPRESENT_PARAMETERS* PresentationParameters,
+    D3DDISPLAYMODEEX* FullscreenDisplayMode
+    )
+{
+    HRESULT result;
+    
+    Dx9Hook_Reset( PresentationParameters );
+
+    result = Dx9Hook_IDirect3DDevice9Ex_ResetEx( Device, PresentationParameters, FullscreenDisplayMode );
 
     return result;
 }
@@ -311,7 +330,12 @@ Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
 
     Dx9Hook_IDirect3DDevice9_Reset = (TYPE_IDirect3DDevice9_Reset) hookManager.DetourFunction(
         (BYTE*)vmt[16],
-        (BYTE*)Dx9Hook_IDirect3DDevice9_Detour
+        (BYTE*)Dx9Hook_IDirect3DDevice9_Reset_Detour
+        );
+
+    Dx9Hook_IDirect3DDevice9Ex_ResetEx = (TYPE_IDirect3DDevice9Ex_ResetEx) hookManager.DetourFunction(
+        (BYTE*)vmt[132],
+        (BYTE*)Dx9Hook_IDirect3DDevice9Ex_ResetEx_Detour
         );
 
     result = deviceEx->GetSwapChain(0, &swap);
