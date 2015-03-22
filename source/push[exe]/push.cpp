@@ -1,5 +1,6 @@
 #include <sl.h>
 #include <slresource.h>
+#include <slregistry.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -779,28 +780,6 @@ NTSTATUS __stdcall NtSetSecurityObject(
 }
 
 
-VOID*
-OpenKey( WCHAR* KeyName, DWORD DesiredAccess )
-{
-    UNICODE_STRING keyName;
-    OBJECT_ATTRIBUTES objectAttributes;
-    HANDLE keyHandle = NULL;
-
-    SlInitUnicodeString(&keyName, KeyName);
-
-    objectAttributes.Length = sizeof(OBJECT_ATTRIBUTES);
-    objectAttributes.RootDirectory = NULL;
-    objectAttributes.ObjectName = &keyName;
-    objectAttributes.Attributes = OBJ_CASE_INSENSITIVE;
-    objectAttributes.SecurityDescriptor = NULL;
-    objectAttributes.SecurityQualityOfService = NULL;
-
-    NtOpenKey(&keyHandle, DesiredAccess, &objectAttributes);
-
-    return keyHandle;
-}
-
-
 INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, INT32 iCmdShow )
 {
     VOID *sectionHandle = INVALID_HANDLE_VALUE, *hMutex;
@@ -898,7 +877,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 
                 // Change key permissions to allow us to set values.
 
-                keyHandle = OpenKey(buffer, WRITE_DAC);
+                keyHandle = SlOpenKey(buffer, WRITE_DAC);
 
                 RtlCreateSecurityDescriptor(psecdesc, SECURITY_DESCRIPTOR_REVISION);
                 RtlSetDaclSecurityDescriptor(psecdesc, TRUE, NULL, TRUE);
@@ -911,7 +890,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 
                 // Enable test-signing mode.
 
-                keyHandle = OpenKey(buffer, KEY_WRITE);
+                keyHandle = SlOpenKey(buffer, KEY_WRITE);
                 
                 SlInitUnicodeString(&valueName, L"Element");
                 NtSetValueKey(keyHandle, &valueName, 0, REG_BINARY, &value, sizeof(BYTE));
