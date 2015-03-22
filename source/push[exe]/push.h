@@ -5,9 +5,10 @@
 
 
 ///
-/// Library name
+/// Overlay name
 ///
-#define PUSH_LIB_NAME       "overlay.dll"
+#define PUSH_LIB_NAME_32 L"overlay32.dll"
+#define PUSH_LIB_NAME_64 L"overlay64.dll"
 
 ///
 /// Settings file name

@@ -119,7 +119,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>$(SolutionDir)resources\sl\lib;$(SolutionDir)resources\ddk\lib;$(SolutionDir)resources\SlAdl;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)resources\sl\lib\i386;$(SolutionDir)resources\ddk\lib;$(SolutionDir)resources\SlAdl;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(TEMP)\$(ProjectName)\</IntDir>
     <IncludePath>$(SolutionDir)source\push[exe]\Hardware;$(SolutionDir)source\push[exe]\RAMdisk;$(SolutionDir)source\push[exe]\GUI;$(SolutionDir)source\push[exe];$(SolutionDir)source;$(SolutionDir)resources\sl;$(SolutionDir)resources\ADL;$(IncludePath)</IncludePath>
@@ -134,7 +134,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(TEMP)\$(ProjectName)\</IntDir>
-    <LibraryPath>$(SolutionDir)resources\sl\lib;$(SolutionDir)resources\ddk\lib;$(SolutionDir)resources\SlAdl;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)resources\sl\lib\i386;$(SolutionDir)resources\ddk\lib;$(SolutionDir)resources\SlAdl;$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir)source\push[exe]\Hardware;$(SolutionDir)source\push[exe]\RAMdisk;$(SolutionDir)source\push[exe]\GUI;$(SolutionDir)source\push[exe];$(SolutionDir)source;$(SolutionDir)resources\sl;$(SolutionDir)resources\ADL;$(IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <EmbedManifest>true</EmbedManifest>

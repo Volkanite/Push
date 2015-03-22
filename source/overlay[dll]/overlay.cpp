@@ -242,6 +242,8 @@ BOOL __stdcall DllMain( HINSTANCE Instance, ULONG fdwReason, LPVOID lpReserved )
                                     sizeof(PUSH_SHARED_MEMORY)
                                     );
 
+			OutputDebugStringW(L"Injected!");
+
             hEvent = OpenEventW( SYNCHRONIZE, FALSE, L"Global\\" PUSH_IMAGE_EVENT_NAME );
             
             hookParams.RenderFunction = RnRender;

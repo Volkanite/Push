@@ -446,7 +446,7 @@ Inject( VOID *hProcess )
 
     pszLastSlash[1] = '\0';
 
-    wcscat(szModulePath, L"overlay.dll");
+    wcscat(szModulePath, PUSH_LIB_NAME_64);
 
     // Allocate remote memory
     pLibRemote = VirtualAllocEx(hProcess, 0, sizeof(szModulePath), MEM_COMMIT, PAGE_READWRITE);
@@ -468,6 +468,29 @@ Inject( VOID *hProcess )
     NtClose(threadHandle);
 
     VirtualFreeEx(hProcess, pLibRemote, sizeof(szModulePath), MEM_RELEASE);
+}
+
+#include <stdio.h>
+#include <stdarg.h>
+extern "C" void __stdcall OutputDebugStringA(
+  _In_opt_  CHAR* lpOutputString
+);
+void __cdecl SlDebugPrint(CHAR* szFormat, ...)
+{
+    char strA[4096];
+    char strB[4096];
+
+    va_list ap;
+    va_start(ap, szFormat);
+    vsprintf_s(strA, sizeof(strA), szFormat, ap);
+    strA[4095] = '\0';
+    va_end(ap);
+
+    sprintf_s(strB, sizeof(strB), "[PUSH] %s\r\n", strA);
+
+    strB[4095] = '\0';
+
+    OutputDebugStringA(strB);
 }
 
 
@@ -546,9 +569,14 @@ OnImageEvent( UINT16 processID )
                             SYNCHRONIZE
                             );
     }
-        if (!processHandle)
+    
+	if (!processHandle)
+	{
+		//OutputDebugStringW(L"Could not get process handle");
+		SlDebugPrint("Could not get process handle");
             return;
-
+	}
+	SlDebugPrint("ProcessHandle: 0x%x\n", processHandle);
     Inject(processHandle);
 
     //CloseHandle(processHandle);
@@ -873,7 +901,8 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     PushHeapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
 
     //Extract necessary files
-    ExtractResource(L"OVERLAY", L"overlay.dll");
+    ExtractResource(L"OVERLAY32", PUSH_LIB_NAME_32);
+	ExtractResource(L"OVERLAY64", PUSH_LIB_NAME_64);
     ExtractResource(L"DRIVER", L"push0.sys");
 
     // Start Driver.

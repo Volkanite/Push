@@ -34,6 +34,17 @@ TYPE_CreateThread       TmCreateThread;
 THREAD_LIST_ENTRY* TmThreadList = 0;
 VOID* TmHeapHandle;
 
+
+#ifdef _WIN64
+#include <intrin.h>
+
+TEB* __stdcall NtCurrentTeb()
+{
+  return (TEB *) __readgsqword(0x30);
+}
+#endif
+
+
 VOID
 AddToThreadList( UINT16 threadID )
 {
