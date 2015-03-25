@@ -433,7 +433,7 @@ OnProcessEvent( UINT16 processID )
 
 
 VOID
-Inject( VOID *hProcess )
+Inject32( VOID *hProcess )
 {
     VOID *threadHandle, *pLibRemote, *hKernel32;
     WCHAR szModulePath[260], *pszLastSlash;
@@ -446,7 +446,7 @@ Inject( VOID *hProcess )
 
     pszLastSlash[1] = '\0';
 
-    wcscat(szModulePath, PUSH_LIB_NAME_64);
+    wcscat(szModulePath, PUSH_LIB_NAME_32);
 
     // Allocate remote memory
     pLibRemote = VirtualAllocEx(hProcess, 0, sizeof(szModulePath), MEM_COMMIT, PAGE_READWRITE);
@@ -493,20 +493,27 @@ void __cdecl SlDebugPrint(CHAR* szFormat, ...)
     OutputDebugStringA(strB);
 }
 
-
+    extern "C" INTBOOL __stdcall IsWow64Process(
+  _In_   HANDLE hProcess,
+  _Out_  INTBOOL* Wow64Process
+);
+    VOID Inject64( UINT16 ProcessId, WCHAR* Path );
 VOID
-OnImageEvent( UINT16 processID )
+OnImageEvent( UINT16 ProcessId )
 {
     VOID *processHandle = 0;
+    INTBOOL isWow64;
 
-    processHandle = SlOpenProcess(processID,
-                                PROCESS_VM_OPERATION |
-                                PROCESS_VM_READ |
-                                PROCESS_VM_WRITE |
-                                PROCESS_VM_OPERATION |
-                                PROCESS_CREATE_THREAD |
-                                PROCESS_QUERY_INFORMATION |
-                                SYNCHRONIZE);
+    processHandle = SlOpenProcess(
+        ProcessId,
+        PROCESS_VM_OPERATION |
+        PROCESS_VM_READ |
+        PROCESS_VM_WRITE |
+        PROCESS_VM_OPERATION |
+        PROCESS_CREATE_THREAD |
+        PROCESS_QUERY_INFORMATION |
+        SYNCHRONIZE
+        );
 
     if (!processHandle)
     {
@@ -527,7 +534,7 @@ OnImageEvent( UINT16 processID )
           }
 
           // Open it with WRITE_DAC access so that we can write to the DACL.
-          processHandle = SlOpenProcess(processID, (0x00040000L)); //WRITE_DAC
+          processHandle = SlOpenProcess(ProcessId, (0x00040000L)); //WRITE_DAC
 
           if(processHandle == 0)
           {
@@ -559,7 +566,7 @@ OnImageEvent( UINT16 processID )
           LocalFree(secdesc);
 
           processHandle = SlOpenProcess(
-                            processID,
+                            ProcessId,
                             PROCESS_VM_OPERATION |
                             PROCESS_VM_READ |
                             PROCESS_VM_WRITE |
@@ -570,16 +577,32 @@ OnImageEvent( UINT16 processID )
                             );
     }
     
-	if (!processHandle)
-	{
-		//OutputDebugStringW(L"Could not get process handle");
-		SlDebugPrint("Could not get process handle");
+    if (!processHandle)
+    {
+        //OutputDebugStringW(L"Could not get process handle");
+        SlDebugPrint("Could not get process handle");
             return;
-	}
-	SlDebugPrint("ProcessHandle: 0x%x\n", processHandle);
-    Inject(processHandle);
+    }
+    SlDebugPrint("ProcessHandle: 0x%x\n", processHandle);
+    IsWow64Process(processHandle, &isWow64);
+    
+    if (isWow64)
+    {
+        Inject32(processHandle);
+    }
+    else
+    {
+        WCHAR szModulePath[260], *pszLastSlash;
 
-    //CloseHandle(processHandle);
+        GetModuleFileNameW(0, szModulePath, 260);
+
+        pszLastSlash = SlStringFindLastChar(szModulePath, '\\');
+        pszLastSlash[1] = '\0';
+
+        wcscat(szModulePath, PUSH_LIB_NAME_64);
+        Inject64(ProcessId, szModulePath);
+    }
+
     NtClose(processHandle);
 }
 
@@ -902,7 +925,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 
     //Extract necessary files
     ExtractResource(L"OVERLAY32", PUSH_LIB_NAME_32);
-	ExtractResource(L"OVERLAY64", PUSH_LIB_NAME_64);
+    ExtractResource(L"OVERLAY64", PUSH_LIB_NAME_64);
     ExtractResource(L"DRIVER", L"push0.sys");
 
     // Start Driver.
@@ -936,7 +959,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 
     status = SlLoadDriver( 
         L"PUSH", 
-        driverPath, 
+        L"push0.sys",
         L"Push Kernel-Mode Driver", 
         L"\\\\.\\Push", 
         TRUE,

@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="font">
+      <UniqueIdentifier>{78796fa3-183a-4220-9066-a09f305e5fbf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hook">
+      <UniqueIdentifier>{a102f8a0-cb1e-47d6-89b2-af341547a9cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="overlay">
+      <UniqueIdentifier>{bba1eec7-2ba4-4695-b26d-945eed2c4e68}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="font\dx8font.cpp">
+      <Filter>font</Filter>
+    </ClCompile>
+    <ClCompile Include="font\dx9font.cpp">
+      <Filter>font</Filter>
+    </ClCompile>
+    <ClCompile Include="font\dx10font.cpp">
+      <Filter>font</Filter>
+    </ClCompile>
+    <ClCompile Include="font\dx11font.cpp">
+      <Filter>font</Filter>
+    </ClCompile>
+    <ClCompile Include="font\font.cpp">
+      <Filter>font</Filter>
+    </ClCompile>
+    <ClCompile Include="hook\dx8hook.cpp">
+      <Filter>hook</Filter>
+    </ClCompile>
+    <ClCompile Include="hook\dx9hook.cpp">
+      <Filter>hook</Filter>
+    </ClCompile>
+    <ClCompile Include="hook\dxgihook.cpp">
+      <Filter>hook</Filter>
+    </ClCompile>
+    <ClCompile Include="overlay\dx8overlay.cpp">
+      <Filter>overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="overlay\dx9overlay.cpp">
+      <Filter>overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="overlay\dx10overlay.cpp">
+      <Filter>overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="overlay\dx11overlay.cpp">
+      <Filter>overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="overlay\dxgioverlay.cpp">
+      <Filter>overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="overlay\overlay.cpp">
+      <Filter>overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="d3dcompiler.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="font\dx8font.h">
+      <Filter>font</Filter>
+    </ClInclude>
+    <ClInclude Include="font\dx9font.h">
+      <Filter>font</Filter>
+    </ClInclude>
+    <ClInclude Include="font\dx10font.h">
+      <Filter>font</Filter>
+    </ClInclude>
+    <ClInclude Include="font\dx11font.h">
+      <Filter>font</Filter>
+    </ClInclude>
+    <ClInclude Include="font\font.h">
+      <Filter>font</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\dx8hook.h">
+      <Filter>hook</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\dx9hook.h">
+      <Filter>hook</Filter>
+    </ClInclude>
+    <ClInclude Include="hook\dxgihook.h">
+      <Filter>hook</Filter>
+    </ClInclude>
+    <ClInclude Include="overlay\dx8overlay.h">
+      <Filter>overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="overlay\dx9overlay.h">
+      <Filter>overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="overlay\dx10overlay.h">
+      <Filter>overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="overlay\dx11overlay.h">
+      <Filter>overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="overlay\dxgioverlay.h">
+      <Filter>overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dcompiler.h" />
+    <ClInclude Include="font\effects10.h">
+      <Filter>font</Filter>
+    </ClInclude>
+    <ClInclude Include="font\effects11.h">
+      <Filter>font</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
