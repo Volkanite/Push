@@ -82,7 +82,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
@@ -109,9 +109,10 @@
     <OutDir>$(SolutionDir)bin</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3d8;$(SolutionDir)resources\sl;$(DXSDK_DIR)Include;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\sl;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
-    <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x64;$(SolutionDir)resources\sl\lib\AMD64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x64;$(SolutionDir)resources\sl\lib\AMD64;$(SolutionDir)bin64;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)bin64</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\sl;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
@@ -120,9 +121,10 @@
     <OutDir>$(SolutionDir)bin</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3d8;$(SolutionDir)resources\sl;$(DXSDK_DIR)Include;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\sl;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
-    <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x64;$(SolutionDir)resources\sl\lib\AMD64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x64;$(SolutionDir)resources\sl\lib\AMD64;$(SolutionDir)bin64;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)bin64</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -141,8 +143,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
+      <AdditionalDependencies>d3d10.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Lib>
@@ -162,9 +163,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>dxgi.lib;d3d10.lib;d3dcompiler.lib;effects11.lib;gdiplus.lib;ntdll.lib;sl.lib;sldetours.lib;lde64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d10.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -193,8 +194,7 @@
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <Lib>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
+      <AdditionalDependencies>d3d10.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Lib>
@@ -224,8 +224,8 @@
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <Lib>
-      <AdditionalDependencies>dxgi.lib;d3d10.lib;d3dcompiler.lib;effects11.lib;gdiplus.lib;ntdll.lib;sl.lib;sldetours.lib;lde64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <AdditionalDependencies>d3d10.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <Verbose>true</Verbose>
     </Lib>

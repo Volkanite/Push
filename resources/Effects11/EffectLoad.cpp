@@ -3078,7 +3078,7 @@ typedef HRESULT (__stdcall *TYPE_D3DReflect)(
 
 TYPE_D3DGetBlobPart IMP_D3DGetBlobPart;
 TYPE_D3DReflect     IMP_D3DReflect;
-
+DEFINE_GUID(IID_ID3D11ShaderReflection, 0x0a233719, 0x3960, 0x4578, 0x9d, 0x7c, 0x20, 0x3b, 0x8b, 0x1d, 0x9c, 0xc1);
 
 // Create shader reflection interface and grab dependency info
 HRESULT CEffectLoader::BuildShaderBlock(SShaderBlock *pShaderBlock)
