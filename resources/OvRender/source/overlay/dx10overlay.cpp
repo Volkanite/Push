@@ -43,10 +43,9 @@ Dx10Overlay::DrawText( WCHAR* Text, DWORD Color )
 }
 
 
-VOID 
-Dx10Overlay::DrawText( WCHAR* Text, int X, int Y, DWORD Color )
+VOID Dx10Overlay::DrawText( WCHAR* Text, int X, int Y, DWORD Color )
 {
-    Dx10OvFont->DrawText(X, Y, Color, Text);
+    Dx10OvFont->DrawText((FLOAT)X, (FLOAT)Y, Color, Text);
 }
 
 
@@ -67,5 +66,5 @@ Dx10Overlay::End()
 VOID*
 Dx10Overlay::GetDevice()
 {
-	return NULL;
+    return NULL;
 }

@@ -94,14 +94,12 @@ GetAlpha( DWORD Argb )
 }
 
 
-INT32
-GetCharMinX( GpBitmap *bitmap )
+INT32 GetCharMinX( GpBitmap *bitmap )
 {
     UINT width, height;
-    int x, y;
+    UINT x, y;
 
     GdipGetImageWidth( (GpImage*) bitmap, &width );
-
     GdipGetImageHeight( (GpImage*) bitmap, &height );
 
     for( x = 0; x < width; ++x )
@@ -121,14 +119,12 @@ GetCharMinX( GpBitmap *bitmap )
 }
 
 
-INT32
-GetCharMaxX( GpBitmap *bitmap )
+INT32 GetCharMaxX( GpBitmap *bitmap )
 {
     UINT width, height;
-    int x, y;
+    UINT x, y;
 
     GdipGetImageWidth( (GpImage*) bitmap, &width);
-
     GdipGetImageHeight( (GpImage*) bitmap, &height);
 
     for( x = width - 1; x >= 0; --x )
@@ -300,10 +296,9 @@ Dx11Font::Draw( RECT* destinationRect, RECT* sourceRect, XMCOLOR color )
 }
 
 
-VOID
-Dx11Font::AddString( WCHAR *text, DWORD Color )
+VOID Dx11Font::AddString( WCHAR *text, DWORD Color )
 {
-    UINT i, length = wcslen(text);
+    UINT i, length = (UINT)wcslen(text);
     int xbackup = posX;
     XMCOLOR color;
 
@@ -325,10 +320,10 @@ Dx11Font::AddString( WCHAR *text, DWORD Color )
         {
             RECT charRect;
             
-            charRect.left   = ((m_fTexCoords[character-32][0]) * m_dwTexWidth) + m_dwSpacing;
-            charRect.top    = (m_fTexCoords[character-32][1]) * m_dwTexWidth;
-            charRect.right  = ((m_fTexCoords[character-32][2]) * m_dwTexWidth) - m_dwSpacing;
-            charRect.bottom = (m_fTexCoords[character-32][3]) * m_dwTexWidth;
+            charRect.left   = (LONG)((m_fTexCoords[character-32][0]) * m_dwTexWidth) + m_dwSpacing;
+            charRect.top    = (LONG)(m_fTexCoords[character-32][1]) * m_dwTexWidth;
+            charRect.right  = (LONG)((m_fTexCoords[character-32][2]) * m_dwTexWidth) - m_dwSpacing;
+            charRect.bottom = (LONG)(m_fTexCoords[character-32][3]) * m_dwTexWidth;
 
             int width = charRect.right - charRect.left;
             int height = charRect.bottom - charRect.top;
@@ -342,16 +337,10 @@ Dx11Font::AddString( WCHAR *text, DWORD Color )
 }
 
 
-VOID
-Dx11Font::DrawText( 
-    FLOAT sx, 
-    FLOAT sy, 
-    DWORD Color, 
-    WCHAR* Text 
-    )
+VOID Dx11Font::DrawText( FLOAT sx, FLOAT sy, DWORD Color, WCHAR* Text )
 {
-    posX = sx;
-    posY = sy;
+    posX = (int)sx;
+    posY = (int)sy;
 
     AddString(Text, Color);
 }

@@ -83,7 +83,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)bin\</OutDir>
-    <IntDir>$(TEMP)\$(ProjectName)</IntDir>
+    <IntDir>$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)resources\sl;C:\WinDDK\inc\api;C:\WinDDK\inc\ddk;C:\WinDDK\inc\crt</IncludePath>
     <GenerateManifest>false</GenerateManifest>
@@ -93,7 +93,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)bin\</OutDir>
-    <IntDir>$(TEMP)\push0</IntDir>
+    <IntDir>$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)source\_resources\helpers\ddk\inc;$(VCInstallDir)include;C:\WinDDK\7600.16385.1\inc\crt;C:\WinDDK\7600.16385.1\inc\api;C:\WinDDK\7600.16385.1\inc\ddk</IncludePath>
     <GenerateManifest>false</GenerateManifest>
@@ -103,7 +103,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)bin\</OutDir>
-    <IntDir>.\Debug\</IntDir>
+    <IntDir>$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)resources\sl;C:\WinDDK\inc\api;C:\WinDDK\inc\ddk;C:\WinDDK\inc\crt</IncludePath>
     <GenerateManifest>false</GenerateManifest>
@@ -112,7 +112,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)bin\</OutDir>
-    <IntDir>.\Debug\</IntDir>
+    <IntDir>$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>C:\WinDDK\7600.16385.1\inc\crt;C:\WinDDK\7600.16385.1\inc\api;C:\WinDDK\7600.16385.1\inc\ddk</IncludePath>
     <GenerateManifest>false</GenerateManifest>
@@ -154,11 +154,11 @@
     </Bscmake>
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Native</SubSystem>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(SolutionDir)source\_resources\ddk\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions> /DRIVER  /subsystem:NATIVE,5.1  /IGNORE:4078 </AdditionalOptions>
+      <AdditionalOptions> /DRIVER  /subsystem:NATIVE,5.02  /IGNORE:4078 </AdditionalOptions>
       <SetChecksum>true</SetChecksum>
       <BaseAddress>0x10000</BaseAddress>
       <AdditionalDependencies>ntoskrnl.lib;hal.lib;slpci.lib;fltmgr.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -209,7 +209,7 @@
     </Bscmake>
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Native</SubSystem>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(DDKROOT)\lib\wxp\i386;$(DDKROOT)\lib\wxp\amd64;C:\WinDDK\7600.16385.1\lib\win7\amd64;C:\WinDDK\7600.16385.1\lib\win7\i386;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -261,7 +261,7 @@
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Native</SubSystem>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(DDKROOT)\lib\wxp\i386;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -315,7 +315,7 @@
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Native</SubSystem>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(DDKROOT)\lib\wxp\i386;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

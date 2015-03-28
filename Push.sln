@@ -12,14 +12,12 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "overlay", "source\overlay[dll]\overlay.vcxproj", "{92A59583-EA15-461C-9249-64FAA431ABA5}"
 	ProjectSection(ProjectDependencies) = postProject
 		{99E0E745-ACD1-498F-B7EB-385EE594D30C} = {99E0E745-ACD1-498F-B7EB-385EE594D30C}
+		{DF460EAB-570D-4B50-9089-2E2FC801BF38} = {DF460EAB-570D-4B50-9089-2E2FC801BF38}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "push0", "source\push0[sys]\push0.vcxproj", "{76309B41-A554-B920-3148-F5A7AAE4B42E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OvRender", "resources\OvRender\source\OvRender.vcxproj", "{99E0E745-ACD1-498F-B7EB-385EE594D30C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{DF460EAB-570D-4B50-9089-2E2FC801BF38} = {DF460EAB-570D-4B50-9089-2E2FC801BF38}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Effects11", "resources\Effects11\Effects11.vcxproj", "{DF460EAB-570D-4B50-9089-2E2FC801BF38}"
 EndProject

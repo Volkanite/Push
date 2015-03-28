@@ -301,7 +301,12 @@ ThreadMonitor::ThreadMonitor()
 
       if ((UINT16)processEntry->UniqueProcessId == processId)
       {
-          printf("processEntry->UniqueProcessId [%u] matches processId [%u]\n", processEntry->UniqueProcessId, processId);
+          printf(
+            "processEntry->UniqueProcessId [%u] matches processId [%u]\n", 
+            (UINT32)processEntry->UniqueProcessId, 
+            processId
+            );
+            
           break;
       }
 
@@ -422,7 +427,7 @@ VOID
 ThreadMonitor::OptimizeThreads()
 {
     THREAD_LIST_ENTRY *thread, *previousEntry;
-    UINT32 i = 0;
+    UINT8 i = 0;
     BOOLEAN affinityChanged = FALSE;
     NTSTATUS status;
     VOID *threadHandle;

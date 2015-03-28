@@ -1,6 +1,5 @@
 #include <windows.h>
 #include <d3d9.h>
-//#include <sld3d9hook.h>
 
 #include "dx9overlay.h"
 #include "dx9font.h"
@@ -137,10 +136,9 @@ Dx9Overlay::DrawText( WCHAR* Text, DWORD Color )
 }
 
 
-VOID 
-Dx9Overlay::DrawText( WCHAR* Text, int X, int Y, DWORD Color )
+VOID Dx9Overlay::DrawText( WCHAR* Text, int X, int Y, DWORD Color )
 {
-    Dx9OvFont->DrawText(X, Y, Color, Text, NULL);
+    Dx9OvFont->DrawText((FLOAT)X, (FLOAT)Y, Color, Text, NULL);
 }
 
 

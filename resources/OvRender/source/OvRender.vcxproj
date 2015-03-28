@@ -106,25 +106,25 @@
     <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\sl;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
     <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x86;$(SolutionDir)resources\sl\lib;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)bin</OutDir>
+    <OutDir>$(SolutionDir)bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\sl;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
     <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x64;$(SolutionDir)resources\sl\lib\AMD64;$(SolutionDir)bin64;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)bin64</OutDir>
+    <OutDir>$(SolutionDir)bin64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\sl;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
     <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x86;$(SolutionDir)resources\sl\lib;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)bin</OutDir>
+    <OutDir>$(SolutionDir)bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\sl;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
     <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x64;$(SolutionDir)resources\sl\lib\AMD64;$(SolutionDir)bin64;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)bin64</OutDir>
+    <OutDir>$(SolutionDir)bin64\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -143,7 +143,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>d3d10.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Lib>
@@ -163,7 +164,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>d3d10.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Lib>
@@ -176,7 +178,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatSpecificWarningsAsErrors>4013;4020;4005;4101;4133;4142;4520;4700;4715;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
       <DebugInformationFormat>
       </DebugInformationFormat>
@@ -194,7 +196,8 @@
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <Lib>
-      <AdditionalDependencies>d3d10.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Lib>
@@ -207,7 +210,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatSpecificWarningsAsErrors>4013;4020;4005;4101;4133;4142;4520;4700;4715;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
       <DebugInformationFormat>
       </DebugInformationFormat>
@@ -224,7 +227,8 @@
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <Lib>
-      <AdditionalDependencies>d3d10.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <Verbose>true</Verbose>
