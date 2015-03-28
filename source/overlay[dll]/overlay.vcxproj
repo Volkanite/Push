@@ -165,8 +165,8 @@
       <ImportLibrary>$(TEMP)\overlay\overlay.lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)bin64\overlay64.dll  $(SolutionDir)bin\overlay64.dll
-copy $(SolutionDir)bin64\overlay64.pdb  $(SolutionDir)bin\overlay64.pdb</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -231,7 +231,8 @@ copy $(SolutionDir)bin64\overlay64.pdb  $(SolutionDir)bin\overlay64.pdb</Command
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(SolutionDir)bin64\overlay64.dll  $(SolutionDir)bin\overlay64.dll</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

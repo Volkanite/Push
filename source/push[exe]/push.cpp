@@ -906,6 +906,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     OBJECT_ATTRIBUTES objAttrib = {0};
     INT32 msgId;
     NTSTATUS status;
+    INTBOOL isWow64 = FALSE;
 
     // Check if already running
     hMutex = CreateMutexW(0, FALSE, L"PushOneInstance");
@@ -923,10 +924,17 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     thisPID = (UINT32) NtCurrentTeb()->ClientId.UniqueProcess;
     PushHeapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
 
-    //Extract necessary files
+    // Extract necessary files.
+    
     ExtractResource(L"OVERLAY32", PUSH_LIB_NAME_32);
     ExtractResource(L"OVERLAY64", PUSH_LIB_NAME_64);
-    ExtractResource(L"DRIVER", L"push0.sys");
+
+    IsWow64Process(NtCurrentProcess(), &isWow64);
+
+    if (isWow64)
+        ExtractResource(L"DRIVER64", L"push0.sys");
+    else
+        ExtractResource(L"DRIVER32", L"push0.sys");
 
     // Start Driver.
 
