@@ -33,6 +33,7 @@ Credits
 -------
 
 - OvRender (https://github.com/Volkanite/OvRender)
+- DetourXS (https://github.com/DominicTobias/detourxs)
 
 Notes
 -----
