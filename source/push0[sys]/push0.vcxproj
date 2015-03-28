@@ -158,7 +158,7 @@
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(SolutionDir)source\_resources\ddk\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions> /DRIVER  /subsystem:NATIVE,5.02  /IGNORE:4078 </AdditionalOptions>
+      <AdditionalOptions>/DRIVER  /subsystem:NATIVE,5.02  /IGNORE:4078</AdditionalOptions>
       <SetChecksum>true</SetChecksum>
       <BaseAddress>0x10000</BaseAddress>
       <AdditionalDependencies>ntoskrnl.lib;hal.lib;slpci.lib;fltmgr.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -213,10 +213,10 @@
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(DDKROOT)\lib\wxp\i386;$(DDKROOT)\lib\wxp\amd64;C:\WinDDK\7600.16385.1\lib\win7\amd64;C:\WinDDK\7600.16385.1\lib\win7\i386;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions> /DRIVER  /subsystem:NATIVE,5.1  /IGNORE:4078 </AdditionalOptions>
+      <AdditionalOptions>/DRIVER  /subsystem:NATIVE,5.02  /IGNORE:4078</AdditionalOptions>
       <SetChecksum>true</SetChecksum>
       <BaseAddress>0x10000</BaseAddress>
-      <AdditionalDependencies>wdm.lib;wdm_x86.lib;hal.lib;hal_x86.lib;bufferoverflowk.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ntoskrnl.lib;hal.lib;slpci.lib;fltmgr.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>262144</StackReserveSize>
       <StackCommitSize>4096</StackCommitSize>
       <EntryPointSymbol>DriverEntry</EntryPointSymbol>
@@ -265,7 +265,7 @@
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(DDKROOT)\lib\wxp\i386;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions> /DRIVER  /subsystem:NATIVE,5.1  /IGNORE:4078 </AdditionalOptions>
+      <AdditionalOptions>/DRIVER  /subsystem:NATIVE,5.02  /IGNORE:4078</AdditionalOptions>
       <BaseAddress>0x10000</BaseAddress>
       <AdditionalDependencies>ntoskrnl.lib;hal.lib;slpci.lib;fltmgr.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>262144</StackReserveSize>
@@ -319,9 +319,9 @@
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(DDKROOT)\lib\wxp\i386;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions> /DRIVER  /subsystem:NATIVE,5.1  /IGNORE:4078 </AdditionalOptions>
+      <AdditionalOptions>/DRIVER  /subsystem:NATIVE,5.02  /IGNORE:4078</AdditionalOptions>
       <BaseAddress>0x10000</BaseAddress>
-      <AdditionalDependencies>wdm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ntoskrnl.lib;hal.lib;slpci.lib;fltmgr.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>262144</StackReserveSize>
       <StackCommitSize>4096</StackCommitSize>
       <EntryPointSymbol>DriverEntry</EntryPointSymbol>
