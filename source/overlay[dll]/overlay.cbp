@@ -44,27 +44,28 @@
 			<Add option='/D&quot;_UNICODE&quot;' />
 			<Add option='/D&quot;UNICODE&quot;' />
 			<Add directory="../_resources/directx/inc" />
-			<Add directory="../_resources/sl" />
+			<Add directory="../../resources/sl" />
 			<Add directory="../overlay[dll]" />
 			<Add directory="C:/Program Files (x86)/Microsoft DirectX SDK (June 2010)/Include" />
 			<Add directory="../_resources/directx/dx8" />
 			<Add directory="../_resources/directx/lib/Effects11/Inc" />
-			<Add directory="../_resources/OvRender" />
+			<Add directory="../../resources/OvRender/inc" />
 		</Compiler>
 		<Linker>
 			<Add option='/NODEFAULTLIB:&quot;MSVCRT&quot;' />
 			<Add option='/NODEFAULTLIB:&quot;MSVCRTD&quot;' />
 			<Add library="user32.lib" />
-			<Add library="slmodule.lib" />
 			<Add library="gdi32.lib" />
 			<Add library="lde64.lib" />
 			<Add library="d3d10.lib" />
 			<Add library="OvRender.lib" />
-			<Add library="sloverlay.lib" />
+			<Add library="sl.lib" />
+			<Add library="Effects11.lib" />
 			<Add directory="../_resources/directx/lib" />
-			<Add directory="../_resources/sl/lib" />
+			<Add directory="../../resources/sl/lib/i386" />
 			<Add directory="../_resources/ddk/lib" />
 			<Add directory="../_resources/OvRender" />
+			<Add directory="../../bin" />
 		</Linker>
 		<Unit filename="dx10/dx10font.h" />
 		<Unit filename="dx10/dx10overlay.h" />
