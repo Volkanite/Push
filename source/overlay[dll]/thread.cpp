@@ -1,6 +1,5 @@
 #include <sltypes.h>
 #include <slntuapi.h>
-#include <sldetours.h>
 #include <stdio.h>
 
 #include "thread.h"
@@ -231,7 +230,11 @@ Sort( THREAD_LIST_ENTRY* start )
     }
     while (swapped);
 }
-
+VOID* DetourApi(
+    WCHAR* dllName,
+    CHAR* apiName,
+    BYTE* NewFunction
+    );
 
 ThreadMonitor::ThreadMonitor()
 {
@@ -243,9 +246,8 @@ ThreadMonitor::ThreadMonitor()
     VOID*           ProcThrdInfo = 0;
     SYSTEM_PROCESS_INFORMATION *processEntry;
     SYSTEM_THREAD_INFORMATION *threads;
-    SlHookManager hookManager;
 
-    TmCreateThread = (TYPE_CreateThread) hookManager.DetourApi(
+    TmCreateThread = (TYPE_CreateThread) DetourApi(
                         L"kernel32.dll",
                         "CreateThread",
                         (BYTE*)CreateThreadHook

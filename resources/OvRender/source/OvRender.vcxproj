@@ -103,25 +103,25 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\sl;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\detourXS;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
     <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x86;$(SolutionDir)resources\sl\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\sl;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\detourXS;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
     <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x64;$(SolutionDir)resources\sl\lib\AMD64;$(SolutionDir)bin64;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\sl;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\detourXS;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
     <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x86;$(SolutionDir)resources\sl\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\sl;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\detourXS;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
     <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x64;$(SolutionDir)resources\sl\lib\AMD64;$(SolutionDir)bin64;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin64\</OutDir>

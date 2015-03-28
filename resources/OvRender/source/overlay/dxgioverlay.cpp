@@ -1,6 +1,5 @@
 #include <Windows.h>
 #include <DXGI.h>
-#include <sldetours.h>
 #include <stdio.h>
 #include <D3D11.h>
 #include <D3D10.h>
@@ -112,5 +111,5 @@ DxgiOverlay::End()
 VOID*
 DxgiOverlay::GetDevice()
 {
-	return NULL;
+    return NULL;
 }

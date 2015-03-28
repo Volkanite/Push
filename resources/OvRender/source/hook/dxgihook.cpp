@@ -1,7 +1,8 @@
 #include <Windows.h>
 #include <DXGI.h>
 #include <D3D10.h>
-#include <sldetours.h>
+#include <detourxs.h>
+
 #include "dxgihook.h"
 
 
@@ -106,7 +107,7 @@ HookDxgi( HK_IDXGISWAPCHAIN_PRESENT_CALLBACK IDXGISwapChain_PresentCallback )
     scDesc.BufferDesc         = requestedMode; 
     scDesc.SampleDesc.Count   = 1; 
     scDesc.SampleDesc.Quality = 0; 
-    scDesc.BufferUsage        = DXGI_USAGE_BACK_BUFFER | DXGI_USAGE_RENDER_TARGET_OUTPUT; 
+    scDesc.BufferUsage        = DXGI_USAGE_BACK_BUFFER | DXGI_USAGE_RENDER_TARGET_OUTPUT;
     scDesc.BufferCount        = 2; 
     scDesc.OutputWindow       = windowHandle;
     scDesc.Windowed           = TRUE; 
@@ -124,17 +125,16 @@ HookDxgi( HK_IDXGISWAPCHAIN_PRESENT_CALLBACK IDXGISwapChain_PresentCallback )
     if (pSwapChain)
     {
         VOID **vmt;
-        SlHookManager hookManager;
 
         vmt = (VOID**) pSwapChain;
         vmt = (VOID**) vmt[0];
 
         if (!HkIDXGISwapChain_Present)
         {
-            HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present) hookManager.DetourFunction(
-                                                (BYTE*)vmt[8],
-                                                (BYTE*)IDXGISwapChain_PresentHook
-                                                );
+            DetourXS *detour;
+
+            detour = new DetourXS(vmt[8], IDXGISwapChain_PresentHook);
+            HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present)detour->GetTrampoline();
         }
     }
 }

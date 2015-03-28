@@ -1,12 +1,13 @@
 #include <Windows.h>
 #include <stdio.h>
+#include <detourxs.h>
 
 #include "overlay.h"
 #include <OvRender.h>
 #include "render.h"
 #include "thread.h"
 #include "menu.h"
-#include <sldetours.h>
+
 
 
 CHAR *pszModuleName;
@@ -168,7 +169,12 @@ MessageHook( LPMSG Message )
                 // allocate buffer for input data
                 buffer = (RAWINPUT*)HeapAlloc(PushProcessHeap, 0, dwSize);
          
-                if (GetRawInputData((HRAWINPUT)Message->lParam, RID_INPUT, buffer, &dwSize, sizeof(RAWINPUTHEADER)))
+                if (GetRawInputData(
+                    (HRAWINPUT)Message->lParam, 
+                    RID_INPUT, 
+                    buffer, 
+                    &dwSize, 
+                    sizeof(RAWINPUTHEADER)))
                 {
                     // if this is keyboard message and WM_KEYDOWN, process the key
                     if(buffer->header.dwType == RIM_TYPEKEYBOARD 
@@ -221,6 +227,27 @@ PeekMessageAHook( LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax
 }
 
 
+VOID* DetourApi( WCHAR* dllName, CHAR* apiName, BYTE* NewFunction )
+{
+    BYTE *functionStart = NULL;
+    HMODULE moduleHandle;
+    DWORD address = 0;
+    DetourXS *detour;
+
+    // Get the API address
+    moduleHandle = GetModuleHandleW(dllName);
+    address = (DWORD)GetProcAddress(moduleHandle, apiName);
+
+    if (!address || !NewFunction)
+        return NULL;
+
+    functionStart = (BYTE*)address;
+    detour = new DetourXS(functionStart, NewFunction);
+
+     return detour->GetTrampoline();
+}
+
+
 BOOL __stdcall DllMain( HINSTANCE Instance, ULONG fdwReason, LPVOID lpReserved )
 {
     switch(fdwReason)
@@ -229,7 +256,6 @@ BOOL __stdcall DllMain( HINSTANCE Instance, ULONG fdwReason, LPVOID lpReserved )
         {
             void *sectionHandle;
             DEVMODE devMode;
-            SlHookManager hookManager;
             OV_HOOK_PARAMS hookParams = {0};
 
             sectionHandle = OpenFileMappingW( FILE_MAP_ALL_ACCESS, FALSE, PUSH_SECTION_NAME );
@@ -241,8 +267,6 @@ BOOL __stdcall DllMain( HINSTANCE Instance, ULONG fdwReason, LPVOID lpReserved )
                                     NULL,
                                     sizeof(PUSH_SHARED_MEMORY)
                                     );
-
-			OutputDebugStringW(L"Injected!");
 
             hEvent = OpenEventW( SYNCHRONIZE, FALSE, L"Global\\" PUSH_IMAGE_EVENT_NAME );
             
@@ -262,13 +286,13 @@ BOOL __stdcall DllMain( HINSTANCE Instance, ULONG fdwReason, LPVOID lpReserved )
             PushAcceptableFps = PushRefreshRate - 5;
             PushProcessHeap = GetProcessHeap();
 
-            PushPeekMessageW = (TYPE_PeekMessageW) hookManager.DetourApi(
+            PushPeekMessageW = (TYPE_PeekMessageW) DetourApi(
                 L"user32.dll", 
                 "PeekMessageW", 
                 (BYTE*) PeekMessageWHook
                 );
 
-            PushPeekMessageA = (TYPE_PeekMessageA) hookManager.DetourApi(
+            PushPeekMessageA = (TYPE_PeekMessageA) DetourApi(
                 L"user32.dll", 
                 "PeekMessageA", 
                 (BYTE*) PeekMessageAHook
