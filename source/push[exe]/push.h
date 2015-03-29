@@ -88,5 +88,15 @@ BuildGameFilesList(
     WCHAR* Directory,
     FILE_DIRECTORY_INFORMATION* Information
     );
+#ifdef __cplusplus
+extern "C" {
+#endif
+BOOLEAN ExtractResource(
+    WCHAR* ResourceName,
+    WCHAR* OutputPath
+    );
+#ifdef __cplusplus
+}
+#endif
 
  #endif //PUSH_H

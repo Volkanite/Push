@@ -83,6 +83,7 @@
       <Filter>Hardware\GPU</Filter>
     </ClCompile>
     <ClCompile Include="game.c" />
+    <ClCompile Include="driver.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\cache.h">
@@ -144,6 +145,7 @@
     <ClInclude Include="Hardware\GPU\nvapi.h">
       <Filter>Hardware\GPU</Filter>
     </ClInclude>
+    <ClInclude Include="driver.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="push.ico">
