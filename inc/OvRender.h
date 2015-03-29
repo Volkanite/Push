@@ -2,7 +2,7 @@
 #define OVERLAY_H
 
 
-typedef class OvOverlay;
+class OvOverlay;
 typedef VOID (*OV_RENDER)( OvOverlay* Overlay );
 
 typedef enum _OV_VSYNC_OVERRIDE_MODE

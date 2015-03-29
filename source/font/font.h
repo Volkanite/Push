@@ -7,8 +7,8 @@
 #define D3DFONT_CENTERED    0x0001
 #define D3DFONT_TWOSIDED    0x0002
 #define D3DFONT_FILTERED    0x0004
-#define D3DFONT_RIGHT       0x0008          // non standard feature
-#define D3DFONT_SHADOW      0x0010          // non standard feature
+#define D3DFONT_RIGHT       0x0008 // non standard feature
+#define D3DFONT_SHADOW      0x0010 // non standard feature
 
 #define FONT_SIZE 10
 #define PIXEL_DEPTH 32
@@ -55,8 +55,8 @@ public:
     FLOAT   m_fTexCoords[ (NUMBER_OF_CHARACTERS+1) - 32 ][4];
     FLOAT   ScreenWidth;
     FLOAT   ScreenHeight;
-    UINT64  NumberOfSprites;
-    UINT64  SpriteListSize;
+    UINT  NumberOfSprites;
+    UINT  SpriteListSize;
     Sprite* Sprites;
     VOID*   HeapHandle;
 

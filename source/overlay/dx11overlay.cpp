@@ -50,7 +50,7 @@ Dx11Overlay::DrawText( WCHAR* Text, DWORD Color )
 VOID 
 Dx11Overlay::DrawText( WCHAR* Text, int X, int Y, DWORD Color )
 {
-    Dx11OvFont->DrawText(X, Y, Color, Text);
+    Dx11OvFont->DrawText((FLOAT)X, (FLOAT)Y, Color, Text);
 }
 
 
@@ -71,5 +71,5 @@ Dx11Overlay::End()
 VOID*
 Dx11Overlay::GetDevice()
 {
-	return NULL;
+    return NULL;
 }

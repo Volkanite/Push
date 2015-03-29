@@ -220,10 +220,9 @@ Dx10Font::Draw( RECT* destinationRect, RECT* sourceRect, XMCOLOR color )
 }
 
 
-VOID
-Dx10Font::AddString( WCHAR *text, BOOLEAN overload)
+VOID Dx10Font::AddString( WCHAR *text, BOOLEAN overload)
 {
-    UINT i, length = wcslen(text);
+    UINT i, length = (UINT)wcslen(text);
     int xbackup = posX;
     XMCOLOR colorchanged;
     int R = 255;
@@ -262,10 +261,10 @@ Dx10Font::AddString( WCHAR *text, BOOLEAN overload)
         {
             RECT charRect;
             
-            charRect.left   = ((m_fTexCoords[character-32][0]) * m_dwTexWidth) + m_dwSpacing;
-            charRect.top    = (m_fTexCoords[character-32][1]) * m_dwTexWidth;
-            charRect.right  = ((m_fTexCoords[character-32][2]) * m_dwTexWidth) - m_dwSpacing;
-            charRect.bottom = (m_fTexCoords[character-32][3]) * m_dwTexWidth;
+            charRect.left   = (LONG) ((m_fTexCoords[character-32][0]) * m_dwTexWidth) + m_dwSpacing;
+            charRect.top    = (LONG) (m_fTexCoords[character-32][1]) * m_dwTexWidth;
+            charRect.right  = (LONG) ((m_fTexCoords[character-32][2]) * m_dwTexWidth) - m_dwSpacing;
+            charRect.bottom = (LONG) (m_fTexCoords[character-32][3]) * m_dwTexWidth;
 
             int width = charRect.right - charRect.left;
             int height = charRect.bottom - charRect.top;
@@ -279,13 +278,7 @@ Dx10Font::AddString( WCHAR *text, BOOLEAN overload)
 }
 
 
-VOID
-Dx10Font::DrawText( 
-    FLOAT sx, 
-    FLOAT sy, 
-    DWORD Color, 
-    WCHAR* Text 
-    )
+VOID Dx10Font::DrawText( FLOAT sx, FLOAT sy, DWORD Color, WCHAR* Text )
 {
     BOOLEAN warning;
 
@@ -294,8 +287,8 @@ Dx10Font::DrawText(
     else
         warning = FALSE;
 
-    posX = sx;
-    posY = sy;
+    posX = (int)sx;
+    posY = (int)sy;
 
     AddString(Text, warning);
 }
@@ -335,11 +328,7 @@ Dx10Font::BeginBatch()
 }
 
 
-VOID
-Dx10Font::DrawBatch( 
-    UINT startSpriteIndex, 
-    UINT spriteCount 
-    )
+VOID Dx10Font::DrawBatch( UINT startSpriteIndex, UINT spriteCount )
 {
     VOID* mappedData;
     SpriteVertex * v;
@@ -371,11 +360,11 @@ Dx10Font::DrawBatch(
 }
 
 
-VOID
-Dx10Font::EndBatch( )
+VOID Dx10Font::EndBatch( )
 {
-    UINT viewportCount = 1, stride, offset, spritesToDraw;
+    UINT viewportCount = 1, stride, offset;
     UINT startIndex;
+    UINT spritesToDraw;
     D3D10_VIEWPORT vp;
     ID3D10InputLayout *inputLayoutOld;
     D3D10_PRIMITIVE_TOPOLOGY topology;
@@ -384,8 +373,8 @@ Dx10Font::EndBatch( )
 
     FntDevice->RSGetViewports( &viewportCount, &vp );
 
-    ScreenWidth  = vp.Width;
-    ScreenHeight = vp.Height;
+    ScreenWidth  = (FLOAT)vp.Width;
+    ScreenHeight = (FLOAT)vp.Height;
 
     stride = sizeof( SpriteVertex );
     offset = 0;

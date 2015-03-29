@@ -10,8 +10,9 @@ Dx8Font* Dx8OvFont;
 extern Dx8Overlay* OvDx8Overlay;
 
 
-VOID
-IDirect3DDevice8_PresentCallback( IDirect3DDevice8 *Device )
+VOID IDirect3DDevice8_PresentCallback( 
+    IDirect3DDevice8 *Device 
+    )
 {
     if (Dx8OvFont == NULL)
     {
@@ -58,8 +59,10 @@ Dx8Overlay::DrawText( WCHAR* Text )
 }
 
 
-VOID
-Dx8Overlay::DrawText( WCHAR* Text, DWORD Color )
+VOID Dx8Overlay::DrawText( 
+    WCHAR* Text, 
+    DWORD Color 
+    )
 {
     DrawText(Text, 20, Line, Color);
 
@@ -67,10 +70,20 @@ Dx8Overlay::DrawText( WCHAR* Text, DWORD Color )
 }
 
 
-VOID 
-Dx8Overlay::DrawText( WCHAR* Text, int X, int Y, DWORD Color )
+VOID Dx8Overlay::DrawText( 
+    WCHAR* Text, 
+    int X, 
+    int Y, 
+    DWORD Color 
+    )
 {
-    Dx8OvFont->DrawText(X, Y, Color, Text, NULL);
+    Dx8OvFont->DrawText(
+        (FLOAT)X, 
+        (FLOAT)Y, 
+        Color, 
+        Text, 
+        NULL
+        );
 }
 
 
@@ -91,6 +104,6 @@ Dx8Overlay::End()
 VOID*
 Dx8Overlay::GetDevice()
 {
-	return NULL;
+    return NULL;
 }
 

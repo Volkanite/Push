@@ -1,7 +1,7 @@
 #include <Windows.h>
 #include <d3d9.h>
-#include <sldetours.h>
 #include <slmodule.h>
+#include <detourxs.h>
 
 #include "dx9hook.h"
 
@@ -220,7 +220,11 @@ HRESULT STDMETHODCALLTYPE Dx9Hook_IDirect3DDevice9Ex_ResetEx_Detour(
     
     Dx9Hook_Reset( PresentationParameters );
 
-    result = Dx9Hook_IDirect3DDevice9Ex_ResetEx( Device, PresentationParameters, FullscreenDisplayMode );
+    result = Dx9Hook_IDirect3DDevice9Ex_ResetEx( 
+        Device, 
+        PresentationParameters, 
+        FullscreenDisplayMode 
+        );
 
     return result;
 }
@@ -254,11 +258,10 @@ HRESULT STDMETHODCALLTYPE Dx9Hook_IDirect3D9_CreateDevice_Detour(
 }
 
 
-VOID 
-Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
+VOID Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
 {
     VOID *base = NULL, **vmt;
-    SlHookManager hookManager;
+    DetourXS *detour;
     HRESULT result;
     IDirect3D9Ex *d3d9ex;
     D3DDISPLAYMODE d3dDisplayMode;
@@ -310,33 +313,23 @@ Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
     vmt = (VOID**) d3d9ex;
     vmt = (VOID**) vmt[0];
 
-    Dx9Hook_IDirect3D9_CreateDevice = (TYPE_IDirect3D9_CreateDevice) hookManager.DetourFunction(
-        (BYTE*)vmt[16],
-        (BYTE*)Dx9Hook_IDirect3D9_CreateDevice_Detour
-        );
+    detour = new DetourXS(vmt[16], Dx9Hook_IDirect3D9_CreateDevice_Detour);
+    Dx9Hook_IDirect3D9_CreateDevice = (TYPE_IDirect3D9_CreateDevice)detour->GetTrampoline();
 
     vmt = (VOID**) deviceEx;
     vmt = (VOID**) vmt[0];
 
-    Dx9Hook_IDirect3DDevice9_Present = (TYPE_IDirect3DDevice9_Present) hookManager.DetourFunction(
-        (BYTE*)vmt[17],
-        (BYTE*)Dx9Hook_IDirect3DDevice9_Present_Detour
-        );
+    detour = new DetourXS(vmt[17], Dx9Hook_IDirect3DDevice9_Present_Detour);
+    Dx9Hook_IDirect3DDevice9_Present = (TYPE_IDirect3DDevice9_Present)detour->GetTrampoline();
 
-    Dx9Hook_IDirect3DDevice9Ex_PresentEx = (TYPE_IDirect3DDevice9Ex_PresentEx) hookManager.DetourFunction(
-        (BYTE*)vmt[121],
-        (BYTE*)Dx9Hook_IDirect3DDevice9Ex_PresentEx_Detour
-        );
+    detour = new DetourXS(vmt[16], Dx9Hook_IDirect3DDevice9_Reset_Detour);
+    Dx9Hook_IDirect3DDevice9_Reset = (TYPE_IDirect3DDevice9_Reset)detour->GetTrampoline();
 
-    Dx9Hook_IDirect3DDevice9_Reset = (TYPE_IDirect3DDevice9_Reset) hookManager.DetourFunction(
-        (BYTE*)vmt[16],
-        (BYTE*)Dx9Hook_IDirect3DDevice9_Reset_Detour
-        );
+    detour = new DetourXS(vmt[121], Dx9Hook_IDirect3DDevice9Ex_PresentEx_Detour);
+    Dx9Hook_IDirect3DDevice9Ex_PresentEx = (TYPE_IDirect3DDevice9Ex_PresentEx)detour->GetTrampoline();
 
-    Dx9Hook_IDirect3DDevice9Ex_ResetEx = (TYPE_IDirect3DDevice9Ex_ResetEx) hookManager.DetourFunction(
-        (BYTE*)vmt[132],
-        (BYTE*)Dx9Hook_IDirect3DDevice9Ex_ResetEx_Detour
-        );
+    detour = new DetourXS(vmt[132], Dx9Hook_IDirect3DDevice9Ex_ResetEx_Detour);
+    Dx9Hook_IDirect3DDevice9Ex_ResetEx = (TYPE_IDirect3DDevice9Ex_ResetEx)detour->GetTrampoline();
 
     result = deviceEx->GetSwapChain(0, &swap);
 
@@ -346,10 +339,8 @@ Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
     vmt = (VOID**) swap;
     vmt = (VOID**) vmt[0];
 
-    Dx9Hook_IDirect3DSwapChain9_Present = (TYPE_IDirect3DSwapChain9_Present) hookManager.DetourFunction(
-        (BYTE*)vmt[3],
-        (BYTE*)Dx9Hook_IDirect3DSwapChain9_Present_Detour
-        );
+    detour = new DetourXS(vmt[3], Dx9Hook_IDirect3DSwapChain9_Present_Detour);
+    Dx9Hook_IDirect3DSwapChain9_Present = (TYPE_IDirect3DSwapChain9_Present)detour->GetTrampoline();
 
     deviceEx->Release();
     d3d9ex->Release();

@@ -41,25 +41,29 @@ enum
 };
 
 
-ID3D11Device                          *device;
-ID3D11DeviceContext                          *FontDeviceContext;
-ID3D11Device                        *m_device11;
-ID3D11InputLayout                     *inputLayout;
-ID3D11Buffer                        *VB, *IB;
-ID3D11ShaderResourceView           *BatchTexSRV;
-ID3D11ShaderResourceView              *shaderResourceView;
-ID3D11BlendState                    *TransparentBS;
-ID3D11Texture2D                     *m_texture11;
-ID3D11Texture2D                     *m_texturepass;
-ID3D10Texture2D                     *m_texture10;
-ID3DX11EffectShaderResourceVariable    *effectSRV;
-ID3DX11EffectPass *effectPass;
+ID3D11Device*							device;
+ID3D11DeviceContext*					FontDeviceContext;
+ID3D11Device*							m_device11;
+ID3D11InputLayout*						inputLayout;
+ID3D11Buffer*							VB;
+ID3D11Buffer*							IB;
+ID3D11ShaderResourceView*				BatchTexSRV;
+ID3D11ShaderResourceView*				shaderResourceView;
+ID3D11BlendState*						TransparentBS;
+ID3D11Texture2D*						m_texture11;
+ID3D11Texture2D*						m_texturepass;
+ID3D10Texture2D*						m_texture10;
+ID3DX11EffectShaderResourceVariable*	D3D11Font_EffectShaderResourceVariable = NULL;
+ID3DX11EffectPass*						effectPass;
+D3DCompile_t							FntD3DCompile;
+BOOLEAN									Initialized;
+int										posX;
+int										posY;
 
-    BOOLEAN                        Initialized;
-    #define START_CHAR 33
 
-int posX;
-int posY;
+#define START_CHAR 33
+
+
 
 
 extern "C" VOID* __stdcall RtlAllocateHeap(
@@ -94,14 +98,12 @@ GetAlpha( DWORD Argb )
 }
 
 
-INT32
-GetCharMinX( GpBitmap *bitmap )
+INT32 GetCharMinX( GpBitmap *bitmap )
 {
     UINT width, height;
-    int x, y;
+    UINT x, y;
 
     GdipGetImageWidth( (GpImage*) bitmap, &width );
-
     GdipGetImageHeight( (GpImage*) bitmap, &height );
 
     for( x = 0; x < width; ++x )
@@ -121,14 +123,12 @@ GetCharMinX( GpBitmap *bitmap )
 }
 
 
-INT32
-GetCharMaxX( GpBitmap *bitmap )
+INT32 GetCharMaxX( GpBitmap *bitmap )
 {
     UINT width, height;
-    int x, y;
+    UINT x, y;
 
     GdipGetImageWidth( (GpImage*) bitmap, &width);
-
     GdipGetImageHeight( (GpImage*) bitmap, &height);
 
     for( x = width - 1; x >= 0; --x )
@@ -154,6 +154,7 @@ Dx11Font::InitD3D11Sprite( )
     WORD indices[3072];
     UINT16 i;
     HRESULT hr;
+    ID3D10Blob *    compiledFx = 0, * ErrorMsgs = 0;
     D3D11_SUBRESOURCE_DATA indexData = { 0 };
     ID3DX11Effect *effect = NULL;
     ID3DX11EffectTechnique* effectTechnique;
@@ -162,7 +163,7 @@ Dx11Font::InitD3D11Sprite( )
     D3DX11_PASS_DESC passDesc;
     D3D11_BUFFER_DESC vbd;
     D3D11_BUFFER_DESC ibd;
-
+	char *profileStr;
 
     D3D11_INPUT_ELEMENT_DESC layoutDesc[ ] =
     {
@@ -171,10 +172,85 @@ Dx11Font::InitD3D11Sprite( )
         { "COLOR", 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 }
     };
 
+    CHAR effectFile[ ] = \
+        "Texture2D SpriteTex;"
+        "SamplerState samLinear {"
+        "     Filter = MIN_MAG_MIP_LINEAR;"
+        "     AddressU = WRAP;"
+        "     AddressV = WRAP;"
+        "};"
+        "struct VertexIn {"
+        "     float3 PosNdc : POSITION;"
+        "     float2 Tex    : TEXCOORD;"
+        "     float4 Color  : COLOR;"
+        "};"
+        "struct VertexOut {"
+        "     float4 PosNdc : SV_POSITION;"
+        "     float2 Tex    : TEXCOORD;"
+        "     float4 Color  : COLOR;"
+        "};"
+        "VertexOut VS(VertexIn vin) {"
+        "     VertexOut vout;"
+        "     vout.PosNdc = float4(vin.PosNdc, 1.0f);"
+        "     vout.Tex    = vin.Tex;"
+        "     vout.Color  = vin.Color;"
+        "     return vout;"
+        "};"
+        "float4 PS(VertexOut pin) : SV_Target {"
+        "     return pin.Color*SpriteTex.Sample(samLinear, pin.Tex);"
+        "};"
+        "technique11 SpriteTech {"
+        "     pass P0 {"
+        "         SetVertexShader( CompileShader( vs_5_0, VS() ) );"
+        "         SetHullShader( NULL );"
+        "         SetDomainShader( NULL );"
+        "         SetGeometryShader( NULL );"
+        "         SetPixelShader( CompileShader( ps_5_0, PS() ) );"
+        "     }"
+        "}";
+
+	FntD3DCompile = (D3DCompile_t)GetProcAddress(GetD3DCompiler(), "D3DCompile");
+
+	switch (device->GetFeatureLevel()) 
+	{
+	case D3D_FEATURE_LEVEL_9_1:
+		profileStr = "fx_4_0_level_9_1";
+		break;
+	case D3D_FEATURE_LEVEL_9_2:
+		profileStr = "fx_4_0_level_9_2";
+		break;
+	case D3D_FEATURE_LEVEL_9_3:
+		profileStr = "fx_4_0_level_9_3";
+		break;
+	case D3D_FEATURE_LEVEL_10_0:
+		profileStr = "fx_4_0";
+		break;
+	case D3D_FEATURE_LEVEL_10_1:
+		profileStr = "fx_4_1";
+		break;
+	case D3D_FEATURE_LEVEL_11_0:
+		profileStr = "fx_5_0";
+		break;
+	}
+
+    FntD3DCompile(
+        effectFile, 
+        strlen( effectFile ), 
+        0, 
+        0, 
+        0, 
+        "SpriteTech", 
+		profileStr,
+		0,
+        0, 
+        &compiledFx, 
+        &ErrorMsgs 
+        );
+
     // Create the UI effect object
     hr = D3DX11CreateEffectFromMemory(
-        Effects11_cso,
-        sizeof(Effects11_cso),
+        compiledFx->GetBufferPointer(),
+        compiledFx->GetBufferSize(),
         0,
         m_device11,
         &effect
@@ -186,9 +262,11 @@ Dx11Font::InitD3D11Sprite( )
         return FALSE;
     }
 
+    compiledFx->Release();
+
     effectTechnique = effect->GetTechniqueByName("SpriteTech");
     effectVariable = effect->GetVariableByName("SpriteTex");
-    effectSRV = effectVariable->AsShaderResource();
+	D3D11Font_EffectShaderResourceVariable = effectVariable->AsShaderResource();
     effectPass = effectTechnique->GetPassByIndex(0);
 
     effectPass->GetDesc(&passDesc);
@@ -300,10 +378,9 @@ Dx11Font::Draw( RECT* destinationRect, RECT* sourceRect, XMCOLOR color )
 }
 
 
-VOID
-Dx11Font::AddString( WCHAR *text, DWORD Color )
+VOID Dx11Font::AddString( WCHAR *text, DWORD Color )
 {
-    UINT i, length = wcslen(text);
+    UINT i, length = (UINT)wcslen(text);
     int xbackup = posX;
     XMCOLOR color;
 
@@ -325,10 +402,10 @@ Dx11Font::AddString( WCHAR *text, DWORD Color )
         {
             RECT charRect;
             
-            charRect.left   = ((m_fTexCoords[character-32][0]) * m_dwTexWidth) + m_dwSpacing;
-            charRect.top    = (m_fTexCoords[character-32][1]) * m_dwTexWidth;
-            charRect.right  = ((m_fTexCoords[character-32][2]) * m_dwTexWidth) - m_dwSpacing;
-            charRect.bottom = (m_fTexCoords[character-32][3]) * m_dwTexWidth;
+            charRect.left   = (LONG)((m_fTexCoords[character-32][0]) * m_dwTexWidth) + m_dwSpacing;
+            charRect.top    = (LONG)(m_fTexCoords[character-32][1]) * m_dwTexWidth;
+            charRect.right  = (LONG)((m_fTexCoords[character-32][2]) * m_dwTexWidth) - m_dwSpacing;
+            charRect.bottom = (LONG)(m_fTexCoords[character-32][3]) * m_dwTexWidth;
 
             int width = charRect.right - charRect.left;
             int height = charRect.bottom - charRect.top;
@@ -342,16 +419,10 @@ Dx11Font::AddString( WCHAR *text, DWORD Color )
 }
 
 
-VOID
-Dx11Font::DrawText( 
-    FLOAT sx, 
-    FLOAT sy, 
-    DWORD Color, 
-    WCHAR* Text 
-    )
+VOID Dx11Font::DrawText( FLOAT sx, FLOAT sy, DWORD Color, WCHAR* Text )
 {
-    posX = sx;
-    posY = sy;
+    posX = (int)sx;
+    posY = (int)sy;
 
     AddString(Text, Color);
 }
@@ -423,8 +494,7 @@ Dx11Font::DrawBatch(
 }
 
 
-VOID
-Dx11Font::EndBatch( )
+VOID Dx11Font::EndBatch( )
 {
     UINT viewportCount = 1, stride, offset, spritesToDraw;
     UINT startIndex;
@@ -443,7 +513,10 @@ Dx11Font::EndBatch( )
     FontDeviceContext->IASetVertexBuffers(0, 1, &VB, &stride, &offset );
     FontDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
     
-    effectSRV->SetResource( BatchTexSRV );
+	if (!D3D11Font_EffectShaderResourceVariable)
+		return;
+
+	D3D11Font_EffectShaderResourceVariable->SetResource(BatchTexSRV);
     effectPass->Apply(0, FontDeviceContext);
     
     spritesToDraw = NumberOfSprites;
