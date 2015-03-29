@@ -20,12 +20,23 @@ typedef struct _PUSH_GAME_SETTINGS
 
 typedef struct _PUSH_GAME
 {
-    WCHAR*              Win32Name;
-    WCHAR*              Name;
-    WCHAR*              InstallPath;
+    WCHAR* ExecutableName;
+    WCHAR* ExecutablePath;
+    WCHAR* Name;
+    WCHAR* InstallPath;
+    WCHAR Id[2];
+    DWORD CheckSum;
     PUSH_GAME_SETTINGS  GameSettings;
 
 }PUSH_GAME;
+
+typedef struct _GAME_LIST_ENTRY GAME_LIST_ENTRY;
+typedef struct _GAME_LIST_ENTRY
+{
+    PUSH_GAME* Game;
+    GAME_LIST_ENTRY* NextEntry;
+
+} GAME_LIST_ENTRY, *GAME_LIST;
 
 
 #ifdef __cplusplus
@@ -51,6 +62,13 @@ VOID Game_SetFlags(
     PUSH_GAME *Game, 
     DWORD Flags 
     );
+
+VOID Game_SetCheckSum(
+    PUSH_GAME* Game,
+    DWORD CheckSum
+    );
+
+GAME_LIST Game_GetGames();
 
 #ifdef __cplusplus
 }

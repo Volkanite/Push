@@ -57,32 +57,18 @@ extern "C" VOID* SlOpenProcess(
     UINT16 processID,
     DWORD rights);
 
+extern "C" DWORD __stdcall MapFileAndCheckSumW(
+    _In_   WCHAR* Filename,
+    _Out_  DWORD* HeaderSum,
+    _Out_  DWORD* CheckSum
+    );
 
-/*BOOLEAN
-IsGame( WCHAR *pszExecutable )
+
+BOOLEAN IsGame( WCHAR* ExecutablePath )
 {
     WCHAR *ps;
 
-    ps = SlIniReadString(L"Games", pszExecutable, 0, L".\\" PUSH_SETTINGS_FILE);
-
-    if (ps != 0)
-    {
-        RtlFreeHeap(PushHeapHandle, 0, ps);
-
-        return TRUE;
-    }
-    else
-    {
-        return FALSE;
-    }
-}*/
-
-
-BOOLEAN IsGame( WCHAR* Executable )
-{
-    WCHAR *ps;
-
-    ps = SlIniReadString(L"Games", Executable, 0, L".\\" PUSH_SETTINGS_FILE);
+    ps = SlIniReadString(L"Games", ExecutablePath, 0, L".\\" PUSH_SETTINGS_FILE);
     
     if (ps != 0)
     {
@@ -91,19 +77,48 @@ BOOLEAN IsGame( WCHAR* Executable )
 
         return TRUE;
     }
-    /*else if (nameMatches)
+    else
     {
-        //investigate
-        if (checksumMatches)
+        // Try searching for names that match. If a match is found, compare the executable's checksum.
+
+        DWORD headerSum;
+        DWORD checkSum;
+        GAME_LIST gameList = Game_GetGames();
+        wchar_t *executable = SlStringFindLastChar(ExecutablePath, '\\');
+
+        executable++;
+
+        MapFileAndCheckSumW(ExecutablePath, &headerSum, &checkSum);
+
+        while (gameList != NULL)
         {
-            //is game
+            if (SlStringCompare(gameList->Game->ExecutableName, executable) == 0)
+            {
+                if (gameList->Game->CheckSum == checkSum)
+                {
+                    // Update path.
 
-            //Update the game's path.
-            UpdateGamePath();
+                    SlIniWriteString(
+                        L"Games", 
+                        gameList->Game->ExecutablePath, 
+                        NULL, 
+                        L".\\" PUSH_SETTINGS_FILE
+                        );
+                        
+                    SlIniWriteString(
+                        L"Games", 
+                        ExecutablePath, 
+                        gameList->Game->Id, 
+                        L".\\" PUSH_SETTINGS_FILE
+                        );
 
-            return TRUE;
+                    return TRUE;
+                }
+            }
+            
+            gameList = gameList->NextEntry;
         }
-    }*/
+    }
 
     return FALSE;
 }
@@ -158,11 +173,11 @@ CacheFile( WCHAR *FileName, CHAR cMountPoint )
     if (!bMarkedForCaching)
         // file was a member of a folder marked for caching
     {
-        wcscat(destination, g_szLastDir);
-        wcscat(destination, L"\\");
+        SlStringConcatenate(destination, g_szLastDir);
+        SlStringConcatenate(destination, L"\\");
     }
 
-    wcscat(destination, pszFileName);
+    SlStringConcatenate(destination, pszFileName);
 
     SlFileCopy(FileName, destination, CopyProgress);
 
@@ -173,8 +188,8 @@ CacheFile( WCHAR *FileName, CHAR cMountPoint )
 
     QueryDosDeviceW(dosName, deviceName, 260);
 
-    wcscat(deviceName, L"\\");
-    wcscat(deviceName, slash + 1);
+    SlStringConcatenate(deviceName, L"\\");
+    SlStringConcatenate(deviceName, slash + 1);
 
     R0QueueFile(
         deviceName,
@@ -255,8 +270,8 @@ NormalizeNTPath( WCHAR* pszPath, size_t nMax )
             0 == SlStringCompareN(szNTPath, pszPath, 260))
         {
             // Match
-            wcscat(szDrive, L"\\");
-            wcscat(szDrive, pszSlash+1);
+            SlStringConcatenate(szDrive, L"\\");
+            SlStringConcatenate(szDrive, pszSlash+1);
 
             SlStringCopy(pszPath, szDrive);
 
@@ -418,7 +433,7 @@ OnProcessEvent( UINT16 processID )
 
     if (IsGame(fileName))
     {
-        PUSH_GAME game;
+        PUSH_GAME game = { 0 };
 
         Game_Initialize(fileName, &game);
 
@@ -478,7 +493,7 @@ Inject32( VOID *hProcess )
 
     pszLastSlash[1] = '\0';
 
-    wcscat(szModulePath, PUSH_LIB_NAME_32);
+    SlStringConcatenate(szModulePath, PUSH_LIB_NAME_32);
 
     // Allocate remote memory
     pLibRemote = VirtualAllocEx(hProcess, 0, sizeof(szModulePath), MEM_COMMIT, PAGE_READWRITE);
@@ -631,7 +646,7 @@ OnImageEvent( UINT16 ProcessId )
         pszLastSlash = SlStringFindLastChar(szModulePath, '\\');
         pszLastSlash[1] = '\0';
 
-        wcscat(szModulePath, PUSH_LIB_NAME_64);
+        SlStringConcatenate(szModulePath, PUSH_LIB_NAME_64);
         Inject64(ProcessId, szModulePath);
     }
 
@@ -1000,8 +1015,8 @@ GetDirectoryFile( WCHAR *pszFileName )
 
     GetCurrentDirectoryW(260, szPath);
 
-    wcscat(szPath, L"\\");
-    wcscat(szPath, pszFileName);
+    SlStringConcatenate(szPath, L"\\");
+    SlStringConcatenate(szPath, pszFileName);
 
     return szPath;
 }

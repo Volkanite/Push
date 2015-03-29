@@ -246,8 +246,8 @@ AppendFileNameToPath(
 {
     SlStringCopy(Buffer, Path);
 
-    wcscat(Buffer, L"\\");
-    wcscat(Buffer, FileName);
+    SlStringConcatenate(Buffer, L"\\");
+    SlStringConcatenate(Buffer, FileName);
 }
 
 
@@ -446,6 +446,13 @@ MwCreateMainWindow()
 }
 
 
+extern "C" DWORD __stdcall MapFileAndCheckSumW(
+    _In_   WCHAR* Filename,
+    _Out_  DWORD* HeaderSum,
+    _Out_  DWORD* CheckSum
+    );
+
+
 INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lParam )
 {
     switch (uMessage)
@@ -536,6 +543,8 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     UINT8 i = 0;
                     WCHAR indexString[10];
                     PUSH_GAME game;
+                    DWORD headerSum;
+                    DWORD checkSum;
 
                     ofn.lStructSize = sizeof(OPENFILENAME);
                     ofn.lpstrFilter = L"Executable (.EXE)\0*.exe\0";
@@ -573,10 +582,13 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     slash = SlStringFindLastChar(path, '\\');
                     *slash = '\0';
 
+                    MapFileAndCheckSumW(filePath, &headerSum, &checkSum);
+
                     Game_Initialize(filePath, &game);
                     Game_SetName(&game, imageName);
                     Game_SetInstallPath(&game, path);
                     Game_SetFlags(&game, GAME_RAMDISK);
+                    Game_SetCheckSum(&game, checkSum);
 
                 } break;
 

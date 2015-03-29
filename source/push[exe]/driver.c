@@ -121,7 +121,7 @@ VOID Driver_Load()
         WCHAR tempPath[260];
 
         GetTempPathW(260, tempPath);
-        wcscat(tempPath, L"push0.sys");
+        SlStringConcatenate(tempPath, L"push0.sys");
         SlFileCopy(driverPath, tempPath, NULL);
         SlStringCopy(driverPath, tempPath);
     }
