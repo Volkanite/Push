@@ -335,7 +335,7 @@ MwCreateMainWindow()
                                 L"RTSSPush",
                                 L"Push",
                                 200,
-                                383,
+                                388,
                                 MainWndProc,
                                 0,
                                 Gui_IconImageHandle
