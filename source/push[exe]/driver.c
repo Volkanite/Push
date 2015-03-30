@@ -81,34 +81,7 @@ VOID Driver_Extract()
 
 VOID Driver_Load()
 {
-    WCHAR dir[260];
-    WCHAR *ptr;
-    WCHAR driverPath[260];
-    INT32 msgId;
     NTSTATUS status;
-
-    GetModuleFileNameW(NULL, dir, 260);
-    if ((ptr = SlStringFindLastChar(dir, '\\')) != NULL)
-    {
-        *ptr = '\0';
-    }
-    swprintf(driverPath, 260, L"%s\\%s", dir, L"push0.sys");
-
-    WCHAR root[4];
-    root[0] = driverPath[0];
-    root[1] = ':';
-    root[2] = '\\';
-    root[3] = '\0';
-
-    if (root[0] == '\\' || GetDriveTypeW((WCHAR*)root) == DRIVE_REMOTE)
-    {
-        WCHAR tempPath[260];
-
-        GetTempPathW(260, tempPath);
-        SlStringConcatenate(tempPath, L"push0.sys");
-        SlFileCopy(driverPath, tempPath, NULL);
-        SlStringCopy(driverPath, tempPath);
-    }
 
     status = SlLoadDriver(
         L"PUSH",
@@ -130,7 +103,7 @@ VOID Driver_Load()
         {
             // Probably wrong driver. Overwrite.
 
-            DeleteFileW(driverPath);
+            DeleteFileW(L"push0.sys");
             Driver_Extract();
             
             // Try again.
@@ -139,6 +112,8 @@ VOID Driver_Load()
 
         if (status == STATUS_INVALID_IMAGE_HASH)
         {
+            INT32 msgId;
+
             // Prompt user to enable test-signing.
             msgId = MessageBoxW(
                 NULL,
