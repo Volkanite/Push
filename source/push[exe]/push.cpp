@@ -12,12 +12,9 @@
 #include "RAMdisk\ramdisk.h"
 #include "Hardware\hwinfo.h"
 #include "batch.h"
-<<<<<<< HEAD
 #include "ring0.h"
 #include "file.h"
-=======
 #include "driver.h"
->>>>>>> master
 
 
 CHAR g_szDllDir[260];
@@ -771,206 +768,6 @@ DWORD __stdcall MonitorThread( VOID* Parameter )
 }
 
 
-#define DIRECTORY_ALL_ACCESS   (STANDARD_RIGHTS_REQUIRED | 0xF)
-#define WRITE_DAC   0x00040000L
-#define WRITE_OWNER   0x00080000L
-
-<<<<<<< HEAD
-#define MB_ICONQUESTION 0x00000020L
-#define MB_YESNO        0x00000004L
-
-#define IDYES 6
-
-#define STARTF_USESHOWWINDOW    0x00000001
-#define SW_SHOWMINIMIZED    2
-
-
-typedef struct _STARTUPINFOW {
-    DWORD   cb;
-    WCHAR*  lpReserved;
-    WCHAR*  lpDesktop;
-    WCHAR*  lpTitle;
-    DWORD   dwX;
-    DWORD   dwY;
-    DWORD   dwXSize;
-    DWORD   dwYSize;
-    DWORD   dwXCountChars;
-    DWORD   dwYCountChars;
-    DWORD   dwFillAttribute;
-    DWORD   dwFlags;
-    WORD    wShowWindow;
-    WORD    cbReserved2;
-    BYTE*   lpReserved2;
-    HANDLE  hStdInput;
-    HANDLE  hStdOutput;
-    HANDLE  hStdError;
-} STARTUPINFO, *LPSTARTUPINFOW;
-
-typedef struct _PROCESS_INFORMATION {
-    HANDLE hProcess;
-    HANDLE hThread;
-    DWORD dwProcessId;
-    DWORD dwThreadId;
-} PROCESS_INFORMATION, *PPROCESS_INFORMATION, *LPPROCESS_INFORMATION;
-
-
-extern "C" {
-
-INTBOOL __stdcall Wow64DisableWow64FsRedirection (
-    VOID **OldValue
-    );
-
-INTBOOL __stdcall CreateProcessW(
-    WCHAR* lpApplicationName,
-    WCHAR* lpCommandLine,
-    SECURITY_ATTRIBUTES* lpProcessAttributes,
-    SECURITY_ATTRIBUTES* lpThreadAttributes,
-    INTBOOL bInheritHandles,
-    DWORD dwCreationFlags,
-    VOID* lpEnvironment,
-    WCHAR* lpCurrentDirectory,
-    LPSTARTUPINFOW lpStartupInfo,
-    LPPROCESS_INFORMATION lpProcessInformation
-    );
-
-}
-
-
-typedef VOID* PSECURITY_DESCRIPTOR;
-
-#define SECURITY_DESCRIPTOR_REVISION     (1)
-#define DACL_SECURITY_INFORMATION        (0x00000004L)
-#define READ_CONTROL                     (0x00020000L)
-#define STANDARD_RIGHTS_WRITE            (READ_CONTROL)
-#define KEY_SET_VALUE           (0x0002)
-#define KEY_CREATE_SUB_KEY      (0x0004)
-#define KEY_WRITE               ((STANDARD_RIGHTS_WRITE      |\
-                                  KEY_SET_VALUE              |\
-                                  KEY_CREATE_SUB_KEY)         \
-                                  &                           \
-                                 (~SYNCHRONIZE))
-#define REG_BINARY                  ( 3 )   // Free form binary
-
-
-extern "C"
-{
-
-NTSTATUS __stdcall RtlCreateSecurityDescriptor(
-    VOID* SecurityDescriptor,
-    ULONG Revision
-);
-
-NTSTATUS __stdcall RtlSetDaclSecurityDescriptor (
-    VOID* SecurityDescriptor,
-    BOOLEAN DaclPresent,
-    ACL* Dacl,
-    BOOLEAN DaclDefaulted
-);
-
-NTSTATUS __stdcall RtlMakeSelfRelativeSD(
-    VOID* AbsoluteSecurityDescriptor,
-    VOID* SelfRelativeSecurityDescriptor,
-    ULONG* BufferLength
-    );
-
-NTSTATUS __stdcall NtSetSecurityObject(
-    _In_ HANDLE Handle,
-    _In_ ULONG SecurityInformation,
-    _In_ VOID* SecurityDescriptor
-    );
-
-=======
-
-extern "C" 
-{
-
-HANDLE __stdcall FindResourceW(
-  HANDLE hModule,
-  WCHAR* lpName,
-  WCHAR* lpType
-);
-
-
-HANDLE __stdcall LoadResource(
-  HANDLE hModule,
-  HANDLE hResInfo
-);
-
-
-VOID* __stdcall LockResource(
-  HANDLE hResData
-);
-
-
-DWORD __stdcall SizeofResource(
-  HANDLE hModule,
-  HANDLE hResInfo
-);
-
-}
-
-
-extern "C"
-BOOLEAN ExtractResource( WCHAR* ResourceName, WCHAR* OutputPath )
-{
-    NTSTATUS status;
-    HANDLE fileHandle;
-    IO_STATUS_BLOCK isb;
-
-    HANDLE hResInfo = reinterpret_cast<HANDLE>(
-        ::FindResourceW(
-            NULL,
-            ResourceName,
-            ResourceName
-        )
-    );
-
-    if(!hResInfo) return false;
-
-    HANDLE hResData = ::LoadResource(NULL, hResInfo);
-
-    if(!hResData) return false;
-
-    VOID* pDeskbandBinData = ::LockResource(hResData);
-
-    if(!pDeskbandBinData) return false;
-
-    const DWORD dwDeskbandBinSize = ::SizeofResource(NULL, hResInfo);
-
-    if(!dwDeskbandBinSize) return false;
-
-    status = SlFileCreate(
-        &fileHandle,
-        OutputPath, 
-        FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE,
-        FILE_SHARE_READ | FILE_SHARE_WRITE,
-        /*FILE_OVERWRITE_IF*/ FILE_CREATE,
-        FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
-        );
-
-    if (!NT_SUCCESS(status)) return false;
-
-    status = NtWriteFile(
-        fileHandle, 
-        NULL, 
-        NULL, 
-        NULL, 
-        &isb, 
-        pDeskbandBinData, 
-        dwDeskbandBinSize, 
-        NULL, 
-        NULL
-        );
-
-    if (!NT_SUCCESS(status)) return false;
-
-    NtClose(fileHandle);
-
-    return true;
->>>>>>> master
-}
-
-
 INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, INT32 iCmdShow )
 {
     VOID *sectionHandle = INVALID_HANDLE_VALUE, *hMutex;
@@ -993,115 +790,16 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     thisPID = (UINT32) NtCurrentTeb()->ClientId.UniqueProcess;
     PushHeapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
 
-<<<<<<< HEAD
-    //Extract necessary files
-    SlExtractResource(L"OVERLAY", L"overlay.dll");
-    SlExtractResource(L"DRIVER", L"push0.sys");
-
-    // Start Driver.
-
-    status = SlLoadDriver( 
-        L"PUSH", 
-        L"push0.sys",
-        L"Push Kernel-Mode Driver", 
-        L"\\\\.\\Push", 
-        TRUE,
-        &R0DriverHandle
-        );
-
-    if (!NT_SUCCESS(status))
-    {
-        if (status == STATUS_OBJECT_NAME_NOT_FOUND)
-        {
-            MessageBoxW(NULL, L"Driver file not found!", L"Error", 0);
-        }
-
-        if (status == STATUS_INVALID_IMAGE_HASH)
-        {
-            // Prompt user to enable test-signing.
-            msgId = MessageBoxW(
-                NULL, 
-                L"The driver failed to load because it isn't signed. "
-                L"It is required for Push to work correctly. "
-                L"Do you want to enable test-signing to be able to use driver functions?",
-                L"Driver Signing",
-                MB_ICONQUESTION | MB_YESNO
-                );
-
-            if (msgId == IDYES)
-            {
-                HANDLE keyHandle;
-                DWORD size = 255;
-                WCHAR buffer[255];
-                unsigned char p[9000];
-                PSECURITY_DESCRIPTOR psecdesc = (PSECURITY_DESCRIPTOR)p;
-                VOID* selfSecurityDescriptor;
-                BYTE value = 0x01;
-                UNICODE_STRING valueName;
-                SYSTEM_BOOT_ENVIRONMENT_INFORMATION bootEnvironmentInformation;
-                UINT32 returnLength;
-                UNICODE_STRING guidAsUnicodeString;
-                WCHAR guidAsWideChar[40];
-                ULONG bufferLength = 20;
-
-                // Get boot GUID.
-
-                NtQuerySystemInformation(
-                    SystemBootEnvironmentInformation,
-                    &bootEnvironmentInformation,
-                    sizeof(SYSTEM_BOOT_ENVIRONMENT_INFORMATION),
-                    &returnLength
-                    );
-
-                RtlStringFromGUID(&bootEnvironmentInformation.BootIdentifier, &guidAsUnicodeString);
-                SlStringCopyN(guidAsWideChar, guidAsUnicodeString.Buffer, 39);
-
-                guidAsWideChar[39] = L'\0';
-
-                swprintf(
-                    buffer, 
-                    255, 
-                    L"\\Registry\\Machine\\BCD00000000\\Objects\\%s\\Elements\\16000049", 
-                    guidAsWideChar
-                    );
-
-                // Change key permissions to allow us to set values.
-
-                keyHandle = SlOpenKey(buffer, WRITE_DAC);
-
-                RtlCreateSecurityDescriptor(psecdesc, SECURITY_DESCRIPTOR_REVISION);
-                RtlSetDaclSecurityDescriptor(psecdesc, TRUE, NULL, TRUE);
-                
-                selfSecurityDescriptor = RtlAllocateHeap(PushHeapHandle, 0, 20);
-
-                RtlMakeSelfRelativeSD (psecdesc, selfSecurityDescriptor, &bufferLength);
-                NtSetSecurityObject(keyHandle, DACL_SECURITY_INFORMATION, selfSecurityDescriptor);
-                NtClose(keyHandle);
-
-                // Enable test-signing mode.
-
-                keyHandle = SlOpenKey(buffer, KEY_WRITE);
-                
-                SlInitUnicodeString(&valueName, L"Element");
-                NtSetValueKey(keyHandle, &valueName, 0, REG_BINARY, &value, sizeof(BYTE));
-                NtClose(keyHandle);
-                MessageBoxW(NULL, L"Restart your computer to load driver", L"Restart required", NULL);
-            }
-        }
-    }
-
-=======
     // Extract necessary files.
     
-    ExtractResource(L"OVERLAY32", PUSH_LIB_NAME_32);
-    ExtractResource(L"OVERLAY64", PUSH_LIB_NAME_64);
+    SlExtractResource(L"OVERLAY32", PUSH_LIB_NAME_32);
+    SlExtractResource(L"OVERLAY64", PUSH_LIB_NAME_64);
     
     Driver_Extract();
     
     // Start Driver.
     Driver_Load();
     
->>>>>>> master
     //initialize instance
     PushInstance = Instance;
 

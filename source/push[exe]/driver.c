@@ -1,6 +1,8 @@
 #include <sl.h>
 #include <sal.h>
 #include <sldriver.h>
+#include <slresource.h>
+#include <slregistry.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -8,78 +10,60 @@
 #include "ring0.h"
 
 
-typedef struct _STARTUPINFOW {
-    DWORD   cb;
-    WCHAR*  lpReserved;
-    WCHAR*  lpDesktop;
-    WCHAR*  lpTitle;
-    DWORD   dwX;
-    DWORD   dwY;
-    DWORD   dwXSize;
-    DWORD   dwYSize;
-    DWORD   dwXCountChars;
-    DWORD   dwYCountChars;
-    DWORD   dwFillAttribute;
-    DWORD   dwFlags;
-    WORD    wShowWindow;
-    WORD    cbReserved2;
-    BYTE*   lpReserved2;
-    HANDLE  hStdInput;
-    HANDLE  hStdOutput;
-    HANDLE  hStdError;
-} STARTUPINFO, *LPSTARTUPINFOW;
+#define WRITE_DAC   0x00040000L
 
-typedef struct _PROCESS_INFORMATION {
-    HANDLE hProcess;
-    HANDLE hThread;
-    DWORD dwProcessId;
-    DWORD dwThreadId;
-} PROCESS_INFORMATION, *PPROCESS_INFORMATION, *LPPROCESS_INFORMATION;
+typedef VOID* PSECURITY_DESCRIPTOR;
 
-
-INTBOOL __stdcall IsWow64Process(
-    HANDLE hProcess,
-    INTBOOL* Wow64Process
-    );
-
-UINT32 __stdcall GetDriveTypeW(
-    WCHAR* lpRootPathName
-    );
-
-DWORD __stdcall GetTempPathW(
-    DWORD nBufferLength,
-    WCHAR* lpBuffer
-    );
-
-INTBOOL __stdcall Wow64DisableWow64FsRedirection(
-    VOID **OldValue
-    );
-
-INTBOOL __stdcall CreateProcessW(
-    WCHAR* lpApplicationName,
-    WCHAR* lpCommandLine,
-    SECURITY_ATTRIBUTES* lpProcessAttributes,
-    SECURITY_ATTRIBUTES* lpThreadAttributes,
-    INTBOOL bInheritHandles,
-    DWORD dwCreationFlags,
-    VOID* lpEnvironment,
-    WCHAR* lpCurrentDirectory,
-    LPSTARTUPINFOW lpStartupInfo,
-    LPPROCESS_INFORMATION lpProcessInformation
-    );
-
-
-#define DRIVE_REMOTE      4
+#define SECURITY_DESCRIPTOR_REVISION     (1)
+#define DACL_SECURITY_INFORMATION        (0x00000004L)
+#define READ_CONTROL                     (0x00020000L)
+#define STANDARD_RIGHTS_WRITE            (READ_CONTROL)
+#define KEY_SET_VALUE           (0x0002)
+#define KEY_CREATE_SUB_KEY      (0x0004)
+#define KEY_WRITE               ((STANDARD_RIGHTS_WRITE      |\
+                                  KEY_SET_VALUE              |\
+                                  KEY_CREATE_SUB_KEY)         \
+                                  &                           \
+                                 (~SYNCHRONIZE))
+#define REG_BINARY                  ( 3 )   // Free form binary
 
 #define STATUS_INVALID_IMAGE_HASH       ((NTSTATUS)0xC0000428L)
 #define STATUS_DRIVER_BLOCKED_CRITICAL  ((NTSTATUS)0xC000036BL)
+
 #define MB_ICONQUESTION 0x00000020L
 #define MB_YESNO        0x00000004L
 
 #define IDYES 6
 
-#define STARTF_USESHOWWINDOW    0x00000001
-#define SW_SHOWMINIMIZED    2
+
+NTSTATUS __stdcall RtlCreateSecurityDescriptor(
+    VOID* SecurityDescriptor,
+    ULONG Revision
+    );
+
+NTSTATUS __stdcall RtlSetDaclSecurityDescriptor(
+    VOID* SecurityDescriptor,
+    BOOLEAN DaclPresent,
+    ACL* Dacl,
+    BOOLEAN DaclDefaulted
+    );
+
+NTSTATUS __stdcall RtlMakeSelfRelativeSD(
+    VOID* AbsoluteSecurityDescriptor,
+    VOID* SelfRelativeSecurityDescriptor,
+    ULONG* BufferLength
+    );
+
+NTSTATUS __stdcall NtSetSecurityObject(
+    _In_ HANDLE Handle,
+    _In_ ULONG SecurityInformation,
+    _In_ VOID* SecurityDescriptor
+    );
+
+INTBOOL __stdcall IsWow64Process(
+    HANDLE hProcess,
+    INTBOOL* Wow64Process
+    );
 
 
 VOID Driver_Extract()
@@ -89,9 +73,9 @@ VOID Driver_Extract()
     IsWow64Process(NtCurrentProcess(), &isWow64);
 
     if (isWow64)
-        ExtractResource(L"DRIVER64", L"push0.sys");
+        SlExtractResource(L"DRIVER64", L"push0.sys");
     else
-        ExtractResource(L"DRIVER32", L"push0.sys");
+        SlExtractResource(L"DRIVER32", L"push0.sys");
 }
 
 
@@ -155,7 +139,7 @@ VOID Driver_Load()
 
         if (status == STATUS_INVALID_IMAGE_HASH)
         {
-            //prompt user to enable test-signing.
+            // Prompt user to enable test-signing.
             msgId = MessageBoxW(
                 NULL,
                 L"The driver failed to load because it isn't signed. "
@@ -167,32 +151,78 @@ VOID Driver_Load()
 
             if (msgId == IDYES)
             {
-                STARTUPINFO startupInfo = { 0 };
-                PROCESS_INFORMATION processInfo = { 0 };
-                BOOLEAN status;
-                DWORD error = NULL;
-                VOID* oldValue = NULL;
+                HANDLE keyHandle;
+                DWORD size = 255;
+                WCHAR buffer[255];
+                unsigned char p[9000];
+                PSECURITY_DESCRIPTOR psecdesc = (PSECURITY_DESCRIPTOR)p;
+                VOID* selfSecurityDescriptor;
+                BYTE value = 0x01;
+                UNICODE_STRING valueName;
+                SYSTEM_BOOT_ENVIRONMENT_INFORMATION bootEnvironmentInformation;
+                UINT32 returnLength;
+                UNICODE_STRING guidAsUnicodeString;
+                WCHAR guidAsWideChar[40];
+                ULONG bufferLength = 20;
 
-                Wow64DisableWow64FsRedirection(&oldValue);
+                // Get boot GUID.
 
-                startupInfo.cb = sizeof(startupInfo);
-                startupInfo.dwFlags = STARTF_USESHOWWINDOW;
-                startupInfo.wShowWindow = SW_SHOWMINIMIZED;
-
-                status = CreateProcessW(
-                    L"C:\\Windows\\System32\\bcdedit.exe",
-                    L"\"C:\\Windows\\System32\\bcdedit.exe\" /set TESTSIGNING ON",
-                    NULL,
-                    NULL,
-                    FALSE,
-                    NULL,
-                    NULL,
-                    L"C:\\Windows\\System32",
-                    &startupInfo,
-                    &processInfo
+                NtQuerySystemInformation(
+                    SystemBootEnvironmentInformation,
+                    &bootEnvironmentInformation,
+                    sizeof(SYSTEM_BOOT_ENVIRONMENT_INFORMATION),
+                    &returnLength
                     );
 
-                MessageBoxW(NULL, L"Restart your computer to load driver", L"Restart required", NULL);
+                RtlStringFromGUID(
+                    &bootEnvironmentInformation.BootIdentifier, 
+                    &guidAsUnicodeString
+                    );
+                    
+                SlStringCopyN(guidAsWideChar, guidAsUnicodeString.Buffer, 39);
+
+                guidAsWideChar[39] = L'\0';
+
+                swprintf(
+                    buffer,
+                    255,
+                    L"\\Registry\\Machine\\BCD00000000\\Objects\\%s\\Elements\\16000049",
+                    guidAsWideChar
+                    );
+
+                // Change key permissions to allow us to set values.
+
+                keyHandle = SlOpenKey(buffer, WRITE_DAC);
+
+                RtlCreateSecurityDescriptor(psecdesc, SECURITY_DESCRIPTOR_REVISION);
+                RtlSetDaclSecurityDescriptor(psecdesc, TRUE, NULL, TRUE);
+
+                selfSecurityDescriptor = RtlAllocateHeap(PushHeapHandle, 0, 20);
+
+                RtlMakeSelfRelativeSD(psecdesc, selfSecurityDescriptor, &bufferLength);
+                
+                NtSetSecurityObject(
+                    keyHandle, 
+                    DACL_SECURITY_INFORMATION, 
+                    selfSecurityDescriptor
+                    );
+                
+                NtClose(keyHandle);
+
+                // Enable test-signing mode.
+
+                keyHandle = SlOpenKey(buffer, KEY_WRITE);
+
+                SlInitUnicodeString(&valueName, L"Element");
+                NtSetValueKey(keyHandle, &valueName, 0, REG_BINARY, &value, sizeof(BYTE));
+                NtClose(keyHandle);
+                
+                MessageBoxW(
+                    NULL, 
+                    L"Restart your computer to load driver", 
+                    L"Restart required", 
+                    NULL
+                    );
             }
         }
     }
