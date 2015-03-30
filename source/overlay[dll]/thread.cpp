@@ -1,10 +1,4 @@
-<<<<<<< HEAD
 #include <sl.h>
-#include <sldetours.h>
-=======
-#include <sltypes.h>
-#include <slntuapi.h>
->>>>>>> master
 #include <stdio.h>
 
 #include "thread.h"
