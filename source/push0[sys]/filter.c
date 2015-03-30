@@ -246,14 +246,13 @@ FilterPreCreate(
 }
 
 
-VOID
-AddToFileList( FLT_FILE_LIST_ENTRY *FileEntry )
+VOID AddToFileList( FLT_FILE_LIST_ENTRY *FileEntry )
 {
     FLT_FILE_LIST_ENTRY *fileListEntry;
     WCHAR *name;
     UINT16 nameLength;
 
-    nameLength = wcslen(FileEntry->Name) * sizeof(WCHAR);
+    nameLength = (UINT16) wcslen(FileEntry->Name) * sizeof(WCHAR);
 
     name = ExAllocatePool(
             NonPagedPool,

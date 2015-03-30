@@ -5,9 +5,10 @@
 
 
 ///
-/// Library name
+/// Overlay name
 ///
-#define PUSH_LIB_NAME       "overlay.dll"
+#define PUSH_LIB_NAME_32 L"overlay32.dll"
+#define PUSH_LIB_NAME_64 L"overlay64.dll"
 
 ///
 /// Settings file name
@@ -87,6 +88,16 @@ BuildGameFilesList(
     WCHAR* Directory,
     FILE_DIRECTORY_INFORMATION* Information
     );
+#ifdef __cplusplus
+extern "C" {
+#endif
+BOOLEAN ExtractResource(
+    WCHAR* ResourceName,
+    WCHAR* OutputPath
+    );
+#ifdef __cplusplus
+}
+#endif
 
 
     

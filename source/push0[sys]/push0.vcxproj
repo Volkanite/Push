@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -38,23 +38,28 @@
     <SccProjectName />
     <SccLocalPath />
     <ProjectName>push0</ProjectName>
+    <ProjectGuid>{76309B41-A554-B920-3148-F5A7AAE4B42E}</ProjectGuid>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -77,8 +82,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)bin\</OutDir>
-    <IntDir>$(TEMP)\$(ProjectName)</IntDir>
+    <OutDir>$(SolutionDir)bin64\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)resources\sl;C:\WinDDK\inc\api;C:\WinDDK\inc\ddk;C:\WinDDK\inc\crt</IncludePath>
     <GenerateManifest>false</GenerateManifest>
@@ -88,17 +93,18 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)bin\</OutDir>
-    <IntDir>$(TEMP)\push0</IntDir>
-    <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)source\_resources\helpers\ddk\inc;$(VCInstallDir)include;C:\WinDDK\7600.16385.1\inc\crt;C:\WinDDK\7600.16385.1\inc\api;C:\WinDDK\7600.16385.1\inc\ddk</IncludePath>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>
+    </LinkIncremental>
+    <IncludePath>$(SolutionDir)resources\sl;C:\WinDDK\inc\api;C:\WinDDK\inc\ddk;C:\WinDDK\inc\crt</IncludePath>
     <GenerateManifest>false</GenerateManifest>
-    <LibraryPath>C:\WinDDK\7600.16385.1\lib\win7\amd64;C:\WinDDK\7600.16385.1\lib\win7\i386;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)resources\sl\lib\i386;C:\WinDDK\lib\win7\i386</LibraryPath>
     <TargetExt>.sys</TargetExt>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)bin\</OutDir>
-    <IntDir>.\Debug\</IntDir>
+    <OutDir>$(SolutionDir)bin64\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)resources\sl;C:\WinDDK\inc\api;C:\WinDDK\inc\ddk;C:\WinDDK\inc\crt</IncludePath>
     <GenerateManifest>false</GenerateManifest>
@@ -107,11 +113,12 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)bin\</OutDir>
-    <IntDir>.\Debug\</IntDir>
-    <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\WinDDK\7600.16385.1\inc\crt;C:\WinDDK\7600.16385.1\inc\api;C:\WinDDK\7600.16385.1\inc\ddk</IncludePath>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>
+    </LinkIncremental>
+    <IncludePath>$(SolutionDir)resources\sl;C:\WinDDK\inc\api;C:\WinDDK\inc\ddk;C:\WinDDK\inc\crt</IncludePath>
     <GenerateManifest>false</GenerateManifest>
-    <LibraryPath>C:\WinDDK\7600.16385.1\lib\win7\amd64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)resources\sl\lib\i386;C:\WinDDK\lib\win7\i386</LibraryPath>
     <TargetExt>.sys</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -149,11 +156,11 @@
     </Bscmake>
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Native</SubSystem>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(SolutionDir)source\_resources\ddk\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions> /DRIVER  /subsystem:NATIVE,5.1  /IGNORE:4078 </AdditionalOptions>
+      <AdditionalOptions>/DRIVER  /subsystem:NATIVE,5.02  /IGNORE:4078</AdditionalOptions>
       <SetChecksum>true</SetChecksum>
       <BaseAddress>0x10000</BaseAddress>
       <AdditionalDependencies>ntoskrnl.lib;hal.lib;slpci.lib;fltmgr.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -166,7 +173,7 @@
       </DataExecutionPrevention>
     </Link>
     <PostBuildEvent>
-      <Command>sign.bat</Command>
+      <Command>signtool.exe sign /v /f test.pfx ..\..\bin64\push0.sys</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -179,7 +186,7 @@
       <WarningLevel>Level3</WarningLevel>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>$(DDKROOT)\inc\wxp;$(DDKROOT)\inc\ddk\wxp;$(DDKROOT)\inc\ddk\wdm\wxp;$(DDKROOT)\inc\crt;$(DDKROOT)\inc\crt\gl;$(DDKROOT)\inc\crt\sys;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_X86_;_WIN32_;_DEBUG;DBG=1;_WIN32_WINNT=0x0501</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0601;_X86_</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Release\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\Release\phymem.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>.\Release\</ObjectFileName>
@@ -187,6 +194,11 @@
       <CallingConvention>StdCall</CallingConvention>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <OmitFramePointers />
+      <TreatSpecificWarningsAsErrors>4020;4005;4101;4133;4142;4520;4700;4715;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
+      <ExceptionHandling>false</ExceptionHandling>
+      <CompileAs>CompileAsC</CompileAs>
+      <MinimalRebuild>true</MinimalRebuild>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -204,14 +216,15 @@
     </Bscmake>
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Native</SubSystem>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>$(DDKROOT)\lib\wxp\i386;$(DDKROOT)\lib\wxp\amd64;C:\WinDDK\7600.16385.1\lib\win7\amd64;C:\WinDDK\7600.16385.1\lib\win7\i386;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions> /DRIVER  /subsystem:NATIVE,5.1  /IGNORE:4078 </AdditionalOptions>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <AdditionalOptions>/DRIVER  /subsystem:NATIVE,5.02  /IGNORE:4078</AdditionalOptions>
       <SetChecksum>true</SetChecksum>
       <BaseAddress>0x10000</BaseAddress>
-      <AdditionalDependencies>wdm.lib;wdm_x86.lib;hal.lib;hal_x86.lib;bufferoverflowk.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ntoskrnl.lib;hal.lib;slpci.lib;fltmgr.lib;bufferoverflowK.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>262144</StackReserveSize>
       <StackCommitSize>4096</StackCommitSize>
       <EntryPointSymbol>DriverEntry</EntryPointSymbol>
@@ -219,6 +232,7 @@
       </RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
+      <Driver>Driver</Driver>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -238,6 +252,7 @@
       <ProgramDataBaseFileName>.\Debug\</ProgramDataBaseFileName>
       <CallingConvention>StdCall</CallingConvention>
       <BufferSecurityCheck>false</BufferSecurityCheck>
+      <TreatSpecificWarningsAsErrors>4020;4005;4101;4133;4142;4520;4700;4715;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -256,11 +271,11 @@
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Native</SubSystem>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(DDKROOT)\lib\wxp\i386;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions> /DRIVER  /subsystem:NATIVE,5.1  /IGNORE:4078 </AdditionalOptions>
+      <AdditionalOptions>/DRIVER  /subsystem:NATIVE,5.02  /IGNORE:4078</AdditionalOptions>
       <BaseAddress>0x10000</BaseAddress>
       <AdditionalDependencies>ntoskrnl.lib;hal.lib;slpci.lib;fltmgr.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>262144</StackReserveSize>
@@ -272,7 +287,7 @@
       </DataExecutionPrevention>
     </Link>
     <PostBuildEvent>
-      <Command>sign.bat</Command>
+      <Command>signtool.exe sign /v /f test.pfx ..\..\bin64\push0.sys</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -285,13 +300,17 @@
       <WarningLevel>Level3</WarningLevel>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>$(DDKROOT)\inc\wxp;$(DDKROOT)\inc\ddk\wxp;$(DDKROOT)\inc\ddk\wdm\wxp;$(DDKROOT)\inc\crt;$(DDKROOT)\inc\crt\gl;$(DDKROOT)\inc\crt\sys;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_AMD64_;_DEBUG;DBG=1;_WIN32_WINNT=0x0501</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0601;_X86_</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Debug\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\Debug\phymem.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>.\Debug\</ObjectFileName>
       <ProgramDataBaseFileName>.\Debug\</ProgramDataBaseFileName>
       <CallingConvention>StdCall</CallingConvention>
       <BufferSecurityCheck>false</BufferSecurityCheck>
+      <TreatSpecificWarningsAsErrors>4020;4005;4101;4133;4142;4520;4700;4715;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
+      <ExceptionHandling>false</ExceptionHandling>
+      <CompileAs>CompileAsC</CompileAs>
+      <MinimalRebuild>true</MinimalRebuild>
     </ClCompile>
     <Midl>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -310,13 +329,14 @@
     <Link>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Native</SubSystem>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalLibraryDirectories>$(DDKROOT)\lib\wxp\i386;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions> /DRIVER  /subsystem:NATIVE,5.1  /IGNORE:4078 </AdditionalOptions>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <AdditionalOptions>/DRIVER  /subsystem:NATIVE,5.02  /IGNORE:4078</AdditionalOptions>
       <BaseAddress>0x10000</BaseAddress>
-      <AdditionalDependencies>wdm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ntoskrnl.lib;hal.lib;slpci.lib;fltmgr.lib;bufferoverflowK.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>262144</StackReserveSize>
       <StackCommitSize>4096</StackCommitSize>
       <EntryPointSymbol>DriverEntry</EntryPointSymbol>
@@ -324,6 +344,7 @@
       </RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
+      <Driver>Driver</Driver>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

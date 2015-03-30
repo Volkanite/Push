@@ -1,3 +1,5 @@
-PUSH_ICON   ICON    "push.ico"
-OVERLAY     OVERLAY "..\..\bin\overlay.dll"
-DRIVER      DRIVER  "..\..\bin\push0.sys"
+PUSH_ICON   ICON		"push.ico"
+OVERLAY32   OVERLAY32	"..\..\bin\overlay32.dll"
+OVERLAY64   OVERLAY64	"..\..\bin64\overlay64.dll"
+DRIVER32	DRIVER32	"..\..\bin\push0.sys"
+DRIVER64	DRIVER64	"..\..\bin64\push0.sys"

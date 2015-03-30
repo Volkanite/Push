@@ -367,53 +367,61 @@ PhpUpdateCpuInformation()
 }
 
 
-DWORD GetGpuAddress()
+DWORD FindPciDeviceByClass( BYTE baseClass, BYTE subClass, BYTE programIf, BYTE index )
 {
-    UINT8   bus             = 0;
-    UINT8   dev             = 0;
-    UINT8   func            = 0;
-    DWORD   pciAddress      = 0xFFFFFFFF;
-    DWORD   conf[3]         = {0};
-    BOOLEAN    multiFuncFlag   = FALSE;
-    BYTE    type            = 0;
+    if(R0DriverHandle == INVALID_HANDLE_VALUE)
+    {
+        return 0xFFFFFFFF;
+    }
+
+    DWORD bus = 0, dev = 0, func = 0;
+    DWORD count = 0;
+    DWORD pciAddress = 0xFFFFFFFF;
+    DWORD conf[3] = {0};
+    DWORD error = 0;    
+    BOOLEAN multiFuncFlag = FALSE;
+    BYTE type = 0;
+    count = 0;
 
     for(bus = 0; bus <= 255; bus++)
     {
         for(dev = 0; dev < 31; dev++)
         {
             multiFuncFlag = FALSE;
-
             for(func = 0; func < 7; func++)
             {
                 if(multiFuncFlag == FALSE && func > 0)
                 {
                     break;
                 }
-
                 pciAddress = PciBusDevFunc(bus, dev, func);
-
-                R0ReadPciConfig(pciAddress, 0, (BYTE *)conf, sizeof(conf));
-
-                if(func == 0) // Is Multi Function Device
+                if (R0ReadPciConfig(pciAddress, 0, (BYTE*)conf, sizeof(conf)))
                 {
-                    R0ReadPciConfig(pciAddress, 0x0E, (BYTE *)&type, sizeof(type));
-
-                    if(type & 0x80)
-                    {
-                        multiFuncFlag = TRUE;
+                    if(func == 0) // Is Multi Function Device
+                    { 
+                        if (R0ReadPciConfig(pciAddress, 0x0E, (BYTE*)&type, sizeof(type)))
+                        {
+                            if(type & 0x80)
+                            {
+                                multiFuncFlag = TRUE;
+                            }
+                        }
                     }
+                    if((conf[2] & 0xFFFFFF00) == 
+                            (((DWORD)baseClass << 24) |
+                            ((DWORD)subClass << 16) |
+                            ((DWORD)programIf << 8))
+                        )
+                    {
+                        if (count == index)
+                        {
+                            return pciAddress;
+                        }
 
+                        count++;
+                        continue;
+                    }
                 }
-
-                if((conf[2] & 0xFFFFFF00) ==
-                        (((DWORD)0x03 << 24) |
-                        ((DWORD)0x00 << 16) |
-                        ((DWORD)0x00 << 8))
-                    )
-                {
-                    return pciAddress;
-                }
-
             }
         }
     }
@@ -471,12 +479,11 @@ GetBarSize(
 }
 
 
-VOID
-InitGpuHardware()
+VOID InitGpuHardware()
 {
     DWORD bar;
 
-    hardware.DisplayDevice.pciAddress = GetGpuAddress();
+    hardware.DisplayDevice.pciAddress = FindPciDeviceByClass(0x03, 0x00, 0x00, 0);
 
     R0ReadPciConfig(
         hardware.DisplayDevice.pciAddress,

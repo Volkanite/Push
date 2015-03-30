@@ -11,23 +11,19 @@ WCHAR*
 memchrW(const WCHAR *ptr, WCHAR ch, UINT_B n);
 
 
-VOID
-GetBatchFile( PUSH_GAME* Game, WCHAR* Buffer )
+VOID GetBatchFile( PUSH_GAME* Game, WCHAR* Buffer )
 {
-    WCHAR *gameName, *dot;
+    WCHAR *dot;
     WCHAR batchFile[260] = L"cache\\";
 
-    gameName = Game->Name;
-
-    wcscat(batchFile, gameName);
-    RtlFreeHeap(PushHeapHandle, 0, gameName);
+    SlStringConcatenate(batchFile, Game->Name);
 
     dot = SlStringFindLastChar(batchFile, '.');
 
     if (dot)
         SlStringCopy(dot, L".txt");
     else
-        wcscat(batchFile, L".txt");
+        SlStringConcatenate(batchFile, L".txt");
 
     SlStringCopy(Buffer, batchFile);
 }

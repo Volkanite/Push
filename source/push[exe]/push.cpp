@@ -12,8 +12,12 @@
 #include "RAMdisk\ramdisk.h"
 #include "Hardware\hwinfo.h"
 #include "batch.h"
+<<<<<<< HEAD
 #include "ring0.h"
 #include "file.h"
+=======
+#include "driver.h"
+>>>>>>> master
 
 
 CHAR g_szDllDir[260];
@@ -49,24 +53,70 @@ extern "C" VOID* SlOpenProcess(
     UINT16 processID,
     DWORD rights);
 
+extern "C" DWORD __stdcall MapFileAndCheckSumW(
+    _In_   WCHAR* Filename,
+    _Out_  DWORD* HeaderSum,
+    _Out_  DWORD* CheckSum
+    );
 
-BOOLEAN
-IsGame( WCHAR *pszExecutable )
+
+BOOLEAN IsGame( WCHAR* ExecutablePath )
 {
     WCHAR *ps;
 
-    ps = SlIniReadString(L"Games", pszExecutable, 0, L".\\" PUSH_SETTINGS_FILE);
-
+    ps = SlIniReadString(L"Games", ExecutablePath, 0, L".\\" PUSH_SETTINGS_FILE);
+    
     if (ps != 0)
     {
+        //is game
         RtlFreeHeap(PushHeapHandle, 0, ps);
 
         return TRUE;
     }
     else
     {
-        return FALSE;
+        // Try searching for names that match. If a match is found, compare the executable's checksum.
+
+        DWORD headerSum;
+        DWORD checkSum;
+        GAME_LIST gameList = Game_GetGames();
+        wchar_t *executable = SlStringFindLastChar(ExecutablePath, '\\');
+
+        executable++;
+
+        MapFileAndCheckSumW(ExecutablePath, &headerSum, &checkSum);
+
+        while (gameList != NULL)
+        {
+            if (SlStringCompare(gameList->Game->ExecutableName, executable) == 0)
+            {
+                if (gameList->Game->CheckSum == checkSum)
+                {
+                    // Update path.
+
+                    SlIniWriteString(
+                        L"Games", 
+                        gameList->Game->ExecutablePath, 
+                        NULL, 
+                        L".\\" PUSH_SETTINGS_FILE
+                        );
+                        
+                    SlIniWriteString(
+                        L"Games", 
+                        ExecutablePath, 
+                        gameList->Game->Id, 
+                        L".\\" PUSH_SETTINGS_FILE
+                        );
+
+                    return TRUE;
+                }
+            }
+            
+            gameList = gameList->NextEntry;
+        }
     }
+
+    return FALSE;
 }
 
 
@@ -119,11 +169,11 @@ CacheFile( WCHAR *FileName, CHAR cMountPoint )
     if (!bMarkedForCaching)
         // file was a member of a folder marked for caching
     {
-        wcscat(destination, g_szLastDir);
-        wcscat(destination, L"\\");
+        SlStringConcatenate(destination, g_szLastDir);
+        SlStringConcatenate(destination, L"\\");
     }
 
-    wcscat(destination, pszFileName);
+    SlStringConcatenate(destination, pszFileName);
 
     SlFileCopy(FileName, destination, CopyProgress);
 
@@ -134,8 +184,8 @@ CacheFile( WCHAR *FileName, CHAR cMountPoint )
 
     QueryDosDeviceW(dosName, deviceName, 260);
 
-    wcscat(deviceName, L"\\");
-    wcscat(deviceName, slash + 1);
+    SlStringConcatenate(deviceName, L"\\");
+    SlStringConcatenate(deviceName, slash + 1);
 
     R0QueueFile(
         deviceName,
@@ -216,8 +266,8 @@ NormalizeNTPath( WCHAR* pszPath, size_t nMax )
             0 == SlStringCompareN(szNTPath, pszPath, 260))
         {
             // Match
-            wcscat(szDrive, L"\\");
-            wcscat(szDrive, pszSlash+1);
+            SlStringConcatenate(szDrive, L"\\");
+            SlStringConcatenate(szDrive, pszSlash+1);
 
             SlStringCopy(pszPath, szDrive);
 
@@ -379,7 +429,7 @@ OnProcessEvent( UINT16 processID )
 
     if (IsGame(fileName))
     {
-        PUSH_GAME game;
+        PUSH_GAME game = { 0 };
 
         Game_Initialize(fileName, &game);
 
@@ -426,7 +476,7 @@ OnProcessEvent( UINT16 processID )
 
 
 VOID
-Inject( VOID *hProcess )
+Inject32( VOID *hProcess )
 {
     VOID *threadHandle, *pLibRemote, *hKernel32;
     WCHAR szModulePath[260], *pszLastSlash;
@@ -439,7 +489,7 @@ Inject( VOID *hProcess )
 
     pszLastSlash[1] = '\0';
 
-    wcscat(szModulePath, L"overlay.dll");
+    SlStringConcatenate(szModulePath, PUSH_LIB_NAME_32);
 
     // Allocate remote memory
     pLibRemote = VirtualAllocEx(hProcess, 0, sizeof(szModulePath), MEM_COMMIT, PAGE_READWRITE);
@@ -463,20 +513,50 @@ Inject( VOID *hProcess )
     VirtualFreeEx(hProcess, pLibRemote, sizeof(szModulePath), MEM_RELEASE);
 }
 
+#include <stdio.h>
+#include <stdarg.h>
+extern "C" void __stdcall OutputDebugStringA(
+  _In_opt_  CHAR* lpOutputString
+);
+void __cdecl SlDebugPrint(CHAR* szFormat, ...)
+{
+    char strA[4096];
+    char strB[4096];
 
+    va_list ap;
+    va_start(ap, szFormat);
+    vsprintf_s(strA, sizeof(strA), szFormat, ap);
+    strA[4095] = '\0';
+    va_end(ap);
+
+    sprintf_s(strB, sizeof(strB), "[PUSH] %s\r\n", strA);
+
+    strB[4095] = '\0';
+
+    OutputDebugStringA(strB);
+}
+
+    extern "C" INTBOOL __stdcall IsWow64Process(
+  _In_   HANDLE hProcess,
+  _Out_  INTBOOL* Wow64Process
+);
+    VOID Inject64( UINT16 ProcessId, WCHAR* Path );
 VOID
-OnImageEvent( UINT16 processID )
+OnImageEvent( UINT16 ProcessId )
 {
     VOID *processHandle = 0;
+    INTBOOL isWow64;
 
-    processHandle = SlOpenProcess(processID,
-                                PROCESS_VM_OPERATION |
-                                PROCESS_VM_READ |
-                                PROCESS_VM_WRITE |
-                                PROCESS_VM_OPERATION |
-                                PROCESS_CREATE_THREAD |
-                                PROCESS_QUERY_INFORMATION |
-                                SYNCHRONIZE);
+    processHandle = SlOpenProcess(
+        ProcessId,
+        PROCESS_VM_OPERATION |
+        PROCESS_VM_READ |
+        PROCESS_VM_WRITE |
+        PROCESS_VM_OPERATION |
+        PROCESS_CREATE_THREAD |
+        PROCESS_QUERY_INFORMATION |
+        SYNCHRONIZE
+        );
 
     if (!processHandle)
     {
@@ -497,7 +577,7 @@ OnImageEvent( UINT16 processID )
           }
 
           // Open it with WRITE_DAC access so that we can write to the DACL.
-          processHandle = SlOpenProcess(processID, (0x00040000L)); //WRITE_DAC
+          processHandle = SlOpenProcess(ProcessId, (0x00040000L)); //WRITE_DAC
 
           if(processHandle == 0)
           {
@@ -529,7 +609,7 @@ OnImageEvent( UINT16 processID )
           LocalFree(secdesc);
 
           processHandle = SlOpenProcess(
-                            processID,
+                            ProcessId,
                             PROCESS_VM_OPERATION |
                             PROCESS_VM_READ |
                             PROCESS_VM_WRITE |
@@ -539,12 +619,33 @@ OnImageEvent( UINT16 processID )
                             SYNCHRONIZE
                             );
     }
-        if (!processHandle)
+    
+    if (!processHandle)
+    {
+        //OutputDebugStringW(L"Could not get process handle");
+        SlDebugPrint("Could not get process handle");
             return;
+    }
+    SlDebugPrint("ProcessHandle: 0x%x\n", processHandle);
+    IsWow64Process(processHandle, &isWow64);
+    
+    if (isWow64)
+    {
+        Inject32(processHandle);
+    }
+    else
+    {
+        WCHAR szModulePath[260], *pszLastSlash;
 
-    Inject(processHandle);
+        GetModuleFileNameW(0, szModulePath, 260);
 
-    //CloseHandle(processHandle);
+        pszLastSlash = SlStringFindLastChar(szModulePath, '\\');
+        pszLastSlash[1] = '\0';
+
+        SlStringConcatenate(szModulePath, PUSH_LIB_NAME_64);
+        Inject64(ProcessId, szModulePath);
+    }
+
     NtClose(processHandle);
 }
 
@@ -674,6 +775,7 @@ DWORD __stdcall MonitorThread( VOID* Parameter )
 #define WRITE_DAC   0x00040000L
 #define WRITE_OWNER   0x00080000L
 
+<<<<<<< HEAD
 #define MB_ICONQUESTION 0x00000020L
 #define MB_YESNO        0x00000004L
 
@@ -777,6 +879,95 @@ NTSTATUS __stdcall NtSetSecurityObject(
     _In_ VOID* SecurityDescriptor
     );
 
+=======
+
+extern "C" 
+{
+
+HANDLE __stdcall FindResourceW(
+  HANDLE hModule,
+  WCHAR* lpName,
+  WCHAR* lpType
+);
+
+
+HANDLE __stdcall LoadResource(
+  HANDLE hModule,
+  HANDLE hResInfo
+);
+
+
+VOID* __stdcall LockResource(
+  HANDLE hResData
+);
+
+
+DWORD __stdcall SizeofResource(
+  HANDLE hModule,
+  HANDLE hResInfo
+);
+
+}
+
+
+extern "C"
+BOOLEAN ExtractResource( WCHAR* ResourceName, WCHAR* OutputPath )
+{
+    NTSTATUS status;
+    HANDLE fileHandle;
+    IO_STATUS_BLOCK isb;
+
+    HANDLE hResInfo = reinterpret_cast<HANDLE>(
+        ::FindResourceW(
+            NULL,
+            ResourceName,
+            ResourceName
+        )
+    );
+
+    if(!hResInfo) return false;
+
+    HANDLE hResData = ::LoadResource(NULL, hResInfo);
+
+    if(!hResData) return false;
+
+    VOID* pDeskbandBinData = ::LockResource(hResData);
+
+    if(!pDeskbandBinData) return false;
+
+    const DWORD dwDeskbandBinSize = ::SizeofResource(NULL, hResInfo);
+
+    if(!dwDeskbandBinSize) return false;
+
+    status = SlFileCreate(
+        &fileHandle,
+        OutputPath, 
+        FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE,
+        FILE_SHARE_READ | FILE_SHARE_WRITE,
+        /*FILE_OVERWRITE_IF*/ FILE_CREATE,
+        FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
+        );
+
+    if (!NT_SUCCESS(status)) return false;
+
+    status = NtWriteFile(
+        fileHandle, 
+        NULL, 
+        NULL, 
+        NULL, 
+        &isb, 
+        pDeskbandBinData, 
+        dwDeskbandBinSize, 
+        NULL, 
+        NULL
+        );
+
+    if (!NT_SUCCESS(status)) return false;
+
+    NtClose(fileHandle);
+
+    return true;
+>>>>>>> master
 }
 
 
@@ -786,9 +977,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     MSG messages;
     BOOLEAN bAlreadyRunning;
     OBJECT_ATTRIBUTES objAttrib = {0};
-    INT32 msgId;
-    NTSTATUS status;
-
+    
     // Check if already running
     hMutex = CreateMutexW(0, FALSE, L"PushOneInstance");
 
@@ -804,6 +993,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     thisPID = (UINT32) NtCurrentTeb()->ClientId.UniqueProcess;
     PushHeapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
 
+<<<<<<< HEAD
     //Extract necessary files
     SlExtractResource(L"OVERLAY", L"overlay.dll");
     SlExtractResource(L"DRIVER", L"push0.sys");
@@ -900,6 +1090,18 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
         }
     }
 
+=======
+    // Extract necessary files.
+    
+    ExtractResource(L"OVERLAY32", PUSH_LIB_NAME_32);
+    ExtractResource(L"OVERLAY64", PUSH_LIB_NAME_64);
+    
+    Driver_Extract();
+    
+    // Start Driver.
+    Driver_Load();
+    
+>>>>>>> master
     //initialize instance
     PushInstance = Instance;
 
@@ -1012,8 +1214,8 @@ GetDirectoryFile( WCHAR *pszFileName )
 
     GetCurrentDirectoryW(260, szPath);
 
-    wcscat(szPath, L"\\");
-    wcscat(szPath, pszFileName);
+    SlStringConcatenate(szPath, L"\\");
+    SlStringConcatenate(szPath, pszFileName);
 
     return szPath;
 }

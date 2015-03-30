@@ -1,8 +1,9 @@
 #include "push0.h"
 #include "ramdisk.h"
+#include "filter.h"
 
 
-unsigned char g_bActivated = NULL;
+BOOLEAN g_bActivated = FALSE;
 
 
 typedef struct _MODULE
@@ -39,9 +40,8 @@ ProcessCallback(VOID *hParentId,
         //
         extension->ProcessEvent.ProcessID = (UINT16) hProcessId;
         //
-        // Signal the event thus the user-mode apps listening will be aware
-        // that something interesting has happened.
-        //
+        // Signal the event thus the user-mode apps listening will be 
+        // aware that something interesting has happened.
 
         KeSetEvent(ProcessEvent, 0, FALSE);
 

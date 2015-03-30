@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 #include <sl.h>
 #include <sldetours.h>
+=======
+#include <sltypes.h>
+#include <slntuapi.h>
+>>>>>>> master
 #include <stdio.h>
 
 #include "thread.h"
@@ -32,6 +37,17 @@ typedef VOID* (__stdcall* TYPE_CreateThread)(
 TYPE_CreateThread       TmCreateThread;
 THREAD_LIST_ENTRY* TmThreadList = 0;
 VOID* TmHeapHandle;
+
+
+#ifdef _WIN64
+#include <intrin.h>
+
+TEB* __stdcall NtCurrentTeb()
+{
+  return (TEB *) __readgsqword(0x30);
+}
+#endif
+
 
 VOID
 AddToThreadList( UINT16 threadID )
@@ -191,7 +207,11 @@ Sort( THREAD_LIST_ENTRY* start )
     }
     while (swapped);
 }
-
+VOID* DetourApi(
+    WCHAR* dllName,
+    CHAR* apiName,
+    BYTE* NewFunction
+    );
 
 ThreadMonitor::ThreadMonitor()
 {
@@ -203,9 +223,8 @@ ThreadMonitor::ThreadMonitor()
     VOID*           ProcThrdInfo = 0;
     SYSTEM_PROCESS_INFORMATION *processEntry;
     SYSTEM_THREAD_INFORMATION *threads;
-    SlHookManager hookManager;
 
-    TmCreateThread = (TYPE_CreateThread) hookManager.DetourApi(
+    TmCreateThread = (TYPE_CreateThread) DetourApi(
                         L"kernel32.dll",
                         "CreateThread",
                         (BYTE*)CreateThreadHook
@@ -261,7 +280,12 @@ ThreadMonitor::ThreadMonitor()
 
       if ((UINT16)processEntry->UniqueProcessId == processId)
       {
-          printf("processEntry->UniqueProcessId [%u] matches processId [%u]\n", processEntry->UniqueProcessId, processId);
+          printf(
+            "processEntry->UniqueProcessId [%u] matches processId [%u]\n", 
+            (UINT32)processEntry->UniqueProcessId, 
+            processId
+            );
+            
           break;
       }
 
@@ -382,7 +406,7 @@ VOID
 ThreadMonitor::OptimizeThreads()
 {
     THREAD_LIST_ENTRY *thread, *previousEntry;
-    UINT32 i = 0;
+    UINT8 i = 0;
     BOOLEAN affinityChanged = FALSE;
     NTSTATUS status;
     VOID *threadHandle;

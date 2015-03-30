@@ -28,6 +28,11 @@ WCHAR* SlStringCopyN(
     UINT32 n
     );
     
+WCHAR* SlStringConcatenate( 
+    WCHAR* dst, 
+    WCHAR* src 
+    );
+    
 WCHAR* SlStringFindChar(
     WCHAR* s, 
     WCHAR c

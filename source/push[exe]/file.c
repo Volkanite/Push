@@ -117,8 +117,8 @@ GetPointerToFilePath( WCHAR *Path, WCHAR *File )
 
     SlStringCopy(filePath, Path);
 
-    wcscat(filePath, L"\\");
-    wcscat(filePath, File);
+    SlStringConcatenate(filePath, L"\\");
+    SlStringConcatenate(filePath, File);
 
     return filePath;
 }
@@ -141,8 +141,8 @@ MarkForCache( WCHAR *FilePath )
 
     GetPathOnly(FilePath, newPath);
 
-    wcscat(newPath, L"cache_");
-    wcscat(newPath, pszFileName);
+    SlStringConcatenate(newPath, L"cache_");
+    SlStringConcatenate(newPath, pszFileName);
 
     //PushRenameFile(FilePath, pszNewPath);
     FsRenameFile(FilePath, newPath);

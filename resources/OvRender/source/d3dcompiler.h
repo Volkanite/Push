@@ -1,0 +1,1 @@
+HMODULE GetD3DCompiler();
