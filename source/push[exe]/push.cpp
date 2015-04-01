@@ -535,7 +535,15 @@ extern "C" NTSTATUS __stdcall NtQuerySecurityObject(
         _In_ ULONG Length,
         _Out_ ULONG* LengthNeeded
         );
-#define DACL_SECURITY_INFORMATION        (0x00000004L)
+
+extern "C" NTSTATUS __stdcall NtSetSecurityObject(
+    _In_ HANDLE Handle,
+    _In_ ULONG SecurityInformation,
+    _In_ VOID* SecurityDescriptor
+    );
+
+#define DACL_SECURITY_INFORMATION               (0x00000004L)
+#define UNPROTECTED_DACL_SECURITY_INFORMATION   (0x20000000L)
 
 
 VOID OnImageEvent( UINT16 ProcessId )
@@ -559,7 +567,6 @@ VOID OnImageEvent( UINT16 ProcessId )
         NTSTATUS status;
         ULONG bufferSize;
         SECURITY_DESCRIPTOR* securityDescriptor;
-        ACL *dacl;
 
         bufferSize = 0x100;
         securityDescriptor = (SECURITY_DESCRIPTOR*)RtlAllocateHeap(PushHeapHandle, 0, bufferSize);
@@ -593,49 +600,46 @@ VOID OnImageEvent( UINT16 ProcessId )
             return;
         }
 
-        dacl = (ACL*)((DWORD)securityDescriptor + (DWORD)securityDescriptor->Dacl);
-
         // Open it with WRITE_DAC access so that we can write to the DACL.
         processHandle = SlOpenProcess(ProcessId, (0x00040000L)); //WRITE_DAC
 
         if(processHandle == 0)
         {
-          RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
+            RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
            return;
         }
 
-        if(SetSecurityInfo(processHandle,
-                           SE_KERNEL_OBJECT,
-                           (0x00000004L) |    // DACL_SECURITY_INFORMATION
-                           (0x20000000L),     //UNPROTECTED_DACL_SECURITY_INFORMATION,
-                           0,
-                           0,
-                           dacl,
-                           0) != ERROR_SUCCESS)
+        status = NtSetSecurityObject(
+            processHandle,
+            DACL_SECURITY_INFORMATION | UNPROTECTED_DACL_SECURITY_INFORMATION,
+            securityDescriptor
+            );
+
+        if (!NT_SUCCESS(status))
         {
-          RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
-           return;
+            RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
+            return;
         }
 
         // The DACL is overwritten with our own DACL. We
         // should be able to open it with the requested
         // privileges now.
 
-          NtClose(processHandle);
+        NtClose(processHandle);
 
-          processHandle = 0;
-          RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
+        processHandle = 0;
+        RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
 
-          processHandle = SlOpenProcess(
-                            ProcessId,
-                            PROCESS_VM_OPERATION |
-                            PROCESS_VM_READ |
-                            PROCESS_VM_WRITE |
-                            PROCESS_VM_OPERATION |
-                            PROCESS_CREATE_THREAD |
-                            PROCESS_QUERY_INFORMATION |
-                            SYNCHRONIZE
-                            );
+        processHandle = SlOpenProcess(
+            ProcessId,
+            PROCESS_VM_OPERATION |
+            PROCESS_VM_READ |
+            PROCESS_VM_WRITE |
+            PROCESS_VM_OPERATION |
+            PROCESS_CREATE_THREAD |
+            PROCESS_QUERY_INFORMATION |
+            SYNCHRONIZE
+            );
     }
     
     if (!processHandle)
