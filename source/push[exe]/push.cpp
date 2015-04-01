@@ -510,36 +510,35 @@ Inject32( VOID *hProcess )
     VirtualFreeEx(hProcess, pLibRemote, sizeof(szModulePath), MEM_RELEASE);
 }
 
-#include <stdio.h>
-#include <stdarg.h>
-extern "C" void __stdcall OutputDebugStringA(
-  _In_opt_  CHAR* lpOutputString
-);
-void __cdecl SlDebugPrint(CHAR* szFormat, ...)
-{
-    char strA[4096];
-    char strB[4096];
-
-    va_list ap;
-    va_start(ap, szFormat);
-    vsprintf_s(strA, sizeof(strA), szFormat, ap);
-    strA[4095] = '\0';
-    va_end(ap);
-
-    sprintf_s(strB, sizeof(strB), "[PUSH] %s\r\n", strA);
-
-    strB[4095] = '\0';
-
-    OutputDebugStringA(strB);
-}
 
     extern "C" INTBOOL __stdcall IsWow64Process(
   _In_   HANDLE hProcess,
   _Out_  INTBOOL* Wow64Process
 );
     VOID Inject64( UINT16 ProcessId, WCHAR* Path );
-VOID
-OnImageEvent( UINT16 ProcessId )
+    extern "C"
+        typedef DWORD SECURITY_INFORMATION, *PSECURITY_INFORMATION;
+    typedef WORD   SECURITY_DESCRIPTOR_CONTROL, *PSECURITY_DESCRIPTOR_CONTROL;
+    typedef struct _SECURITY_DESCRIPTOR {
+        UCHAR  Revision;
+        UCHAR  Sbz1;
+        SECURITY_DESCRIPTOR_CONTROL  Control;
+        VOID*  Owner;
+        VOID*  Group;
+        VOID*  Sacl;
+        VOID*  Dacl;
+    } SECURITY_DESCRIPTOR;
+extern "C" NTSTATUS __stdcall NtQuerySecurityObject(
+        _In_ HANDLE Handle,
+        _In_ SECURITY_INFORMATION SecurityInformation,
+        _Out_writes_bytes_opt_(Length) SECURITY_DESCRIPTOR* SecurityDescriptor,
+        _In_ ULONG Length,
+        _Out_ ULONG* LengthNeeded
+        );
+#define DACL_SECURITY_INFORMATION        (0x00000004L)
+
+
+VOID OnImageEvent( UINT16 ProcessId )
 {
     VOID *processHandle = 0;
     INTBOOL isWow64;
@@ -557,53 +556,75 @@ OnImageEvent( UINT16 ProcessId )
 
     if (!processHandle)
     {
+        NTSTATUS status;
+        ULONG bufferSize;
+        SECURITY_DESCRIPTOR* securityDescriptor;
         ACL *dacl;
-        VOID *secdesc;
-        // Get the DACL of this process since we know we have
-          // all rights in it. This really can't fail.
-          if(GetSecurityInfo(NtCurrentProcess(),
-                             SE_KERNEL_OBJECT,
-                             (0x00000004L), //DACL_SECURITY_INFORMATION,
-                             0,
-                             0,
-                             &dacl,
-                             0,
-                             &secdesc) != ERROR_SUCCESS)
-          {
-             return;
-          }
 
-          // Open it with WRITE_DAC access so that we can write to the DACL.
-          processHandle = SlOpenProcess(ProcessId, (0x00040000L)); //WRITE_DAC
+        bufferSize = 0x100;
+        securityDescriptor = (SECURITY_DESCRIPTOR*)RtlAllocateHeap(PushHeapHandle, 0, bufferSize);
+        
+        // Get the DACL of this process since we know we have all rights in it.
+        status = NtQuerySecurityObject(
+            NtCurrentProcess(),
+            DACL_SECURITY_INFORMATION,
+            securityDescriptor,
+            bufferSize,
+            &bufferSize
+            );
 
-          if(processHandle == 0)
-          {
-             LocalFree(secdesc);
-             return;
-          }
+        if (status == STATUS_BUFFER_TOO_SMALL)
+        {
+            RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
+            securityDescriptor = (SECURITY_DESCRIPTOR*)RtlAllocateHeap(PushHeapHandle, 0, bufferSize);
 
-          if(SetSecurityInfo(processHandle,
-                             SE_KERNEL_OBJECT,
-                             (0x00000004L) |    // DACL_SECURITY_INFORMATION
-                             (0x20000000L),     //UNPROTECTED_DACL_SECURITY_INFORMATION,
-                             0,
-                             0,
-                             dacl,
-                             0) != ERROR_SUCCESS)
-          {
-             LocalFree(secdesc);
-             return;
-          }
+            status = NtQuerySecurityObject(
+                NtCurrentProcess(),
+                DACL_SECURITY_INFORMATION,
+                securityDescriptor,
+                bufferSize,
+                &bufferSize
+                );
+        }
+        
+        if (!NT_SUCCESS(status))
+        {
+            RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
+            return;
+        }
 
-          // The DACL is overwritten with our own DACL. We
-          // should be able to open it with the requested
-          // privileges now.
+        dacl = (ACL*)((DWORD)securityDescriptor + (DWORD)securityDescriptor->Dacl);
 
-          //CloseHandle(processHandle);
+        // Open it with WRITE_DAC access so that we can write to the DACL.
+        processHandle = SlOpenProcess(ProcessId, (0x00040000L)); //WRITE_DAC
+
+        if(processHandle == 0)
+        {
+          RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
+           return;
+        }
+
+        if(SetSecurityInfo(processHandle,
+                           SE_KERNEL_OBJECT,
+                           (0x00000004L) |    // DACL_SECURITY_INFORMATION
+                           (0x20000000L),     //UNPROTECTED_DACL_SECURITY_INFORMATION,
+                           0,
+                           0,
+                           dacl,
+                           0) != ERROR_SUCCESS)
+        {
+          RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
+           return;
+        }
+
+        // The DACL is overwritten with our own DACL. We
+        // should be able to open it with the requested
+        // privileges now.
+
           NtClose(processHandle);
 
           processHandle = 0;
-          LocalFree(secdesc);
+          RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
 
           processHandle = SlOpenProcess(
                             ProcessId,
@@ -619,11 +640,9 @@ OnImageEvent( UINT16 ProcessId )
     
     if (!processHandle)
     {
-        //OutputDebugStringW(L"Could not get process handle");
-        SlDebugPrint("Could not get process handle");
             return;
     }
-    SlDebugPrint("ProcessHandle: 0x%x\n", processHandle);
+
     IsWow64Process(processHandle, &isWow64);
     
     if (isWow64)
