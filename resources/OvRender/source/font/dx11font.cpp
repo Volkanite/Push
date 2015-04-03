@@ -345,10 +345,10 @@ VOID Dx11Font::AddString( WCHAR *text, DWORD Color )
         {
             RECT charRect;
 
-            charRect.left   = ((m_fTexCoords[character-32][0]) * m_dwTexWidth) + m_dwSpacing;
-            charRect.top    = (m_fTexCoords[character-32][1]) * m_dwTexWidth;
-            charRect.right  = ((m_fTexCoords[character-32][2]) * m_dwTexWidth) - m_dwSpacing;
-            charRect.bottom = (m_fTexCoords[character-32][3]) * m_dwTexWidth;
+            charRect.left = (LONG)(((m_fTexCoords[character - 32][0]) * m_dwTexWidth) + m_dwSpacing);
+            charRect.top = (LONG)((m_fTexCoords[character - 32][1]) * m_dwTexWidth);
+            charRect.right = (LONG)(((m_fTexCoords[character - 32][2]) * m_dwTexWidth) - m_dwSpacing);
+            charRect.bottom = (LONG)((m_fTexCoords[character - 32][3]) * m_dwTexWidth);
 
             int width = charRect.right - charRect.left;
             int height = charRect.bottom - charRect.top;
