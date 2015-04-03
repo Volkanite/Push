@@ -11,24 +11,7 @@ typedef struct _D3DLOCKED_RECT
     void*               pBits;
 } D3DLOCKED_RECT;
 #include "dx11font.h"
-#include <d3dx11effect.h>
-#include "..\d3dcompiler.h"
-#include "effects11.h"
-
-
-typedef INT32 (__stdcall *D3DCompile_t)(
-    LPCVOID pSrcData,
-    SIZE_T SrcDataSize,
-    LPCSTR pSourceName,
-    VOID *pDefines,
-    VOID *pInclude,
-    LPCSTR pEntrypoint,
-    LPCSTR pTarget,
-    UINT Flags1,
-    UINT Flags2,
-    ID3DBlob** ppCode,
-    ID3DBlob**ppErrorMsgs
-    );
+#include "shaders.h"
 
 
 enum
@@ -54,11 +37,8 @@ ID3D11BlendState*                       TransparentBS;
 ID3D11Texture2D*                        m_texture11;
 ID3D11Texture2D*                        m_texturepass;
 ID3D10Texture2D*                        m_texture10;
-ID3DX11EffectShaderResourceVariable*    D3D11Font_EffectShaderResourceVariable = NULL;
-ID3DX11EffectPass*                      effectPass;
 ID3D11VertexShader*                     D3D11Font_VertexShader = NULL;
 ID3D11PixelShader*                      D3D11Font_PixelShader = NULL;
-D3DCompile_t                            FntD3DCompile;
 BOOLEAN                                 Initialized;
 int                                     posX;
 int                                     posY;
@@ -150,89 +130,6 @@ INT32 GetCharMaxX( GpBitmap *bitmap )
 }
 
 
-char D3D11Font_VertexShaderData[] = {
-    "struct VertexIn {"
-    "   float3 PosNdc : POSITION;"
-    "   float2 Tex    : TEXCOORD;"
-    "   float4 Color  : COLOR;"
-    "};"
-    "struct VertexOut {"
-    "   float4 PosNdc : SV_POSITION;"
-    "   float2 Tex    : TEXCOORD;"
-    "   float4 Color  : COLOR;"
-    "};"
-    "VertexOut VS(VertexIn vin) {"
-    "   VertexOut vout;"
-    "   vout.PosNdc = float4(vin.PosNdc, 1.0f);"
-    "   vout.Tex    = vin.Tex;"
-    "   vout.Color  = vin.Color;"
-    "   return vout;"
-    "};"
-};
-
-
-char D3D11Font_PixelShaderData[] = {
-    "Texture2D SpriteTex;"
-    "SamplerState samLinear {"
-    "     Filter = MIN_MAG_MIP_LINEAR;"
-    "     AddressU = WRAP;"
-    "     AddressV = WRAP;"
-    "};"
-    "struct VertexOut {"
-    "   float4 PosNdc : SV_POSITION;"
-    "   float2 Tex    : TEXCOORD;"
-    "   float4 Color  : COLOR;"
-    "};"
-    "float4 PS(VertexOut pin) : SV_Target {"
-    "   return pin.Color*SpriteTex.Sample(samLinear, pin.Tex);"
-    "};"
-};
-
-
-#define D3DCOMPILE_DEBUG                          (1 << 0)
-
-
-static VOID CompileShader(
-    _In_ char* Data,
-    _In_ SIZE_T DataLength,
-    _In_ char* EntryPoint,
-    _In_ char* ShaderModel,
-    _Out_ ID3DBlob** Blob
-    )
-{
-    DWORD dwShaderFlags = 0;
-    ID3D10Blob *errorMessages = NULL;
-
-#if defined( DEBUG ) || defined( _DEBUG )
-    dwShaderFlags |= D3DCOMPILE_DEBUG;
-#endif
-
-    D3DX11CompileFromMemory(
-        Data,
-        DataLength,
-        NULL,
-        NULL,
-        NULL,
-        EntryPoint,
-        ShaderModel,
-        dwShaderFlags,
-        0,
-        NULL,
-        Blob,
-        &errorMessages,
-        NULL
-        );
-
-    if (errorMessages)
-    {
-        char *error = (char *)errorMessages->GetBufferPointer();
-
-        OutputDebugStringA(error);
-        errorMessages->Release();
-    }
-}
-
-
 BOOLEAN Dx11Font::InitD3D11Sprite( )
 {
     WORD indices[3072];
@@ -241,7 +138,6 @@ BOOLEAN Dx11Font::InitD3D11Sprite( )
     ID3D10Blob *vertexShaderBlob = NULL;
     ID3D10Blob *pixelShaderBlob = NULL;
     D3D11_SUBRESOURCE_DATA indexData = { 0 };
-    ID3DX11Effect *effect = NULL;
     D3D11_BUFFER_DESC vbd;
     D3D11_BUFFER_DESC ibd;
     char *vertexShaderModel;
@@ -276,8 +172,8 @@ BOOLEAN Dx11Font::InitD3D11Sprite( )
     }
 
     CompileShader(
-        D3D11Font_VertexShaderData,
-        sizeof(D3D11Font_VertexShaderData),
+        D3DXFont_VertexShaderData,
+        sizeof(D3DXFont_VertexShaderData),
         "VS",
         vertexShaderModel,
         &vertexShaderBlob
@@ -316,8 +212,8 @@ BOOLEAN Dx11Font::InitD3D11Sprite( )
     vertexShaderBlob->Release();
 
     CompileShader(
-        D3D11Font_PixelShaderData,
-        sizeof(D3D11Font_PixelShaderData),
+        D3DXFont_PixelShaderData,
+        sizeof(D3DXFont_PixelShaderData),
         "PS",
         pixelShaderModel,
         &pixelShaderBlob
@@ -449,10 +345,10 @@ VOID Dx11Font::AddString( WCHAR *text, DWORD Color )
         {
             RECT charRect;
 
-            charRect.left   = ((m_fTexCoords[character-32][0]) * m_dwTexWidth) + m_dwSpacing;
-            charRect.top    = (m_fTexCoords[character-32][1]) * m_dwTexWidth;
-            charRect.right  = ((m_fTexCoords[character-32][2]) * m_dwTexWidth) - m_dwSpacing;
-            charRect.bottom = (m_fTexCoords[character-32][3]) * m_dwTexWidth;
+            charRect.left = (LONG)(((m_fTexCoords[character - 32][0]) * m_dwTexWidth) + m_dwSpacing);
+            charRect.top = (LONG)((m_fTexCoords[character - 32][1]) * m_dwTexWidth);
+            charRect.right = (LONG)(((m_fTexCoords[character - 32][2]) * m_dwTexWidth) - m_dwSpacing);
+            charRect.bottom = (LONG)((m_fTexCoords[character - 32][3]) * m_dwTexWidth);
 
             int width = charRect.right - charRect.left;
             int height = charRect.bottom - charRect.top;

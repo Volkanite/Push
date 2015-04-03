@@ -11,22 +11,7 @@ typedef struct _D3DLOCKED_RECT
     void*               pBits;
 } D3DLOCKED_RECT;
 #include "dx10font.h"
-#include "..\d3dcompiler.h"
-
-
-typedef INT32 (__stdcall *D3DCompile_t)(
-    LPCVOID pSrcData,
-    SIZE_T SrcDataSize,
-    LPCSTR pSourceName,
-    VOID *pDefines,
-    VOID *pInclude,
-    LPCSTR pEntrypoint,
-    LPCSTR pTarget,
-    UINT Flags1,
-    UINT Flags2,
-    ID3DBlob** ppCode,
-    ID3DBlob**ppErrorMsgs
-    );
+#include "shaders.h"
 
 
 // maps unsigned 8 bits/channel to D3DCOLOR
@@ -46,7 +31,7 @@ static ID3D10Device                        *m_device10;
 static ID3D10BlendState                    *m_pFontBlendState10;
 ID3D10VertexShader*                     D3D10Font_VertexShader = NULL;
 ID3D10PixelShader*                      D3D10Font_PixelShader = NULL;
-static D3DCompile_t FntD3DCompile;
+
 static BOOLEAN                        Initialized;
     #define START_CHAR 33
 
@@ -80,87 +65,8 @@ Init()
     BatchTexSRV     = 0 ;
 }
 
-char D3D10Font_VertexShaderData[] = {
-    "struct VertexIn {"
-    "   float3 PosNdc : POSITION;"
-    "   float2 Tex    : TEXCOORD;"
-    "   float4 Color  : COLOR;"
-    "};"
-    "struct VertexOut {"
-    "   float4 PosNdc : SV_POSITION;"
-    "   float2 Tex    : TEXCOORD;"
-    "   float4 Color  : COLOR;"
-    "};"
-    "VertexOut VS(VertexIn vin) {"
-    "   VertexOut vout;"
-    "   vout.PosNdc = float4(vin.PosNdc, 1.0f);"
-    "   vout.Tex    = vin.Tex;"
-    "   vout.Color  = vin.Color;"
-    "   return vout;"
-    "};"
-};
 
 
-char D3D10Font_PixelShaderData[] = {
-    "Texture2D SpriteTex : register(t0);"
-    "SamplerState samLinear {"
-    "     Filter = MIN_MAG_MIP_LINEAR;"
-    "     AddressU = WRAP;"
-    "     AddressV = WRAP;"
-    "};"
-    "struct VertexOut {"
-    "   float4 PosNdc : SV_POSITION;"
-    "   float2 Tex    : TEXCOORD;"
-    "   float4 Color  : COLOR;"
-    "};"
-    "float4 PS(VertexOut pin) : SV_Target {"
-    "   return pin.Color*SpriteTex.Sample(samLinear, pin.Tex);"
-    "};"
-};
-
-
-#define D3DCOMPILE_DEBUG                          (1 << 0)
-
-
-VOID CompileShader(
-    _In_ char* Data,
-    _In_ SIZE_T DataLength,
-    _In_ char* EntryPoint,
-    _In_ char* ShaderModel,
-    _Out_ ID3DBlob** Blob
-    )
-{
-    DWORD dwShaderFlags = 0;
-    ID3D10Blob *errorMessages = NULL;
-
-#if defined( DEBUG ) || defined( _DEBUG )
-    dwShaderFlags |= D3DCOMPILE_DEBUG;
-#endif
-
-    D3DX10CompileFromMemory(
-        Data,
-        DataLength,
-        NULL,
-        NULL,
-        NULL,
-        EntryPoint,
-        ShaderModel,
-        dwShaderFlags,
-        0,
-        NULL,
-        Blob,
-        &errorMessages,
-        NULL
-        );
-
-    if (errorMessages)
-    {
-        char *error = (char *)errorMessages->GetBufferPointer();
-
-        OutputDebugStringA(error);
-        errorMessages->Release();
-    }
-}
 
 
 BOOLEAN Dx10Font::InitD3D10Sprite( )
@@ -169,24 +75,14 @@ BOOLEAN Dx10Font::InitD3D10Sprite( )
     UINT16 i;
     HRESULT hr;
     D3D10_SUBRESOURCE_DATA indexData = { 0 };
-    D3D10_PASS_DESC passDesc;
     D3D10_BUFFER_DESC vbd;
     D3D10_BUFFER_DESC ibd;
-
-
-    D3D10_INPUT_ELEMENT_DESC layoutDesc[ ] =
-    {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D10_INPUT_PER_VERTEX_DATA, 0 },
-        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D10_INPUT_PER_VERTEX_DATA, 0 },
-        { "COLOR", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 20, D3D10_INPUT_PER_VERTEX_DATA, 0 }
-    };
-
     ID3D10Blob *vertexShaderBlob = NULL;
     ID3D10Blob *pixelShaderBlob = NULL;
 
     CompileShader(
-        D3D10Font_VertexShaderData,
-        sizeof(D3D10Font_VertexShaderData),
+        D3DXFont_VertexShaderData,
+        sizeof(D3DXFont_VertexShaderData),
         "VS",
         "vs_4_0",
         &vertexShaderBlob
@@ -198,17 +94,12 @@ BOOLEAN Dx10Font::InitD3D10Sprite( )
         &D3D10Font_VertexShader
         );
 
-    for( i = 0; i < 512; ++i )
+    D3D10_INPUT_ELEMENT_DESC layoutDesc[ ] =
     {
-        indices[ i * 6 ]     = i * 4;
-        indices[ i * 6 + 1 ] = i * 4 + 1;
-        indices[ i * 6 + 2 ] = i * 4 + 2;
-        indices[ i * 6 + 3 ] = i * 4;
-        indices[ i * 6 + 4 ] = i * 4 + 2;
-        indices[ i * 6 + 5 ] = i * 4 + 3;
-    }
-
-    indexData.pSysMem = &indices[ 0 ];
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D10_INPUT_PER_VERTEX_DATA, 0 },
+        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D10_INPUT_PER_VERTEX_DATA, 0 },
+        { "COLOR", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 20, D3D10_INPUT_PER_VERTEX_DATA, 0 }
+    };
 
     hr = FntDevice->CreateInputLayout(
         layoutDesc,
@@ -225,8 +116,8 @@ BOOLEAN Dx10Font::InitD3D10Sprite( )
     }
 
     CompileShader(
-        D3D10Font_PixelShaderData,
-        sizeof(D3D10Font_PixelShaderData),
+        D3DXFont_PixelShaderData,
+        sizeof(D3DXFont_PixelShaderData),
         "PS",
         "ps_4_0",
         &pixelShaderBlob
@@ -238,6 +129,20 @@ BOOLEAN Dx10Font::InitD3D10Sprite( )
         pixelShaderBlob->GetBufferSize(),
         &D3D10Font_PixelShader
         );
+
+    for( i = 0; i < 512; ++i )
+    {
+        indices[ i * 6 ]     = i * 4;
+        indices[ i * 6 + 1 ] = i * 4 + 1;
+        indices[ i * 6 + 2 ] = i * 4 + 2;
+        indices[ i * 6 + 3 ] = i * 4;
+        indices[ i * 6 + 4 ] = i * 4 + 2;
+        indices[ i * 6 + 5 ] = i * 4 + 3;
+    }
+
+    indexData.pSysMem = &indices[ 0 ];
+
+
 
     vbd.ByteWidth            = 2048 * sizeof( SpriteVertex );
     vbd.Usage                = D3D10_USAGE_DYNAMIC;
@@ -352,10 +257,10 @@ VOID Dx10Font::AddString( WCHAR *text, BOOLEAN overload)
         {
             RECT charRect;
 
-            charRect.left   = ((m_fTexCoords[character-32][0]) * m_dwTexWidth) + m_dwSpacing;
-            charRect.top    = (m_fTexCoords[character-32][1]) * m_dwTexWidth;
-            charRect.right  = ((m_fTexCoords[character-32][2]) * m_dwTexWidth) - m_dwSpacing;
-            charRect.bottom = (m_fTexCoords[character-32][3]) * m_dwTexWidth;
+            charRect.left = (LONG)(((m_fTexCoords[character - 32][0]) * m_dwTexWidth) + m_dwSpacing);
+            charRect.top = (LONG)((m_fTexCoords[character - 32][1]) * m_dwTexWidth);
+            charRect.right = (LONG)(((m_fTexCoords[character - 32][2]) * m_dwTexWidth) - m_dwSpacing);
+            charRect.bottom = (LONG)((m_fTexCoords[character - 32][3]) * m_dwTexWidth);
 
             int width = charRect.right - charRect.left;
             int height = charRect.bottom - charRect.top;
