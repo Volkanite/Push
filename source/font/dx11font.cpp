@@ -1,5 +1,6 @@
 #include <Windows.h>
 #include <D3D11.h>
+#include <D3DX11async.h>
 #include <slgdi.h>
 #include <stdio.h>
 
@@ -41,24 +42,26 @@ enum
 };
 
 
-ID3D11Device*							device;
-ID3D11DeviceContext*					FontDeviceContext;
-ID3D11Device*							m_device11;
-ID3D11InputLayout*						inputLayout;
-ID3D11Buffer*							VB;
-ID3D11Buffer*							IB;
-ID3D11ShaderResourceView*				BatchTexSRV;
-ID3D11ShaderResourceView*				shaderResourceView;
-ID3D11BlendState*						TransparentBS;
-ID3D11Texture2D*						m_texture11;
-ID3D11Texture2D*						m_texturepass;
-ID3D10Texture2D*						m_texture10;
-ID3DX11EffectShaderResourceVariable*	D3D11Font_EffectShaderResourceVariable = NULL;
-ID3DX11EffectPass*						effectPass;
-D3DCompile_t							FntD3DCompile;
-BOOLEAN									Initialized;
-int										posX;
-int										posY;
+ID3D11Device*                           device;
+ID3D11DeviceContext*                    deviceContext;
+ID3D11Device*                           m_device11;
+ID3D11InputLayout*                      inputLayout;
+ID3D11Buffer*                           VB;
+ID3D11Buffer*                           IB;
+ID3D11ShaderResourceView*               BatchTexSRV;
+ID3D11ShaderResourceView*               shaderResourceView;
+ID3D11BlendState*                       TransparentBS;
+ID3D11Texture2D*                        m_texture11;
+ID3D11Texture2D*                        m_texturepass;
+ID3D10Texture2D*                        m_texture10;
+ID3DX11EffectShaderResourceVariable*    D3D11Font_EffectShaderResourceVariable = NULL;
+ID3DX11EffectPass*                      effectPass;
+ID3D11VertexShader*                     D3D11Font_VertexShader = NULL;
+ID3D11PixelShader*                      D3D11Font_PixelShader = NULL;
+D3DCompile_t                            FntD3DCompile;
+BOOLEAN                                 Initialized;
+int                                     posX;
+int                                     posY;
 
 
 #define START_CHAR 33
@@ -78,11 +81,10 @@ extern "C" BOOL __stdcall RtlFreeHeap(
     );
 
 
-VOID
-Init()
+VOID Init()
 {
     m_device11      = 0;
-    FontDeviceContext       = 0;
+    deviceContext       = 0;
     Initialized     = 0;
     VB              = 0;
     IB              = 0;
@@ -148,22 +150,145 @@ INT32 GetCharMaxX( GpBitmap *bitmap )
 }
 
 
-BOOLEAN
-Dx11Font::InitD3D11Sprite( )
+char D3D11Font_VertexShaderData[] = {
+    "struct VertexIn {"
+    "   float3 PosNdc : POSITION;"
+    "   float2 Tex    : TEXCOORD;"
+    "   float4 Color  : COLOR;"
+    "};"
+    "struct VertexOut {"
+    "   float4 PosNdc : SV_POSITION;"
+    "   float2 Tex    : TEXCOORD;"
+    "   float4 Color  : COLOR;"
+    "};"
+    "VertexOut VS(VertexIn vin) {"
+    "   VertexOut vout;"
+    "   vout.PosNdc = float4(vin.PosNdc, 1.0f);"
+    "   vout.Tex    = vin.Tex;"
+    "   vout.Color  = vin.Color;"
+    "   return vout;"
+    "};"
+};
+
+
+char D3D11Font_PixelShaderData[] = {
+    "Texture2D SpriteTex;"
+    "SamplerState samLinear {"
+    "     Filter = MIN_MAG_MIP_LINEAR;"
+    "     AddressU = WRAP;"
+    "     AddressV = WRAP;"
+    "};"
+    "struct VertexOut {"
+    "   float4 PosNdc : SV_POSITION;"
+    "   float2 Tex    : TEXCOORD;"
+    "   float4 Color  : COLOR;"
+    "};"
+    "float4 PS(VertexOut pin) : SV_Target {"
+    "   return pin.Color*SpriteTex.Sample(samLinear, pin.Tex);"
+    "};"
+};
+
+
+#define D3DCOMPILE_DEBUG                          (1 << 0)
+
+
+static VOID CompileShader(
+    _In_ char* Data,
+    _In_ SIZE_T DataLength,
+    _In_ char* EntryPoint,
+    _In_ char* ShaderModel,
+    _Out_ ID3DBlob** Blob
+    )
+{
+    DWORD dwShaderFlags = 0;
+    ID3D10Blob *errorMessages = NULL;
+
+#if defined( DEBUG ) || defined( _DEBUG )
+    dwShaderFlags |= D3DCOMPILE_DEBUG;
+#endif
+
+    D3DX11CompileFromMemory(
+        Data,
+        DataLength,
+        NULL,
+        NULL,
+        NULL,
+        EntryPoint,
+        ShaderModel,
+        dwShaderFlags,
+        0,
+        NULL,
+        Blob,
+        &errorMessages,
+        NULL
+        );
+
+    if (errorMessages)
+    {
+        char *error = (char *)errorMessages->GetBufferPointer();
+
+        OutputDebugStringA(error);
+        errorMessages->Release();
+    }
+}
+
+
+BOOLEAN Dx11Font::InitD3D11Sprite( )
 {
     WORD indices[3072];
     UINT16 i;
     HRESULT hr;
-    ID3D10Blob *    compiledFx = 0, * ErrorMsgs = 0;
+    ID3D10Blob *vertexShaderBlob = NULL;
+    ID3D10Blob *pixelShaderBlob = NULL;
     D3D11_SUBRESOURCE_DATA indexData = { 0 };
     ID3DX11Effect *effect = NULL;
-    ID3DX11EffectTechnique* effectTechnique;
-    ID3DX11EffectVariable *effectVariable;
-
-    D3DX11_PASS_DESC passDesc;
     D3D11_BUFFER_DESC vbd;
     D3D11_BUFFER_DESC ibd;
-	char *profileStr;
+    char *vertexShaderModel;
+    char *pixelShaderModel;
+
+    switch (device->GetFeatureLevel())
+    {
+    case D3D_FEATURE_LEVEL_9_1:
+        vertexShaderModel = "vs_4_0_level_9_1";
+        pixelShaderModel  = "ps_4_0_level_9_1";
+        break;
+    case D3D_FEATURE_LEVEL_9_2:
+        vertexShaderModel = "vs_4_0_level_9_2";
+        pixelShaderModel  = "ps_4_0_level_9_2";
+        break;
+    case D3D_FEATURE_LEVEL_9_3:
+        vertexShaderModel = "vs_4_0_level_9_3";
+        pixelShaderModel  = "ps_4_0_level_9_3";
+        break;
+    case D3D_FEATURE_LEVEL_10_0:
+        vertexShaderModel = "vs_4_0";
+        pixelShaderModel  = "ps_4_0";
+        break;
+    case D3D_FEATURE_LEVEL_10_1:
+        vertexShaderModel = "vs_4_1";
+        pixelShaderModel  = "ps_4_1";
+        break;
+    case D3D_FEATURE_LEVEL_11_0:
+        vertexShaderModel = "vs_5_0";
+        pixelShaderModel  = "ps_5_0";
+        break;
+    }
+
+    CompileShader(
+        D3D11Font_VertexShaderData,
+        sizeof(D3D11Font_VertexShaderData),
+        "VS",
+        vertexShaderModel,
+        &vertexShaderBlob
+        );
+
+    device->CreateVertexShader(
+        vertexShaderBlob->GetBufferPointer(),
+        vertexShaderBlob->GetBufferSize(),
+        NULL,
+        &D3D11Font_VertexShader
+        );
 
     D3D11_INPUT_ELEMENT_DESC layoutDesc[ ] =
     {
@@ -172,118 +297,40 @@ Dx11Font::InitD3D11Sprite( )
         { "COLOR", 0, DXGI_FORMAT_B8G8R8A8_UNORM, 0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 }
     };
 
-    CHAR effectFile[ ] = \
-        "Texture2D SpriteTex;"
-        "SamplerState samLinear {"
-        "     Filter = MIN_MAG_MIP_LINEAR;"
-        "     AddressU = WRAP;"
-        "     AddressV = WRAP;"
-        "};"
-        "struct VertexIn {"
-        "     float3 PosNdc : POSITION;"
-        "     float2 Tex    : TEXCOORD;"
-        "     float4 Color  : COLOR;"
-        "};"
-        "struct VertexOut {"
-        "     float4 PosNdc : SV_POSITION;"
-        "     float2 Tex    : TEXCOORD;"
-        "     float4 Color  : COLOR;"
-        "};"
-        "VertexOut VS(VertexIn vin) {"
-        "     VertexOut vout;"
-        "     vout.PosNdc = float4(vin.PosNdc, 1.0f);"
-        "     vout.Tex    = vin.Tex;"
-        "     vout.Color  = vin.Color;"
-        "     return vout;"
-        "};"
-        "float4 PS(VertexOut pin) : SV_Target {"
-        "     return pin.Color*SpriteTex.Sample(samLinear, pin.Tex);"
-        "};"
-        "technique11 SpriteTech {"
-        "     pass P0 {"
-        "         SetVertexShader( CompileShader( vs_5_0, VS() ) );"
-        "         SetHullShader( NULL );"
-        "         SetDomainShader( NULL );"
-        "         SetGeometryShader( NULL );"
-        "         SetPixelShader( CompileShader( ps_5_0, PS() ) );"
-        "     }"
-        "}";
-
-	FntD3DCompile = (D3DCompile_t)GetProcAddress(GetD3DCompiler(), "D3DCompile");
-
-	switch (device->GetFeatureLevel()) 
-	{
-	case D3D_FEATURE_LEVEL_9_1:
-		profileStr = "fx_4_0_level_9_1";
-		break;
-	case D3D_FEATURE_LEVEL_9_2:
-		profileStr = "fx_4_0_level_9_2";
-		break;
-	case D3D_FEATURE_LEVEL_9_3:
-		profileStr = "fx_4_0_level_9_3";
-		break;
-	case D3D_FEATURE_LEVEL_10_0:
-		profileStr = "fx_4_0";
-		break;
-	case D3D_FEATURE_LEVEL_10_1:
-		profileStr = "fx_4_1";
-		break;
-	case D3D_FEATURE_LEVEL_11_0:
-		profileStr = "fx_5_0";
-		break;
-	}
-
-    FntD3DCompile(
-        effectFile, 
-        strlen( effectFile ), 
-        0, 
-        0, 
-        0, 
-        "SpriteTech", 
-		profileStr,
-		0,
-        0, 
-        &compiledFx, 
-        &ErrorMsgs 
-        );
-
-    // Create the UI effect object
-    hr = D3DX11CreateEffectFromMemory(
-        compiledFx->GetBufferPointer(),
-        compiledFx->GetBufferSize(),
-        0,
-        m_device11,
-        &effect
-        );
-
-    if (FAILED(hr))
-    {
-        OutputDebugStringW(L"[OVRENDER] D3DX11CreateEffectFromMemory failed!");
-        return FALSE;
-    }
-
-    compiledFx->Release();
-
-    effectTechnique = effect->GetTechniqueByName("SpriteTech");
-    effectVariable = effect->GetVariableByName("SpriteTex");
-	D3D11Font_EffectShaderResourceVariable = effectVariable->AsShaderResource();
-    effectPass = effectTechnique->GetPassByIndex(0);
-
-    effectPass->GetDesc(&passDesc);
+    UINT numElements = ARRAYSIZE(layoutDesc);
 
     hr = device->CreateInputLayout(
-            layoutDesc,
-            sizeof( layoutDesc ) / sizeof( layoutDesc[ 0 ] ),
-            passDesc.pIAInputSignature,
-            passDesc.IAInputSignatureSize,
-            &inputLayout
-            );
+        layoutDesc,
+        numElements,
+        vertexShaderBlob->GetBufferPointer(),
+        vertexShaderBlob->GetBufferSize(),
+        &inputLayout
+        );
 
     if (FAILED(hr))
     {
         OutputDebugStringW(L"[OVRENDER] ID3D11Device::CreateInputLayout failed!");
         return FALSE;
     }
+
+    vertexShaderBlob->Release();
+
+    CompileShader(
+        D3D11Font_PixelShaderData,
+        sizeof(D3D11Font_PixelShaderData),
+        "PS",
+        pixelShaderModel,
+        &pixelShaderBlob
+        );
+
+    device->CreatePixelShader(
+        pixelShaderBlob->GetBufferPointer(),
+        pixelShaderBlob->GetBufferSize(),
+        NULL,
+        &D3D11Font_PixelShader
+        );
+
+    pixelShaderBlob->Release();
 
     vbd.ByteWidth            = 2048 * sizeof( SpriteVertex );
     vbd.Usage                = D3D11_USAGE_DYNAMIC;
@@ -353,9 +400,9 @@ Dx11Font::Dx11Font( ID3D11Device *Device )
    vmt = (VOID**) device11;
    vmt = (VOID**) vmt[0];
 
-   device11->GetImmediateContext( &FontDeviceContext );
+   device11->GetImmediateContext(&deviceContext);
 
-   vmt = (VOID**) FontDeviceContext;
+   vmt = (VOID**)deviceContext;
    vmt = (VOID**) vmt[0];
 
    InitDeviceObjects();
@@ -401,16 +448,16 @@ VOID Dx11Font::AddString( WCHAR *text, DWORD Color )
         else
         {
             RECT charRect;
-            
-            charRect.left   = (LONG)((m_fTexCoords[character-32][0]) * m_dwTexWidth) + m_dwSpacing;
-            charRect.top    = (LONG)(m_fTexCoords[character-32][1]) * m_dwTexWidth;
-            charRect.right  = (LONG)((m_fTexCoords[character-32][2]) * m_dwTexWidth) - m_dwSpacing;
-            charRect.bottom = (LONG)(m_fTexCoords[character-32][3]) * m_dwTexWidth;
+
+            charRect.left   = ((m_fTexCoords[character-32][0]) * m_dwTexWidth) + m_dwSpacing;
+            charRect.top    = (m_fTexCoords[character-32][1]) * m_dwTexWidth;
+            charRect.right  = ((m_fTexCoords[character-32][2]) * m_dwTexWidth) - m_dwSpacing;
+            charRect.bottom = (m_fTexCoords[character-32][3]) * m_dwTexWidth;
 
             int width = charRect.right - charRect.left;
             int height = charRect.bottom - charRect.top;
             RECT rect = {posX, posY, posX + width, posY + height};
-            
+
             Draw( &rect, &charRect, color);
 
             posX += width + 1;
@@ -428,9 +475,9 @@ VOID Dx11Font::DrawText( FLOAT sx, FLOAT sy, DWORD Color, WCHAR* Text )
 }
 
 
-VOID 
-Dx11Font::BeginBatch( 
-    ID3D11ShaderResourceView* texSRV 
+VOID
+Dx11Font::BeginBatch(
+    ID3D11ShaderResourceView* texSRV
     )
 {
     ID3D11Resource * resource = 0;
@@ -453,9 +500,9 @@ Dx11Font::BeginBatch(
 
 
 VOID
-Dx11Font::DrawBatch( 
-    UINT startSpriteIndex, 
-    UINT spriteCount 
+Dx11Font::DrawBatch(
+    UINT startSpriteIndex,
+    UINT spriteCount
     )
 {
     D3D11_MAPPED_SUBRESOURCE mappedData;
@@ -464,7 +511,7 @@ Dx11Font::DrawBatch(
 
     if (m_device11)
     {
-        FontDeviceContext->Map(
+        deviceContext->Map(
             VB,
             0,
             D3D11_MAP_WRITE_DISCARD,
@@ -489,8 +536,8 @@ Dx11Font::DrawBatch(
         v[ i * 4 + 3 ]    = quad[ 3 ];
     }
 
-    FontDeviceContext->Unmap(VB, 0);
-    FontDeviceContext->DrawIndexed( spriteCount * 6, 0, 0 );
+    deviceContext->Unmap(VB, 0);
+    deviceContext->DrawIndexed(spriteCount * 6, 0, 0);
 }
 
 
@@ -500,7 +547,7 @@ VOID Dx11Font::EndBatch( )
     UINT startIndex;
     D3D11_VIEWPORT vp;
 
-    FontDeviceContext->RSGetViewports(&viewportCount, &vp);
+    deviceContext->RSGetViewports(&viewportCount, &vp);
 
     ScreenWidth  = vp.Width;
     ScreenHeight = vp.Height;
@@ -508,17 +555,16 @@ VOID Dx11Font::EndBatch( )
     stride = sizeof( SpriteVertex );
     offset = 0;
 
-    FontDeviceContext->IASetInputLayout( inputLayout );
-    FontDeviceContext->IASetIndexBuffer(IB, DXGI_FORMAT_R16_UINT, 0 );
-    FontDeviceContext->IASetVertexBuffers(0, 1, &VB, &stride, &offset );
-    FontDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-    
-	if (!D3D11Font_EffectShaderResourceVariable)
-		return;
+    deviceContext->IASetInputLayout( inputLayout );
+    deviceContext->IASetIndexBuffer(IB, DXGI_FORMAT_R16_UINT, 0 );
+    deviceContext->IASetVertexBuffers(0, 1, &VB, &stride, &offset );
+    deviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
-	D3D11Font_EffectShaderResourceVariable->SetResource(BatchTexSRV);
-    effectPass->Apply(0, FontDeviceContext);
-    
+    //effectSRV->SetResource(BatchTexSRV);
+    deviceContext->PSSetShaderResources(0, 1, &shaderResourceView);
+    deviceContext->VSSetShader(D3D11Font_VertexShader, NULL, 0);
+    deviceContext->PSSetShader(D3D11Font_PixelShader, NULL, 0);
+
     spritesToDraw = NumberOfSprites;
     startIndex = 0;
 
@@ -546,10 +592,10 @@ Dx11Font::DrawString()
 {
     float blendFactor[ 4 ] = { 1.0f };
 
-    FontDeviceContext->OMSetBlendState( TransparentBS, blendFactor, 0xFFFFFFFF );
+    deviceContext->OMSetBlendState(TransparentBS, blendFactor, 0xFFFFFFFF);
     BeginBatch( shaderResourceView );
     EndBatch( );
-    FontDeviceContext->OMSetBlendState( 0, blendFactor, 0xFFFFFFFF );
+    deviceContext->OMSetBlendState(0, blendFactor, 0xFFFFFFFF);
 }
 
 
@@ -605,22 +651,20 @@ Dx11Font::CreateTexture()
 }
 
 
-VOID
-Dx11Font::LockTexture( D3DLOCKED_RECT *LockedRect )
+VOID Dx11Font::LockTexture( D3DLOCKED_RECT *LockedRect )
 {
     D3D11_MAPPED_SUBRESOURCE mappedData;
 
-    FontDeviceContext->Map(m_texture11, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+    deviceContext->Map(m_texture11, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
 
     LockedRect->pBits = mappedData.pData;
     LockedRect->Pitch = m_dwTexWidth * 4;
 }
 
 
-VOID
-Dx11Font::UnlockTexture()
+VOID Dx11Font::UnlockTexture()
 {
-    FontDeviceContext->Unmap(m_texture11, 0);
+    deviceContext->Unmap(m_texture11, 0);
 }
 
 
