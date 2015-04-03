@@ -1,5 +1,6 @@
 #include <Windows.h>
 #include <D3D10.h>
+#include <D3DX10async.h>
 #include <slgdi.h>
 #include <stdio.h>
 
@@ -10,23 +11,7 @@ typedef struct _D3DLOCKED_RECT
     void*               pBits;
 } D3DLOCKED_RECT;
 #include "dx10font.h"
-#include "..\d3dcompiler.h"
-#include "effects10.h"
-
-
-typedef INT32 (__stdcall *D3DCompile_t)(
-    LPCVOID pSrcData,
-    SIZE_T SrcDataSize,
-    LPCSTR pSourceName,
-    VOID *pDefines,
-    VOID *pInclude,
-    LPCSTR pEntrypoint,
-    LPCSTR pTarget,
-    UINT Flags1,
-    UINT Flags2,
-    ID3DBlob** ppCode,
-    ID3DBlob**ppErrorMsgs
-    );
+#include "shaders.h"
 
 
 // maps unsigned 8 bits/channel to D3DCOLOR
@@ -42,11 +27,10 @@ static ID3D10ShaderResourceView              *shaderResourceView;
 static ID3D10BlendState                    *TransparentBS;
 static ID3D10Texture2D                     *m_texture11;
 static ID3D10Texture2D                     *m_texture10;
-static ID3D10EffectTechnique                 *spriteTech;
-static ID3D10EffectShaderResourceVariable    *effectSRV;
 static ID3D10Device                        *m_device10;
 static ID3D10BlendState                    *m_pFontBlendState10;
-static ID3D10EffectPass *effectPass;
+ID3D10VertexShader*                     D3D10Font_VertexShader = NULL;
+ID3D10PixelShader*                      D3D10Font_PixelShader = NULL;
 
 static BOOLEAN                        Initialized;
     #define START_CHAR 33
@@ -77,25 +61,38 @@ Init()
     VB              = 0;
     IB              = 0;
     inputLayout     = 0;
-    
+
     BatchTexSRV     = 0 ;
 }
 
 
-BOOLEAN
-Dx10Font::InitD3D10Sprite( )
+
+
+
+BOOLEAN Dx10Font::InitD3D10Sprite( )
 {
     WORD indices[3072];
     UINT16 i;
     HRESULT hr;
     D3D10_SUBRESOURCE_DATA indexData = { 0 };
-    ID3D10Effect *effect;
-    ID3D10EffectVariable *effectVariable;
-
-    D3D10_PASS_DESC passDesc;
-    D3D10_BUFFER_DESC vbd; /*D3D10_BUFFER_DESC vbd10;*/
+    D3D10_BUFFER_DESC vbd;
     D3D10_BUFFER_DESC ibd;
+    ID3D10Blob *vertexShaderBlob = NULL;
+    ID3D10Blob *pixelShaderBlob = NULL;
 
+    CompileShader(
+        D3DXFont_VertexShaderData,
+        sizeof(D3DXFont_VertexShaderData),
+        "VS",
+        "vs_4_0",
+        &vertexShaderBlob
+        );
+
+    FntDevice->CreateVertexShader(
+        vertexShaderBlob->GetBufferPointer(),
+        vertexShaderBlob->GetBufferSize(),
+        &D3D10Font_VertexShader
+        );
 
     D3D10_INPUT_ELEMENT_DESC layoutDesc[ ] =
     {
@@ -104,19 +101,34 @@ Dx10Font::InitD3D10Sprite( )
         { "COLOR", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 20, D3D10_INPUT_PER_VERTEX_DATA, 0 }
     };
 
-    // Create the UI effect object
-    D3D10CreateEffectFromMemory(
-        (VOID*)Effects10_cso,
-        sizeof(Effects10_cso),
-        0,
-        FntDevice,
-        NULL,
-        &effect
+    hr = FntDevice->CreateInputLayout(
+        layoutDesc,
+        sizeof( layoutDesc ) / sizeof( layoutDesc[ 0 ] ),
+        vertexShaderBlob->GetBufferPointer(),
+        vertexShaderBlob->GetBufferSize(),
+        &inputLayout
         );
 
-    spriteTech = effect->GetTechniqueByName( "SpriteTech" );
-    effectVariable = effect->GetVariableByName( "SpriteTex" );
-    effectSRV = effectVariable->AsShaderResource();
+    if (FAILED(hr))
+    {
+        OutputDebugStringW(L"[OVRENDER] ID3D10Device::CreateInputLayout failed!");
+        return FALSE;
+    }
+
+    CompileShader(
+        D3DXFont_PixelShaderData,
+        sizeof(D3DXFont_PixelShaderData),
+        "PS",
+        "ps_4_0",
+        &pixelShaderBlob
+        );
+
+    // Create the pixel shader
+    FntDevice->CreatePixelShader(
+        pixelShaderBlob->GetBufferPointer(),
+        pixelShaderBlob->GetBufferSize(),
+        &D3D10Font_PixelShader
+        );
 
     for( i = 0; i < 512; ++i )
     {
@@ -129,24 +141,8 @@ Dx10Font::InitD3D10Sprite( )
     }
 
     indexData.pSysMem = &indices[ 0 ];
-    effectPass = spriteTech->GetPassByIndex(0);
 
-    effectPass->GetDesc(&passDesc);
 
-    hr = FntDevice->CreateInputLayout(
-        layoutDesc,
-        sizeof( layoutDesc ) / sizeof( layoutDesc[ 0 ] ),
-        passDesc.pIAInputSignature,
-        passDesc.IAInputSignatureSize,
-        &inputLayout
-        );
-
-    if (FAILED(hr))
-    {
-        OutputDebugStringW(L"[OVRENDER] ID3D10Device::CreateInputLayout failed!");
-
-        return FALSE;
-    }
 
     vbd.ByteWidth            = 2048 * sizeof( SpriteVertex );
     vbd.Usage                = D3D10_USAGE_DYNAMIC;
@@ -164,7 +160,7 @@ Dx10Font::InitD3D10Sprite( )
 
     FntDevice->CreateBuffer( &ibd, &indexData, &IB );
 
-  
+
     D3D10_BLEND_DESC transparentDesc = { 0 };
 
     transparentDesc.AlphaToCoverageEnable   = FALSE;
@@ -180,10 +176,10 @@ Dx10Font::InitD3D10Sprite( )
     FntDevice->CreateBlendState( &transparentDesc, &TransparentBS );
 
     HeapHandle = GetProcessHeap();
-    
+
     Sprites = (Sprite*) RtlAllocateHeap(
-        HeapHandle, 
-        HEAP_GENERATE_EXCEPTIONS, 
+        HeapHandle,
+        HEAP_GENERATE_EXCEPTIONS,
         sizeof(Sprite)
         );
     Initialized = TRUE;
@@ -192,8 +188,8 @@ Dx10Font::InitD3D10Sprite( )
 }
 
 
-Dx10Font::Dx10Font( 
-    ID3D10Device *Device 
+Dx10Font::Dx10Font(
+    ID3D10Device *Device
     )
 {
     Init();
@@ -236,11 +232,11 @@ VOID Dx10Font::AddString( WCHAR *text, BOOLEAN overload)
         G = 0;
     }
 
-    Vec = XMVectorSet( 
-            B ? (float)( B / 255.0f ) : 0.0f, 
-            G ? (float)( G / 255.0f ) : 0.0f, 
-            R ? (float)( R / 255.0f ) : 0.0f, 
-            A ? (float)( A / 255.0f ) : 0.0f 
+    Vec = XMVectorSet(
+            B ? (float)( B / 255.0f ) : 0.0f,
+            G ? (float)( G / 255.0f ) : 0.0f,
+            R ? (float)( R / 255.0f ) : 0.0f,
+            A ? (float)( A / 255.0f ) : 0.0f
             );
 
     XMStoreColor( &colorchanged, Vec );
@@ -260,16 +256,16 @@ VOID Dx10Font::AddString( WCHAR *text, BOOLEAN overload)
         else
         {
             RECT charRect;
-            
-            charRect.left   = (LONG) ((m_fTexCoords[character-32][0]) * m_dwTexWidth) + m_dwSpacing;
-            charRect.top    = (LONG) (m_fTexCoords[character-32][1]) * m_dwTexWidth;
-            charRect.right  = (LONG) ((m_fTexCoords[character-32][2]) * m_dwTexWidth) - m_dwSpacing;
-            charRect.bottom = (LONG) (m_fTexCoords[character-32][3]) * m_dwTexWidth;
+
+            charRect.left   = ((m_fTexCoords[character-32][0]) * m_dwTexWidth) + m_dwSpacing;
+            charRect.top    = (m_fTexCoords[character-32][1]) * m_dwTexWidth;
+            charRect.right  = ((m_fTexCoords[character-32][2]) * m_dwTexWidth) - m_dwSpacing;
+            charRect.bottom = (m_fTexCoords[character-32][3]) * m_dwTexWidth;
 
             int width = charRect.right - charRect.left;
             int height = charRect.bottom - charRect.top;
             RECT rect = {posX, posY, posX + width, posY + height};
-            
+
             Draw( &rect, &charRect, colorchanged);
 
             posX += width + 1;
@@ -378,7 +374,6 @@ VOID Dx10Font::EndBatch( )
 
     stride = sizeof( SpriteVertex );
     offset = 0;
-    
 
     // Save device state
     FntDevice->IAGetInputLayout( &inputLayoutOld );
@@ -391,9 +386,10 @@ VOID Dx10Font::EndBatch( )
     FntDevice->IASetIndexBuffer( IB, DXGI_FORMAT_R16_UINT, 0 );
     FntDevice->IASetVertexBuffers( 0, 1, &VB, &stride, &offset );
     FntDevice->IASetPrimitiveTopology( D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-
-    effectSRV->SetResource(BatchTexSRV);
-    effectPass->Apply(0);
+    FntDevice->PSSetShaderResources(0, 1, &shaderResourceView);
+    FntDevice->VSSetShader(D3D10Font_VertexShader);
+    FntDevice->GSSetShader(NULL);
+    FntDevice->PSSetShader(D3D10Font_PixelShader);
 
     spritesToDraw = NumberOfSprites;
     startIndex = 0;
@@ -418,10 +414,10 @@ VOID Dx10Font::EndBatch( )
     FntDevice->IASetPrimitiveTopology( topology );
     FntDevice->PSSetShaderResources(0, 1, &shaderResourceViews);
     FntDevice->PSSetShader(pixelShader);
-    
+
     SAFE_RELEASE( BatchTexSRV );
-    SAFE_RELEASE( inputLayoutOld ); 
-    SAFE_RELEASE( pixelShader ); 
+    SAFE_RELEASE( inputLayoutOld );
+    SAFE_RELEASE( pixelShader );
     SAFE_RELEASE( shaderResourceViews );
 }
 

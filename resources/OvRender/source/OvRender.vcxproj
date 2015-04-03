@@ -19,12 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="d3dcompiler.cpp" />
     <ClCompile Include="font\dx10font.cpp" />
     <ClCompile Include="font\dx11font.cpp" />
     <ClCompile Include="font\dx8font.cpp" />
     <ClCompile Include="font\dx9font.cpp" />
     <ClCompile Include="font\font.cpp" />
+    <ClCompile Include="font\shaders.cpp" />
     <ClCompile Include="hook\dx8hook.cpp" />
     <ClCompile Include="hook\dx9hook.cpp" />
     <ClCompile Include="hook\dxgihook.cpp" />
@@ -36,14 +36,12 @@
     <ClCompile Include="overlay\overlay.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="d3dcompiler.h" />
     <ClInclude Include="font\dx10font.h" />
     <ClInclude Include="font\dx11font.h" />
     <ClInclude Include="font\dx8font.h" />
     <ClInclude Include="font\dx9font.h" />
-    <ClInclude Include="font\effects10.h" />
-    <ClInclude Include="font\effects11.h" />
     <ClInclude Include="font\font.h" />
+    <ClInclude Include="font\shaders.h" />
     <ClInclude Include="hook\dx8hook.h" />
     <ClInclude Include="hook\dx9hook.h" />
     <ClInclude Include="hook\dxgihook.h" />
