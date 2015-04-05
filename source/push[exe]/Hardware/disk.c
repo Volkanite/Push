@@ -1,7 +1,4 @@
-#include <sltypes.h>
-#include <slnt.h>
-#include <slntuapi.h>
-#include <stdio.h>
+#include <sl.h>
 #include <string.h>
 #include <push.h>
 

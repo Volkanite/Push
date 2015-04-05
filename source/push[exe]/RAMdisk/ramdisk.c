@@ -1,15 +1,8 @@
-#include <sltypes.h>
-#include <slnt.h>
-#include <slntuapi.h>
-#include <slc.h>
-#include <slmodule.h>
-#include <pushbase.h>
-#include <malloc.h>
-#include <string.h>
+#include <sl.h>
 #include <push.h>
+#include <ring0.h>
 
 #include "ramdisk.h"
-#include "ring0.h"
 
 
 PFORMATEX   FormatEx;

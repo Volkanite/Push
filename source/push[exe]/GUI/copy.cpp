@@ -1,7 +1,5 @@
-#include <sltypes.h>
-#include <slntuapi.h>
-#include <slgui.h>
-#include <wchar.h>
+#include <sl.h>
+
 
 #define WS_EX_TOPMOST 0x00000008L
 

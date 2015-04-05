@@ -1,12 +1,8 @@
-#include <sltypes.h>
-#include <slntuapi.h>
-#include <slgui.h>
+#include <sl.h>
 #include <wchar.h>
-#include <slini.h>
 #include <file.h>
 
 #include "gui.h"
-#include "main.h"
 
 
 #define LISTVIEW 240

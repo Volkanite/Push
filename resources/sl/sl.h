@@ -1,4 +1,5 @@
 #include <sltypes.h>
+#include <sal.h>
 #include <slnt.h>
 #include <slntuapi.h>
 #include <slmodule.h>
@@ -6,3 +7,5 @@
 #include <slmem.h>
 #include <slini.h>
 #include <slfile.h>
+#include <sldriver.h>
+#include <slgui.h>

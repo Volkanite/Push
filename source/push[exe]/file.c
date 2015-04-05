@@ -1,10 +1,6 @@
-#include <sltypes.h>
-#include <slnt.h>
-#include <slntuapi.h>
-#include <pushbase.h>
-#include <slc.h>
-#include <slfile.h>
-#include <wchar.h>
+#include <sl.h>
+#include <string.h>
+
 #include "push.h"
 #include "file.h"
 
@@ -151,9 +147,6 @@ MarkForCache( WCHAR *FilePath )
     //PushRenameFile(FilePath, pszNewPath);
     FsRenameFile(FilePath, newPath);
 }
-
-
-
 
 
 BOOLEAN

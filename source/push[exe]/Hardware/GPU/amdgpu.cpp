@@ -1,8 +1,6 @@
-#include <sltypes.h>
-#include <slntuapi.h>
-#include <slc.h>
+#include <sl.h>
 #include <stdio.h>
-#include <pushbase.h>
+#include <push.h>
 #include <hwinfo.h>
 #include "adl.h"
 #include "AmdGpu.h"

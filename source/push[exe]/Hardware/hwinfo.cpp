@@ -1,22 +1,12 @@
-#include <sltypes.h>
-#include <slnt.h>
-#include <slntuapi.h>
-#include <pushbase.h>
-#include <stdlib.h>
+#include <sl.h>
 #include <string.h>
-#include <stdio.h>
-#include <slc.h>
-#include <slmodule.h>
+#include <push.h>
+#include <ring0.h>
 
-#include "..\push.h"
-#include "..\ring0.h"
-#include <slini.h>
-
-
-#include "hwinfo.h"
-#include "CPU/intel.h"
+#include "GPU\d3dkmt.h"
+#include "CPU\intel.h"
 #include "disk.h"
-#include "GPU/d3dkmt.h"
+#include "hwinfo.h"
 
 
 UINT64  g_hNVPMContext;

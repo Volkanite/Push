@@ -1,5 +1,4 @@
 #include "push.h"
-#include "batch.h"
 
 
 enum CONTROLS
@@ -56,19 +55,14 @@ typedef struct __CONTROL{
 
 
 #ifdef __cplusplus
-//extern "C" void         *PushControlHandles[50];
 extern "C" WINDOW *PushMainWindow;
-extern "C" DWORD    g_iTaskbarCreatedMsg;
-extern "C" void         *g_hTrayIcon;
 #else
-//extern void         *PushControlHandles[50];
 extern WINDOW *PushMainWindow;
-extern DWORD    g_iTaskbarCreatedMsg;
-extern void         *g_hTrayIcon;
 #endif
 
-extern VOID* GuiIconHandle;
-
+extern HANDLE Gui_IconImageHandle;
+extern HANDLE Gui_TrayIconHandle;
+extern HANDLE Gui_InvisibleWindowHandle;
 
 
 LONG __stdcall MainWndProc(
@@ -99,34 +93,11 @@ VOID SetListViewItemState(
      BOOLEAN state
      );
 
-LONG TrayIconNotification(
-    UINT32  wParam,
-    LONG    lParam
-    );
 
-LONG OnTaskbarCreated( UINT32 wParam,
-                  LONG lParam);
-
-LONG __stdcall TrayIconProc(
-    VOID *hWnd,
-    UINT32  message,
-    UINT32 wParam,
-    LONG lParam );
-
-INT32 __stdcall ListViewCompareProc(
-    LONG lParam1,
-    LONG lParam2,
-    LONG lParamSort );
 
  VOID ListViewAddItems();
 
  WCHAR* GetComboBoxData();
-
-VOID MinimiseToTray (VOID* hWnd);
-
-VOID MaximiseFromTray (VOID* hWnd);
-
-
 
 VOID GuiCreate();
 
@@ -134,14 +105,27 @@ VOID GuiCreate();
 }
 #endif
 
+
+VOID MaximiseFromTray (
+    VOID* hWnd
+    );
+    
+INT32 __stdcall ListViewCompareProc(
+    LONG lParam1,
+    LONG lParam2,
+    LONG lParamSort
+    );
+    
 VOID CreateControl(
     WINDOW* window,
     CONTROL* Control
     );
 
 
-
-
+#include "batch.h"
+#include "main.h"
+#include "copy.h"
+#include "cache.h"
 
 
 

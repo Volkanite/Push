@@ -1,3 +1,6 @@
+#include <push.h>
+
+
 DWORD GetGpuVendorID(
     );
 
@@ -12,21 +15,7 @@ VOID PushSetCacheName(
 extern "C" {
 #endif
 
-VOID PushToggleProcessMonitoring(
-    BOOLEAN Activate
-    );
 
-VOID PushGetProcessInfo(
-    PROCESS_CALLBACK_INFO* ProcessInformation
-    );
-
-VOID PushGetThreadInfo(
-    THREAD_CALLBACK_INFO* ThreadInformation
-    );
-
-VOID PushGetImageInfo(
-    IMAGE_CALLBACK_INFO* ImageInformation
-    );
 
 DWORD PushReadMsr(
     DWORD Index

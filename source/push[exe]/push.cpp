@@ -1,26 +1,19 @@
 #include <sl.h>
-#include <slgui.h>
-#include <pushbase.h>
+#include <slresource.h>
+#include <slregistry.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
-#include <malloc.h>
 #include <time.h>
-#include <slc.h>
-#include <slfile.h>
-#include <sldriver.h>
+#include <pushbase.h>
 #include <gui.h>
-#include <main.h>
-#include <copy.h>
+
 #include "push.h"
-#include <slini.h>
-#include "file.h"
-#include "ring0.h"
-
-
 #include "RAMdisk\ramdisk.h"
 #include "Hardware\hwinfo.h"
 #include "batch.h"
+#include "ring0.h"
+#include "file.h"
 #include "driver.h"
 
 
@@ -40,7 +33,7 @@ PUSH_SHARED_MEMORY* PushSharedMemory;
 UINT32  PushPageSize;
 WCHAR g_szLastDir[260];
 
-//BfBatchFile* PushCacheBatchFile;
+#define STATUS_INVALID_IMAGE_HASH        ((NTSTATUS)0xC0000428L)
 
 
 typedef long (__stdcall *TYPE_NtSuspendProcess)( VOID* hProcessHandle );
@@ -517,36 +510,43 @@ Inject32( VOID *hProcess )
     VirtualFreeEx(hProcess, pLibRemote, sizeof(szModulePath), MEM_RELEASE);
 }
 
-#include <stdio.h>
-#include <stdarg.h>
-extern "C" void __stdcall OutputDebugStringA(
-  _In_opt_  CHAR* lpOutputString
-);
-void __cdecl SlDebugPrint(CHAR* szFormat, ...)
-{
-    char strA[4096];
-    char strB[4096];
-
-    va_list ap;
-    va_start(ap, szFormat);
-    vsprintf_s(strA, sizeof(strA), szFormat, ap);
-    strA[4095] = '\0';
-    va_end(ap);
-
-    sprintf_s(strB, sizeof(strB), "[PUSH] %s\r\n", strA);
-
-    strB[4095] = '\0';
-
-    OutputDebugStringA(strB);
-}
 
     extern "C" INTBOOL __stdcall IsWow64Process(
   _In_   HANDLE hProcess,
   _Out_  INTBOOL* Wow64Process
 );
     VOID Inject64( UINT16 ProcessId, WCHAR* Path );
-VOID
-OnImageEvent( UINT16 ProcessId )
+    extern "C"
+        typedef DWORD SECURITY_INFORMATION, *PSECURITY_INFORMATION;
+    typedef WORD   SECURITY_DESCRIPTOR_CONTROL, *PSECURITY_DESCRIPTOR_CONTROL;
+    typedef struct _SECURITY_DESCRIPTOR {
+        UCHAR  Revision;
+        UCHAR  Sbz1;
+        SECURITY_DESCRIPTOR_CONTROL  Control;
+        VOID*  Owner;
+        VOID*  Group;
+        VOID*  Sacl;
+        VOID*  Dacl;
+    } SECURITY_DESCRIPTOR;
+extern "C" NTSTATUS __stdcall NtQuerySecurityObject(
+        _In_ HANDLE Handle,
+        _In_ SECURITY_INFORMATION SecurityInformation,
+        _Out_writes_bytes_opt_(Length) SECURITY_DESCRIPTOR* SecurityDescriptor,
+        _In_ ULONG Length,
+        _Out_ ULONG* LengthNeeded
+        );
+
+extern "C" NTSTATUS __stdcall NtSetSecurityObject(
+    _In_ HANDLE Handle,
+    _In_ ULONG SecurityInformation,
+    _In_ VOID* SecurityDescriptor
+    );
+
+#define DACL_SECURITY_INFORMATION               (0x00000004L)
+#define UNPROTECTED_DACL_SECURITY_INFORMATION   (0x20000000L)
+
+
+VOID OnImageEvent( UINT16 ProcessId )
 {
     VOID *processHandle = 0;
     INTBOOL isWow64;
@@ -564,73 +564,89 @@ OnImageEvent( UINT16 ProcessId )
 
     if (!processHandle)
     {
-        ACL *dacl;
-        VOID *secdesc;
-        // Get the DACL of this process since we know we have
-          // all rights in it. This really can't fail.
-          if(GetSecurityInfo(NtCurrentProcess(),
-                             SE_KERNEL_OBJECT,
-                             (0x00000004L), //DACL_SECURITY_INFORMATION,
-                             0,
-                             0,
-                             &dacl,
-                             0,
-                             &secdesc) != ERROR_SUCCESS)
-          {
-             return;
-          }
+        NTSTATUS status;
+        ULONG bufferSize;
+        SECURITY_DESCRIPTOR* securityDescriptor;
 
-          // Open it with WRITE_DAC access so that we can write to the DACL.
-          processHandle = SlOpenProcess(ProcessId, (0x00040000L)); //WRITE_DAC
+        bufferSize = 0x100;
+        securityDescriptor = (SECURITY_DESCRIPTOR*)RtlAllocateHeap(PushHeapHandle, 0, bufferSize);
+        
+        // Get the DACL of this process since we know we have all rights in it.
+        status = NtQuerySecurityObject(
+            NtCurrentProcess(),
+            DACL_SECURITY_INFORMATION,
+            securityDescriptor,
+            bufferSize,
+            &bufferSize
+            );
 
-          if(processHandle == 0)
-          {
-             LocalFree(secdesc);
-             return;
-          }
+        if (status == STATUS_BUFFER_TOO_SMALL)
+        {
+            RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
+            securityDescriptor = (SECURITY_DESCRIPTOR*)RtlAllocateHeap(PushHeapHandle, 0, bufferSize);
 
-          if(SetSecurityInfo(processHandle,
-                             SE_KERNEL_OBJECT,
-                             (0x00000004L) |    // DACL_SECURITY_INFORMATION
-                             (0x20000000L),     //UNPROTECTED_DACL_SECURITY_INFORMATION,
-                             0,
-                             0,
-                             dacl,
-                             0) != ERROR_SUCCESS)
-          {
-             LocalFree(secdesc);
-             return;
-          }
+            status = NtQuerySecurityObject(
+                NtCurrentProcess(),
+                DACL_SECURITY_INFORMATION,
+                securityDescriptor,
+                bufferSize,
+                &bufferSize
+                );
+        }
+        
+        if (!NT_SUCCESS(status))
+        {
+            RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
+            return;
+        }
 
-          // The DACL is overwritten with our own DACL. We
-          // should be able to open it with the requested
-          // privileges now.
+        // Open it with WRITE_DAC access so that we can write to the DACL.
+        processHandle = SlOpenProcess(ProcessId, (0x00040000L)); //WRITE_DAC
 
-          //CloseHandle(processHandle);
-          NtClose(processHandle);
+        if(processHandle == 0)
+        {
+            RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
+           return;
+        }
 
-          processHandle = 0;
-          LocalFree(secdesc);
+        status = NtSetSecurityObject(
+            processHandle,
+            DACL_SECURITY_INFORMATION | UNPROTECTED_DACL_SECURITY_INFORMATION,
+            securityDescriptor
+            );
 
-          processHandle = SlOpenProcess(
-                            ProcessId,
-                            PROCESS_VM_OPERATION |
-                            PROCESS_VM_READ |
-                            PROCESS_VM_WRITE |
-                            PROCESS_VM_OPERATION |
-                            PROCESS_CREATE_THREAD |
-                            PROCESS_QUERY_INFORMATION |
-                            SYNCHRONIZE
-                            );
+        if (!NT_SUCCESS(status))
+        {
+            RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
+            return;
+        }
+
+        // The DACL is overwritten with our own DACL. We
+        // should be able to open it with the requested
+        // privileges now.
+
+        NtClose(processHandle);
+
+        processHandle = 0;
+        RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
+
+        processHandle = SlOpenProcess(
+            ProcessId,
+            PROCESS_VM_OPERATION |
+            PROCESS_VM_READ |
+            PROCESS_VM_WRITE |
+            PROCESS_VM_OPERATION |
+            PROCESS_CREATE_THREAD |
+            PROCESS_QUERY_INFORMATION |
+            SYNCHRONIZE
+            );
     }
     
     if (!processHandle)
     {
-        //OutputDebugStringW(L"Could not get process handle");
-        SlDebugPrint("Could not get process handle");
             return;
     }
-    SlDebugPrint("ProcessHandle: 0x%x\n", processHandle);
+
     IsWow64Process(processHandle, &isWow64);
     
     if (isWow64)
@@ -775,101 +791,6 @@ DWORD __stdcall MonitorThread( VOID* Parameter )
 }
 
 
-#define DIRECTORY_ALL_ACCESS   (STANDARD_RIGHTS_REQUIRED | 0xF)
-#define WRITE_DAC   0x00040000L
-
-#define WRITE_OWNER   0x00080000L
-
-
-extern "C" 
-{
-
-HANDLE __stdcall FindResourceW(
-  HANDLE hModule,
-  WCHAR* lpName,
-  WCHAR* lpType
-);
-
-
-HANDLE __stdcall LoadResource(
-  HANDLE hModule,
-  HANDLE hResInfo
-);
-
-
-VOID* __stdcall LockResource(
-  HANDLE hResData
-);
-
-
-DWORD __stdcall SizeofResource(
-  HANDLE hModule,
-  HANDLE hResInfo
-);
-
-}
-
-
-extern "C"
-BOOLEAN ExtractResource( WCHAR* ResourceName, WCHAR* OutputPath )
-{
-    NTSTATUS status;
-    HANDLE fileHandle;
-    IO_STATUS_BLOCK isb;
-
-    HANDLE hResInfo = reinterpret_cast<HANDLE>(
-        ::FindResourceW(
-            NULL,
-            ResourceName,
-            ResourceName
-        )
-    );
-
-    if(!hResInfo) return false;
-
-    HANDLE hResData = ::LoadResource(NULL, hResInfo);
-
-    if(!hResData) return false;
-
-    VOID* pDeskbandBinData = ::LockResource(hResData);
-
-    if(!pDeskbandBinData) return false;
-
-    const DWORD dwDeskbandBinSize = ::SizeofResource(NULL, hResInfo);
-
-    if(!dwDeskbandBinSize) return false;
-
-    status = SlFileCreate(
-        &fileHandle,
-        OutputPath, 
-        FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE,
-        FILE_SHARE_READ | FILE_SHARE_WRITE,
-        /*FILE_OVERWRITE_IF*/ FILE_CREATE,
-        FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
-        );
-
-    if (!NT_SUCCESS(status)) return false;
-
-    status = NtWriteFile(
-        fileHandle, 
-        NULL, 
-        NULL, 
-        NULL, 
-        &isb, 
-        pDeskbandBinData, 
-        dwDeskbandBinSize, 
-        NULL, 
-        NULL
-        );
-
-    if (!NT_SUCCESS(status)) return false;
-
-    NtClose(fileHandle);
-
-    return true;
-}
-
-
 INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, INT32 iCmdShow )
 {
     VOID *sectionHandle = INVALID_HANDLE_VALUE, *hMutex;
@@ -880,13 +801,12 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     // Check if already running
     hMutex = CreateMutexW(0, FALSE, L"PushOneInstance");
 
-    bAlreadyRunning = (GetLastError() == ERROR_ALREADY_EXISTS ||
-                            GetLastError() == ERROR_ACCESS_DENIED);
+    bAlreadyRunning = (GetLastError() == ERROR_ALREADY_EXISTS 
+                        || GetLastError() == ERROR_ACCESS_DENIED);
 
     if (bAlreadyRunning)
     {
         MessageBoxW(0, L"Only one instance!", 0,0);
-
         ExitProcess(0);
     }
 
@@ -895,8 +815,8 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 
     // Extract necessary files.
     
-    ExtractResource(L"OVERLAY32", PUSH_LIB_NAME_32);
-    ExtractResource(L"OVERLAY64", PUSH_LIB_NAME_64);
+    SlExtractResource(L"OVERLAY32", PUSH_LIB_NAME_32);
+    SlExtractResource(L"OVERLAY64", PUSH_LIB_NAME_64);
     
     Driver_Extract();
     
@@ -1045,44 +965,6 @@ PushOnTimer()
 {
     RefreshHardwareInfo();
     UpdateSharedMemory();
-}
-
-
-LONG
-__stdcall
-TrayIconProc(VOID *hWnd,
-             UINT32 message,
-             UINT32 wParam,
-             LONG lParam)
-{
-    // The option here is to maintain a list of all TrayIcon windows,
-    // and iterate through them. If you do this, remove these 3 lines.
-    //CSystemTray* pTrayIcon = m_pThis;
-    if (g_hTrayIcon != hWnd)
-    {
-        return DefWindowProcW(hWnd, message, wParam, lParam);
-    }
-
-    // If maintaining a list of TrayIcon windows, then the following...
-    // pTrayIcon = GetFirstTrayIcon()
-    // while (pTrayIcon != NULL)
-    // {
-    //    if (pTrayIcon->GetSafeHwnd() != hWnd) continue;
-
-          // Taskbar has been recreated - all TrayIcons must process this.
-    if (message == g_iTaskbarCreatedMsg)
-    {
-        return OnTaskbarCreated(wParam, lParam);
-    }
-
-    // Is the message from the icon for this TrayIcon?
-    if (message == WM_ICON_NOTIFY)
-    {
-        return TrayIconNotification(wParam, lParam);
-    }
-
-    // Message has not been processed, so default.
-    return DefWindowProcW(hWnd, message, wParam, lParam);
 }
 
 

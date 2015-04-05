@@ -1,18 +1,11 @@
-#include <sltypes.h>
-#include <slntuapi.h>
-#include <slgui.h>
-#include <slc.h>
-#include <wchar.h>
-#include <ramdisk.h>
-#include <slini.h>
+#include <sl.h>
+#include <sltray.h>
+#include <stdio.h>
+#include <string.h>
 #include <file.h>
-#include <pushbase.h>
-#include <ring0.h>
+#include <ramdisk.h>
 
 #include "gui.h"
-#include "main.h"
-#include "cache.h"
-#include "copy.h"
 
 
 WINDOW tab;
@@ -20,8 +13,6 @@ WINDOW* PushMainWindow;
 WINDOW* cacheWindow;
 WINDOW fake;
 
-VOID*   g_hTrayIcon = 0;
-DWORD   g_iTaskbarCreatedMsg = 0;
 BfBatchFile* MwBatchFile;
 VOID* MwControlHandles[50];
 FILE_LIST MwFileList;
@@ -329,9 +320,7 @@ MwCreateMainWindow()
     INT32 i = 0, pageTopOffset = 24;
 
     //initialize icon handle
-    GuiIconHandle = LoadIconW(PushInstance, L"PUSH_ICON");
-
-
+    Gui_IconImageHandle = LoadIconW(PushInstance, L"PUSH_ICON");
 
     // Create Window
     PushMainWindow = (WINDOW*) RtlAllocateHeap(
@@ -346,10 +335,10 @@ MwCreateMainWindow()
                                 L"RTSSPush",
                                 L"Push",
                                 200,
-                                383,
+                                388,
                                 MainWndProc,
                                 0,
-                                GuiIconHandle
+                                Gui_IconImageHandle
                                 );
 
     // Get dimensions of parent window
@@ -457,9 +446,6 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
 {
     switch (uMessage)
     {
-    case WM_ICON_NOTIFY:
-            return TrayIconNotification(wParam, lParam);
-            break;
     case WM_TIMER:
             PushOnTimer();
             break;
@@ -481,8 +467,11 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                 MaximiseFromTray(PushMainWindow->Handle);
                 break;
             case IDM_EXIT:
+            {
+                DestroyWindow(Gui_TrayIconHandle);
                 DestroyWindow(hWnd);
-                break;
+            }
+            break;
                 // OSD
             case CHECKBOX_TIME:
                 PushSharedMemory->OSDFlags |= OSD_TIME;
@@ -530,8 +519,18 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                 PushSharedMemory->Overloads = 0;
                 break;
             case BUTTON_TRAY:
-                MinimiseToTray(PushMainWindow->Handle);
-                break;
+            {
+                SlTrayMinimize(
+                    PushMainWindow->Handle, 
+                    Gui_IconImageHandle, 
+                    L"Push",
+                    IDM_RESTORE,
+                    &Gui_InvisibleWindowHandle, 
+                    &Gui_TrayIconHandle
+                    );
+            }
+            break;
+
             case BUTTON_STOPRAMDISK:
                 RemoveRamDisk();
                 break;
