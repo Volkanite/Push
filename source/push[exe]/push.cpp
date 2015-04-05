@@ -511,30 +511,27 @@ Inject32( VOID *hProcess )
 }
 
 
-    extern "C" INTBOOL __stdcall IsWow64Process(
-  _In_   HANDLE hProcess,
-  _Out_  INTBOOL* Wow64Process
-);
-    VOID Inject64( UINT16 ProcessId, WCHAR* Path );
-    extern "C"
-        typedef DWORD SECURITY_INFORMATION, *PSECURITY_INFORMATION;
-    typedef WORD   SECURITY_DESCRIPTOR_CONTROL, *PSECURITY_DESCRIPTOR_CONTROL;
-    typedef struct _SECURITY_DESCRIPTOR {
-        UCHAR  Revision;
-        UCHAR  Sbz1;
-        SECURITY_DESCRIPTOR_CONTROL  Control;
-        VOID*  Owner;
-        VOID*  Group;
-        VOID*  Sacl;
-        VOID*  Dacl;
-    } SECURITY_DESCRIPTOR;
+typedef struct _SECURITY_DESCRIPTOR {
+    UCHAR Revision;
+    UCHAR Sbz1;
+    WORD Control;
+    VOID* Owner;
+    VOID* Group;
+    VOID* Sacl;
+    VOID* Dacl;
+} SECURITY_DESCRIPTOR;
+
+#define DACL_SECURITY_INFORMATION               (0x00000004L)
+#define UNPROTECTED_DACL_SECURITY_INFORMATION   (0x20000000L)
+
+
 extern "C" NTSTATUS __stdcall NtQuerySecurityObject(
-        _In_ HANDLE Handle,
-        _In_ SECURITY_INFORMATION SecurityInformation,
-        _Out_writes_bytes_opt_(Length) SECURITY_DESCRIPTOR* SecurityDescriptor,
-        _In_ ULONG Length,
-        _Out_ ULONG* LengthNeeded
-        );
+    _In_ HANDLE Handle,
+    _In_ DWORD SecurityInformation,
+    _Out_ SECURITY_DESCRIPTOR* SecurityDescriptor,
+    _In_ ULONG Length,
+    _Out_ ULONG* LengthNeeded
+    );
 
 extern "C" NTSTATUS __stdcall NtSetSecurityObject(
     _In_ HANDLE Handle,
@@ -542,8 +539,15 @@ extern "C" NTSTATUS __stdcall NtSetSecurityObject(
     _In_ VOID* SecurityDescriptor
     );
 
-#define DACL_SECURITY_INFORMATION               (0x00000004L)
-#define UNPROTECTED_DACL_SECURITY_INFORMATION   (0x20000000L)
+extern "C" INTBOOL __stdcall IsWow64Process(
+    _In_   HANDLE hProcess,
+    _Out_  INTBOOL* Wow64Process
+    );
+
+VOID Inject64(
+    _In_ UINT16 ProcessId, 
+    _In_ WCHAR* Path
+    );
 
 
 VOID OnImageEvent( UINT16 ProcessId )
