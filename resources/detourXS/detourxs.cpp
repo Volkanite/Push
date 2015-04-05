@@ -1,10 +1,12 @@
 #include "detourxs.h"
 
+
 DetourXS::DetourXS()
 {
     m_detourLen = 0;
     m_Created = FALSE;
 }
+
 
 DetourXS::DetourXS(LPVOID lpFuncOrig, LPVOID lpFuncDetour)
 {
@@ -12,14 +14,20 @@ DetourXS::DetourXS(LPVOID lpFuncOrig, LPVOID lpFuncDetour)
     Create(lpFuncOrig, lpFuncDetour);
 }
 
+
 DetourXS::~DetourXS()
 {
     Destroy();
 }
 
+
 BOOL DetourXS::Create(const LPVOID lpFuncOrig, const LPVOID lpFuncDetour)
 {
     DWORD dwProt;
+    DWORD dwTrampSize = 0;
+    DWORD bytesCopied;
+    BOOLEAN bContainsRelativeCall = FALSE;
+    LPBYTE addrToWriteJmp;
 
     // Already created, need to Destroy() first
     if(m_Created == TRUE)
@@ -35,8 +43,8 @@ BOOL DetourXS::Create(const LPVOID lpFuncOrig, const LPVOID lpFuncDetour)
     m_trampoline.resize(50, 0x00); // data() must not be relocated to determine jmp type
 
     // Determine which jump is necessary
-    m_OrigJmp = GetJmpType(m_lpbFuncOrig, m_lpbFuncDetour);
-    m_TrampJmp = GetJmpType(m_trampoline.data(), m_lpbFuncOrig);
+    m_OrigJmp = GetAddressingMode(m_lpbFuncOrig, m_lpbFuncDetour);
+    m_TrampJmp = GetAddressingMode(m_trampoline.data(), m_lpbFuncOrig);
 
     // Determine detour length
     if(m_detourLen == 0 && (m_detourLen = GetDetourLenAuto(m_lpFuncOrig, m_OrigJmp)) == 0)
@@ -44,14 +52,53 @@ BOOL DetourXS::Create(const LPVOID lpFuncOrig, const LPVOID lpFuncDetour)
         return FALSE;
     }
 
-    // Copy orig bytes to trampoline
-    std::copy(m_lpbFuncOrig, m_lpbFuncOrig + m_detourLen, m_trampoline.begin());
+    // Copy orig bytes to trampoline.
 
-    // Write a jump to the orig from the tramp
-    WriteJump(m_trampoline.data() + m_detourLen, m_lpbFuncOrig + m_detourLen, m_TrampJmp);
+    if (ContainsRelativeCall(m_lpbFuncOrig, m_detourLen))
+    {
+        LPBYTE relativeCallInstructionAddress = (LPBYTE) GetRelativeCallAddress(m_lpbFuncOrig, m_detourLen);
+        int relativeCallAddress = *(int*)(relativeCallInstructionAddress + 1);
+        LPBYTE callAddr = (relativeCallInstructionAddress + 5) + relativeCallAddress;
+        LPBYTE addressOfCallInstructionInTrampoline;
+        LPBYTE endOfDetour;
+        LPBYTE nextInstructionAfterCall;
+        AddressingMode callType;
+        int offset;
+        
+        offset = relativeCallInstructionAddress - m_lpbFuncOrig;
+        addressOfCallInstructionInTrampoline = m_trampoline.data() + offset;
+        callType = GetAddressingMode(addressOfCallInstructionInTrampoline, callAddr);
+        endOfDetour = m_lpbFuncOrig + m_detourLen;
+        nextInstructionAfterCall = relativeCallInstructionAddress + 5;
 
-    // Trim the tramp
-    m_trampoline.resize(m_detourLen + m_TrampJmp);
+        std::copy(m_lpbFuncOrig, relativeCallInstructionAddress, m_trampoline.begin());
+        WriteCall(addressOfCallInstructionInTrampoline, callAddr, callType);
+        std::copy(nextInstructionAfterCall, endOfDetour, addressOfCallInstructionInTrampoline + 6);
+
+        bContainsRelativeCall = TRUE;
+        bytesCopied = endOfDetour - nextInstructionAfterCall;
+        addrToWriteJmp = m_trampoline.data() + m_detourLen + 1;
+    }
+    else
+    {
+        std::copy(m_lpbFuncOrig, m_lpbFuncOrig + m_detourLen, m_trampoline.begin());
+    }
+    
+    if (bContainsRelativeCall)
+    {
+        // Write a jump to the orig from the tramp
+        WriteJump(m_trampoline.data() + m_detourLen + 1, m_lpbFuncOrig + m_detourLen, m_TrampJmp);
+    }
+    else
+    {
+        // Write a jump to the orig from the tramp
+        WriteJump(m_trampoline.data() + m_detourLen, m_lpbFuncOrig + m_detourLen, m_TrampJmp);
+    }
+
+    // Trim the tramp.
+    dwTrampSize = m_detourLen + m_TrampJmp;
+    if (bContainsRelativeCall) dwTrampSize += 8 + 1;
+    m_trampoline.resize(dwTrampSize);
 
     // Enable full access for when tramp is executed
     if(VirtualProtect(m_trampoline.data(), m_trampoline.size(), PAGE_EXECUTE_READWRITE, &dwProt) == FALSE) { return FALSE; }
@@ -69,6 +116,7 @@ BOOL DetourXS::Create(const LPVOID lpFuncOrig, const LPVOID lpFuncDetour)
     return TRUE;
 }
 
+
 BOOL DetourXS::Destroy()
 {
     DWORD dwProt;
@@ -81,6 +129,7 @@ BOOL DetourXS::Destroy()
     m_Created = FALSE;
     return TRUE;
 }
+
 
 LPVOID DetourXS::RecurseJumps(LPVOID lpAddr)
 {
@@ -146,7 +195,8 @@ LPVOID DetourXS::RecurseJumps(LPVOID lpAddr)
     return lpAddr;
 }
 
-size_t DetourXS::GetDetourLenAuto(const LPVOID lpStart, JmpType jmpType)
+
+size_t DetourXS::GetDetourLenAuto(const LPVOID lpStart, AddressingMode jmpType)
 {
     size_t totalLen = 0;
     LPBYTE lpbDataPos = reinterpret_cast<LPBYTE>(lpStart);
@@ -161,43 +211,126 @@ size_t DetourXS::GetDetourLenAuto(const LPVOID lpStart, JmpType jmpType)
     return totalLen;
 }
 
+
 void DetourXS::WriteJump(const LPBYTE lpbFrom, const LPBYTE lpbTo)
 {
-    JmpType jmpType = GetJmpType(lpbFrom, lpbTo);
+    AddressingMode jmpType = GetAddressingMode(lpbFrom, lpbTo);
     WriteJump(lpbFrom, lpbTo, jmpType);
 }
 
-void DetourXS::WriteJump(const LPBYTE lpbFrom, const LPBYTE lpbTo, JmpType jmpType)
+
+void DetourXS::WriteJump(const LPBYTE lpbFrom, const LPBYTE lpbTo, AddressingMode jmpType)
 {
-    if(jmpType == Absolute)
+    if (jmpType == Absolute)
     {
         lpbFrom[0] = 0xFF;
         lpbFrom[1] = 0x25;
 
-    #ifdef _M_IX86
+#ifdef _M_IX86
         // FF 25 [ptr_to_jmp(4bytes)][jmp(4bytes)]
-        *reinterpret_cast<PDWORD>(lpbFrom + 2) = reinterpret_cast<DWORD>(lpbFrom) + 6;
+        *reinterpret_cast<PDWORD>(lpbFrom + 2) = reinterpret_cast<DWORD>(lpbFrom)+6;
         *reinterpret_cast<PDWORD>(lpbFrom + 6) = reinterpret_cast<DWORD>(lpbTo);
-    #else
+#else
         // FF 25 [ptr_to_jmp(4bytes)][jmp(8bytes)]
         *reinterpret_cast<PDWORD>(lpbFrom + 2) = 0;
         *reinterpret_cast<PDWORD_PTR>(lpbFrom + 6) = reinterpret_cast<DWORD_PTR>(lpbTo);
-    #endif
+#endif
     }
 
-    else if(jmpType == Relative)
+    else if (jmpType == Relative)
     {
         // E9 [to - from - jmp_size]
         lpbFrom[0] = 0xE9;
-        DWORD offset = reinterpret_cast<DWORD>(lpbTo) - reinterpret_cast<DWORD>(lpbFrom) - relativeJmpSize;
-        *reinterpret_cast<PDWORD>(lpbFrom + 1) = static_cast<DWORD>(offset); 
+        DWORD offset = reinterpret_cast<DWORD>(lpbTo)-reinterpret_cast<DWORD>(lpbFrom)-relativeJmpSize;
+        *reinterpret_cast<PDWORD>(lpbFrom + 1) = static_cast<DWORD>(offset);
     }
 }
 
-DetourXS::JmpType DetourXS::GetJmpType(const LPBYTE lpbFrom, const LPBYTE lpbTo)
+
+void DetourXS::WriteCall(const LPBYTE lpbFrom, const LPBYTE lpbTo)
+{
+    AddressingMode callType = GetAddressingMode(lpbFrom, lpbTo);
+    WriteCall(lpbFrom, lpbTo, callType);
+}
+
+
+void DetourXS::WriteCall(const LPBYTE lpbFrom, const LPBYTE lpbTo, AddressingMode callType)
+{
+    LPBYTE offset = (LPBYTE)GetTrampoline() + m_detourLen + m_TrampJmp + 1;
+    LPBYTE stfu = reinterpret_cast<LPBYTE>(offset - (lpbFrom+6));
+
+    if (callType == Absolute)
+    {
+        lpbFrom[0] = 0xFF;
+        lpbFrom[1] = 0x15;
+
+#ifdef _M_IX86
+        // FF 15 [ptr_to_jmp(2bytes)][jmp(2bytes)]
+        *reinterpret_cast<PDWORD>(lpbFrom + 2) = reinterpret_cast<DWORD>(lpbFrom)+6;
+        *reinterpret_cast<PDWORD>(lpbFrom + 6) = reinterpret_cast<DWORD>(lpbTo);
+#else
+        // FF 15 [ptr_to_jmp(2bytes)][jmp(8bytes)]
+        *reinterpret_cast<PDWORD>(lpbFrom + 2) = reinterpret_cast<DWORD>(stfu);
+        *reinterpret_cast<PDWORD_PTR>(offset) = reinterpret_cast<DWORD_PTR>(lpbTo);
+#endif
+    }
+
+    else if (callType == Relative)
+    {
+        // EB [to - from - jmp_size]
+        lpbFrom[0] = 0xE9;
+        DWORD offset = reinterpret_cast<DWORD>(lpbTo)-reinterpret_cast<DWORD>(lpbFrom)-relativeJmpSize;
+        *reinterpret_cast<PDWORD>(lpbFrom + 1) = static_cast<DWORD>(offset);
+    }
+}
+
+
+DetourXS::AddressingMode DetourXS::GetAddressingMode(const LPBYTE lpbFrom, const LPBYTE lpbTo)
 {
     const DWORD_PTR upper = reinterpret_cast<DWORD_PTR>((std::max)(lpbFrom, lpbTo));
     const DWORD_PTR lower = reinterpret_cast<DWORD_PTR>((std::min)(lpbFrom, lpbTo));
 
     return (upper - lower > 0x7FFFFFFF) ? Absolute : Relative;
+}
+
+
+BOOLEAN DetourXS::ContainsRelativeCall(const LPBYTE lpbStart, INT DetourLength)
+{
+    #ifdef _M_IX86
+    return FALSE;
+    #else
+
+    int i;
+
+    for (i = 0; i < DetourLength; i++)
+    {
+        if (lpbStart[i] == 0xE8) //call 0x0000
+        {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+    #endif
+}
+
+
+LPVOID DetourXS::GetRelativeCallAddress(const LPBYTE lpbStart, INT DetourLength)
+{
+    #ifdef _M_IX86
+    return NULL;
+    #else
+
+    int i;
+
+    for (i = 0; i < DetourLength; i++)
+    {
+        if (lpbStart[i] == 0xE8) //call 0x0000
+        {
+            return (lpbStart + i);
+        }
+    }
+
+    return NULL;
+    #endif
 }

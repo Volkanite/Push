@@ -29,8 +29,9 @@ class DetourXS
 public:
     static const size_t relativeJmpSize = 1 + sizeof(DWORD);
     static const size_t absoluteJmpSize = 2 + sizeof(DWORD) + sizeof(DWORD_PTR);
+    static const size_t absoluteCallSize = 10;
 
-    enum JmpType : size_t
+    enum AddressingMode : size_t
     {
         Relative = relativeJmpSize,
         Absolute = absoluteJmpSize
@@ -46,12 +47,18 @@ public:
 
 private:
     LPVOID RecurseJumps(LPVOID lpAddr);
-    size_t GetDetourLenAuto(const LPVOID lpStart, JmpType jmpType);
+    size_t GetDetourLenAuto(const LPVOID lpStart, AddressingMode addressingMode);
     void WriteJump(const LPBYTE lpbFrom, const LPBYTE lpbTo);
-    void WriteJump(const LPBYTE lpbFrom, const LPBYTE lpbTo, JmpType jmpType);
-    JmpType GetJmpType(const LPBYTE lpbFrom, const LPBYTE lpbTo);
+    void WriteJump(const LPBYTE lpbFrom, const LPBYTE lpbTo, AddressingMode jmpType);
+    void WriteCall(const LPBYTE lpbFrom, const LPBYTE lpbTo);
+    void WriteCall(const LPBYTE lpbFrom, const LPBYTE lpbTo, AddressingMode callType);
+    void WriteOpCode(const LPBYTE lpbFrom, const LPBYTE lpbTo, AddressingMode addressingMode, BYTE opCode);
+    AddressingMode GetAddressingMode(const LPBYTE lpbFrom, const LPBYTE lpbTo);
+    BOOLEAN ContainsRelativeCall(const LPBYTE lpbStart, INT DetourLength);
+    LPVOID GetRelativeCallAddress(const LPBYTE lpbStart, INT DetourLength);
+    int SearchRelativeCall(const LPBYTE lpbStart, INT DetourLength);
     LPVOID ChainedTo(LPVOID lpFunc);
-
+    
 public:
     LPVOID GetTrampoline()
     {
@@ -81,8 +88,8 @@ private:
     LPVOID m_lpFuncDetour;
     LPBYTE m_lpbFuncOrig;
     LPBYTE m_lpbFuncDetour;
-    JmpType m_OrigJmp;
-    JmpType m_TrampJmp;
+    AddressingMode m_OrigJmp;
+    AddressingMode m_TrampJmp;
     std::vector<BYTE> m_trampoline;
     size_t m_detourLen;
     BOOL m_Created;
