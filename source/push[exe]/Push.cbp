@@ -4,7 +4,7 @@
 	<Project>
 		<Option title="Push" />
 		<Option pch_mode="2" />
-		<Option compiler="gcc" />
+		<Option compiler="msvc10" />
 		<Build>
 			<Target title="Debug Win32">
 				<Option output="../../bin/Push" prefix_auto="1" extension_auto="1" />
@@ -32,7 +32,7 @@
 			<Target title="Debug x64">
 				<Option output="Push" prefix_auto="1" extension_auto="1" />
 				<Option type="0" />
-				<Option compiler="gcc" />
+				<Option compiler="msvc10" />
 				<Linker>
 					<Add option="/debug" />
 					<Add directory="$(SolutionDir)source/_resources/nvapi" />
@@ -42,7 +42,7 @@
 			<Target title="Release x64">
 				<Option output="Push" prefix_auto="1" extension_auto="1" />
 				<Option type="0" />
-				<Option compiler="gcc" />
+				<Option compiler="msvc10" />
 				<Linker>
 					<Add directory="$(SolutionDir)source/_resources/nvapi" />
 					<Add directory="$(LibraryPath)" />
@@ -51,7 +51,7 @@
 			<Target title="Release Win32">
 				<Option output="../../bin/Push" prefix_auto="1" extension_auto="1" />
 				<Option type="0" />
-				<Option compiler="gcc" />
+				<Option compiler="msvc10" />
 			</Target>
 		</Build>
 		<VirtualTargets>
@@ -68,7 +68,7 @@
 			<Add directory="../../resources/ADL" />
 		</Compiler>
 		<Linker>
-			<Add option='/MANIFEST /MANIFESTDEPENDENCY:&quot;type=&apos;win32&apos; name=&apos;Microsoft.Windows.Common-Controls&apos; version=&apos;6.0.0.0&apos; processorArchitecture=&apos;*&apos; publicKeyToken=&apos;6595b64144ccf1df&apos; language=&apos;*&apos;&quot; /MANIFESTUAC:&quot;level=&apos;requireAdministrator&apos; uiAccess=&apos;false&apos;&quot; /manifest:embed' />
+			<Add option='/MANIFEST /MANIFESTDEPENDENCY:&quot;type=&apos;win32&apos; name=&apos;Microsoft.Windows.Common-Controls&apos; version=&apos;6.0.0.0&apos; processorArchitecture=&apos;*&apos; publicKeyToken=&apos;6595b64144ccf1df&apos; language=&apos;*&apos;&quot; /MANIFESTUAC:&quot;level=&apos;requireAdministrator&apos; uiAccess=&apos;false&apos;&quot;' />
 			<Add library="comctl32" />
 			<Add library="d3d9" />
 			<Add library="psapi" />
@@ -79,7 +79,7 @@
 			<Add library="shell32" />
 			<Add library="comdlg32" />
 			<Add library="sl.lib" />
-			<Add library="inject64.lib" />
+			<Add library="Imagehlp.lib" />
 			<Add directory="../_resources/ddk/lib" />
 			<Add directory="../_resources/sl/lib" />
 			<Add directory="../../resources/sl/lib/i386" />
@@ -143,6 +143,10 @@
 		<Unit filename="RAMdisk/ramdisk.h" />
 		<Unit filename="batch.cpp" />
 		<Unit filename="batch.h" />
+		<Unit filename="driver.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="driver.h" />
 		<Unit filename="file.c">
 			<Option compilerVar="CC" />
 		</Unit>

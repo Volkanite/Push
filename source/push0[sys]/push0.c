@@ -1367,6 +1367,63 @@ NTSTATUS SetCacheName(void *lpInBuffer, ULONG nInBufferSize, void *lpOutBuffer, 
 
     return STATUS_SUCCESS;
 }
+//-----------------------------------------------------------------------------
+//
+// Support Macros
+//
+//-----------------------------------------------------------------------------
+
+// Bus Number, Device Number and Function Number to PCI Device Address
+#define PciBusDevFunc(Bus, Dev, Func)   ((Bus&0xFF)<<8) | ((Dev&0x1F)<<3) | (Func&7)
+// PCI Device Address to Bus Number
+#define PciGetBus(address)              ((address>>8) & 0xFF)
+// PCI Device Address to Device Number
+#define PciGetDev(address)              ((address>>3) & 0x1F)
+// PCI Device Address to Function Number
+#define PciGetFunc(address)             (address&7)
+NTSTATUS
+SlReadPciConfig(
+    READ_PCI_CONFIG_INPUT *ReadPciConfigInput,
+    UINT32 InputBufferSize,
+    VOID *OutputBuffer,
+    UINT32 OutputBufferSize,
+    UINT32 *BytesReturned
+    )
+{
+    PCI_SLOT_NUMBER slot;
+    UINT32 bus, error;
+
+    if (InputBufferSize != sizeof(READ_PCI_CONFIG_INPUT))
+        return STATUS_INVALID_PARAMETER;
+
+    bus = PciGetBus(ReadPciConfigInput->PciAddress);
+
+    slot.u.AsULONG = 0;
+    slot.u.bits.DeviceNumber = PciGetDev(ReadPciConfigInput->PciAddress);
+    slot.u.bits.FunctionNumber = PciGetFunc(ReadPciConfigInput->PciAddress);
+
+    error = HalGetBusDataByOffset(
+                PCIConfiguration,
+                bus,
+                slot.u.AsULONG,
+                OutputBuffer,
+                ReadPciConfigInput->PciOffset,
+                OutputBufferSize
+                );
+
+    *BytesReturned = 0;
+
+    if (error == 0)
+        return STATUS_UNSUCCESSFUL;
+    else if (OutputBufferSize != 2 && error == 2)
+        return STATUS_UNSUCCESSFUL;
+    else if (OutputBufferSize != OutputBufferSize)
+        return STATUS_UNSUCCESSFUL;
+
+    *BytesReturned = OutputBufferSize;
+
+    return STATUS_SUCCESS;
+}
 
 
 
