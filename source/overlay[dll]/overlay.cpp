@@ -43,15 +43,28 @@ PushOptimizeThreads()
 }
 
 
-ULONG
-__stdcall
-MonitorThread(LPVOID v)
+VOID CreateOverlay()
+{
+    OV_HOOK_PARAMS hookParams = { 0 };
+
+    hookParams.RenderFunction = RnRender;
+
+    if (PushSharedMemory->VsyncOverrideMode == PUSH_VSYNC_FORCE_ON)
+        hookParams.VsyncOverrideMode = VSYNC_FORCE_ON;
+    else if (PushSharedMemory->VsyncOverrideMode == PUSH_VSYNC_FORCE_OFF)
+        hookParams.VsyncOverrideMode = VSYNC_FORCE_OFF;
+
+    OvCreateOverlayEx(&hookParams);
+}
+
+
+ULONG __stdcall MonitorThread(LPVOID v)
 {
     while (TRUE)
     {
         WaitForSingleObject(hEvent, INFINITE);
 
-        OvCreateOverlay( RnRender );
+        CreateOverlay();
     }
 
     return NULL;
@@ -176,7 +189,8 @@ MessageHook( LPMSG Message )
                     &dwSize, 
                     sizeof(RAWINPUTHEADER)))
                 {
-                    // if this is keyboard message and WM_KEYDOWN, process the key
+                    // if this is keyboard message and WM_KEYDOWN, process
+                    // the key
                     if(buffer->header.dwType == RIM_TYPEKEYBOARD 
                         && buffer->data.keyboard.Message == WM_KEYDOWN)
                     {
@@ -193,13 +207,23 @@ MessageHook( LPMSG Message )
 }
 
 
-BOOL
-WINAPI
-PeekMessageWHook( LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, UINT wRemoveMsg )
+BOOL WINAPI PeekMessageWHook( 
+    _In_ LPMSG lpMsg, 
+    _In_ HWND hWnd, 
+    _In_ UINT wMsgFilterMin, 
+    _In_ UINT wMsgFilterMax, 
+    _In_ UINT wRemoveMsg 
+    )
 {
     BOOL result;
 
-    result = PushPeekMessageW( lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg );
+    result = PushPeekMessageW( 
+        lpMsg, 
+        hWnd, 
+        wMsgFilterMin, 
+        wMsgFilterMax, 
+        wRemoveMsg 
+        );
 
     if (result)
     {
@@ -210,13 +234,23 @@ PeekMessageWHook( LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax
 }
 
 
-BOOL
-WINAPI
-PeekMessageAHook( LPMSG lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, UINT wRemoveMsg )
+BOOL WINAPI PeekMessageAHook( 
+    _In_ LPMSG lpMsg, 
+    _In_ HWND hWnd, 
+    _In_ UINT wMsgFilterMin, 
+    _In_ UINT wMsgFilterMax, 
+    _In_ UINT wRemoveMsg 
+    )
 {
     BOOL result;
 
-    result = PushPeekMessageA( lpMsg, hWnd, wMsgFilterMin, wMsgFilterMax, wRemoveMsg );
+    result = PushPeekMessageA( 
+        lpMsg, 
+        hWnd, 
+        wMsgFilterMin, 
+        wMsgFilterMax, 
+        wRemoveMsg 
+        );
     
     if (result)
     {
@@ -248,7 +282,11 @@ VOID* DetourApi( WCHAR* dllName, CHAR* apiName, BYTE* NewFunction )
 }
 
 
-BOOL __stdcall DllMain( HINSTANCE Instance, ULONG fdwReason, LPVOID lpReserved )
+BOOL __stdcall DllMain( 
+    _In_ HINSTANCE Instance, 
+    _In_ ULONG fdwReason, 
+    _In_ LPVOID lpReserved 
+    )
 {
     switch(fdwReason)
     {
@@ -256,9 +294,12 @@ BOOL __stdcall DllMain( HINSTANCE Instance, ULONG fdwReason, LPVOID lpReserved )
         {
             void *sectionHandle;
             DEVMODE devMode;
-            OV_HOOK_PARAMS hookParams = {0};
-
-            sectionHandle = OpenFileMappingW( FILE_MAP_ALL_ACCESS, FALSE, PUSH_SECTION_NAME );
+            
+            sectionHandle = OpenFileMappingW( 
+                FILE_MAP_ALL_ACCESS, 
+                FALSE, 
+                PUSH_SECTION_NAME 
+                );
 
             PushSharedMemory = (PUSH_SHARED_MEMORY *) MapViewOfFile(
                                     sectionHandle,
@@ -268,18 +309,15 @@ BOOL __stdcall DllMain( HINSTANCE Instance, ULONG fdwReason, LPVOID lpReserved )
                                     sizeof(PUSH_SHARED_MEMORY)
                                     );
 
-            hEvent = OpenEventW( SYNCHRONIZE, FALSE, L"Global\\" PUSH_IMAGE_EVENT_NAME );
+            hEvent = OpenEventW( 
+                SYNCHRONIZE, 
+                FALSE, 
+                L"Global\\" 
+                PUSH_IMAGE_EVENT_NAME 
+                );
             
-            hookParams.RenderFunction = RnRender;
-            
-            if (PushSharedMemory->VsyncOverrideMode == PUSH_VSYNC_FORCE_ON)
-                hookParams.VsyncOverrideMode = VSYNC_FORCE_ON;
-            else if (PushSharedMemory->VsyncOverrideMode == PUSH_VSYNC_FORCE_OFF)
-                hookParams.VsyncOverrideMode = VSYNC_FORCE_OFF;
-
-            OvCreateOverlayEx( &hookParams );
+            CreateOverlay();
             CreateThread(0, 0, &MonitorThread, 0, 0, 0);
-            
             EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &devMode);
 
             PushRefreshRate = devMode.dmDisplayFrequency;
