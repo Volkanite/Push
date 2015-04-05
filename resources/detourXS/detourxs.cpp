@@ -265,11 +265,11 @@ void DetourXS::WriteCall(const LPBYTE lpbFrom, const LPBYTE lpbTo, AddressingMod
         lpbFrom[1] = 0x15;
 
 #ifdef _M_IX86
-        // FF 15 [ptr_to_jmp(2bytes)][jmp(2bytes)]
+        // FF 15 [ptr_to_call(4bytes)][call(4bytes)]
         *reinterpret_cast<PDWORD>(lpbFrom + 2) = reinterpret_cast<DWORD>(lpbFrom)+6;
         *reinterpret_cast<PDWORD>(lpbFrom + 6) = reinterpret_cast<DWORD>(lpbTo);
 #else
-        // FF 15 [ptr_to_jmp(2bytes)][jmp(8bytes)]
+        // FF 15 [ptr_to_call(4bytes)][call(8bytes)]
         *reinterpret_cast<PDWORD>(lpbFrom + 2) = reinterpret_cast<DWORD>(stfu);
         *reinterpret_cast<PDWORD_PTR>(offset) = reinterpret_cast<DWORD_PTR>(lpbTo);
 #endif
@@ -277,7 +277,7 @@ void DetourXS::WriteCall(const LPBYTE lpbFrom, const LPBYTE lpbTo, AddressingMod
 
     else if (callType == Relative)
     {
-        // EB [to - from - jmp_size]
+        // EB [to - from - call_size]
         lpbFrom[0] = 0xE9;
         DWORD offset = reinterpret_cast<DWORD>(lpbTo)-reinterpret_cast<DWORD>(lpbFrom)-relativeJmpSize;
         *reinterpret_cast<PDWORD>(lpbFrom + 1) = static_cast<DWORD>(offset);
