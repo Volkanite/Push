@@ -100,17 +100,15 @@ NvidiaGpu::GetMemoryClock()
 }
 
 
-UINT64 
-NvidiaGpu::GetTotalMemory()
+UINT64 NvidiaGpu::GetTotalMemory()
 {
-    return 0;
+    return Nvapi_GetTotalMemory();
 }
 
 
-UINT64 
-NvidiaGpu::GetFreeMemory()
+UINT64 NvidiaGpu::GetFreeMemory()
 {
-    return 0;
+    return Nvapi_GetFreeMemory();
 }
 
 

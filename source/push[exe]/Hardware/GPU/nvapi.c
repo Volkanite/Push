@@ -103,6 +103,7 @@ TYPE_NvAPI_GPU_GetPstatesInfo NvAPI_GPU_GetPstatesInfo = NULL;
 UINT32 NvMemoryInfo[NVAPI_MAX_MEMORY_VALUES_PER_GPU] = { 0 };
 INT32 *gpuHandles[NVAPI_MAX_PHYSICAL_GPUS] = { NULL };
 INT32 gpuCount = 0;
+INT32 *displayHandles;
 
 
 BOOLEAN
@@ -199,4 +200,22 @@ Nvapi_GetMaxMemoryClock()
     NvAPI_GPU_GetPstatesInfo(gpuHandles[0], &pstateInfo);
 
     return pstateInfo.Pstates[NVAPI_GPU_PERF_PSTATE_P0].Clocks[1].Freq * 0.001f;
+}
+
+
+UINT64 Nvapi_GetTotalMemory()
+{
+    NvAPI_GetMemoryInfo(displayHandles, NvMemoryInfo);
+
+    int r = NvMemoryInfo[1]; //kilobytes
+    return r * 1024; //bytes
+}
+
+
+UINT64 Nvapi_GetFreeMemory()
+{
+    NvAPI_GetMemoryInfo(displayHandles, NvMemoryInfo);
+
+    int r = NvMemoryInfo[5]; //kilobytes
+    return r * 1024; //bytes
 }
