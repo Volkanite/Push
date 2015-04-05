@@ -10,9 +10,6 @@
     <Filter Include="Hardware">
       <UniqueIdentifier>{5efd4839-3171-45d8-b957-f84047ac9473}</UniqueIdentifier>
     </Filter>
-    <Filter Include="RAMdisk">
-      <UniqueIdentifier>{fcb343da-a4cb-4c24-b95d-2c819c70a6f2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Hardware\CPU">
       <UniqueIdentifier>{b906b572-10b0-42f6-bd09-a17e7a5554c3}</UniqueIdentifier>
     </Filter>
@@ -64,9 +61,6 @@
     <ClCompile Include="Hardware\GPU\NvidiaGpu.cpp">
       <Filter>Hardware\GPU</Filter>
     </ClCompile>
-    <ClCompile Include="RAMdisk\ramdisk.c">
-      <Filter>RAMdisk</Filter>
-    </ClCompile>
     <ClCompile Include="batch.cpp" />
     <ClCompile Include="push.cpp" />
     <ClCompile Include="ring0.c" />
@@ -84,6 +78,7 @@
     </ClCompile>
     <ClCompile Include="game.c" />
     <ClCompile Include="driver.c" />
+    <ClCompile Include="ramdisk.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\cache.h">
@@ -125,9 +120,6 @@
     <ClInclude Include="Hardware\GPU\NvidiaGpu.h">
       <Filter>Hardware\GPU</Filter>
     </ClInclude>
-    <ClInclude Include="RAMdisk\ramdisk.h">
-      <Filter>RAMdisk</Filter>
-    </ClInclude>
     <ClInclude Include="batch.h" />
     <ClInclude Include="ring0.h" />
     <ClInclude Include="file.h" />
@@ -146,6 +138,7 @@
       <Filter>Hardware\GPU</Filter>
     </ClInclude>
     <ClInclude Include="driver.h" />
+    <ClInclude Include="ramdisk.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="push.ico">

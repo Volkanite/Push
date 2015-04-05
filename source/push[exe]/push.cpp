@@ -9,7 +9,7 @@
 #include <gui.h>
 
 #include "push.h"
-#include "RAMdisk\ramdisk.h"
+#include "ramdisk.h"
 #include "Hardware\hwinfo.h"
 #include "batch.h"
 #include "ring0.h"
@@ -651,6 +651,7 @@ VOID OnImageEvent( UINT16 ProcessId )
     
     if (isWow64)
     {
+        SlExtractResource(L"OVERLAY32", PUSH_LIB_NAME_32);
         Inject32(processHandle);
     }
     else
@@ -662,6 +663,7 @@ VOID OnImageEvent( UINT16 ProcessId )
         pszLastSlash = SlStringFindLastChar(szModulePath, '\\');
         pszLastSlash[1] = '\0';
 
+        SlExtractResource(L"OVERLAY64", PUSH_LIB_NAME_64);
         SlStringConcatenate(szModulePath, PUSH_LIB_NAME_64);
         Inject64(ProcessId, szModulePath);
     }
@@ -812,15 +814,10 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 
     thisPID = (UINT32) NtCurrentTeb()->ClientId.UniqueProcess;
     PushHeapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
-
-    // Extract necessary files.
-    
-    SlExtractResource(L"OVERLAY32", PUSH_LIB_NAME_32);
-    SlExtractResource(L"OVERLAY64", PUSH_LIB_NAME_64);
-    
-    Driver_Extract();
     
     // Start Driver.
+
+    Driver_Extract();
     Driver_Load();
     
     //initialize instance

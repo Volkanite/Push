@@ -41,7 +41,7 @@
     <ClCompile Include="Hardware\GPU\NvThermalDiode\NVThermalDiode.cpp" />
     <ClCompile Include="Hardware\hwinfo.cpp" />
     <ClCompile Include="push.cpp" />
-    <ClCompile Include="RAMdisk\ramdisk.c" />
+    <ClCompile Include="ramdisk.c" />
     <ClCompile Include="ring0.c" />
   </ItemGroup>
   <ItemGroup>
@@ -67,7 +67,7 @@
     <ClInclude Include="Hardware\GPU\NvThermalDiode\NvThermalDiode.h" />
     <ClInclude Include="hardware\hwinfo.h" />
     <ClInclude Include="push.h" />
-    <ClInclude Include="RAMdisk\ramdisk.h" />
+    <ClInclude Include="ramdisk.h" />
     <ClInclude Include="ring0.h" />
   </ItemGroup>
   <ItemGroup>
