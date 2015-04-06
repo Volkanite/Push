@@ -6,7 +6,7 @@
 
 
 Dx8Overlay*     OvDx8Overlay;
-Dx9Overlay*     OvDx9Overlay;
+Dx9Overlay*     D3D9Overlay;
 DxgiOverlay*    OvDxgiOverlay;
 
 
@@ -39,16 +39,16 @@ ULONG __stdcall CreateOverlay( LPVOID Param )
         overlay = OvDx8Overlay;
     }
 
-    if (GetModuleHandleA("d3d9.dll") && OvDx9Overlay == NULL)
+    if (GetModuleHandleA("d3d9.dll") && D3D9Overlay == NULL)
     {
-        OvDx9Overlay = new Dx9Overlay( hookParams->RenderFunction );
-        overlay = OvDx9Overlay;
+        D3D9Overlay = new Dx9Overlay( hookParams->RenderFunction );
+        overlay = D3D9Overlay;
     }
 
     if (GetModuleHandleA("dxgi.dll") && OvDxgiOverlay == NULL)
     {
         OvDxgiOverlay = new DxgiOverlay( hookParams->RenderFunction );
-        overlay = OvDx9Overlay;
+        overlay = D3D9Overlay;
     }
 
     if (overlay)

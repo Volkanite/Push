@@ -39,5 +39,8 @@ typedef struct _DX9HOOK_PARAMS
     DX9HOOK_RESET_CALLBACK      CreateDeviceCallback;
 
 } D3D9HOOK_PARAMS;
+
+extern BOOLEAN D3D9Hook_ForceReset;
+
 VOID 
 Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams );
