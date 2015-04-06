@@ -19,7 +19,7 @@ typedef struct _D3DLOCKED_RECT
     ((DWORD)((((a)&0xff)<<24)|(((r)&0xff)<<16)|(((g)&0xff)<<8)|((b)&0xff)))
 #define SAFE_RELEASE(x) if (x) { x->Release(); x = 0; }
 
-static ID3D10Device                        *FntDevice;
+static ID3D10Device                        *D3D10Font_Device;
 static ID3D10InputLayout                     *inputLayout;
 static ID3D10Buffer                        *VB, *IB;
 static ID3D10ShaderResourceView           *BatchTexSRV;
@@ -55,7 +55,7 @@ static
 VOID
 Init()
 {
-    FntDevice      = 0;
+    D3D10Font_Device      = 0;
     m_device10      = 0;
     Initialized     = 0;
     VB              = 0;
@@ -64,9 +64,6 @@ Init()
 
     BatchTexSRV     = 0 ;
 }
-
-
-
 
 
 BOOLEAN Dx10Font::InitD3D10Sprite( )
@@ -88,7 +85,7 @@ BOOLEAN Dx10Font::InitD3D10Sprite( )
         &vertexShaderBlob
         );
 
-    FntDevice->CreateVertexShader(
+    D3D10Font_Device->CreateVertexShader(
         vertexShaderBlob->GetBufferPointer(),
         vertexShaderBlob->GetBufferSize(),
         &D3D10Font_VertexShader
@@ -101,7 +98,7 @@ BOOLEAN Dx10Font::InitD3D10Sprite( )
         { "COLOR", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 20, D3D10_INPUT_PER_VERTEX_DATA, 0 }
     };
 
-    hr = FntDevice->CreateInputLayout(
+    hr = D3D10Font_Device->CreateInputLayout(
         layoutDesc,
         sizeof( layoutDesc ) / sizeof( layoutDesc[ 0 ] ),
         vertexShaderBlob->GetBufferPointer(),
@@ -124,7 +121,7 @@ BOOLEAN Dx10Font::InitD3D10Sprite( )
         );
 
     // Create the pixel shader
-    FntDevice->CreatePixelShader(
+    D3D10Font_Device->CreatePixelShader(
         pixelShaderBlob->GetBufferPointer(),
         pixelShaderBlob->GetBufferSize(),
         &D3D10Font_PixelShader
@@ -150,7 +147,7 @@ BOOLEAN Dx10Font::InitD3D10Sprite( )
     vbd.CPUAccessFlags        = D3D10_CPU_ACCESS_WRITE;
     vbd.MiscFlags            = 0;
 
-    FntDevice->CreateBuffer( &vbd, 0, &VB );
+    D3D10Font_Device->CreateBuffer( &vbd, 0, &VB );
 
     ibd.ByteWidth            = 3072 * sizeof( WORD );
     ibd.Usage                = D3D10_USAGE_IMMUTABLE;
@@ -158,7 +155,7 @@ BOOLEAN Dx10Font::InitD3D10Sprite( )
     ibd.CPUAccessFlags        = 0;
     ibd.MiscFlags            = 0;
 
-    FntDevice->CreateBuffer( &ibd, &indexData, &IB );
+    D3D10Font_Device->CreateBuffer( &ibd, &indexData, &IB );
 
 
     D3D10_BLEND_DESC transparentDesc = { 0 };
@@ -173,7 +170,7 @@ BOOLEAN Dx10Font::InitD3D10Sprite( )
     transparentDesc.BlendOpAlpha          = D3D10_BLEND_OP_ADD;
     transparentDesc.RenderTargetWriteMask[0] = D3D10_COLOR_WRITE_ENABLE_ALL;
 
-    FntDevice->CreateBlendState( &transparentDesc, &TransparentBS );
+    D3D10Font_Device->CreateBlendState( &transparentDesc, &TransparentBS );
 
     HeapHandle = GetProcessHeap();
 
@@ -194,7 +191,7 @@ Dx10Font::Dx10Font(
 {
     Init();
 
-   FntDevice = Device;
+   D3D10Font_Device = Device;
 
    InitDeviceObjects();
    InitD3D10Sprite();
@@ -294,7 +291,7 @@ static
 VOID
 UnmapTexture()
 {
-    /*if(FntDevice)
+    /*if(D3D10Font_Device)
         FontDeviceContext->Unmap(VB, 0);*/
 
     VB->Unmap();
@@ -352,7 +349,7 @@ VOID Dx10Font::DrawBatch( UINT startSpriteIndex, UINT spriteCount )
 
     UnmapTexture();
 
-    FntDevice->DrawIndexed(spriteCount * 6, 0, 0);
+    D3D10Font_Device->DrawIndexed(spriteCount * 6, 0, 0);
 }
 
 
@@ -366,8 +363,12 @@ VOID Dx10Font::EndBatch( )
     D3D10_PRIMITIVE_TOPOLOGY topology;
     ID3D10ShaderResourceView *shaderResourceViews;
     ID3D10PixelShader *pixelShader;
+    ID3D10VertexShader* vertexshader;
+    ID3D10Buffer* vertexBuffers[8];
+    UINT strides[8];
+    UINT offsets[8];
 
-    FntDevice->RSGetViewports( &viewportCount, &vp );
+    D3D10Font_Device->RSGetViewports( &viewportCount, &vp );
 
     ScreenWidth  = (FLOAT)vp.Width;
     ScreenHeight = (FLOAT)vp.Height;
@@ -376,20 +377,22 @@ VOID Dx10Font::EndBatch( )
     offset = 0;
 
     // Save device state
-    FntDevice->IAGetInputLayout( &inputLayoutOld );
-    FntDevice->IAGetPrimitiveTopology( &topology );
-    FntDevice->PSGetShaderResources(0, 1, &shaderResourceViews);
-    FntDevice->PSGetShader(&pixelShader);
+    D3D10Font_Device->IAGetInputLayout( &inputLayoutOld );
+    D3D10Font_Device->IAGetPrimitiveTopology( &topology );
+    D3D10Font_Device->PSGetShaderResources(0, 1, &shaderResourceViews);
+    D3D10Font_Device->IAGetVertexBuffers(0, 8, vertexBuffers, strides, offsets);
+    D3D10Font_Device->PSGetShader(&pixelShader);
+    D3D10Font_Device->VSGetShader(&vertexshader);
 
     // Set new state
-    FntDevice->IASetInputLayout( inputLayout );
-    FntDevice->IASetIndexBuffer( IB, DXGI_FORMAT_R16_UINT, 0 );
-    FntDevice->IASetVertexBuffers( 0, 1, &VB, &stride, &offset );
-    FntDevice->IASetPrimitiveTopology( D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-    FntDevice->PSSetShaderResources(0, 1, &shaderResourceView);
-    FntDevice->VSSetShader(D3D10Font_VertexShader);
-    FntDevice->GSSetShader(NULL);
-    FntDevice->PSSetShader(D3D10Font_PixelShader);
+    D3D10Font_Device->IASetInputLayout( inputLayout );
+    D3D10Font_Device->IASetIndexBuffer( IB, DXGI_FORMAT_R16_UINT, 0 );
+    D3D10Font_Device->IASetVertexBuffers( 0, 1, &VB, &stride, &offset );
+    D3D10Font_Device->IASetPrimitiveTopology( D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+    D3D10Font_Device->PSSetShaderResources(0, 1, &shaderResourceView);
+    D3D10Font_Device->VSSetShader(D3D10Font_VertexShader);
+    D3D10Font_Device->GSSetShader(NULL);
+    D3D10Font_Device->PSSetShader(D3D10Font_PixelShader);
 
     spritesToDraw = NumberOfSprites;
     startIndex = 0;
@@ -410,10 +413,12 @@ VOID Dx10Font::EndBatch( )
     }
 
     // Restore device state
-    FntDevice->IASetInputLayout( inputLayoutOld );
-    FntDevice->IASetPrimitiveTopology( topology );
-    FntDevice->PSSetShaderResources(0, 1, &shaderResourceViews);
-    FntDevice->PSSetShader(pixelShader);
+    D3D10Font_Device->IASetInputLayout( inputLayoutOld );
+    D3D10Font_Device->IASetPrimitiveTopology( topology );
+    D3D10Font_Device->PSSetShaderResources(0, 1, &shaderResourceViews);
+    D3D10Font_Device->IASetVertexBuffers(0, 8, vertexBuffers, strides, offsets);
+    D3D10Font_Device->PSSetShader(pixelShader);
+    D3D10Font_Device->VSSetShader(vertexshader);
 
     SAFE_RELEASE( BatchTexSRV );
     SAFE_RELEASE( inputLayoutOld );
@@ -462,14 +467,14 @@ Dx10Font::CreateTexture()
     texDesc.SampleDesc.Count    = 1;
     texDesc.SampleDesc.Quality  = 0;
 
-    FntDevice->CreateTexture2D( &texDesc, NULL, &m_texture11 );
+    D3D10Font_Device->CreateTexture2D( &texDesc, NULL, &m_texture11 );
 
     srvDesc.Format                      = DXGI_FORMAT_R8G8B8A8_UNORM;
     srvDesc.ViewDimension               = D3D10_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MipLevels         = 1;
     srvDesc.Texture2D.MostDetailedMip   = 0;
 
-    FntDevice->CreateShaderResourceView( m_texture11, &srvDesc, &shaderResourceView );
+    D3D10Font_Device->CreateShaderResourceView( m_texture11, &srvDesc, &shaderResourceView );
 
     return S_OK;
 }
