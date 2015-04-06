@@ -40,6 +40,12 @@ typedef LONG (__stdcall* TYPE_IDirect3D9_CreateDevice)(
     D3DPRESENT_PARAMETERS *pPresentationParameters,
     IDirect3DDevice9 **ppReturnedDeviceInterface);
 
+//
+
+typedef HRESULT(__stdcall *TYPE_IDirect3DDevice9_TestCooperativeLevel)(
+    IDirect3DDevice9* pDevice
+    );
+
 typedef LONG (__stdcall *TYPE_IDirect3DDevice9_Present) (
     IDirect3DDevice9* pDevice,
     const RECT* pSourceRect,
@@ -94,16 +100,17 @@ typedef HRESULT (__stdcall *TYPE_IDirect3DDevice9Ex_ResetEx)(
     );
 
 
-TYPE_Direct3DCreate9                    HkDirect3DCreate9;
-TYPE_Direct3DCreate9Ex                  Dx9Hook_Direct3DCreate9Ex;
-TYPE_IDirect3D9_CreateDevice            Dx9Hook_IDirect3D9_CreateDevice;
-TYPE_IDirect3DDevice9_GetSwapChain      IDirect3DDevice9_GetSwapChain;
-TYPE_IDirect3DSwapChain9_Present        Dx9Hook_IDirect3DSwapChain9_Present;
-TYPE_IDirect3DSwapChain9_GetDevice      IDirect3DSwapChain9_GetDevice;
-TYPE_IDirect3DDevice9_Present           Dx9Hook_IDirect3DDevice9_Present;
-TYPE_IDirect3DDevice9_Reset             Dx9Hook_IDirect3DDevice9_Reset;
-TYPE_IDirect3DDevice9Ex_PresentEx       Dx9Hook_IDirect3DDevice9Ex_PresentEx;
-TYPE_IDirect3DDevice9Ex_ResetEx         Dx9Hook_IDirect3DDevice9Ex_ResetEx;
+TYPE_Direct3DCreate9                        HkDirect3DCreate9;
+TYPE_Direct3DCreate9Ex                      Dx9Hook_Direct3DCreate9Ex;
+TYPE_IDirect3D9_CreateDevice                Dx9Hook_IDirect3D9_CreateDevice;
+TYPE_IDirect3DDevice9_TestCooperativeLevel  D3D9Hook_IDirect3DDevice9_TestCooperativeLevel;
+TYPE_IDirect3DDevice9_GetSwapChain          IDirect3DDevice9_GetSwapChain;
+TYPE_IDirect3DSwapChain9_Present            Dx9Hook_IDirect3DSwapChain9_Present;
+TYPE_IDirect3DSwapChain9_GetDevice          IDirect3DSwapChain9_GetDevice;
+TYPE_IDirect3DDevice9_Present               Dx9Hook_IDirect3DDevice9_Present;
+TYPE_IDirect3DDevice9_Reset                 Dx9Hook_IDirect3DDevice9_Reset;
+TYPE_IDirect3DDevice9Ex_PresentEx           Dx9Hook_IDirect3DDevice9Ex_PresentEx;
+TYPE_IDirect3DDevice9Ex_ResetEx             Dx9Hook_IDirect3DDevice9Ex_ResetEx;
 
 DX9HOOK_PRESENT_CALLBACK    Dx9Hook_Present;
 DX9HOOK_RESET_CALLBACK      Dx9Hook_Reset;
@@ -111,6 +118,7 @@ DX9HOOK_RESET_CALLBACK      Dx9Hook_CreateDevice;
 
 HOOK_PARAMS hookParams;
 D3DPRESENT_PARAMETERS PresentParams;
+BOOLEAN D3D9Hook_ForceReset = FALSE;
 
 
 HRESULT STDMETHODCALLTYPE Dx9Hook_IDirect3DDevice9_Present_Detour(
@@ -132,6 +140,11 @@ HRESULT STDMETHODCALLTYPE Dx9Hook_IDirect3DDevice9_Present_Detour(
         DestWindowOverride,
         DirtyRegion
         );
+
+    if (D3D9Hook_ForceReset)
+    {
+        result = D3DERR_DEVICELOST;
+    }
 
     return result;
 }
@@ -158,6 +171,11 @@ HRESULT STDMETHODCALLTYPE Dx9Hook_IDirect3DDevice9Ex_PresentEx_Detour(
         DirtyRegion,
         Flags
         );
+
+    if (D3D9Hook_ForceReset)
+    {
+        result = D3DERR_DEVICELOST;
+    }
 
     return result;
 }
@@ -191,6 +209,11 @@ HRESULT STDMETHODCALLTYPE Dx9Hook_IDirect3DSwapChain9_Present_Detour(
         Flags
         );
 
+    if (D3D9Hook_ForceReset)
+    {
+        result = D3DERR_DEVICELOST;
+    }
+
     return result;
 }
 
@@ -205,6 +228,8 @@ HRESULT STDMETHODCALLTYPE Dx9Hook_IDirect3DDevice9_Reset_Detour(
     Dx9Hook_Reset( PresentationParameters );
 
     result = Dx9Hook_IDirect3DDevice9_Reset( Device, PresentationParameters );
+
+    D3D9Hook_ForceReset = FALSE;
 
     return result;
 }
@@ -225,6 +250,8 @@ HRESULT STDMETHODCALLTYPE Dx9Hook_IDirect3DDevice9Ex_ResetEx_Detour(
         PresentationParameters, 
         FullscreenDisplayMode 
         );
+
+    D3D9Hook_ForceReset = FALSE;
 
     return result;
 }
@@ -254,6 +281,21 @@ HRESULT STDMETHODCALLTYPE Dx9Hook_IDirect3D9_CreateDevice_Detour(
         ReturnedDeviceInterface
         );
 
+    return result;
+}
+
+
+HRESULT STDMETHODCALLTYPE IDirect3DDevice9_TestCooperativeLevel_Detour( IDirect3DDevice9* Device )
+{
+    HRESULT result;
+        
+    result = D3D9Hook_IDirect3DDevice9_TestCooperativeLevel(Device);
+
+    if (D3D9Hook_ForceReset)
+    {
+        result = D3DERR_DEVICENOTRESET;
+    }
+        
     return result;
 }
 
@@ -318,6 +360,9 @@ VOID Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
 
     vmt = (VOID**) deviceEx;
     vmt = (VOID**) vmt[0];
+
+    detour = new DetourXS(vmt[3], IDirect3DDevice9_TestCooperativeLevel_Detour);
+    D3D9Hook_IDirect3DDevice9_TestCooperativeLevel = (TYPE_IDirect3DDevice9_TestCooperativeLevel)detour->GetTrampoline();
 
     detour = new DetourXS(vmt[17], Dx9Hook_IDirect3DDevice9_Present_Detour);
     Dx9Hook_IDirect3DDevice9_Present = (TYPE_IDirect3DDevice9_Present)detour->GetTrampoline();

@@ -7,10 +7,8 @@
 #include <OvRender.h>
 
 
-
-BOOLEAN HkInitialized = FALSE;
 Dx9Font* Dx9OvFont;
-extern Dx9Overlay* OvDx9Overlay;
+extern Dx9Overlay* D3D9Overlay;
 IDirect3DDevice9* Dx9OvDevice;
 
 
@@ -18,11 +16,11 @@ VOID UpdatePresentationParameters( D3DPRESENT_PARAMETERS* PresentationParameters
 {
     // Force vsync?
     
-    if (OvDx9Overlay->VsyncOverrideMode == VSYNC_FORCE_ON)
+    if (D3D9Overlay->VsyncOverrideMode == VSYNC_FORCE_ON)
     {
         PresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_ONE;
     }
-    else if (OvDx9Overlay->VsyncOverrideMode == VSYNC_FORCE_OFF)
+    else if (D3D9Overlay->VsyncOverrideMode == VSYNC_FORCE_OFF)
     {
         PresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
     }
@@ -83,7 +81,7 @@ Dx9OvRender( IDirect3DDevice9* Device )
     Device->SetRenderTarget( 0, backBuffer );
     
     // Render our stuff.
-    OvDx9Overlay->Render();
+    D3D9Overlay->Render();
 
     // Restore render target.
 
@@ -97,16 +95,26 @@ Dx9OvRender( IDirect3DDevice9* Device )
 }
 
 
-VOID
-Dx9Overlay_Present( IDirect3DDevice9* Device )
+VOID Dx9Overlay_Present( IDirect3DDevice9* Device )
 {
+    static BOOLEAN initialized = FALSE;
+
     Dx9OvRender(Device);
+
+    if (!initialized)
+    { 
+        if (D3D9Overlay->VsyncOverrideMode == VSYNC_FORCE_ON 
+         || D3D9Overlay->VsyncOverrideMode == VSYNC_FORCE_OFF)
+        {
+            D3D9Hook_ForceReset = TRUE;
+        }
+
+        initialized = TRUE;
+    }
 }
 
 
-Dx9Overlay::Dx9Overlay(
-    OV_RENDER RenderFunction
-    )
+Dx9Overlay::Dx9Overlay( OV_RENDER RenderFunction )
 {
     D3D9HOOK_PARAMS hookParams;
 
