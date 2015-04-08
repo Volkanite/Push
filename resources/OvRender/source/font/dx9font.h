@@ -10,9 +10,13 @@
 //-----------------------------------------------------------------------------
 class Dx9Font : public Font
 {
-    LPDIRECT3DDEVICE9       D3D9Font_Device; // A D3DDevice used for rendering
+    LPDIRECT3DDEVICE9       m_pd3dDevice; // A D3DDevice used for rendering
     LPDIRECT3DTEXTURE9      m_pTexture;   // The d3d texture for this font
     LPDIRECT3DVERTEXBUFFER9 m_pVB;        // VertexBuffer for rendering text
+
+    // Stateblocks for setting and restoring render states
+    LPDIRECT3DSTATEBLOCK9 m_pStateBlockSaved;
+    LPDIRECT3DSTATEBLOCK9 m_pStateBlockDrawText;
 
 public:
     // 2D and 3D text drawing functions
