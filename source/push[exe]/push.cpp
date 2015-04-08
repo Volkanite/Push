@@ -551,6 +551,14 @@ extern "C" DWORD __stdcall SetFilePointer(
     _Inout_opt_  LONG* lpDistanceToMoveHigh,
     _In_         DWORD dwMoveMethod
     );
+
+extern "C" DWORD __stdcall GetModuleFileNameExW(
+    _In_      HANDLE hProcess,
+    _In_opt_  HANDLE hModule,
+    _Out_     WCHAR* lpFilename,
+    _In_      DWORD nSize
+    );
+
 VOID Inject64(
     _In_ UINT16 ProcessId, 
     _In_ WCHAR* Path
@@ -662,7 +670,10 @@ VOID OnImageEvent( UINT16 ProcessId )
     HANDLE fileHandle;
     IO_STATUS_BLOCK isb;
     WCHAR marker = 0xFEFF;
-    WCHAR time[40];
+    WCHAR filePath[260];
+    WCHAR *buffer;
+    WCHAR *executableName;
+    UINT16 bufferSize;
 
     SlFileCreate(
         &fileHandle,
@@ -673,12 +684,20 @@ VOID OnImageEvent( UINT16 ProcessId )
         FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
         );
 
-    FormatTime(time);
+    GetModuleFileNameExW(processHandle, 0, filePath, 260);
+
+    executableName = SlStringFindLastChar(filePath, '\\');
+    executableName++;
+    bufferSize = 52 + (SlStringGetLength(executableName) * sizeof(WCHAR));
+    buffer = (WCHAR*) RtlAllocateHeap(PushHeapHandle, 0, bufferSize);
+    
+    FormatTime(buffer);
+    SlStringConcatenate(buffer, L" injecting into ");
+    SlStringConcatenate(buffer, executableName);
+    SlStringConcatenate(buffer, L"\r\n");
     NtWriteFile(fileHandle, NULL, NULL, NULL, &isb, &marker, sizeof(marker), NULL, NULL); // UTF-16LE
     SetFilePointer(fileHandle, 0, NULL, FILE_END);
-    NtWriteFile(fileHandle, NULL, NULL, NULL, &isb, time, 18, NULL, NULL);
-    NtWriteFile(fileHandle, NULL, NULL, NULL, &isb, L"injecting...", 26, NULL, NULL);
-    NtWriteFile(fileHandle, NULL, NULL, NULL, &isb, L"\r\n", 4, NULL, NULL); // new line
+    NtWriteFile(fileHandle, NULL, NULL, NULL, &isb, buffer, bufferSize, NULL, NULL);
     NtClose(fileHandle);
 #endif
 
