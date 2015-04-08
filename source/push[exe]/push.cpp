@@ -55,6 +55,8 @@ extern "C" DWORD __stdcall MapFileAndCheckSumW(
     _Out_  DWORD* CheckSum
     );
 
+VOID FormatTime(WCHAR* Buffer);
+
 
 BOOLEAN IsGame( WCHAR* ExecutablePath )
 {
@@ -522,7 +524,7 @@ typedef struct _SECURITY_DESCRIPTOR {
 
 #define DACL_SECURITY_INFORMATION               (0x00000004L)
 #define UNPROTECTED_DACL_SECURITY_INFORMATION   (0x20000000L)
-
+#define FILE_END             2
 
 extern "C" NTSTATUS __stdcall NtQuerySecurityObject(
     _In_ HANDLE Handle,
@@ -543,6 +545,12 @@ extern "C" INTBOOL __stdcall IsWow64Process(
     _Out_  INTBOOL* Wow64Process
     );
 
+extern "C" DWORD __stdcall SetFilePointer(
+    _In_         HANDLE hFile,
+    _In_         LONG lDistanceToMove,
+    _Inout_opt_  LONG* lpDistanceToMoveHigh,
+    _In_         DWORD dwMoveMethod
+    );
 VOID Inject64(
     _In_ UINT16 ProcessId, 
     _In_ WCHAR* Path
@@ -654,19 +662,23 @@ VOID OnImageEvent( UINT16 ProcessId )
     HANDLE fileHandle;
     IO_STATUS_BLOCK isb;
     WCHAR marker = 0xFEFF;
+    WCHAR time[40];
 
     SlFileCreate(
         &fileHandle,
         L"debug.log",
         SYNCHRONIZE | FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE,
         FILE_SHARE_READ | FILE_SHARE_WRITE,
-        FILE_OVERWRITE_IF,
+        FILE_OPEN_IF,
         FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
         );
 
-    // Write character marker (UTF-16LE)
-    NtWriteFile(fileHandle, NULL, NULL, NULL, &isb, &marker, sizeof(marker), NULL, NULL);
+    FormatTime(time);
+    NtWriteFile(fileHandle, NULL, NULL, NULL, &isb, &marker, sizeof(marker), NULL, NULL); // UTF-16LE
+    SetFilePointer(fileHandle, 0, NULL, FILE_END);
+    NtWriteFile(fileHandle, NULL, NULL, NULL, &isb, time, 18, NULL, NULL);
     NtWriteFile(fileHandle, NULL, NULL, NULL, &isb, L"injecting...", 26, NULL, NULL);
+    NtWriteFile(fileHandle, NULL, NULL, NULL, &isb, L"\r\n", 4, NULL, NULL); // new line
     NtClose(fileHandle);
 #endif
 
@@ -999,4 +1011,24 @@ GetTime(CHAR *pszBuffer)
     timeinfo = localtime ( &rawtime );
 
     strftime (pszBuffer,80,"%H:%M:%S",timeinfo);
+}
+
+
+VOID FormatTime( WCHAR* Buffer )
+{
+    time_t rawtime;
+    struct tm * timeinfo;
+
+    time(&rawtime);
+
+    timeinfo = localtime(
+        &rawtime
+        );
+
+    wcsftime(
+        Buffer,
+        20,
+        L"%H:%M:%S",
+        timeinfo
+        );
 }
