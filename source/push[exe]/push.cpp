@@ -17,7 +17,6 @@
 #include "driver.h"
 
 
-CHAR g_szDllDir[260];
 WCHAR g_szPrevGame[260];
 BOOLEAN g_bRecache;
 VOID* PushControlHandles[50];
@@ -28,7 +27,6 @@ VOID* R0DriverHandle    = INVALID_HANDLE_VALUE;
 FILE_LIST PushFileList    = 0;
 VOID* PushHeapHandle;
 UINT32 thisPID;
-
 PUSH_SHARED_MEMORY* PushSharedMemory;
 UINT32  PushPageSize;
 WCHAR g_szLastDir[260];
@@ -55,6 +53,8 @@ extern "C" DWORD __stdcall MapFileAndCheckSumW(
     _Out_  DWORD* HeaderSum,
     _Out_  DWORD* CheckSum
     );
+
+void log(const char *fmt, ...);
 
 
 BOOLEAN IsGame( WCHAR* ExecutablePath )
@@ -650,6 +650,26 @@ VOID OnImageEvent( UINT16 ProcessId )
     {
             return;
     }
+
+#if DEBUG
+    HANDLE fileHandle;
+    IO_STATUS_BLOCK isb;
+    WCHAR marker = 0xFEFF;
+
+    SlFileCreate(
+        &fileHandle,
+        L"debug.log",
+        SYNCHRONIZE | FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE,
+        FILE_SHARE_READ | FILE_SHARE_WRITE,
+        FILE_OVERWRITE_IF,
+        FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
+        );
+
+    // Write character marker (UTF-16LE)
+    NtWriteFile(fileHandle, NULL, NULL, NULL, &isb, &marker, sizeof(marker), NULL, NULL);
+    NtWriteFile(fileHandle, NULL, NULL, NULL, &isb, L"injecting...", 26, NULL, NULL);
+    NtClose(fileHandle);
+#endif
 
     IsWow64Process(processHandle, &isWow64);
     
