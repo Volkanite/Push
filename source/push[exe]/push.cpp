@@ -18,6 +18,7 @@
 
 
 WCHAR g_szPrevGame[260];
+WCHAR g_szLastDir[260];
 BOOLEAN g_bRecache;
 VOID* PushControlHandles[50];
 VOID* PushInstance;
@@ -29,7 +30,7 @@ VOID* PushHeapHandle;
 UINT32 thisPID;
 PUSH_SHARED_MEMORY* PushSharedMemory;
 UINT32  PushPageSize;
-WCHAR g_szLastDir[260];
+
 
 #define STATUS_INVALID_IMAGE_HASH        ((NTSTATUS)0xC0000428L)
 
@@ -53,8 +54,6 @@ extern "C" DWORD __stdcall MapFileAndCheckSumW(
     _Out_  DWORD* HeaderSum,
     _Out_  DWORD* CheckSum
     );
-
-void log(const char *fmt, ...);
 
 
 BOOLEAN IsGame( WCHAR* ExecutablePath )
