@@ -3,7 +3,7 @@
 #include <D3DX9.h>
 
 #include "dx9font.h"
-
+#define SAFE_RELEASE(x) if (x) { x->Release(); x = 0; }
 
 //-----------------------------------------------------------------------------
 // Custom vertex types for rendering text
@@ -234,14 +234,21 @@ HRESULT Dx9Font::DeleteDeviceObjects()
 //-----------------------------------------------------------------------------
 HRESULT Dx9Font::DrawText( FLOAT sx, FLOAT sy, DWORD dwColor, TCHAR* strText, DWORD dwFlags )
 {
+    IDirect3DVertexBuffer9* vertexBuffer = NULL;
+    UINT stride;
+    UINT offset;
+    
     if( m_pd3dDevice == NULL )
         return E_FAIL;
 
     // Setup renderstate
     m_pStateBlockSaved->Capture();
     m_pStateBlockDrawText->Apply();
-    //m_pd3dDevice->SetFVF( D3DFVF_FONT2DVERTEX );
-    //m_pd3dDevice->SetPixelShader( NULL );
+    
+    // Backup vertex buffer
+    m_pd3dDevice->GetStreamSource(0, &vertexBuffer, &offset, &stride);
+
+    // Set new vertex buffer
     m_pd3dDevice->SetStreamSource( 0, m_pVB, 0, sizeof(FONT2DVERTEX) );
 
     // Set filter states
@@ -317,11 +324,19 @@ HRESULT Dx9Font::DrawText( FLOAT sx, FLOAT sy, DWORD dwColor, TCHAR* strText, DW
 
     // Unlock and render the vertex buffer
     m_pVB->Unlock();
+    
     if( dwNumTriangles > 0 )
         m_pd3dDevice->DrawPrimitive( D3DPT_TRIANGLELIST, 0, dwNumTriangles );
 
     // Restore the modified renderstates
     m_pStateBlockSaved->Apply();
-
+    
+    // Restore vertex buffer
+    if (vertexBuffer)
+    {
+        m_pd3dDevice->SetStreamSource(0, vertexBuffer, offset, stride);
+        vertexBuffer->Release();
+    }
+    
     return S_OK;
 }
