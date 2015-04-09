@@ -669,10 +669,10 @@ VOID OnImageEvent( UINT16 ProcessId )
 #if DEBUG
     HANDLE fileHandle;
     IO_STATUS_BLOCK isb;
-    WCHAR marker = 0xFEFF;
-    WCHAR filePath[260];
-    WCHAR *buffer;
-    WCHAR *executableName;
+    wchar_t marker = 0xFEFF;
+    wchar_t filePath[260];
+    wchar_t *buffer;
+    wchar_t *executableName;
     UINT16 bufferSize;
 
     SlFileCreate(
@@ -688,16 +688,16 @@ VOID OnImageEvent( UINT16 ProcessId )
 
     executableName = SlStringFindLastChar(filePath, '\\');
     executableName++;
-    bufferSize = 52 + (SlStringGetLength(executableName) * sizeof(WCHAR));
+    bufferSize = 54 + (SlStringGetLength(executableName) * sizeof(WCHAR));
     buffer = (WCHAR*) RtlAllocateHeap(PushHeapHandle, 0, bufferSize);
-    
+
     FormatTime(buffer);
     SlStringConcatenate(buffer, L" injecting into ");
     SlStringConcatenate(buffer, executableName);
     SlStringConcatenate(buffer, L"\r\n");
     NtWriteFile(fileHandle, NULL, NULL, NULL, &isb, &marker, sizeof(marker), NULL, NULL); // UTF-16LE
     SetFilePointer(fileHandle, 0, NULL, FILE_END);
-    NtWriteFile(fileHandle, NULL, NULL, NULL, &isb, buffer, bufferSize, NULL, NULL);
+    NtWriteFile(fileHandle, NULL, NULL, NULL, &isb, buffer, bufferSize - sizeof(WCHAR), NULL, NULL);
     NtClose(fileHandle);
 #endif
 
