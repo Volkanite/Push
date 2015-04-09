@@ -726,8 +726,7 @@ VOID OnImageEvent( UINT16 ProcessId )
 }
 
 
-VOID
-RetrieveProcessEvent()
+DWORD __stdcall RetrieveProcessEvent( VOID* Parameter )
 {
     OVERLAPPED              ov          = { 0 };
     //BOOLEAN                    bReturnCode = FALSE;
@@ -759,14 +758,13 @@ RetrieveProcessEvent()
         );
 
     OnProcessEvent(processInfo.hProcessID);
-
-    //CloseHandle(ov.hEvent);
     NtClose(ov.hEvent);
+
+    return 0;
 }
 
 
-VOID
-RetrieveImageEvent()
+DWORD __stdcall RetrieveImageEvent( VOID* Parameter )
 {
     OVERLAPPED          ov          = { 0 };
     //BOOLEAN                bReturnCode = FALSE;
@@ -796,26 +794,22 @@ RetrieveImageEvent()
         );
 
     OnImageEvent(imageInfo.processID);
-
-    //CloseHandle(ov.hEvent);
     NtClose(ov.hEvent);
+
+    return 0;
 }
 
 
 DWORD __stdcall MonitorThread( VOID* Parameter )
 {
-    VOID *processEvent, *threadEvent, *d3dImageEvent/*, *ramDiskEvent*/;
-    VOID *handles[3];
-    processEvent    = OpenEventW(SYNCHRONIZE, FALSE, L"Global\\" PUSH_PROCESS_EVENT_NAME);
-    threadEvent     = OpenEventW(SYNCHRONIZE, FALSE, L"Global\\" PUSH_THREAD_EVENT_NAME);
-    d3dImageEvent   = OpenEventW(SYNCHRONIZE, FALSE, L"Global\\" PUSH_IMAGE_EVENT_NAME);
-
-    //ramDiskEvent = CreateEventW(0, TRUE, FALSE, L"Local\\" PUSH_RAMDISK_REMOVE_EVENT_NAME);
-
+    VOID *processEvent, *d3dImageEvent;
+    VOID *handles[2];
+    
+    processEvent = OpenEventW(SYNCHRONIZE, FALSE, L"Global\\" PUSH_PROCESS_EVENT_NAME);
+    d3dImageEvent = OpenEventW(SYNCHRONIZE, FALSE, L"Global\\" PUSH_IMAGE_EVENT_NAME);
+    
     handles[0] = processEvent;
-    handles[1] = threadEvent;
-    handles[2] = d3dImageEvent;
-    //handles[3] = ramDiskEvent;
+    handles[1] = d3dImageEvent;
 
     while (TRUE)
     {
@@ -831,16 +825,12 @@ DWORD __stdcall MonitorThread( VOID* Parameter )
 
         if (handles[result - WAIT_OBJECT_0] == processEvent)
         {
-            RetrieveProcessEvent();
+            CreateRemoteThread(NtCurrentProcess(), 0, 0, &RetrieveProcessEvent, NULL, 0, NULL);
         }
         else if (handles[result - WAIT_OBJECT_0] == d3dImageEvent)
         {
-            RetrieveImageEvent();
+            CreateRemoteThread(NtCurrentProcess(), 0, 0, &RetrieveImageEvent, NULL, 0, NULL);
         }
-        /*else if (handles[result - WAIT_OBJECT_0] == threadEvent)
-        {
-            RetrieveThreadEvent();
-        }*/
     }
 
     return 0;
