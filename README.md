@@ -21,7 +21,7 @@ RAMDisk:
 - automatically cache files to ram disk
 
 D3D Tweaks: 
-- force vsync 
+- force vsync on/off
 - frame limiter 
 
 Other: 
