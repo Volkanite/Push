@@ -93,7 +93,7 @@ UINT16 NvidiaGpu::GetMemoryClock()
 
 UINT64 NvidiaGpu::GetTotalMemory()
 {
-    return Nvapi_GetTotalMemory();
+	return ReadGpuRegister(0x10020c);
 }
 
 
