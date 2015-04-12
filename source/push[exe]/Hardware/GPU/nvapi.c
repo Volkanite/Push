@@ -142,8 +142,7 @@ BOOLEAN Nvapi_Initialize()
 }
 
 
-UINT8
-Nvapi_GetActivity()
+UINT8 Nvapi_GetActivity()
 {
     NV_USAGES usages;
 
@@ -155,8 +154,7 @@ Nvapi_GetActivity()
 }
 
 
-UINT16
-Nvapi_GetEngineClock()
+UINT16 Nvapi_GetEngineClock()
 {
     NV_CLOCKS clocks;
 
@@ -168,8 +166,7 @@ Nvapi_GetEngineClock()
 }
 
 
-UINT16
-Nvapi_GetMemoryClock()
+UINT16 Nvapi_GetMemoryClock()
 {
     NV_CLOCKS clocks;
 
@@ -181,8 +178,7 @@ Nvapi_GetMemoryClock()
 }
 
 
-UINT16
-Nvapi_GetMaxEngineClock()
+UINT16 Nvapi_GetMaxEngineClock()
 {
     NV_GPU_PERF_PSTATES_INFO pstateInfo = {0};
 
@@ -194,8 +190,7 @@ Nvapi_GetMaxEngineClock()
 }
 
 
-UINT16
-Nvapi_GetMaxMemoryClock()
+UINT16 Nvapi_GetMaxMemoryClock()
 {
     NV_GPU_PERF_PSTATES_INFO pstateInfo = {0};
 
@@ -210,28 +205,22 @@ Nvapi_GetMaxMemoryClock()
 UINT64 Nvapi_GetTotalMemory()
 {
     NV_MEMORY_INFO memoryInfo = {0};
-    UINT32 r;
 
     memoryInfo.Version = sizeof(NV_MEMORY_INFO) | 0x20000;
 
     NvAPI_GetMemoryInfo(displayHandles, &memoryInfo);
-
-    r = memoryInfo.Value[0]; //kilobytes
     
-    return r * 1024; //bytes
+    return memoryInfo.Value[0] * 1024; //kilobytes -> bytes
 }
 
 
 UINT64 Nvapi_GetFreeMemory()
 {
-    NV_MEMORY_INFO memoryInfo = { 0 };
-    UINT32 r;
+    NV_MEMORY_INFO memoryInfo = {0};
 
     memoryInfo.Version = sizeof(NV_MEMORY_INFO) | 0x20000;
 
     NvAPI_GetMemoryInfo(displayHandles, &memoryInfo);
-
-    r = memoryInfo.Value[4]; //kilobytes
-
-    return r * 1024; //bytes
+    
+    return memoryInfo.Value[4] * 1024; //kilobytes -> bytes
 }
