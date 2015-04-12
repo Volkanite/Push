@@ -22,7 +22,7 @@ InitGeForce()
         return TRUE;
 
     GfCoreFamily = (ReadGpuRegister(0) >> 20) & 0xff;
-    m_dwDiodeGainMul = GetDiodeGainMul(GfCoreFamily);
+    //m_dwDiodeGainMul = GetDiodeGainMul(GfCoreFamily);
     GfInitialized = TRUE;
 
     NvtdInitialize();
@@ -31,7 +31,7 @@ InitGeForce()
 }
 
 
-//////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////
 // Get default thermal diode gain mul calibration parameter for
 // thermal diode capable GPUs
 //////////////////////////////////////////////////////////////////////
@@ -74,19 +74,53 @@ GetDiodeGainMul( DWORD coreFamily )
         //return 0 if GPU has no on-die thermal diode
         return 0;
     }
+}*/
+
+
+
+static int CalcSpeed_nv50(int base_freq, int m1, int m2, int n1, int n2, int p)
+{
+	return (int)((float)(n1*n2) / (m1*m2) * base_freq) >> p;
+}
+
+float GetClock_nv50(int base_freq, unsigned int pll, unsigned int pll2)
+{
+	int m1, m2, n1, n2, p;
+
+	p = (pll >> 16) & 0x03;
+	m1 = pll2 & 0xFF;
+	n1 = (pll2 >> 8) & 0xFF;
+
+	/* This is always 1 for NV5x? */
+	m2 = 1;
+	n2 = 1;
+
+	/*if (nv_card->debug)
+		printf("m1=%d m2=%d n1=%d n2=%d p=%d\n", m1, m2, n1, n2, p);*/
+
+	/* The clocks need to be multiplied by 4 for some reason. Is this 4 stored in 0x4000/0x4004? */
+	return (float)4 * CalcSpeed_nv50(base_freq, m1, m2, n1, n2, p) / 1000;
+}
+static float nv50_get_gpu_speed()
+{
+	int pll = ReadGpuRegister(0x4024);
+	int pll2 = ReadGpuRegister(0x402c);
+	int base_freq = 27000;
+
+	return (float)GetClock_nv50(base_freq, pll, pll2);
 }
 
 
 NvidiaGpu::NvidiaGpu()
 {
-    Nvapi_Initialize();
+	Nvapi_Initialize();
 }
 
 
 UINT16 
 NvidiaGpu::GetEngineClock()
 {
-    return Nvapi_GetEngineClock();
+	return nv50_get_gpu_speed();
 }
 
 
