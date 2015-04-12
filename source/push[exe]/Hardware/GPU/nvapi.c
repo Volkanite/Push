@@ -5,7 +5,7 @@
 #define NVAPI_MAX_USAGES_PER_GPU        33
 #define NVAPI_MAX_PHYSICAL_GPUS         64
 #define NVAPI_MAX_CLOCKS_PER_GPU        0x120
-#define NVAPI_MAX_MEMORY_VALUES_PER_GPU 6
+#define NVAPI_MAX_MEMORY_VALUES_PER_GPU 5
 #define NVAPI_MAX_GPU_PERF_PSTATES      16
 #define NVAPI_MAX_GPU_PUBLIC_CLOCKS     32
 #define NVAPI_MAX_GPU_PERF_CLOCKS       32
@@ -24,6 +24,13 @@ typedef struct _NV_USAGES
     UINT32 Usage[NVAPI_MAX_USAGES_PER_GPU];
 
 }NV_USAGES;
+
+typedef struct _NV_MEMORY_INFO
+{
+    UINT32 Version;
+    UINT32 Value[NVAPI_MAX_MEMORY_VALUES_PER_GPU];
+
+}NV_MEMORY_INFO;
 
 typedef enum _NV_GPU_PERF_PSTATE_ID
 {
@@ -100,14 +107,13 @@ TYPE_NvAPI_GPU_GetUsages    NvAPI_GPU_GetUsages     = NULL;
 TYPE_NvAPI_GPU_GetAllClocks NvAPI_GPU_GetAllClocks  = NULL;
 TYPE_NvAPI_GPU_GetPstatesInfo NvAPI_GPU_GetPstatesInfo = NULL;
 
-UINT32 NvMemoryInfo[NVAPI_MAX_MEMORY_VALUES_PER_GPU] = { 0 };
+
 INT32 *gpuHandles[NVAPI_MAX_PHYSICAL_GPUS] = { NULL };
 INT32 gpuCount = 0;
 INT32 *displayHandles;
 
 
-BOOLEAN
-Nvapi_Initialize()
+BOOLEAN Nvapi_Initialize()
 {
     VOID *nvapi = NULL;
 
@@ -121,14 +127,12 @@ Nvapi_Initialize()
         "nvapi_QueryInterface"
         );
 
-    NvAPI_GetMemoryInfo     = (TYPE_NvAPI_GetMemoryInfo)    NvAPI_QueryInterface(0x774AA982);
-    NvAPI_Initialize        = (TYPE_NvAPI_Initialize)       NvAPI_QueryInterface(0x0150E828);
-    NvAPI_EnumPhysicalGPUs  = (TYPE_NvAPI_EnumPhysicalGPUs) NvAPI_QueryInterface(0xE5AC921F);
-    NvAPI_GPU_GetUsages     = (TYPE_NvAPI_GPU_GetUsages)    NvAPI_QueryInterface(0x189A1FDF);
-    NvAPI_GPU_GetAllClocks  = (TYPE_NvAPI_GPU_GetAllClocks) NvAPI_QueryInterface(0x1BD69F49);
+    NvAPI_Initialize         = (TYPE_NvAPI_Initialize)         NvAPI_QueryInterface(0x0150E828);
+    NvAPI_EnumPhysicalGPUs   = (TYPE_NvAPI_EnumPhysicalGPUs)   NvAPI_QueryInterface(0xE5AC921F);
+    NvAPI_GPU_GetUsages      = (TYPE_NvAPI_GPU_GetUsages)      NvAPI_QueryInterface(0x189A1FDF);
+    NvAPI_GPU_GetAllClocks   = (TYPE_NvAPI_GPU_GetAllClocks)   NvAPI_QueryInterface(0x1BD69F49);
     NvAPI_GPU_GetPstatesInfo = (TYPE_NvAPI_GPU_GetPstatesInfo) NvAPI_QueryInterface(0xBA94C56E);
-
-    NvMemoryInfo[0]  = (NVAPI_MAX_MEMORY_VALUES_PER_GPU * 4) | 0x20000;
+    NvAPI_GetMemoryInfo      = (TYPE_NvAPI_GetMemoryInfo)      NvAPI_QueryInterface(0x774AA982);
 
     // initialize NvAPI library, call it once before calling any other NvAPI functions
     NvAPI_Initialize();
@@ -205,17 +209,29 @@ Nvapi_GetMaxMemoryClock()
 
 UINT64 Nvapi_GetTotalMemory()
 {
-    NvAPI_GetMemoryInfo(displayHandles, NvMemoryInfo);
+    NV_MEMORY_INFO memoryInfo = {0};
+    UINT32 r;
 
-    int r = NvMemoryInfo[1]; //kilobytes
+    memoryInfo.Version = sizeof(NV_MEMORY_INFO) | 0x20000;
+
+    NvAPI_GetMemoryInfo(displayHandles, &memoryInfo);
+
+    r = memoryInfo.Value[0]; //kilobytes
+    
     return r * 1024; //bytes
 }
 
 
 UINT64 Nvapi_GetFreeMemory()
 {
-    NvAPI_GetMemoryInfo(displayHandles, NvMemoryInfo);
+    NV_MEMORY_INFO memoryInfo = { 0 };
+    UINT32 r;
 
-    int r = NvMemoryInfo[5]; //kilobytes
+    memoryInfo.Version = sizeof(NV_MEMORY_INFO) | 0x20000;
+
+    NvAPI_GetMemoryInfo(displayHandles, &memoryInfo);
+
+    r = memoryInfo.Value[4]; //kilobytes
+
     return r * 1024; //bytes
 }
