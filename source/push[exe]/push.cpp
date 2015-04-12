@@ -46,8 +46,9 @@ TYPE_MuteJack MuteJack;
 
 
 extern "C" VOID* SlOpenProcess(
-    UINT16 processID,
-    DWORD rights);
+    PROCESSID processID,
+    DWORD rights
+    );
 
 extern "C" DWORD __stdcall MapFileAndCheckSumW(
     _In_   WCHAR* Filename,
@@ -409,7 +410,7 @@ Cache( PUSH_GAME* Game )
 
 
 VOID
-OnProcessEvent( UINT16 processID )
+OnProcessEvent( PROCESSID processID )
 {
     WCHAR fileName[260];
     VOID *processHandle = NULL;
@@ -560,12 +561,12 @@ extern "C" DWORD __stdcall GetModuleFileNameExW(
     );
 
 VOID Inject64(
-    _In_ UINT16 ProcessId, 
+    _In_ PROCESSID ProcessId, 
     _In_ WCHAR* Path
     );
 
 
-VOID OnImageEvent( UINT16 ProcessId )
+VOID OnImageEvent( PROCESSID ProcessId )
 {
     VOID *processHandle = 0;
     INTBOOL isWow64;

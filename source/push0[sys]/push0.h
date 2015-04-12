@@ -124,20 +124,15 @@ typedef struct _DEVICE_EXTENSION
 
     struct _PROCESS_EVENT
     {
-      UINT16 ProcessID;
+      PROCESSID ProcessID;
 
     } ProcessEvent;
 
-    /*struct _THREAD_EVENT
-    {
-        UINT16 threadOwner;
-
-    } ThreadEvent;*/
     THREAD_CALLBACK_INFO threadCallbackInfo;
 
     struct _IMAGE_EVENT
     {
-        UINT32  processID;
+        PROCESSID  processID;
         WCHAR   imageName[260];
 
     } imageEvent;

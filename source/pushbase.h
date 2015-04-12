@@ -257,9 +257,12 @@ typedef struct _PUSH_SHARED_MEMORY
 } PUSH_SHARED_MEMORY;
 
 
+#ifndef PROCESSID
+#define PROCESSID unsigned long
+#endif
 typedef struct _PROCESS_CALLBACK_INFO
 {
-    UINT16 hProcessID;
+    PROCESSID hProcessID;
 
 } PROCESS_CALLBACK_INFO, *PPROCESS_CALLBACK_INFO;
 
@@ -275,8 +278,7 @@ typedef struct _THREAD_CALLBACK_INFO
 
 typedef struct _IMAGE_CALLBACK_INFO
 {
-    UINT16  processID;
-    //WCHAR   imageName[260];
+    PROCESSID processID;
 
 } IMAGE_CALLBACK_INFO;
 

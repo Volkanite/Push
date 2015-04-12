@@ -212,7 +212,7 @@ ThreadMonitor::ThreadMonitor()
     UINT64 delta = 0;
     UINT32 ProcOffset = 0;
     UINT32 n, bufferSize;
-    UINT32 processId;
+    PROCESSID processId;
     INT32 status = 0;
     VOID*           ProcThrdInfo = 0;
     SYSTEM_PROCESS_INFORMATION *processEntry;
