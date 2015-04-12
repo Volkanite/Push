@@ -38,7 +38,7 @@ ProcessCallback(VOID *hParentId,
         // Assign current values into device extension.
         // User-mode apps will pick it up using DeviceIoControl calls.
         //
-        extension->ProcessEvent.ProcessID = (UINT16) hProcessId;
+        extension->ProcessEvent.ProcessID = (PROCESSID) hProcessId;
         //
         // Signal the event thus the user-mode apps listening will be 
         // aware that something interesting has happened.
@@ -50,23 +50,17 @@ ProcessCallback(VOID *hParentId,
 }
 
 
-VOID
-ThreadCallback(VOID *processID,
-               VOID *threadID,
-               BOOLEAN create)
+VOID ThreadCallback( VOID *processID, VOID *threadID, BOOLEAN create )
 {
     DEVICE_EXTENSION *devExt;
 
     devExt = (DEVICE_EXTENSION*) g_DeviceObject->DeviceExtension;
-
-    //devExt->ThreadEvent.threadOwner = (UINT16) processID;
-    devExt->threadCallbackInfo.threadOwner = (UINT16) processID;
+    
+    devExt->threadCallbackInfo.threadOwner = (PROCESSID) processID;
     devExt->threadCallbackInfo.threadID = (UINT16) threadID;
     devExt->threadCallbackInfo.create = create;
 
-
     KeSetEvent(ThreadEvent, 0, FALSE);
-
     KeClearEvent(ThreadEvent);
 }
 

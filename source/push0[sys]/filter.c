@@ -162,7 +162,7 @@ FilterPreCreate(
                     || wcsncmp(L"d3d10.dll", nameInformation->FinalComponent.Buffer, 9) == 0
                     || wcsncmp(L"d3d11.dll", nameInformation->FinalComponent.Buffer, 9) == 0)
                 {
-                    UINT32 processId;
+                    PROCESSID processId;
                     DEVICE_EXTENSION *deviceExtension;
 
                     processId = FltGetRequestorProcessId(Data);

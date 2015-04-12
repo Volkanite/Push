@@ -6,6 +6,8 @@ typedef unsigned long long  QWORD;  /*64 bit*/ /* 0 to 18,446,744,073,709,551,61
 typedef signed long         SDWORD; /*32 bit*/ /* –2147483648 to 2147483647 */
 typedef signed long long    SQWORD; /*64 bit*/ /* –9,223,372,036,854,775,808 to 9,223,372,036,854,775,807 */
 
+#define VOID void
+#define PROCESSID DWORD
 
 typedef BYTE    BOOLEAN;
 typedef BYTE    UINT8;
@@ -18,8 +20,6 @@ typedef SDWORD  LONG;
 typedef DWORD ULONG;
 typedef char    CHAR;
 typedef BYTE    UCHAR;
-//typedef void    VOID;
-#define VOID void
 typedef float   FLOAT;
 typedef double  DOUBLE;
 typedef int  INTBOOL;
@@ -27,6 +27,8 @@ typedef LONG NTSTATUS;
 typedef unsigned long long ULONGLONG;
 typedef LONG KPRIORITY;
 typedef VOID* HANDLE;
+typedef QWORD U64;
+typedef QWORD PTR64;
 
 
 #ifdef __cplusplus
