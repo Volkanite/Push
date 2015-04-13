@@ -79,6 +79,9 @@
     <ClCompile Include="game.c" />
     <ClCompile Include="driver.c" />
     <ClCompile Include="ramdisk.c" />
+    <ClCompile Include="Hardware\GPU\OpenNvapi.c">
+      <Filter>Hardware\GPU</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\cache.h">
@@ -139,6 +142,9 @@
     </ClInclude>
     <ClInclude Include="driver.h" />
     <ClInclude Include="ramdisk.h" />
+    <ClInclude Include="Hardware\GPU\OpenNvapi.h">
+      <Filter>Hardware\GPU</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="push.ico">

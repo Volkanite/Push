@@ -5,6 +5,7 @@
 #include <hwinfo.h>
 #include "NvThermalDiode\NvThermalDiode.h"
 #include "nvapi.h"
+#include "OpenNvapi.h"
 #include "d3dkmt.h"
 
 
@@ -115,33 +116,7 @@ typedef struct _NVAPI_PRIVATE_DATA
 
 UINT64 NvidiaGpu::GetFreeMemory()
 {
-    NVAPI_PRIVATE_DATA privData = { 0 };
-
-    privData.Dummy[0] = 0x41;
-    privData.Dummy[1] = 0x44;
-    privData.Dummy[2] = 0x56;
-    privData.Dummy[3] = 0x4E;
-    privData.Dummy[4] = 0x2;
-    privData.Dummy[5] = 0x0;
-    privData.Dummy[6] = 0x1;
-    privData.Dummy[7] = 0x0;
-    privData.Dummy[8] = 0x4C;
-    privData.Dummy[9] = 0x0;
-    privData.Dummy[10] = 0x0;
-    privData.Dummy[11] = 0x0;
-    privData.Dummy[12] = 0x2A;
-    privData.Dummy[13] = 0x2A;
-    privData.Dummy[14] = 0x56;
-    privData.Dummy[15] = 0x4E;
-    privData.Dummy[16] = 0x12;
-    privData.Dummy[17] = 0x0;
-    privData.Dummy[18] = 0x0;
-    privData.Dummy[19] = 0x1;
-    privData.Dummy[75] = 0xB4;
-    D3DKMT_GetPrivateDriverData(&privData, sizeof(NVAPI_PRIVATE_DATA));
-    VOID *adr = &privData.Dummy[0x38];
-    DWORD *kb = (DWORD*)adr;
-    return *kb * 1024; //kilobytes -> bytes
+    return OpenNvapi_GetFreeMemory();
 }
 
 
@@ -155,27 +130,21 @@ NvidiaGpu::GetTemperature()
 }
 
 
-UINT8 
-NvidiaGpu::GetLoad()
+UINT8 NvidiaGpu::GetLoad()
 {
-    //return Nvapi_GetActivity();
-    return NULL;
+    return Nvapi_GetActivity();
 }
 
 
-UINT16 
-NvidiaGpu::GetMaximumEngineClock()
+UINT16 NvidiaGpu::GetMaximumEngineClock()
 {
-    //return Nvapi_GetMaxEngineClock();
-    return NULL;
+    return Nvapi_GetMaxEngineClock();
 }
 
 
-UINT16 
-NvidiaGpu::GetMaximumMemoryClock()
+UINT16 NvidiaGpu::GetMaximumMemoryClock()
 {
-    //return Nvapi_GetMaxMemoryClock();
-    return NULL;
+    return Nvapi_GetMaxMemoryClock();
 }
 
 

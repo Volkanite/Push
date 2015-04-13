@@ -1,0 +1,1 @@
+extern "C" UINT64 OpenNvapi_GetFreeMemory();

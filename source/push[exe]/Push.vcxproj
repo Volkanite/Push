@@ -39,6 +39,7 @@
     <ClCompile Include="Hardware\GPU\NvidiaGpu.cpp" />
     <ClCompile Include="Hardware\GPU\NvThermalDiode\Context.cpp" />
     <ClCompile Include="Hardware\GPU\NvThermalDiode\NVThermalDiode.cpp" />
+    <ClCompile Include="Hardware\GPU\OpenNvapi.c" />
     <ClCompile Include="Hardware\hwinfo.cpp" />
     <ClCompile Include="push.cpp" />
     <ClCompile Include="ramdisk.c" />
@@ -65,6 +66,7 @@
     <ClInclude Include="Hardware\GPU\NvidiaGpu.h" />
     <ClInclude Include="Hardware\GPU\NvThermalDiode\Context.h" />
     <ClInclude Include="Hardware\GPU\NvThermalDiode\NvThermalDiode.h" />
+    <ClInclude Include="Hardware\GPU\OpenNvapi.h" />
     <ClInclude Include="hardware\hwinfo.h" />
     <ClInclude Include="push.h" />
     <ClInclude Include="ramdisk.h" />
