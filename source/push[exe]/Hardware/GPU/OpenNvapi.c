@@ -10,6 +10,54 @@ typedef struct NVAPI_PRIVATE_MEMORY_DATA
 }NVAPI_PRIVATE_MEMORY_DATA;
 
 
+UINT16 OpenNvapi_GetEngineClock()
+{
+    
+}
+
+
+UINT16 OpenNvapi_GetMemoryClock()
+{
+    
+}
+
+
+VOID OpenNvapi_GetClocks()
+{
+
+}
+
+
+UINT16 OpenNvapi_GetMaximumEngineClock()
+{
+
+}
+
+
+UINT16 OpenNvapi_GetMaximumMemoryClock()
+{
+
+}
+
+
+VOID OpenNvapi_GetMaximumClocks()
+{
+
+}
+
+
+VOID OpenNvapi_ForceMaximumClocks()
+{
+
+}
+
+
+UINT64 OpenNvapi_GetTotalMemory()
+{
+
+}
+
+
 UINT64 OpenNvapi_GetFreeMemory()
 {
     NVAPI_PRIVATE_MEMORY_DATA privData = { 0 };
@@ -44,4 +92,22 @@ UINT64 OpenNvapi_GetFreeMemory()
     VOID *adr = &privData.Dummy[0x38];
     DWORD *kb = (DWORD*)adr;
     return *kb * 1024; //kilobytes -> bytes
+}
+
+
+VOID OpenNvapi_GetMemoryInformation()
+{
+
+}
+
+
+UINT8 OpenNvapi_GetTemperature()
+{
+
+}
+
+
+UINT8 OpenNvapi_GetLoad()
+{
+    
 }
