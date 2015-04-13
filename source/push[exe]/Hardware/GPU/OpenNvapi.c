@@ -9,9 +9,11 @@ typedef struct NVAPI_PRIVATE_MEMORY_DATA
     DWORD Dummy3;
     DWORD Dummy4;
     DWORD Dummy5;
-    BYTE Dummy6[36];
-    DWORD Free; //kilobytes
-    BYTE Dummy7[16];
+    BYTE Dummy6[28];
+    DWORD Total;    //kilobytes
+    BYTE Dummy7[4];
+    DWORD Free;     //kilobytes
+    BYTE Dummy8[16];
 
 }NVAPI_PRIVATE_MEMORY_DATA; //76 bytes
 
@@ -60,7 +62,21 @@ VOID OpenNvapi_ForceMaximumClocks()
 
 UINT64 OpenNvapi_GetTotalMemory()
 {
+    NVAPI_PRIVATE_MEMORY_DATA memoryData = { 0 };
 
+    memoryData.Dummy1 = 0x4E564441;
+    memoryData.Dummy2 = 0x10002;
+    memoryData.Dummy3 = 0x4C;
+    memoryData.Dummy4 = 0x4E562A2A;
+    memoryData.Dummy5 = 0x1000012;
+    memoryData.Dummy8[15] = 0xB4;
+
+    D3DKMT_GetPrivateDriverData(
+        &memoryData,
+        sizeof(NVAPI_PRIVATE_MEMORY_DATA)
+        );
+
+    return memoryData.Total * 1024; //kilobytes -> bytes
 }
 
 
@@ -73,7 +89,7 @@ UINT64 OpenNvapi_GetFreeMemory()
     memoryData.Dummy3 = 0x4C;
     memoryData.Dummy4 = 0x4E562A2A;
     memoryData.Dummy5 = 0x1000012;
-    memoryData.Dummy7[15] = 0xB4;
+    memoryData.Dummy8[15] = 0xB4;
 
     D3DKMT_GetPrivateDriverData(
         &memoryData,
