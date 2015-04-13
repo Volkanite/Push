@@ -99,20 +99,6 @@ UINT64 NvidiaGpu::GetTotalMemory()
     return ReadGpuRegister(0x10020c);
 }
 
-#define NVAPI_MAX_MEMORY_VALUES_PER_GPU 5
-typedef struct _NV_MEMORY_INFO
-{
-    UINT32 Version;
-    UINT32 Value[NVAPI_MAX_MEMORY_VALUES_PER_GPU];
-
-}NV_MEMORY_INFO;
-typedef struct _NVAPI_PRIVATE_DATA
-{
-    BYTE Dummy[76];
-    //NV_MEMORY_INFO MemoryInformation;
-
-}NVAPI_PRIVATE_DATA;
-
 
 UINT64 NvidiaGpu::GetFreeMemory()
 {
