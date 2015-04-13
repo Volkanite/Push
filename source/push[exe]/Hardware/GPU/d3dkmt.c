@@ -177,7 +177,7 @@ D3DKMTGetMemoryUsage()
     return dedicatedUsage;
 }
 
-
+D3DKMT_OPENADAPTERFROMDEVICENAME    openAdapterFromDeviceName;
 VOID
 D3DKMTInitialize()
 {
@@ -189,7 +189,7 @@ D3DKMTInitialize()
     SP_DEVICE_INTERFACE_DATA            deviceInterfaceData;
     SP_DEVICE_INTERFACE_DETAIL_DATA_W   *detailData;
     SP_DEVINFO_DATA                     deviceInfoData;
-    D3DKMT_OPENADAPTERFROMDEVICENAME    openAdapterFromDeviceName;
+    //D3DKMT_OPENADAPTERFROMDEVICENAME    openAdapterFromDeviceName;
     D3DKMT_QUERYSTATISTICS              queryStatistics;
 
     //gdi32 = PushLoadLibrary(L"gdi32.dll");
@@ -375,4 +375,63 @@ UpdateNodeInformation()
     PhUpdateDelta(&EtClockTotalRunningTimeDelta, performanceCounter.QuadPart);
     PhUpdateDelta(&EtGpuTotalRunningTimeDelta, totalRunningTime);
     PhUpdateDelta(&EtGpuSystemRunningTimeDelta, systemRunningTime);
+}
+
+
+typedef enum _D3DKMT_ESCAPETYPE
+{
+    D3DKMT_ESCAPE_DRIVERPRIVATE = 0,
+    D3DKMT_ESCAPE_VIDMM = 1,
+    D3DKMT_ESCAPE_TDRDBGCTRL = 2,
+    D3DKMT_ESCAPE_VIDSCH = 3,
+    D3DKMT_ESCAPE_DEVICE = 4,
+    D3DKMT_ESCAPE_DMM = 5,
+    D3DKMT_ESCAPE_DEBUG_SNAPSHOT = 6,
+    D3DKMT_ESCAPE_SETDRIVERUPDATESTATUS = 7,
+    D3DKMT_ESCAPE_DRT_TEST = 8,
+    D3DKMT_ESCAPE_DIAGNOSTICS = 9
+} D3DKMT_ESCAPETYPE;
+
+typedef struct _D3DDDI_ESCAPEFLAGS
+{
+    union
+    {
+        struct
+        {
+            UINT32    HardwareAccess : 1;    // 0x00000001
+            UINT32    Reserved : 31;    // 0xFFFFFFFE
+        };
+        UINT32        Value;
+    };
+} D3DDDI_ESCAPEFLAGS;
+
+typedef struct _D3DKMT_ESCAPE
+{
+    D3DKMT_HANDLE       hAdapter;               // in: adapter handle
+    D3DKMT_HANDLE       hDevice;                // in: device handle [Optional]
+    D3DKMT_ESCAPETYPE   Type;                   // in: escape type.
+    D3DDDI_ESCAPEFLAGS  Flags;                  // in: flags
+    VOID*               pPrivateDriverData;     // in/out: escape data
+    UINT32                PrivateDriverDataSize;  // in: size of escape data
+    D3DKMT_HANDLE       hContext;               // in: context handle [Optional]
+} D3DKMT_ESCAPE;
+
+NTSTATUS __stdcall D3DKMTEscape(
+    _In_  const D3DKMT_ESCAPE *pData
+    );
+
+
+VOID D3DKMT_GetPrivateDriverData( VOID* PrivateDriverData, UINT32 PrivateDriverDataSize )
+{
+    D3DKMT_ESCAPE driverInformation = { 0 };
+
+    driverInformation.hAdapter = openAdapterFromDeviceName.hAdapter;
+    driverInformation.hDevice = NULL;
+    driverInformation.Type = D3DKMT_ESCAPE_DRIVERPRIVATE;
+    driverInformation.Flags.Value = 0;
+    driverInformation.pPrivateDriverData = PrivateDriverData;
+    driverInformation.PrivateDriverDataSize = PrivateDriverDataSize;
+    driverInformation.hContext = NULL;
+
+    D3DKMTEscape(&driverInformation);
 }

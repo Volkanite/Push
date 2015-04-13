@@ -5,6 +5,7 @@
 #include <hwinfo.h>
 #include "NvThermalDiode\NvThermalDiode.h"
 #include "nvapi.h"
+#include "d3dkmt.h"
 
 
 BYTE GfCoreFamily = 0;
@@ -33,73 +34,114 @@ InitGeForce()
 
 static int CalcSpeed_nv50(int base_freq, int m1, int m2, int n1, int n2, int p)
 {
-	return (int)((float)(n1*n2) / (m1*m2) * base_freq) >> p;
+    return (int)((float)(n1*n2) / (m1*m2) * base_freq) >> p;
 }
 
 float GetClock_nv50(int base_freq, unsigned int pll, unsigned int pll2)
 {
-	int m1, m2, n1, n2, p;
+    int m1, m2, n1, n2, p;
 
-	p = (pll >> 16) & 0x03;
-	m1 = pll2 & 0xFF;
-	n1 = (pll2 >> 8) & 0xFF;
+    p = (pll >> 16) & 0x03;
+    m1 = pll2 & 0xFF;
+    n1 = (pll2 >> 8) & 0xFF;
 
-	/* This is always 1 for NV5x? */
-	m2 = 1;
-	n2 = 1;
+    /* This is always 1 for NV5x? */
+    m2 = 1;
+    n2 = 1;
 
-	/* The clocks need to be multiplied by 4 for some reason. Is this 4 stored in 0x4000/0x4004? */
-	return (float)4 * CalcSpeed_nv50(base_freq, m1, m2, n1, n2, p) / 1000;
+    /* The clocks need to be multiplied by 4 for some reason. Is this 4 stored in 0x4000/0x4004? */
+    return (float)4 * CalcSpeed_nv50(base_freq, m1, m2, n1, n2, p) / 1000;
 }
 
 
 float nv50_get_gpu_speed()
 {
-	int pll = ReadGpuRegister(0x4028);
-	int pll2 = ReadGpuRegister(0x402c);
-	int base_freq = 25000;
+    int pll = ReadGpuRegister(0x4028);
+    int pll2 = ReadGpuRegister(0x402c);
+    int base_freq = 25000;
 
-	return (float)GetClock_nv50(base_freq, pll, pll2);
+    return (float)GetClock_nv50(base_freq, pll, pll2);
 }
 
 
 float nv50_get_memory_speed()
 {
-	int pll = ReadGpuRegister(0x4008);
-	int pll2 = ReadGpuRegister(0x400c);
-	int base_freq = 27000;
+    int pll = ReadGpuRegister(0x4008);
+    int pll2 = ReadGpuRegister(0x400c);
+    int base_freq = 27000;
 
-	return (float)GetClock_nv50(base_freq, pll, pll2);
+    return (float)GetClock_nv50(base_freq, pll, pll2);
 }
 
 
 NvidiaGpu::NvidiaGpu()
 {
-	Nvapi_Initialize();
+    Nvapi_Initialize();
+    D3DKMTInitialize();
 }
 
 
 UINT16 NvidiaGpu::GetEngineClock()
 {
-	return nv50_get_gpu_speed();
+    return nv50_get_gpu_speed();
 }
 
 
 UINT16 NvidiaGpu::GetMemoryClock()
 {
-	return nv50_get_memory_speed();
+    return nv50_get_memory_speed();
 }
 
 
 UINT64 NvidiaGpu::GetTotalMemory()
 {
-	return ReadGpuRegister(0x10020c);
+    return ReadGpuRegister(0x10020c);
 }
+
+#define NVAPI_MAX_MEMORY_VALUES_PER_GPU 5
+typedef struct _NV_MEMORY_INFO
+{
+    UINT32 Version;
+    UINT32 Value[NVAPI_MAX_MEMORY_VALUES_PER_GPU];
+
+}NV_MEMORY_INFO;
+typedef struct _NVAPI_PRIVATE_DATA
+{
+    BYTE Dummy[76];
+    //NV_MEMORY_INFO MemoryInformation;
+
+}NVAPI_PRIVATE_DATA;
 
 
 UINT64 NvidiaGpu::GetFreeMemory()
 {
-    return Nvapi_GetFreeMemory();
+    NVAPI_PRIVATE_DATA privData = { 0 };
+
+    privData.Dummy[0] = 0x41;
+    privData.Dummy[1] = 0x44;
+    privData.Dummy[2] = 0x56;
+    privData.Dummy[3] = 0x4E;
+    privData.Dummy[4] = 0x2;
+    privData.Dummy[5] = 0x0;
+    privData.Dummy[6] = 0x1;
+    privData.Dummy[7] = 0x0;
+    privData.Dummy[8] = 0x4C;
+    privData.Dummy[9] = 0x0;
+    privData.Dummy[10] = 0x0;
+    privData.Dummy[11] = 0x0;
+    privData.Dummy[12] = 0x2A;
+    privData.Dummy[13] = 0x2A;
+    privData.Dummy[14] = 0x56;
+    privData.Dummy[15] = 0x4E;
+    privData.Dummy[16] = 0x12;
+    privData.Dummy[17] = 0x0;
+    privData.Dummy[18] = 0x0;
+    privData.Dummy[19] = 0x1;
+    privData.Dummy[75] = 0xB4;
+    D3DKMT_GetPrivateDriverData(&privData, sizeof(NVAPI_PRIVATE_DATA));
+    VOID *adr = &privData.Dummy[0x38];
+    DWORD *kb = (DWORD*)adr;
+    return *kb * 1024; //kilobytes -> bytes
 }
 
 
@@ -116,21 +158,24 @@ NvidiaGpu::GetTemperature()
 UINT8 
 NvidiaGpu::GetLoad()
 {
-    return Nvapi_GetActivity();
+    //return Nvapi_GetActivity();
+    return NULL;
 }
 
 
 UINT16 
 NvidiaGpu::GetMaximumEngineClock()
 {
-    return Nvapi_GetMaxEngineClock();
+    //return Nvapi_GetMaxEngineClock();
+    return NULL;
 }
 
 
 UINT16 
 NvidiaGpu::GetMaximumMemoryClock()
 {
-    return Nvapi_GetMaxMemoryClock();
+    //return Nvapi_GetMaxMemoryClock();
+    return NULL;
 }
 
 
