@@ -30,36 +30,31 @@ RdnSetMaxClocks()
 }
 
 
-UINT16 
-AmdGpu::GetEngineClock()
+UINT16 AmdGpu_GetEngineClock()
 {
     return RdnAdl.GetEngineClock();
 }
 
 
-UINT16 
-AmdGpu::GetMemoryClock()
+UINT16 AmdGpu_GetMemoryClock()
 {
     return RdnAdl.GetMemoryClock();
 }
 
 
-UINT64 
-AmdGpu::GetTotalMemory()
+UINT64 AmdGpu_GetTotalMemory()
 {
     return 0;
 }
 
 
-UINT64 
-AmdGpu::GetFreeMemory()
+UINT64 AmdGpu_GetFreeMemory()
 {
     return 0;
 }
 
 
-UINT8 
-AmdGpu::GetTemperature()
+UINT8 AmdGpu_GetTemperature()
 {
     UINT32 temp;
 

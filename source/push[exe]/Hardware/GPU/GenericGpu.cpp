@@ -3,64 +3,55 @@
 #include "d3dkmt.h"
 
 
-UINT16 
-GenericGpu::GetEngineClock()
+UINT16 GenericGpu_GetEngineClock()
 {
 	return 0;
 }
 
 
-UINT16 
-GenericGpu::GetMemoryClock()
+UINT16 GenericGpu_GetMemoryClock()
 {
 	return 0;
 }
 
 
-UINT64 
-GenericGpu::GetTotalMemory()
+UINT64 GenericGpu_GetTotalMemory()
 {
 	return 0;
 }
 
 
-UINT64 
-GenericGpu::GetFreeMemory()
+UINT64 GenericGpu_GetFreeMemory()
 {
 	return 0;
 }
 
 
-UINT8 
-GenericGpu::GetTemperature()
+UINT8 GenericGpu_GetTemperature()
 {
 	return 0;
 }
 
 
-UINT8 
-GenericGpu::GetLoad()
+UINT8 GenericGpu_GetLoad()
 {
-	return D3DKMTGetGpuUsage();
+	return D3DKMT_GetGpuUsage();
 }
 
 
-UINT16 
-GenericGpu::GetMaximumEngineClock()
+UINT16 GenericGpu_GetMaximumEngineClock()
 {
 	return 0;
 }
 
 
-UINT16 
-GenericGpu::GetMaximumMemoryClock()
+UINT16 GenericGpu_GetMaximumMemoryClock()
 {
 	return 0;
 }
 
 
-VOID 
-GenericGpu::ForceMaximumClocks()
+VOID GenericGpu_ForceMaximumClocks()
 {
 
 }

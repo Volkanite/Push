@@ -2,20 +2,18 @@
 #define GPU_H
 
 
-class CGPU{
-public:
-	virtual UINT16 GetEngineClock() = 0;
-	virtual UINT16 GetMemoryClock() = 0;
-	virtual UINT64 GetTotalMemory() = 0;
-	virtual UINT64 GetFreeMemory() = 0;
-	virtual UINT8 GetTemperature() = 0;
-	virtual UINT8 GetLoad() = 0;
-	virtual UINT16 GetMaximumEngineClock() = 0;
-	virtual UINT16 GetMaximumMemoryClock() = 0;
-	virtual VOID ForceMaximumClocks() = 0;
-};
+typedef struct _GPU_ADAPTER
+{
+	UINT16(*GetEngineClock)();
+	UINT16(*GetMemoryClock)();
+	UINT64(*GetTotalMemory)();
+	UINT64(*GetFreeMemory)();
+	UINT8(*GetTemperature)();
+	UINT8(*GetLoad)();
+	UINT16(*GetMaximumEngineClock)();
+	UINT16(*GetMaximumMemoryClock)();
+	VOID(*ForceMaximumClocks)();
+}GPU_ADAPTER;
 
-
-CGPU* CreateGpuInterface( WORD VenderId );
-
+GPU_ADAPTER* CreateGpuInterface( WORD VenderId );
 #endif

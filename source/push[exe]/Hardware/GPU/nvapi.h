@@ -6,3 +6,5 @@ extern "C" UINT16 Nvapi_GetMaxEngineClock();
 extern "C" UINT16 Nvapi_GetMaxMemoryClock();
 extern "C" UINT64 Nvapi_GetTotalMemory();
 extern "C" UINT64 Nvapi_GetFreeMemory();
+extern "C" UINT8  Nvapi_GetTemperature();
+extern "C" VOID Nvapi_ForceMaximumClocks();

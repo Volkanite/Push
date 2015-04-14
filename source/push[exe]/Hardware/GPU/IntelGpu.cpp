@@ -4,64 +4,55 @@
 #include "..\CPU\intel.h"
 
 
-UINT16 
-IntelGpu::GetEngineClock()
+UINT16 IntelGpu_GetEngineClock()
 {
 	return 0;
 }
 
 
-UINT16 
-IntelGpu::GetMemoryClock()
+UINT16 IntelGpu_GetMemoryClock()
 {
 	return 0;
 }
 
 
-UINT64 
-IntelGpu::GetTotalMemory()
+UINT64 IntelGpu_GetTotalMemory()
 {
 	return 0;
 }
 
 
-UINT64 
-IntelGpu::GetFreeMemory()
+UINT64 IntelGpu_GetFreeMemory()
 {
 	return 0;
 }
 
 
-UINT8 
-IntelGpu::GetTemperature()
+UINT8 IntelGpu_GetTemperature()
 {
 	return GetIntelTemp();
 }
 
 
-UINT8 
-IntelGpu::GetLoad()
+UINT8 IntelGpu_GetLoad()
 {
-	return D3DKMTGetGpuUsage();
+	return D3DKMT_GetGpuUsage();
 }
 
 
-UINT16 
-IntelGpu::GetMaximumEngineClock()
+UINT16 IntelGpu_GetMaximumEngineClock()
 {
 	return 0;
 }
 
 
-UINT16 
-IntelGpu::GetMaximumMemoryClock()
+UINT16 IntelGpu_GetMaximumMemoryClock()
 {
 	return 0;
 }
 
 
-VOID 
-IntelGpu::ForceMaximumClocks()
+VOID IntelGpu_ForceMaximumClocks()
 {
 
 }

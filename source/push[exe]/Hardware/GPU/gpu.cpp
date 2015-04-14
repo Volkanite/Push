@@ -1,4 +1,5 @@
-#include <sltypes.h>
+#include <sl.h>
+#include <push.h>
 
 #include "gpu.h"
 #include "amdgpu.h"
@@ -12,18 +13,25 @@
 #define INTEL   0x8086
 
 
-CGPU* 
-CreateGpuInterface( WORD VendorId )
+GPU_ADAPTER* CreateGpuInterface( WORD VendorId )
 {
+	GPU_ADAPTER *gpuAdapter = (GPU_ADAPTER*) RtlAllocateHeap(PushHeapHandle, 0, sizeof(GPU_ADAPTER));
+
 	switch (VendorId)
 	{
 	case AMD:
-		return new AmdGpu();
+		AmdGpu_CreateInterface(gpuAdapter);
+		break;
 	case NVIDIA:
-		return new NvidiaGpu();
+		NvidiaGpu_CreateInterface(gpuAdapter);
+		break;
 	case INTEL:
-		return new IntelGpu();
+		IntelGpu_CreateInterface(gpuAdapter);
+		break;
 	default:
-		return new GenericGpu();
+		GenericGpu_CreateInterface(gpuAdapter);
+		break;
 	}
+
+	return gpuAdapter;
 }
