@@ -14,7 +14,7 @@ UINT8  GenericGpu_GetTemperature();
 VOID GenericGpu_ForceMaximumClocks();
 
 
-VOID GenericGpu_CreateInterface(GPU_ADAPTER* GpuAdapter)
+VOID GenericGpu_CreateAdapter(GPU_ADAPTER* GpuAdapter)
 {
     GpuAdapter->GetEngineClock          = GenericGpu_GetEngineClock;
     GpuAdapter->GetMemoryClock          = GenericGpu_GetMemoryClock;

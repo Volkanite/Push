@@ -20,7 +20,7 @@ UINT8  AmdGpu_GetTemperature();
 VOID AmdGpu_ForceMaximumClocks();
 
 
-VOID AmdGpu_CreateInterface( GPU_ADAPTER* GpuAdapter )
+VOID AmdGpu_CreateAdapter( GPU_ADAPTER* GpuAdapter )
 {
     Adl_Initialize();
 

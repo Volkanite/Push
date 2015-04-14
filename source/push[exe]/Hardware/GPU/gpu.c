@@ -13,23 +13,27 @@
 #define INTEL   0x8086
 
 
-GPU_ADAPTER* CreateGpuInterface( WORD VendorId )
+GPU_ADAPTER* CreateGpuAdapter( WORD VendorId )
 {
-    GPU_ADAPTER *gpuAdapter = (GPU_ADAPTER*) RtlAllocateHeap(PushHeapHandle, 0, sizeof(GPU_ADAPTER));
+    GPU_ADAPTER *gpuAdapter = (GPU_ADAPTER*) RtlAllocateHeap(
+        PushHeapHandle, 
+        0, 
+        sizeof(GPU_ADAPTER)
+        );
 
     switch (VendorId)
     {
     case AMD:
-        AmdGpu_CreateInterface(gpuAdapter);
+        AmdGpu_CreateAdapter(gpuAdapter);
         break;
     case NVIDIA:
-        NvidiaGpu_CreateInterface(gpuAdapter);
+        NvidiaGpu_CreateAdapter(gpuAdapter);
         break;
     case INTEL:
-        IntelGpu_CreateInterface(gpuAdapter);
+        IntelGpu_CreateAdapter(gpuAdapter);
         break;
     default:
-        GenericGpu_CreateInterface(gpuAdapter);
+        GenericGpu_CreateAdapter(gpuAdapter);
         break;
     }
 

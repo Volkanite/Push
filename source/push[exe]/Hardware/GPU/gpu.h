@@ -17,7 +17,7 @@ typedef struct _GPU_ADAPTER
 #ifdef __cplusplus
 extern "C" {
 #endif
-GPU_ADAPTER* CreateGpuInterface( WORD VenderId );
+GPU_ADAPTER* CreateGpuAdapter( WORD VenderId );
 #ifdef __cplusplus
 }
 #endif

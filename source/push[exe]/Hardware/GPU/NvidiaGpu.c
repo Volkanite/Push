@@ -96,9 +96,9 @@ typedef enum _GPU_INTERFACE
 } GPU_INTERFACE;
 
 
-VOID NvidiaGpu_CreateInterface( GPU_ADAPTER* GpuAdapter )
+VOID NvidiaGpu_CreateAdapter( GPU_ADAPTER* GpuAdapter )
 {
-    GPU_INTERFACE gpuInterface = GPU_INTERFACE_PURE;
+	GPU_INTERFACE gpuInterface = GPU_INTERFACE_PURE;
 
     Nvapi_Initialize();
     D3DKMTInitialize();

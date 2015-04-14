@@ -1,4 +1,4 @@
 #include "gpu.h"
 
 
-VOID AmdGpu_CreateInterface( GPU_ADAPTER* GpuAdapter );
+VOID AmdGpu_CreateAdapter( GPU_ADAPTER* GpuAdapter );

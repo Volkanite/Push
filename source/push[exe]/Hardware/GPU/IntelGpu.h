@@ -1,3 +1,3 @@
 #include "gpu.h"
 
-VOID IntelGpu_CreateInterface(GPU_ADAPTER* GpuAdapter);
+VOID IntelGpu_CreateAdapter(GPU_ADAPTER* GpuAdapter);
