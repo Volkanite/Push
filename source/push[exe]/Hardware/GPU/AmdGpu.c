@@ -9,12 +9,34 @@
 #define R6XX_CONFIG_MEMSIZE 0x5428
 
 
-SlAdl RdnAdl;
+UINT8 AmdGpu_GetLoad();
+UINT16 AmdGpu_GetEngineClock();
+UINT16 AmdGpu_GetMemoryClock();
+UINT16 AmdGpu_GetMaxEngineClock();
+UINT16 AmdGpu_GetMaxMemoryClock();
+UINT64 AmdGpu_GetTotalMemory();
+UINT64 AmdGpu_GetFreeMemory();
+UINT8  AmdGpu_GetTemperature();
+VOID AmdGpu_ForceMaximumClocks();
 
 
-extern "C"
-UINT16
-GetRadeonMemorySize()
+VOID AmdGpu_CreateInterface( GPU_ADAPTER* GpuAdapter )
+{
+    Adl_Initialize();
+
+    GpuAdapter->GetEngineClock          = AmdGpu_GetEngineClock;
+    GpuAdapter->GetMemoryClock          = AmdGpu_GetMemoryClock;
+    GpuAdapter->GetMaximumEngineClock   = AmdGpu_GetMaxEngineClock;
+    GpuAdapter->GetMaximumMemoryClock   = AmdGpu_GetMaxMemoryClock;
+    GpuAdapter->GetTotalMemory          = AmdGpu_GetTotalMemory;
+    GpuAdapter->GetFreeMemory           = AmdGpu_GetFreeMemory;
+    GpuAdapter->GetTemperature          = AmdGpu_GetTemperature;
+    GpuAdapter->ForceMaximumClocks      = AmdGpu_ForceMaximumClocks;
+    GpuAdapter->GetLoad                 = AmdGpu_GetLoad;
+}
+
+
+UINT16 GetRadeonMemorySize()
 {
     return ReadGpuRegister(
         R6XX_CONFIG_MEMSIZE
@@ -22,23 +44,21 @@ GetRadeonMemorySize()
 }
 
 
-extern "C"
-VOID
-RdnSetMaxClocks()
+VOID RdnSetMaxClocks()
 {
-    RdnAdl.SetMaxClocks();
+    Adl_SetMaxClocks();
 }
 
 
 UINT16 AmdGpu_GetEngineClock()
 {
-    return RdnAdl.GetEngineClock();
+    return Adl_GetEngineClock();
 }
 
 
 UINT16 AmdGpu_GetMemoryClock()
 {
-    return RdnAdl.GetMemoryClock();
+    return Adl_GetMemoryClock();
 }
 
 
@@ -64,8 +84,7 @@ UINT8 AmdGpu_GetTemperature()
 }
 
 
-UINT8 
-AmdGpu::GetLoad()
+UINT8 AmdGpu_GetLoad()
 {
     DWORD usage, reg6do;
     FLOAT f1;
@@ -88,22 +107,19 @@ AmdGpu::GetLoad()
 }
 
 
-UINT16 
-AmdGpu::GetMaximumEngineClock()
+UINT16 AmdGpu_GetMaxEngineClock()
 {
-    return RdnAdl.GetEngineClockMax();
+    return Adl_GetEngineClockMax();
 }
 
 
-UINT16 
-AmdGpu::GetMaximumMemoryClock()
+UINT16 AmdGpu_GetMaxMemoryClock()
 {
-    return RdnAdl.GetMemoryClockMax();
+    return Adl_GetMemoryClockMax();
 }
 
 
-VOID 
-AmdGpu::ForceMaximumClocks()
+VOID AmdGpu_ForceMaximumClocks()
 {
 
 }

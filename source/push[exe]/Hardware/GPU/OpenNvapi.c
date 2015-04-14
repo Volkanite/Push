@@ -36,13 +36,13 @@ VOID OpenNvapi_GetClocks()
 }
 
 
-UINT16 OpenNvapi_GetMaximumEngineClock()
+UINT16 OpenNvapi_GetMaxEngineClock()
 {
 
 }
 
 
-UINT16 OpenNvapi_GetMaximumMemoryClock()
+UINT16 OpenNvapi_GetMaxMemoryClock()
 {
 
 }

@@ -1,19 +1,11 @@
-class SlAdl{
-    VOID* HeapHandle;
-    UINT16 EngineClockMaximum;
-    UINT16 MemoryClockMaximum;
-    FLOAT VoltageMaximum;
-    UINT8 PerformanceLevels;
-public:
-    SlAdl();
-    UINT8 GetActivity();
-    UINT16 GetEngineClock();
-    UINT16 GetMemoryClock();
-    UINT16 GetEngineClockMax();
-    UINT16 GetMemoryClockMax();
-    UINT8 GetTemperature();
-    VOID SetEngineClock( UINT16 EngineClock );
-    VOID SetMemoryClock( UINT16 MemoryClock );
-    VOID SetVoltage( FLOAT Voltage );
-    VOID SetMaxClocks();
-};
+VOID Adl_Initialize();
+UINT8 Adl_GetActivity();
+UINT16 Adl_GetEngineClock();
+UINT16 Adl_GetMemoryClock();
+UINT16 Adl_GetEngineClockMax();
+UINT16 Adl_GetMemoryClockMax();
+UINT8 Adl_GetTemperature();
+VOID Adl_SetEngineClock(UINT16 EngineClock);
+VOID Adl_SetMemoryClock(UINT16 MemoryClock);
+VOID Adl_SetVoltage(FLOAT Voltage);
+VOID Adl_SetMaxClocks();

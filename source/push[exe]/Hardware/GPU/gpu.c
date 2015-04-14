@@ -15,23 +15,23 @@
 
 GPU_ADAPTER* CreateGpuInterface( WORD VendorId )
 {
-	GPU_ADAPTER *gpuAdapter = (GPU_ADAPTER*) RtlAllocateHeap(PushHeapHandle, 0, sizeof(GPU_ADAPTER));
+    GPU_ADAPTER *gpuAdapter = (GPU_ADAPTER*) RtlAllocateHeap(PushHeapHandle, 0, sizeof(GPU_ADAPTER));
 
-	switch (VendorId)
-	{
-	case AMD:
-		AmdGpu_CreateInterface(gpuAdapter);
-		break;
-	case NVIDIA:
-		NvidiaGpu_CreateInterface(gpuAdapter);
-		break;
-	case INTEL:
-		IntelGpu_CreateInterface(gpuAdapter);
-		break;
-	default:
-		GenericGpu_CreateInterface(gpuAdapter);
-		break;
-	}
+    switch (VendorId)
+    {
+    case AMD:
+        AmdGpu_CreateInterface(gpuAdapter);
+        break;
+    case NVIDIA:
+        NvidiaGpu_CreateInterface(gpuAdapter);
+        break;
+    case INTEL:
+        IntelGpu_CreateInterface(gpuAdapter);
+        break;
+    default:
+        GenericGpu_CreateInterface(gpuAdapter);
+        break;
+    }
 
-	return gpuAdapter;
+    return gpuAdapter;
 }

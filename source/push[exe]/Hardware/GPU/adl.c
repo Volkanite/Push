@@ -4,6 +4,13 @@
 #include "adl_structures.h"
 
 
+VOID* HeapHandle;
+UINT16 EngineClockMaximum;
+UINT16 MemoryClockMaximum;
+FLOAT VoltageMaximum;
+UINT8 PerformanceLevels;
+
+
 typedef VOID* (__stdcall *TYPE_ADL_Main_Memory_Alloc) ( INT32 );
 typedef INT32 (*TYPE_ADL_Main_Control_Create)( TYPE_ADL_Main_Memory_Alloc, INT32 );
 typedef INT32 (*TYPE_ADL_Overdrive5_CurrentActivity_Get) ( INT32, ADLPMActivity* );
@@ -33,7 +40,7 @@ VOID* __stdcall ADL_Main_Memory_Alloc( INT32 Size )
 }
 
 
-SlAdl::SlAdl()
+VOID Adl_Initialize()
 {
     VOID *adl = NULL;
     ADLODParameters parameters;
@@ -92,8 +99,7 @@ SlAdl::SlAdl()
 }
 
 
-UINT8
-SlAdl::GetActivity()
+UINT8 Adl_GetActivity()
 {
     ADLPMActivity activity;
 
@@ -103,8 +109,7 @@ SlAdl::GetActivity()
 }
 
 
-UINT16
-SlAdl::GetEngineClock()
+UINT16 Adl_GetEngineClock()
 {
     ADLPMActivity activity;
 
@@ -114,8 +119,7 @@ SlAdl::GetEngineClock()
 }
 
 
-UINT16
-SlAdl::GetMemoryClock()
+UINT16 Adl_GetMemoryClock()
 {
     ADLPMActivity activity;
 
@@ -125,22 +129,19 @@ SlAdl::GetMemoryClock()
 }
 
 
-UINT16
-SlAdl::GetEngineClockMax()
+UINT16 Adl_GetEngineClockMax()
 {
     return EngineClockMaximum;
 }
 
 
-UINT16
-SlAdl::GetMemoryClockMax()
+UINT16 Adl_GetMemoryClockMax()
 {
     return MemoryClockMaximum;
 }
 
 
-VOID
-SlAdl::SetEngineClock( UINT16 EngineClock )
+VOID Adl_SetEngineClock( UINT16 EngineClock )
 {
     ADLODPerformanceLevels *performanceLevels;
     UINT32 i, lev, clock;
@@ -170,8 +171,7 @@ SlAdl::SetEngineClock( UINT16 EngineClock )
 }
 
 
-VOID
-SlAdl::SetMemoryClock( UINT16 MemoryClock )
+VOID Adl_SetMemoryClock( UINT16 MemoryClock )
 {
     ADLODPerformanceLevels *performanceLevels;
     UINT32 i, lev, clock;
@@ -201,8 +201,7 @@ SlAdl::SetMemoryClock( UINT16 MemoryClock )
 }
 
 
-VOID
-SlAdl::SetVoltage( FLOAT Voltage )
+VOID Adl_SetVoltage( FLOAT Voltage )
 {
     ADLODPerformanceLevels *performanceLevels;
     int i, lev, vddc;
@@ -232,17 +231,15 @@ SlAdl::SetVoltage( FLOAT Voltage )
 }
 
 
-VOID
-SlAdl::SetMaxClocks()
+VOID Adl_SetMaxClocks()
 {
-    SetVoltage( VoltageMaximum );
-    SetEngineClock( EngineClockMaximum );
-    SetMemoryClock( MemoryClockMaximum );
+    Adl_SetVoltage( VoltageMaximum );
+    Adl_SetEngineClock( EngineClockMaximum );
+    Adl_SetMemoryClock( MemoryClockMaximum );
 }
 
 
-UINT8
-SlAdl::GetTemperature()
+UINT8 Adl_GetTemperature()
 {
     ADLTemperature temperature;
 

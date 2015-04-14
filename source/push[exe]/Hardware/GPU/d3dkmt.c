@@ -112,8 +112,7 @@ AllocateGpuAdapter(UINT32 NumberOfSegments)
 }
 
 
-UINT8
-D3DKMTGetGpuUsage()
+UINT8 D3DKMT_GetGpuUsage()
 {
     double elapsedTime; // total GPU node elapsed time in micro-seconds
     INT32 usage = 0;
@@ -435,3 +434,13 @@ VOID D3DKMT_GetPrivateDriverData( VOID* PrivateDriverData, UINT32 PrivateDriverD
 
     D3DKMTEscape(&driverInformation);
 }
+
+
+UINT16 D3DKMT_GetEngineClock(){};
+UINT16 D3DKMT_GetMemoryClock(){};
+UINT16 D3DKMT_GetMaxEngineClock(){};
+UINT16 D3DKMT_GetMaxMemoryClock(){};
+UINT64 D3DKMT_GetTotalMemory(){};
+UINT64 D3DKMT_GetFreeMemory(){};
+UINT8  D3DKMT_GetTemperature(){};
+VOID   D3DKMT_ForceMaximumClocks(){};

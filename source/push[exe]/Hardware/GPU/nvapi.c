@@ -224,3 +224,15 @@ UINT64 Nvapi_GetFreeMemory()
     
     return memoryInfo.Value[4] * 1024; //kilobytes -> bytes
 }
+
+
+UINT8 Nvapi_GetTemperature()
+{
+
+}
+
+
+VOID Nvapi_ForceMaximumClocks()
+{
+
+}

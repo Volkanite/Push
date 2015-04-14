@@ -75,6 +75,7 @@ LONG GetFuseStateByNumber(DWORD dwGpu, DWORD dwFuse)
 // This exported function is called by RivaTuner to get descriptor
 // for the specified data source
 //////////////////////////////////////////////////////////////////////
+extern "C"
 BOOLEAN 
 NvtdInitialize()
 {
@@ -272,6 +273,7 @@ LONG GetDiodeTemp(DWORD dwGpu)
 /////////////////////////////////////////////////////////////////////////////
 // This exported function is called by RivaTuner to poll data sources
 /////////////////////////////////////////////////////////////////////////////
+extern "C"
 FLOAT
 NvtdGetTemperature()
 {
