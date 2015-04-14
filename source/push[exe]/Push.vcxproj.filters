@@ -43,42 +43,42 @@
     <ClCompile Include="Hardware\CPU\intel.c">
       <Filter>Hardware\CPU</Filter>
     </ClCompile>
-    <ClCompile Include="Hardware\GPU\AmdGpu.cpp">
-      <Filter>Hardware\GPU</Filter>
-    </ClCompile>
-    <ClCompile Include="Hardware\GPU\d3dkmt.c">
-      <Filter>Hardware\GPU</Filter>
-    </ClCompile>
-    <ClCompile Include="Hardware\GPU\GenericGpu.cpp">
-      <Filter>Hardware\GPU</Filter>
-    </ClCompile>
-    <ClCompile Include="Hardware\GPU\gpu.cpp">
-      <Filter>Hardware\GPU</Filter>
-    </ClCompile>
-    <ClCompile Include="Hardware\GPU\IntelGpu.cpp">
-      <Filter>Hardware\GPU</Filter>
-    </ClCompile>
-    <ClCompile Include="Hardware\GPU\NvidiaGpu.cpp">
-      <Filter>Hardware\GPU</Filter>
-    </ClCompile>
     <ClCompile Include="batch.cpp" />
     <ClCompile Include="push.cpp" />
     <ClCompile Include="ring0.c" />
-    <ClCompile Include="Hardware\GPU\adl.cpp">
-      <Filter>Hardware\GPU</Filter>
-    </ClCompile>
     <ClCompile Include="Hardware\GPU\NvThermalDiode\NVThermalDiode.cpp">
       <Filter>Hardware\GPU\NvThermalDiode</Filter>
     </ClCompile>
     <ClCompile Include="Hardware\GPU\NvThermalDiode\Context.cpp">
       <Filter>Hardware\GPU\NvThermalDiode</Filter>
     </ClCompile>
-    <ClCompile Include="Hardware\GPU\nvapi.c">
-      <Filter>Hardware\GPU</Filter>
-    </ClCompile>
     <ClCompile Include="game.c" />
     <ClCompile Include="driver.c" />
     <ClCompile Include="ramdisk.c" />
+    <ClCompile Include="Hardware\GPU\adl.c">
+      <Filter>Hardware\GPU</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\AmdGpu.c">
+      <Filter>Hardware\GPU</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\d3dkmt.c">
+      <Filter>Hardware\GPU</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\GenericGpu.c">
+      <Filter>Hardware\GPU</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\gpu.c">
+      <Filter>Hardware\GPU</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\IntelGpu.c">
+      <Filter>Hardware\GPU</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\nvapi.c">
+      <Filter>Hardware\GPU</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\NvidiaGpu.c">
+      <Filter>Hardware\GPU</Filter>
+    </ClCompile>
     <ClCompile Include="Hardware\GPU\OpenNvapi.c">
       <Filter>Hardware\GPU</Filter>
     </ClCompile>
@@ -105,43 +105,43 @@
     <ClInclude Include="hardware\cpu\intel.h">
       <Filter>Hardware\CPU</Filter>
     </ClInclude>
-    <ClInclude Include="Hardware\GPU\AmdGpu.h">
-      <Filter>Hardware\GPU</Filter>
-    </ClInclude>
-    <ClInclude Include="hardware\gpu\d3dkmt.h">
-      <Filter>Hardware\GPU</Filter>
-    </ClInclude>
-    <ClInclude Include="Hardware\GPU\GenericGpu.h">
-      <Filter>Hardware\GPU</Filter>
-    </ClInclude>
-    <ClInclude Include="hardware\gpu\gpu.h">
-      <Filter>Hardware\GPU</Filter>
-    </ClInclude>
-    <ClInclude Include="Hardware\GPU\IntelGpu.h">
-      <Filter>Hardware\GPU</Filter>
-    </ClInclude>
-    <ClInclude Include="Hardware\GPU\NvidiaGpu.h">
-      <Filter>Hardware\GPU</Filter>
-    </ClInclude>
     <ClInclude Include="batch.h" />
     <ClInclude Include="ring0.h" />
     <ClInclude Include="file.h" />
     <ClInclude Include="push.h" />
     <ClInclude Include="game.h" />
-    <ClInclude Include="Hardware\GPU\adl.h">
-      <Filter>Hardware\GPU</Filter>
-    </ClInclude>
     <ClInclude Include="Hardware\GPU\NvThermalDiode\Context.h">
       <Filter>Hardware\GPU\NvThermalDiode</Filter>
     </ClInclude>
     <ClInclude Include="Hardware\GPU\NvThermalDiode\NvThermalDiode.h">
       <Filter>Hardware\GPU\NvThermalDiode</Filter>
     </ClInclude>
+    <ClInclude Include="driver.h" />
+    <ClInclude Include="ramdisk.h" />
+    <ClInclude Include="Hardware\GPU\adl.h">
+      <Filter>Hardware\GPU</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\GPU\AmdGpu.h">
+      <Filter>Hardware\GPU</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\GPU\d3dkmt.h">
+      <Filter>Hardware\GPU</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\GPU\GenericGpu.h">
+      <Filter>Hardware\GPU</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\GPU\gpu.h">
+      <Filter>Hardware\GPU</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\GPU\IntelGpu.h">
+      <Filter>Hardware\GPU</Filter>
+    </ClInclude>
     <ClInclude Include="Hardware\GPU\nvapi.h">
       <Filter>Hardware\GPU</Filter>
     </ClInclude>
-    <ClInclude Include="driver.h" />
-    <ClInclude Include="ramdisk.h" />
+    <ClInclude Include="Hardware\GPU\NvidiaGpu.h">
+      <Filter>Hardware\GPU</Filter>
+    </ClInclude>
     <ClInclude Include="Hardware\GPU\OpenNvapi.h">
       <Filter>Hardware\GPU</Filter>
     </ClInclude>
