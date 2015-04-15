@@ -7,19 +7,20 @@ typedef struct _NVAPI_PRIVATE_DATA_HEADER
     DWORD Dummy1;
     DWORD Dummy2;
     DWORD Size;
+    DWORD Dummy3;
 
 }NVAPI_PRIVATE_DATA_HEADER;
 
 typedef struct _NVAPI_PRIVATE_USAGE_DATA
 {
-    BYTE Dummy[184];
+    NVAPI_PRIVATE_DATA_HEADER Header;
+    BYTE Dummy[168];
 
 }NVAPI_PRIVATE_USAGE_DATA; //184 bytes
 
 typedef struct _NVAPI_PRIVATE_MEMORY_DATA
 {
     NVAPI_PRIVATE_DATA_HEADER Header;
-    DWORD Dummy4;
     DWORD Dummy5;
     BYTE Dummy6[28];
     DWORD Total;    //kilobytes
@@ -79,7 +80,7 @@ UINT64 OpenNvapi_GetTotalMemory()
     memoryData.Header.Dummy1 = 0x4E564441;
     memoryData.Header.Dummy2 = 0x10002;
     memoryData.Header.Size = sizeof(NVAPI_PRIVATE_MEMORY_DATA);
-    memoryData.Dummy4 = 0x4E562A2A;
+    memoryData.Header.Dummy3 = 0x4E562A2A;
     memoryData.Dummy5 = 0x1000012;
     memoryData.Dummy8[15] = 0xB4;
 
@@ -99,7 +100,7 @@ UINT64 OpenNvapi_GetFreeMemory()
     memoryData.Header.Dummy1 = 0x4E564441;
     memoryData.Header.Dummy2 = 0x10002;
     memoryData.Header.Size = sizeof(NVAPI_PRIVATE_MEMORY_DATA);
-    memoryData.Dummy4 = 0x4E562A2A;
+    memoryData.Header.Dummy3 = 0x4E562A2A;
     memoryData.Dummy5 = 0x1000012;
     memoryData.Dummy8[15] = 0xB4;
 
@@ -126,5 +127,10 @@ UINT8 OpenNvapi_GetTemperature()
 
 UINT8 OpenNvapi_GetLoad()
 {
+    NVAPI_PRIVATE_USAGE_DATA usageData = { 0 };
     
+    usageData.Header.Dummy1 = 0x4E564441;
+    usageData.Header.Dummy2 = 0x10002;
+    usageData.Header.Size = sizeof(NVAPI_PRIVATE_USAGE_DATA);
+    usageData.Header.Dummy3 = 0x4E562A2A;
 }
