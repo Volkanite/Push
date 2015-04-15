@@ -2,11 +2,23 @@
 #include "d3dkmt.h"
 
 
-typedef struct NVAPI_PRIVATE_MEMORY_DATA
+typedef struct _NVAPI_PRIVATE_DATA_HEADER
 {
     DWORD Dummy1;
     DWORD Dummy2;
-    DWORD Dummy3;
+    DWORD Size;
+
+}NVAPI_PRIVATE_DATA_HEADER;
+
+typedef struct _NVAPI_PRIVATE_USAGE_DATA
+{
+    BYTE Dummy[184];
+
+}NVAPI_PRIVATE_USAGE_DATA; //184 bytes
+
+typedef struct _NVAPI_PRIVATE_MEMORY_DATA
+{
+    NVAPI_PRIVATE_DATA_HEADER Header;
     DWORD Dummy4;
     DWORD Dummy5;
     BYTE Dummy6[28];
@@ -64,9 +76,9 @@ UINT64 OpenNvapi_GetTotalMemory()
 {
     NVAPI_PRIVATE_MEMORY_DATA memoryData = { 0 };
 
-    memoryData.Dummy1 = 0x4E564441;
-    memoryData.Dummy2 = 0x10002;
-    memoryData.Dummy3 = 0x4C;
+    memoryData.Header.Dummy1 = 0x4E564441;
+    memoryData.Header.Dummy2 = 0x10002;
+    memoryData.Header.Size = sizeof(NVAPI_PRIVATE_MEMORY_DATA);
     memoryData.Dummy4 = 0x4E562A2A;
     memoryData.Dummy5 = 0x1000012;
     memoryData.Dummy8[15] = 0xB4;
@@ -84,9 +96,9 @@ UINT64 OpenNvapi_GetFreeMemory()
 {
     NVAPI_PRIVATE_MEMORY_DATA memoryData = { 0 };
     
-    memoryData.Dummy1 = 0x4E564441;
-    memoryData.Dummy2 = 0x10002;
-    memoryData.Dummy3 = 0x4C;
+    memoryData.Header.Dummy1 = 0x4E564441;
+    memoryData.Header.Dummy2 = 0x10002;
+    memoryData.Header.Size = sizeof(NVAPI_PRIVATE_MEMORY_DATA);
     memoryData.Dummy4 = 0x4E562A2A;
     memoryData.Dummy5 = 0x1000012;
     memoryData.Dummy8[15] = 0xB4;
