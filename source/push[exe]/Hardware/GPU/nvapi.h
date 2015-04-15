@@ -9,12 +9,25 @@
 #define NVAPI_MAX_THERMAL_SENSORS_PER_GPU 3
 
 
+typedef enum
+{
+    NVAPI_CLOCK_TARGET_ENGINE = 0,
+    NVAPI_CLOCK_TARGET_MEMORY = 8,
+
+} NV_CLOCK_TARGET;
+
 typedef struct _NV_CLOCKS
 {
     UINT32 Version;
     UINT32 Clock[NVAPI_MAX_CLOCKS_PER_GPU];
 
 }NV_CLOCKS;
+
+typedef enum
+{
+    NVAPI_USAGE_TARGET_GPU = 2,
+
+} NV_USAGE_TARGET;
 
 typedef struct _NV_USAGES
 {

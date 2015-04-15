@@ -51,7 +51,7 @@ UINT8 Nvapi_GetActivity()
 
     NvAPI_GPU_GetUsages(gpuHandles[0], &usages);
 
-    return usages.Usage[2];
+    return usages.Usage[NVAPI_USAGE_TARGET_GPU];
 }
 
 
@@ -63,7 +63,7 @@ UINT16 Nvapi_GetEngineClock()
     
     NvAPI_GPU_GetAllClocks(gpuHandles[0], &clocks);
 
-    return 0.001f * clocks.Clock[0];
+    return 0.001f * clocks.Clock[NVAPI_CLOCK_TARGET_ENGINE];
 }
 
 
@@ -75,7 +75,7 @@ UINT16 Nvapi_GetMemoryClock()
     
     NvAPI_GPU_GetAllClocks(gpuHandles[0], &clocks);
 
-    return 0.001f * clocks.Clock[8];
+    return 0.001f * clocks.Clock[NVAPI_CLOCK_TARGET_MEMORY];
 }
 
 
