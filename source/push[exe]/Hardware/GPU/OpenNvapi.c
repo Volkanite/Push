@@ -2,26 +2,30 @@
 #include "d3dkmt.h"
 
 
+#define NVAPI_PRIVATE_MEMORY_DATA_IOCTL 0x1000012
+#define NVAPI_PRIVATE_USAGE_DATA_IOCTL  0x7000060
+
+
 typedef struct _NVAPI_PRIVATE_DATA_HEADER
 {
     DWORD Dummy1;
     DWORD Dummy2;
     DWORD Size;
     DWORD Dummy3;
+    DWORD ControlCode;
 
 }NVAPI_PRIVATE_DATA_HEADER;
 
 typedef struct _NVAPI_PRIVATE_USAGE_DATA
 {
     NVAPI_PRIVATE_DATA_HEADER Header;
-    BYTE Dummy[168];
+    BYTE Dummy[164];
 
 }NVAPI_PRIVATE_USAGE_DATA; //184 bytes
 
 typedef struct _NVAPI_PRIVATE_MEMORY_DATA
 {
     NVAPI_PRIVATE_DATA_HEADER Header;
-    DWORD Dummy5;
     BYTE Dummy6[28];
     DWORD Total;    //kilobytes
     BYTE Dummy7[4];
@@ -81,7 +85,7 @@ UINT64 OpenNvapi_GetTotalMemory()
     memoryData.Header.Dummy2 = 0x10002;
     memoryData.Header.Size = sizeof(NVAPI_PRIVATE_MEMORY_DATA);
     memoryData.Header.Dummy3 = 0x4E562A2A;
-    memoryData.Dummy5 = 0x1000012;
+    memoryData.Header.ControlCode = NVAPI_PRIVATE_MEMORY_DATA_IOCTL;
     memoryData.Dummy8[15] = 0xB4;
 
     D3DKMT_GetPrivateDriverData(
@@ -101,7 +105,7 @@ UINT64 OpenNvapi_GetFreeMemory()
     memoryData.Header.Dummy2 = 0x10002;
     memoryData.Header.Size = sizeof(NVAPI_PRIVATE_MEMORY_DATA);
     memoryData.Header.Dummy3 = 0x4E562A2A;
-    memoryData.Dummy5 = 0x1000012;
+    memoryData.Header.ControlCode = NVAPI_PRIVATE_MEMORY_DATA_IOCTL;
     memoryData.Dummy8[15] = 0xB4;
 
     D3DKMT_GetPrivateDriverData(
@@ -132,5 +136,11 @@ UINT8 OpenNvapi_GetLoad()
     usageData.Header.Dummy1 = 0x4E564441;
     usageData.Header.Dummy2 = 0x10002;
     usageData.Header.Size = sizeof(NVAPI_PRIVATE_USAGE_DATA);
-    usageData.Header.Dummy3 = 0x4E562A2A;
+    usageData.Header.Dummy3 = 0x4E562A2A; 
+    usageData.Header.ControlCode = NVAPI_PRIVATE_USAGE_DATA_IOCTL;
+
+    D3DKMT_GetPrivateDriverData(
+        &usageData,
+        sizeof(NVAPI_PRIVATE_USAGE_DATA)
+        );
 }
