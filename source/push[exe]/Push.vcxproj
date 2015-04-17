@@ -40,7 +40,7 @@
     <ClCompile Include="Hardware\GPU\NvThermalDiode\Context.cpp" />
     <ClCompile Include="Hardware\GPU\NvThermalDiode\NVThermalDiode.cpp" />
     <ClCompile Include="Hardware\GPU\OpenNvapi.c" />
-    <ClCompile Include="Hardware\hwinfo.cpp" />
+    <ClCompile Include="Hardware\hardware.c" />
     <ClCompile Include="push.cpp" />
     <ClCompile Include="ramdisk.c" />
     <ClCompile Include="ring0.c" />
@@ -67,7 +67,7 @@
     <ClInclude Include="Hardware\GPU\NvThermalDiode\Context.h" />
     <ClInclude Include="Hardware\GPU\NvThermalDiode\NvThermalDiode.h" />
     <ClInclude Include="Hardware\GPU\OpenNvapi.h" />
-    <ClInclude Include="hardware\hwinfo.h" />
+    <ClInclude Include="Hardware\hardware.h" />
     <ClInclude Include="push.h" />
     <ClInclude Include="ramdisk.h" />
     <ClInclude Include="ring0.h" />
@@ -161,7 +161,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>NO_STRICT;DEBUG;_WOW64_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ShowIncludes>true</ShowIncludes>
+      <ShowIncludes>false</ShowIncludes>
       <DisableSpecificWarnings>4996;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <TreatSpecificWarningsAsErrors>4013;4020;4005;4101;4142;4520;4700;4715;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
       <CompileAs>Default</CompileAs>
@@ -192,7 +192,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <ShowIncludes>true</ShowIncludes>
+      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

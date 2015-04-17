@@ -9,7 +9,7 @@
 
 #include "Context.h"
 #include "NVThermalDiode.h"
-#include "hwinfo.h"
+#include "hardware.h"
 /////////////////////////////////////////////////////////////////////////////
 #ifdef _DEBUG
 #define new DEBUG_NEW

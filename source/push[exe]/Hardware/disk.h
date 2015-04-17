@@ -1,3 +1,3 @@
-extern "C" VOID DiskStartMonitoring();
-extern "C" UINT64 DiskGetBytesDelta();
-extern "C" UINT16 DiskGetResponseTime();
+extern VOID DiskStartMonitoring();
+extern UINT64 DiskGetBytesDelta();
+extern UINT16 DiskGetResponseTime();

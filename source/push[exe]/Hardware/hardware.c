@@ -6,7 +6,7 @@
 #include "GPU\d3dkmt.h"
 #include "CPU\intel.h"
 #include "disk.h"
-#include "hwinfo.h"
+#include "hardware.h"
 #include "GPU\gpu.h"
 
 

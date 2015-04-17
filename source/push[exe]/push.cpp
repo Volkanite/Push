@@ -10,7 +10,7 @@
 
 #include "push.h"
 #include "ramdisk.h"
-#include "Hardware\hwinfo.h"
+#include "Hardware\hardware.h"
 #include "batch.h"
 #include "ring0.h"
 #include "file.h"
@@ -29,7 +29,7 @@ FILE_LIST PushFileList    = 0;
 VOID* PushHeapHandle;
 UINT32 thisPID;
 PUSH_SHARED_MEMORY* PushSharedMemory;
-extern SYSTEM_BASIC_INFORMATION HwInfoSystemBasicInformation;
+extern "C" SYSTEM_BASIC_INFORMATION HwInfoSystemBasicInformation;
 
 
 typedef long (__stdcall *TYPE_NtSuspendProcess)( VOID* hProcessHandle );
