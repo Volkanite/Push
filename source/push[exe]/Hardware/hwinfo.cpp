@@ -107,11 +107,9 @@ UINT32 GetFrameBufferSize()
 }
 
 
-UINT32
-GetRamUsed()
+UINT32 GetRamUsed()
 {
     SYSTEM_BASIC_PERFORMANCE_INFORMATION performanceInfo;
-    UINT64 totalPageFile, availablePageFile;
 
     NtQuerySystemInformation(
         SystemBasicPerformanceInformation,
@@ -120,13 +118,7 @@ GetRamUsed()
         NULL
         );
 
-    totalPageFile = performanceInfo.CommitLimit;
-    totalPageFile *= PushPageSize;
-
-    availablePageFile = performanceInfo.CommitLimit - performanceInfo.CommittedPages;
-    availablePageFile *= PushPageSize;
-
-    return (totalPageFile - availablePageFile) / 1048576;
+    return (performanceInfo.CommittedPages * PushPageSize) / 1048576; //byte => megabytes
 }
 
 
