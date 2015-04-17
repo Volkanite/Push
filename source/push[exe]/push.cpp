@@ -29,10 +29,7 @@ FILE_LIST PushFileList    = 0;
 VOID* PushHeapHandle;
 UINT32 thisPID;
 PUSH_SHARED_MEMORY* PushSharedMemory;
-UINT32  PushPageSize;
-
-
-#define STATUS_INVALID_IMAGE_HASH        ((NTSTATUS)0xC0000428L)
+extern SYSTEM_BASIC_INFORMATION HwInfoSystemBasicInformation;
 
 
 typedef long (__stdcall *TYPE_NtSuspendProcess)( VOID* hProcessHandle );
@@ -336,8 +333,7 @@ PushAddToFileList( FILE_LIST* FileList, FILE_LIST_ENTRY *FileEntry )
 }
 
 
-VOID
-Cache( PUSH_GAME* Game )
+VOID Cache( PUSH_GAME* Game )
 {
     CHAR mountPoint = 0;
     UINT64 bytes = 0, availableMemory = 0; // in bytes
@@ -365,8 +361,7 @@ Cache( PUSH_GAME* Game )
         NULL
         );
 
-    availableMemory = performanceInfo.CommitLimit - performanceInfo.CommittedPages;
-    availableMemory *= PushPageSize;
+    availableMemory = (performanceInfo.CommitLimit - performanceInfo.CommittedPages) * HwInfoSystemBasicInformation.PageSize;
 
     // Read batch file
     PushFileList = 0;

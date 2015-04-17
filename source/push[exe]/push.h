@@ -35,23 +35,14 @@ typedef struct _FILE_LIST_ENTRY
 } FILE_LIST_ENTRY, *FILE_LIST;
 
 
-
-
-
 #ifdef __cplusplus
 extern "C" VOID* PushHeapHandle;
-//extern "C" VOID* PushIconHandle;
 extern "C" VOID* PushInstance;
-//extern "C" FILE_LIST PushFileList;
-extern "C" UINT32 PushPageSize;
 extern "C" PUSH_SHARED_MEMORY* PushSharedMemory;
 extern "C" BOOLEAN g_ThreadListLock;
 #else
 extern VOID* PushHeapHandle;
-//extern VOID* PushIconHandle;
 extern VOID* PushInstance;
-//extern FILE_LIST PushFileList;
-extern UINT32 PushPageSize;
 extern PUSH_SHARED_MEMORY* PushSharedMemory;
 extern BOOLEAN g_ThreadListLock;
 #endif

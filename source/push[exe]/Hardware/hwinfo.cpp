@@ -112,14 +112,9 @@ UINT32 GetRamUsed()
 {
     SYSTEM_BASIC_PERFORMANCE_INFORMATION performanceInfo;
 
-    NtQuerySystemInformation(
-        SystemBasicPerformanceInformation,
-        &performanceInfo,
-        sizeof(SYSTEM_BASIC_PERFORMANCE_INFORMATION),
-        NULL
-        );
+    NtQuerySystemInformation(SystemBasicPerformanceInformation, &performanceInfo, sizeof(SYSTEM_BASIC_PERFORMANCE_INFORMATION), NULL);
 
-    return (performanceInfo.CommittedPages * PushPageSize) / 1048576; //byte => megabytes
+    return (performanceInfo.CommittedPages * HwInfoSystemBasicInformation.PageSize) / 1048576; //byte => megabytes
 }
 
 
@@ -509,7 +504,6 @@ VOID GetHardwareInfo()
     hardware.Processor.NumberOfCores = HwInfoSystemBasicInformation.NumberOfProcessors;
     hardware.Memory.Total = (HwInfoSystemBasicInformation.NumberOfPhysicalPages * HwInfoSystemBasicInformation.PageSize) / 1048576; //byte => megabytes
     
-    PushPageSize = HwInfoSystemBasicInformation.PageSize;
     coreListEntry = &hardware.Processor.coreList;
 
     for (i = 0; i < hardware.Processor.NumberOfCores; i++)

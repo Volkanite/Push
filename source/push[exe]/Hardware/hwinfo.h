@@ -1,13 +1,9 @@
 #ifdef __cplusplus
 extern "C" PUSH_HARDWARE_INFORMATION hardware;
-//extern "C" BOOLEAN g_ThreadOptimization;
 #else
 extern PUSH_HARDWARE_INFORMATION hardware;
-//extern BOOLEAN g_ThreadOptimization;
 #endif
 
-//extern PUSH_HARDWARE_INFORMATION hardware;
-//extern BOOLEAN g_ThreadMonitorInited;
 
 
 
