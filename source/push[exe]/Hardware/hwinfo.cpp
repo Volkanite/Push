@@ -7,20 +7,21 @@
 #include "CPU\intel.h"
 #include "disk.h"
 #include "hwinfo.h"
+#include "GPU\gpu.h"
 
 
-UINT64  g_hNVPMContext;
-BOOLEAN    PushGpuLoadD3DKMT = FALSE;
-DWORD dwMappedMemAddr;
-PUSH_HARDWARE_INFORMATION hardware;
+UINT64                      g_hNVPMContext;
+BOOLEAN                     PushGpuLoadD3DKMT = FALSE;
+DWORD                       dwMappedMemAddr;
+PUSH_HARDWARE_INFORMATION   hardware;
+SYSTEM_BASIC_INFORMATION    HwInfoSystemBasicInformation;
+GPU_ADAPTER*                Hwinfo_GpuAdapter;
 
 
 #define REGISTER_VENDORID   0x00
 #define REGISTER_CLASSCODE  0x08
 #define REGISTER_BAR0       0x10
 #define REGISTER_BAR2       0x18
-#include "GPU\gpu.h"
-GPU_ADAPTER* Hwinfo_GpuAdapter;
 
 
 UINT16 GetEngineClock()
@@ -163,7 +164,7 @@ PH_UINT64_DELTA PhCpuKernelDelta;
 PH_UINT64_DELTA PhCpuUserDelta;
 PH_UINT64_DELTA PhCpuIdleDelta;
 
-SYSTEM_BASIC_INFORMATION PhSystemBasicInformation;
+
 SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION *PhCpuInformation;
 
 
@@ -231,45 +232,37 @@ VOID HwForceMaxClocks()
 }
 
 
-VOID 
-PhProcessProviderInitialization()
+VOID PhProcessProviderInitialization()
 {
     FLOAT *usageBuffer;
     PPH_UINT64_DELTA deltaBuffer;
 
-    NtQuerySystemInformation(
-        SystemBasicInformation, 
-        &PhSystemBasicInformation, 
-        sizeof(SYSTEM_BASIC_INFORMATION), 
-        NULL
-        );
-
     PhCpuInformation = (SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION*) RtlAllocateHeap(
         PushHeapHandle, 
         0, 
-        sizeof(SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION) * (ULONG)PhSystemBasicInformation.NumberOfProcessors
+        sizeof(SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION) * (ULONG)HwInfoSystemBasicInformation.NumberOfProcessors
         );
 
     usageBuffer = (FLOAT*) RtlAllocateHeap(
         PushHeapHandle, 
         0, 
-        sizeof(FLOAT) * (ULONG)PhSystemBasicInformation.NumberOfProcessors * 2
+        sizeof(FLOAT) * (ULONG)HwInfoSystemBasicInformation.NumberOfProcessors * 2
         );
 
     deltaBuffer = (PPH_UINT64_DELTA) RtlAllocateHeap(
         PushHeapHandle, 
         0, 
-        sizeof(PH_UINT64_DELTA) * (ULONG)PhSystemBasicInformation.NumberOfProcessors * 3
+        sizeof(PH_UINT64_DELTA) * (ULONG)HwInfoSystemBasicInformation.NumberOfProcessors * 3
         );
 
     PhCpusKernelUsage = usageBuffer;
-    PhCpusUserUsage = PhCpusKernelUsage + (ULONG)PhSystemBasicInformation.NumberOfProcessors;
+    PhCpusUserUsage = PhCpusKernelUsage + (ULONG)HwInfoSystemBasicInformation.NumberOfProcessors;
 
     PhCpusKernelDelta = deltaBuffer;
-    PhCpusUserDelta = PhCpusKernelDelta + (ULONG)PhSystemBasicInformation.NumberOfProcessors;
-    PhCpusIdleDelta = PhCpusUserDelta + (ULONG)PhSystemBasicInformation.NumberOfProcessors;
+    PhCpusUserDelta = PhCpusKernelDelta + (ULONG)HwInfoSystemBasicInformation.NumberOfProcessors;
+    PhCpusIdleDelta = PhCpusUserDelta + (ULONG)HwInfoSystemBasicInformation.NumberOfProcessors;
 
-    memset(deltaBuffer, 0, sizeof(PH_UINT64_DELTA) * (ULONG)PhSystemBasicInformation.NumberOfProcessors);
+    memset(deltaBuffer, 0, sizeof(PH_UINT64_DELTA) * (ULONG)HwInfoSystemBasicInformation.NumberOfProcessors);
 }
 
 
@@ -292,14 +285,14 @@ PhpUpdateCpuInformation()
     NtQuerySystemInformation(
         SystemProcessorPerformanceInformation, 
         PhCpuInformation, 
-        sizeof(SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION) * (ULONG)PhSystemBasicInformation.NumberOfProcessors, 
+        sizeof(SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION) * (ULONG)HwInfoSystemBasicInformation.NumberOfProcessors,
         NULL
         );
 
     // Zero the CPU totals.
     memset(&PhCpuTotals, 0, sizeof(SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION));
 
-    for (i = 0; i < (ULONG)PhSystemBasicInformation.NumberOfProcessors; i++)
+    for (i = 0; i < (ULONG)HwInfoSystemBasicInformation.NumberOfProcessors; i++)
     {
         SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION *cpuInfo = &PhCpuInformation[i];
 
@@ -494,10 +487,7 @@ VOID InitGpuHardware()
 
 VOID GetHardwareInfo()
 {
-    SYSTEM_BASIC_INFORMATION basicInfo;
-    SYSTEM_BASIC_PERFORMANCE_INFORMATION performanceInfo;
     int i = 0;
-    UINT64 totalPageFile;
     CORE_LIST *coreListEntry;
 
     InitGpuHardware();
@@ -514,11 +504,12 @@ VOID GetHardwareInfo()
         PushGpuLoadD3DKMT = TRUE;
 
     // Get the number of processors in the system
-    NtQuerySystemInformation(SystemBasicInformation, &basicInfo, sizeof(SYSTEM_BASIC_INFORMATION), 0);
+    NtQuerySystemInformation(SystemBasicInformation, &HwInfoSystemBasicInformation, sizeof(SYSTEM_BASIC_INFORMATION), 0);
 
-    hardware.Processor.NumberOfCores = basicInfo.NumberOfProcessors;
-    PushPageSize = basicInfo.PageSize;
-
+    hardware.Processor.NumberOfCores = HwInfoSystemBasicInformation.NumberOfProcessors;
+    hardware.Memory.Total = (HwInfoSystemBasicInformation.NumberOfPhysicalPages * HwInfoSystemBasicInformation.PageSize) / 1048576; //byte => megabytes
+    
+    PushPageSize = HwInfoSystemBasicInformation.PageSize;
     coreListEntry = &hardware.Processor.coreList;
 
     for (i = 0; i < hardware.Processor.NumberOfCores; i++)
@@ -536,29 +527,13 @@ VOID GetHardwareInfo()
 
         coreListEntry = coreListEntry->nextEntry;
     }
-
-    //InitGeForce(hardware.DisplayDevice.coreFamily);
-
-    //initialize memory info
-    NtQuerySystemInformation(
-        SystemBasicPerformanceInformation,
-        &performanceInfo,
-        sizeof(SYSTEM_BASIC_PERFORMANCE_INFORMATION),
-        NULL
-        );
-
-    totalPageFile = performanceInfo.CommitLimit;
-    totalPageFile *= PushPageSize;
-
-    hardware.Memory.Total = (totalPageFile >> 20);
-
+    
     // Start disk monitoring;
     DiskStartMonitoring();
 }
 
 
-VOID
-RefreshHardwareInfo()
+VOID RefreshHardwareInfo()
 {
     PhpUpdateCpuInformation();
 
@@ -578,18 +553,4 @@ RefreshHardwareInfo()
 
     // We actually get some information from other sources
     hardware.Processor.MaxThreadUsage = PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage;
-    
-
-
-    /*if (PushSharedMemory->ThreadMonitorOSD)
-    {
-        hardware.Processor.MaxThreadUsage = GetMaxThreadUsage(
-                                                PushSharedMemory->GameProcessID
-                                                );
-
-        if(g_ThreadOptimization && !g_ThreadListLock)
-        {
-            RunThreadOptimizeRoutine();
-        }
-    }*/
 }

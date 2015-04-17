@@ -121,6 +121,9 @@ RunFrameStatistics()
             PushSharedMemory->Overloads |= OSD_GPU_E_CLK;
             PushSharedMemory->Overloads |= OSD_GPU_M_CLK;
         }
+
+        if (PushSharedMemory->HarwareInformation.Memory.Used > PushSharedMemory->HarwareInformation.Memory.Total)
+            PushSharedMemory->Overloads |= OSD_RAM;
     }
 
     if ( ((newTickCount - oldTick2) > 30000) && !PushSharedMemory->KeepFps )
