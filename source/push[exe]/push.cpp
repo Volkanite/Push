@@ -679,21 +679,23 @@ VOID OnImageEvent( PROCESSID ProcessId )
         FILE_OPEN_IF,
         FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
         );
+    
+    if (GetProcessImageFileNameW(processHandle, filePath, 260))
+    {
+        executableName = SlStringFindLastChar(filePath, '\\');
+        executableName++;
+        bufferSize = 54 + (SlStringGetLength(executableName) * sizeof(WCHAR));
+        buffer = (WCHAR*)RtlAllocateHeap(PushHeapHandle, 0, bufferSize);
 
-    GetModuleFileNameExW(processHandle, 0, filePath, 260);
-
-    executableName = SlStringFindLastChar(filePath, '\\');
-    executableName++;
-    bufferSize = 54 + (SlStringGetLength(executableName) * sizeof(WCHAR));
-    buffer = (WCHAR*) RtlAllocateHeap(PushHeapHandle, 0, bufferSize);
-
-    FormatTime(buffer);
-    SlStringConcatenate(buffer, L" injecting into ");
-    SlStringConcatenate(buffer, executableName);
-    SlStringConcatenate(buffer, L"\r\n");
-    NtWriteFile(fileHandle, NULL, NULL, NULL, &isb, &marker, sizeof(marker), NULL, NULL); // UTF-16LE
-    SetFilePointer(fileHandle, 0, NULL, FILE_END);
-    NtWriteFile(fileHandle, NULL, NULL, NULL, &isb, buffer, bufferSize - sizeof(WCHAR), NULL, NULL);
+        FormatTime(buffer);
+        SlStringConcatenate(buffer, L" injecting into ");
+        SlStringConcatenate(buffer, executableName);
+        SlStringConcatenate(buffer, L"\r\n");
+        NtWriteFile(fileHandle, NULL, NULL, NULL, &isb, &marker, sizeof(marker), NULL, NULL); // UTF-16LE
+        SetFilePointer(fileHandle, 0, NULL, FILE_END);
+        NtWriteFile(fileHandle, NULL, NULL, NULL, &isb, buffer, bufferSize - sizeof(WCHAR), NULL, NULL);
+    }
+    
     NtClose(fileHandle);
 #endif
 
