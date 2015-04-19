@@ -495,11 +495,6 @@ extern "C" NTSTATUS __stdcall NtSetSecurityObject(
     _In_ VOID* SecurityDescriptor
     );
 
-extern "C" INTBOOL __stdcall IsWow64Process(
-    _In_   HANDLE hProcess,
-    _Out_  INTBOOL* Wow64Process
-    );
-
 extern "C" DWORD __stdcall SetFilePointer(
     _In_         HANDLE hFile,
     _In_         LONG lDistanceToMove,
@@ -654,7 +649,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
     NtClose(fileHandle);
 #endif
 
-    IsWow64Process(processHandle, &isWow64);
+    NtQueryInformationProcess(processHandle, ProcessWow64Information, &isWow64, sizeof(INTBOOL), NULL);
     
     if (isWow64)
     {

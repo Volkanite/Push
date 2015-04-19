@@ -60,17 +60,18 @@ NTSTATUS __stdcall NtSetSecurityObject(
     _In_ VOID* SecurityDescriptor
     );
 
-INTBOOL __stdcall IsWow64Process(
-    HANDLE hProcess,
-    INTBOOL* Wow64Process
-    );
-
 
 VOID Driver_Extract()
 {
     INTBOOL isWow64 = FALSE;
 
-    IsWow64Process(NtCurrentProcess(), &isWow64);
+    NtQueryInformationProcess(
+        NtCurrentProcess(),
+        ProcessWow64Information,
+        &isWow64,
+        sizeof(INTBOOL),
+        NULL
+        );
 
     if (isWow64)
         SlExtractResource(L"DRIVER64", L"push0.sys");
