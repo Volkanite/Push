@@ -55,6 +55,7 @@ extern "C" DWORD __stdcall MapFileAndCheckSumW(
 
 VOID FormatTime(WCHAR* Buffer);
 extern "C" NTSTATUS SlProcessGetFileName(HANDLE ProcessHandle, WCHAR* FileName);
+extern "C" VOID SlProcessWrite(HANDLE ProcessHandle, VOID* BaseAddress, VOID* Buffer, SIZE_T Size);
 
 
 BOOLEAN IsGame( WCHAR* ExecutablePath )
@@ -428,8 +429,7 @@ VOID OnProcessEvent( PROCESSID processID )
 }
 
 
-VOID
-Inject32( VOID *hProcess )
+VOID Inject32( VOID *hProcess )
 {
     VOID *threadHandle, *pLibRemote, *hKernel32;
     WCHAR szModulePath[260], *pszLastSlash;
@@ -448,7 +448,7 @@ Inject32( VOID *hProcess )
     pLibRemote = VirtualAllocEx(hProcess, 0, sizeof(szModulePath), MEM_COMMIT, PAGE_READWRITE);
 
     // Copy library name
-    WriteProcessMemory(hProcess, pLibRemote, szModulePath, sizeof(szModulePath), 0);
+    SlProcessWrite(hProcess, pLibRemote, szModulePath, sizeof(szModulePath));
 
     // Load dll into the remote process
     threadHandle = CreateRemoteThread(hProcess,
