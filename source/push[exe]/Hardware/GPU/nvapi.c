@@ -16,6 +16,8 @@ INT32 *gpuHandles[NVAPI_MAX_PHYSICAL_GPUS] = { NULL };
 INT32 gpuCount = 0;
 INT32 *displayHandles;
 
+VOID* SlGetProcedureAddress(VOID* DllHandle, CHAR* ProcedureName);
+
 
 BOOLEAN Nvapi_Initialize()
 {
@@ -25,17 +27,19 @@ BOOLEAN Nvapi_Initialize()
 
     if (!nvapi) return FALSE;
 
-    NvAPI_QueryInterface = (TYPE_NvAPI_QueryInterface) GetProcAddress(nvapi, "nvapi_QueryInterface");
+    NvAPI_QueryInterface = SlGetProcedureAddress(
+        nvapi, 
+        "nvapi_QueryInterface"
+        );
 
-    NvAPI_Initialize             = (TYPE_NvAPI_Initialize)             NvAPI_QueryInterface(0x0150E828);
-    NvAPI_EnumPhysicalGPUs       = (TYPE_NvAPI_EnumPhysicalGPUs)       NvAPI_QueryInterface(0xE5AC921F);
-    NvAPI_GPU_GetUsages          = (TYPE_NvAPI_GPU_GetUsages)          NvAPI_QueryInterface(0x189A1FDF);
-    NvAPI_GPU_GetAllClocks       = (TYPE_NvAPI_GPU_GetAllClocks)       NvAPI_QueryInterface(0x1BD69F49);
-    NvAPI_GPU_GetPstatesInfo     = (TYPE_NvAPI_GPU_GetPstatesInfo)     NvAPI_QueryInterface(0xBA94C56E);
-    NvAPI_GetMemoryInfo          = (TYPE_NvAPI_GetMemoryInfo)          NvAPI_QueryInterface(0x774AA982);
-    NvAPI_GPU_GetThermalSettings = (TYPE_NvAPI_GPU_GetThermalSettings) NvAPI_QueryInterface(0xE3640A56);
-
-    // initialize NvAPI library, call it once before calling any other NvAPI functions
+    NvAPI_Initialize             =  NvAPI_QueryInterface(0x0150E828);
+    NvAPI_EnumPhysicalGPUs       =  NvAPI_QueryInterface(0xE5AC921F);
+    NvAPI_GPU_GetUsages          =  NvAPI_QueryInterface(0x189A1FDF);
+    NvAPI_GPU_GetAllClocks       =  NvAPI_QueryInterface(0x1BD69F49);
+    NvAPI_GPU_GetPstatesInfo     =  NvAPI_QueryInterface(0xBA94C56E);
+    NvAPI_GetMemoryInfo          =  NvAPI_QueryInterface(0x774AA982);
+    NvAPI_GPU_GetThermalSettings =  NvAPI_QueryInterface(0xE3640A56);
+    
     NvAPI_Initialize();
     NvAPI_EnumPhysicalGPUs(gpuHandles, &gpuCount);
     

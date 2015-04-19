@@ -15,9 +15,21 @@ typedef VOID* (__stdcall *TYPE_ADL_Main_Memory_Alloc) ( INT32 );
 typedef INT32 (*TYPE_ADL_Main_Control_Create)( TYPE_ADL_Main_Memory_Alloc, INT32 );
 typedef INT32 (*TYPE_ADL_Overdrive5_CurrentActivity_Get) ( INT32, ADLPMActivity* );
 typedef INT32 (*TYPE_ADL_Overdrive5_Temperature_Get)( INT32, INT32, ADLTemperature* );
-typedef INT32 (*TYPE_ADL_Overdrive5_ODParameters_Get)( INT32 iAdapterIndex, ADLODParameters *lpOdParameters );
-typedef INT32 (*TYPE_ADL_Overdrive5_ODPerformanceLevels_Get)( INT32 iAdapterIndex, INT32 iDefault, ADLODPerformanceLevels *lpOdPerformanceLevels );
-typedef INT32 (*TYPE_ADL_Overdrive5_ODPerformanceLevels_Set )( INT32 iAdapterIndex, ADLODPerformanceLevels *lpOdPerformanceLevels );
+
+typedef INT32 (*TYPE_ADL_Overdrive5_ODParameters_Get)( 
+    INT32 iAdapterIndex, 
+    ADLODParameters *lpOdParameters 
+    );
+    
+typedef INT32 (*TYPE_ADL_Overdrive5_ODPerformanceLevels_Get)( 
+    INT32 iAdapterIndex, INT32 iDefault, 
+    ADLODPerformanceLevels *lpOdPerformanceLevels 
+    );
+    
+typedef INT32 (*TYPE_ADL_Overdrive5_ODPerformanceLevels_Set )( 
+    INT32 iAdapterIndex, 
+    ADLODPerformanceLevels *lpOdPerformanceLevels 
+    );
 
 
 TYPE_ADL_Main_Control_Create                ADL_Main_Control_Create;
@@ -26,6 +38,8 @@ TYPE_ADL_Overdrive5_Temperature_Get         ADL_Overdrive5_Temperature_Get;
 TYPE_ADL_Overdrive5_ODParameters_Get        ADL_Overdrive5_ODParameters_Get;
 TYPE_ADL_Overdrive5_ODPerformanceLevels_Get ADL_Overdrive5_ODPerformanceLevels_Get;
 TYPE_ADL_Overdrive5_ODPerformanceLevels_Set ADL_Overdrive5_ODPerformanceLevels_Set;
+
+VOID* SlGetProcedureAddress(VOID* DllHandle, CHAR* ProcedureName);
 
 
 VOID* __stdcall ADL_Main_Memory_Alloc( INT32 Size )
@@ -49,26 +63,14 @@ VOID Adl_Initialize()
 
     adl = SlLoadLibrary(L"atiadlxy.dll");
 
-    if(!adl)
-        return;
+    if (!adl) return;
 
-    ADL_Main_Control_Create = (TYPE_ADL_Main_Control_Create)
-        GetProcAddress(adl, "ADL_Main_Control_Create");
-
-    ADL_Overdrive5_CurrentActivity_Get = (TYPE_ADL_Overdrive5_CurrentActivity_Get)
-        GetProcAddress(adl, "ADL_Overdrive5_CurrentActivity_Get");
-
-    ADL_Overdrive5_Temperature_Get = (TYPE_ADL_Overdrive5_Temperature_Get)
-        GetProcAddress(adl, "ADL_Overdrive5_Temperature_Get");
-
-    ADL_Overdrive5_ODParameters_Get = (TYPE_ADL_Overdrive5_ODParameters_Get)
-        GetProcAddress(adl, "ADL_Overdrive5_ODParameters_Get");
-
-    ADL_Overdrive5_ODPerformanceLevels_Get = (TYPE_ADL_Overdrive5_ODPerformanceLevels_Get)
-        GetProcAddress(adl, "ADL_Overdrive5_ODPerformanceLevels_Get");
-
-    ADL_Overdrive5_ODPerformanceLevels_Set = (TYPE_ADL_Overdrive5_ODPerformanceLevels_Set)
-        GetProcAddress(adl, "ADL_Overdrive5_ODPerformanceLevels_Set");
+    ADL_Main_Control_Create                 = SlGetProcedureAddress(adl, "ADL_Main_Control_Create");
+    ADL_Overdrive5_CurrentActivity_Get      = SlGetProcedureAddress(adl, "ADL_Overdrive5_CurrentActivity_Get");
+    ADL_Overdrive5_Temperature_Get          = SlGetProcedureAddress(adl, "ADL_Overdrive5_Temperature_Get");
+    ADL_Overdrive5_ODParameters_Get         = SlGetProcedureAddress(adl, "ADL_Overdrive5_ODParameters_Get");
+    ADL_Overdrive5_ODPerformanceLevels_Get  = SlGetProcedureAddress(adl, "ADL_Overdrive5_ODPerformanceLevels_Get");
+    ADL_Overdrive5_ODPerformanceLevels_Set  = SlGetProcedureAddress(adl, "ADL_Overdrive5_ODPerformanceLevels_Set");
 
     ADL_Main_Control_Create(ADL_Main_Memory_Alloc, 1);
 

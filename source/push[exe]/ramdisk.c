@@ -8,6 +8,8 @@
 PFORMATEX   FormatEx;
 
 #define ERROR_NOT_ENOUGH_MEMORY 0x8
+VOID* SlGetProcedureAddress(VOID* DllHandle, CHAR* ProcedureName);
+
 //----------------------------------------------------------------------
 //
 // FormatExCallback
@@ -145,11 +147,9 @@ OpenRamDisk()
 }
 
 
-VOID
-FormatRamDisk()
+VOID FormatRamDisk()
 {
     WCHAR mountPoint[]    = L" :";
-    //WCHAR cDriveLetter  = 0;
     VOID *deviceHandle       = 0;
     RAMDISK_CREATE_DATA createData = { 0 };
 
@@ -158,41 +158,18 @@ FormatRamDisk()
     if (deviceHandle == INVALID_HANDLE_VALUE)
         return;
 
-    //cDriveLetter = GetRamDiskDriveLetter(deviceHandle);
     R0QueryRamDisk(deviceHandle, &createData);
-
     NtClose(deviceHandle);
-
-    /*if(cDriveLetter == 0)
-        return;*/
 
     if (createData.DriveLetter == NULL)
         //could not get a drive letter, return.
         return;
-
-
-    //szMountPoint[0] = cDriveLetter;
+        
     mountPoint[0] = createData.DriveLetter;
 
-    /*FormatEx = (PFORMATEX) GetProcAddress(
-                            PushLoadLibrary(L"fmifs.dll"),
-                            "FormatEx"
-                            );*/
+    FormatEx = (PFORMATEX) SlGetProcedureAddress(SlLoadLibrary(L"fmifs.dll"), "FormatEx");
 
-    FormatEx = (PFORMATEX) GetProcAddress(
-                            SlLoadLibrary(L"fmifs.dll"),
-                            "FormatEx"
-                            );
-
-    FormatEx(
-        mountPoint,
-        FMIFS_HARDDISK,
-        L"NTFS",
-        L"RAM Disk",
-        TRUE,
-        0,
-        FormatExCallback
-        );
+    FormatEx(mountPoint, FMIFS_HARDDISK, L"NTFS", L"RAM Disk", TRUE, 0, FormatExCallback);
 }
 
 

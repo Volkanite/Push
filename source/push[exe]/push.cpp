@@ -56,6 +56,7 @@ extern "C" DWORD __stdcall MapFileAndCheckSumW(
 VOID FormatTime(WCHAR* Buffer);
 extern "C" NTSTATUS SlProcessGetFileName(HANDLE ProcessHandle, WCHAR* FileName);
 extern "C" VOID SlProcessWrite(HANDLE ProcessHandle, VOID* BaseAddress, VOID* Buffer, SIZE_T Size);
+extern "C" VOID* SlGetProcedureAddress(VOID* DllHandle, CHAR* ProcedureName);
 
 
 BOOLEAN IsGame( WCHAR* ExecutablePath )
@@ -453,7 +454,7 @@ VOID Inject32( VOID *hProcess )
     // Load dll into the remote process
     threadHandle = CreateRemoteThread(hProcess,
                                  0,0,
-                                 (PTHREAD_START_ROUTINE) GetProcAddress(hKernel32, "LoadLibraryW"),
+                                 (PTHREAD_START_ROUTINE) SlGetProcedureAddress(hKernel32, "LoadLibraryW"),
                                  pLibRemote,
                                  0,0);
 
@@ -878,16 +879,9 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     //start timer
     SetTimer(PushMainWindow->Handle, 0, 1000, 0);
     
-    /*Activate process monitoring*/
-    NtSuspendProcess = (TYPE_NtSuspendProcess) GetProcAddress(
-                                                GetModuleHandleW(L"ntdll.dll"),
-                                                "NtSuspendProcess"
-                                                );
-
-    NtResumeProcess = (TYPE_NtResumeProcess) GetProcAddress(
-                                                GetModuleHandleW(L"ntdll.dll"),
-                                                "NtResumeProcess"
-                                                );
+    // Activate process monitoring
+    NtSuspendProcess = (TYPE_NtSuspendProcess) SlGetProcedureAddress(GetModuleHandleW(L"ntdll.dll"), "NtSuspendProcess");
+    NtResumeProcess = (TYPE_NtResumeProcess) SlGetProcedureAddress(GetModuleHandleW(L"ntdll.dll"), "NtResumeProcess");
 
     PushToggleProcessMonitoring(TRUE);
 

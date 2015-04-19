@@ -34,6 +34,7 @@ typedef struct _ETP_GPU_ADAPTER
 
 VOID InitializeD3DStatistics();
 VOID UpdateNodeInformation();
+VOID* SlGetProcedureAddress(VOID* DllHandle, CHAR* ProcedureName);
 PETP_GPU_ADAPTER AllocateGpuAdapter(
     _In_ UINT32 NumberOfSegments
     );
@@ -199,12 +200,12 @@ D3DKMTInitialize()
         return;
     }
 
-    D3DKMTOpenAdapterFromDeviceName = (TYPE_D3DKMTOpenAdapterFromDeviceName) GetProcAddress(
+    D3DKMTOpenAdapterFromDeviceName = (TYPE_D3DKMTOpenAdapterFromDeviceName) SlGetProcedureAddress(
                                                                                 gdi32,
                                                                                 "D3DKMTOpenAdapterFromDeviceName"
                                                                                 );
 
-    D3DKMTQueryStatistics = (TYPE_D3DKMTQueryStatistics) GetProcAddress(gdi32, "D3DKMTQueryStatistics");
+    D3DKMTQueryStatistics = (TYPE_D3DKMTQueryStatistics) SlGetProcedureAddress(gdi32, "D3DKMTQueryStatistics");
 
     if (!D3DKMTOpenAdapterFromDeviceName || !D3DKMTQueryStatistics)
     {
