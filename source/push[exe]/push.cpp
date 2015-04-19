@@ -238,46 +238,6 @@ CacheFiles(CHAR driveLetter)
 }
 
 
-LONG
-NormalizeNTPath( WCHAR* pszPath, size_t nMax )
-// Normalizes the path returned by GetProcessImageFileName
-{
-    CHAR cSave, cDrive;
-    WCHAR szNTPath[_MAX_PATH], szDrive[_MAX_PATH] = L"A:";
-    //WCHAR *pszSlash = wcschr(&pszPath[1], '\\');
-    WCHAR *pszSlash = SlStringFindChar(&pszPath[1], '\\');
-
-    if (pszSlash) pszSlash = SlStringFindChar(pszSlash+1, '\\');
-    if (!pszSlash)
-        return E_FAIL;
-    cSave = *pszSlash;
-    *pszSlash = 0;
-
-    // We'll need to query the NT device names for the drives to find a match with pszPath
-
-    for (cDrive = 'A'; cDrive < 'Z'; ++cDrive)
-    {
-        szDrive[0] = cDrive;
-        szNTPath[0] = 0;
-        if (0 != QueryDosDeviceW(szDrive, szNTPath, 260) &&
-            0 == SlStringCompareN(szNTPath, pszPath, 260))
-        {
-            // Match
-            SlStringConcatenate(szDrive, L"\\");
-            SlStringConcatenate(szDrive, pszSlash+1);
-
-            SlStringCopy(pszPath, szDrive);
-
-            return S_OK;
-        }
-    }
-
-
-    *pszSlash = cSave;
-    return E_FAIL;
-}
-
-
 VOID
 PushAddToFileList( FILE_LIST* FileList, FILE_LIST_ENTRY *FileEntry )
 {
@@ -405,8 +365,7 @@ VOID Cache( PUSH_GAME* Game )
 }
 
 
-VOID
-OnProcessEvent( PROCESSID processID )
+VOID OnProcessEvent( PROCESSID processID )
 {
     WCHAR fileName[260];
     VOID *processHandle = NULL;
@@ -420,7 +379,6 @@ OnProcessEvent( PROCESSID processID )
         return;
 
     SlProcessGetFileName(processHandle, fileName);
-    NormalizeNTPath(fileName, 260);
 
     if (IsGame(fileName))
     {
