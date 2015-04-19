@@ -1,7 +1,7 @@
 #include <sl.h>
 #include <stdio.h>
 #include <push.h>
-#include <hwinfo.h>
+#include <hardware.h>
 #include "adl.h"
 #include "AmdGpu.h"
 

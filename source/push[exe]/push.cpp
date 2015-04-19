@@ -54,6 +54,7 @@ extern "C" DWORD __stdcall MapFileAndCheckSumW(
     );
 
 VOID FormatTime(WCHAR* Buffer);
+extern "C" NTSTATUS SlProcessGetFileName(HANDLE ProcessHandle, WCHAR* FileName);
 
 
 BOOLEAN IsGame( WCHAR* ExecutablePath )
@@ -418,7 +419,7 @@ OnProcessEvent( PROCESSID processID )
     if (!processHandle)
         return;
 
-    GetProcessImageFileNameW(processHandle, fileName, 260);
+    SlProcessGetFileName(processHandle, fileName);
     NormalizeNTPath(fileName, 260);
 
     if (IsGame(fileName))
@@ -548,13 +549,6 @@ extern "C" DWORD __stdcall SetFilePointer(
     _In_         DWORD dwMoveMethod
     );
 
-extern "C" DWORD __stdcall GetModuleFileNameExW(
-    _In_      HANDLE hProcess,
-    _In_opt_  HANDLE hModule,
-    _Out_     WCHAR* lpFilename,
-    _In_      DWORD nSize
-    );
-
 VOID Inject64(
     _In_ PROCESSID ProcessId, 
     _In_ WCHAR* Path
@@ -670,6 +664,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
     wchar_t *buffer;
     wchar_t *executableName;
     UINT16 bufferSize;
+    NTSTATUS status;
 
     SlFileCreate(
         &fileHandle,
@@ -679,8 +674,10 @@ VOID OnImageEvent( PROCESSID ProcessId )
         FILE_OPEN_IF,
         FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
         );
-    
-    if (GetProcessImageFileNameW(processHandle, filePath, 260))
+
+    status = SlProcessGetFileName(processHandle, filePath);
+
+    if (NT_SUCCESS(status))
     {
         executableName = SlStringFindLastChar(filePath, '\\');
         executableName++;
@@ -1039,3 +1036,6 @@ VOID FormatTime( WCHAR* Buffer )
         timeinfo
         );
 }
+
+
+

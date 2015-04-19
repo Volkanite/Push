@@ -445,15 +445,7 @@ VirtualFreeEx(
      DWORD AccessMask,
      OBJECT_ATTRIBUTES *ObjectAttributes,
      CLIENT_ID *ClientId );
-
-DWORD
-__stdcall
-GetProcessImageFileNameW(
-    VOID* hProcess,
-    WCHAR* lpImageFileName,
-    DWORD nSize
-    );
-
+     
 INT32
 __stdcall
 WriteProcessMemory(
@@ -463,17 +455,6 @@ WriteProcessMemory(
     DWORD   nSize,
     DWORD*  lpNumberOfBytesWritten
     );
-
-/*VOID*
-__stdcall
-CreateThread(
-    SECURITY_ATTRIBUTES     *lpThreadAttributes,
-    DWORD                   dwStackSize,
-    PTHREAD_START_ROUTINE   lpStartAddress,
-    VOID                    *lpParameter,
-    DWORD                   dwCreationFlags,
-    DWORD                   *lpThreadId
-    );*/
 
 VOID*
 __stdcall

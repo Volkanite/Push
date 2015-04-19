@@ -2,7 +2,7 @@
 #include <push.h>
 
 #include "NvidiaGpu.h"
-#include <hwinfo.h>
+#include <hardware.h>
 #include "NvThermalDiode\NvThermalDiode.h"
 #include "nvapi.h"
 #include "OpenNvapi.h"
@@ -98,7 +98,7 @@ typedef enum _GPU_INTERFACE
 
 VOID NvidiaGpu_CreateAdapter( GPU_ADAPTER* GpuAdapter )
 {
-	GPU_INTERFACE gpuInterface = GPU_INTERFACE_PURE;
+    GPU_INTERFACE gpuInterface = GPU_INTERFACE_PURE;
 
     Nvapi_Initialize();
     D3DKMTInitialize();
