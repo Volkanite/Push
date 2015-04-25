@@ -111,10 +111,13 @@ UINT32 GetFrameBufferSize()
 UINT32 GetRamUsed()
 {
     SYSTEM_BASIC_PERFORMANCE_INFORMATION performanceInfo;
+    UINT64 committedPages; //force allmul() on x86
 
     NtQuerySystemInformation(SystemBasicPerformanceInformation, &performanceInfo, sizeof(SYSTEM_BASIC_PERFORMANCE_INFORMATION), NULL);
 
-    return (performanceInfo.CommittedPages * HwInfoSystemBasicInformation.PageSize) / 1048576; //byte => megabytes
+    committedPages = performanceInfo.CommittedPages;
+
+    return (committedPages * HwInfoSystemBasicInformation.PageSize) / 1048576; //byte => megabytes
 }
 
 
