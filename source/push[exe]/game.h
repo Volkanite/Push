@@ -14,6 +14,7 @@ typedef struct _PUSH_GAME_SETTINGS
     BOOLEAN                     UseRamDisk;
     BOOLEAN                     DisableRepeatKeys;
     BOOLEAN                     SwapWASD;
+    BOOLEAN                     ForceMaxClocks;
     PUSH_VSYNC_OVERRIDE_MODE    VsyncOverrideMode;
 
 } PUSH_GAME_SETTINGS;
@@ -26,7 +27,7 @@ typedef struct _PUSH_GAME
     WCHAR* InstallPath;
     WCHAR Id[2];
     DWORD CheckSum;
-    PUSH_GAME_SETTINGS  GameSettings;
+    PUSH_GAME_SETTINGS Settings;
 
 }PUSH_GAME;
 
