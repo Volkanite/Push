@@ -121,5 +121,5 @@ UINT16 AmdGpu_GetMaxMemoryClock()
 
 VOID AmdGpu_ForceMaximumClocks()
 {
-
+    Adl_SetMaxClocks();
 }
