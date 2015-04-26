@@ -437,11 +437,11 @@ VOID D3DKMT_GetPrivateDriverData( VOID* PrivateDriverData, UINT32 PrivateDriverD
 }
 
 
-UINT16 D3DKMT_GetEngineClock(){};
-UINT16 D3DKMT_GetMemoryClock(){};
-UINT16 D3DKMT_GetMaxEngineClock(){};
-UINT16 D3DKMT_GetMaxMemoryClock(){};
-UINT64 D3DKMT_GetTotalMemory(){};
-UINT64 D3DKMT_GetFreeMemory(){};
-UINT8  D3DKMT_GetTemperature(){};
+UINT16 D3DKMT_GetEngineClock(){ return 0; };
+UINT16 D3DKMT_GetMemoryClock(){ return 0; };
+UINT16 D3DKMT_GetMaxEngineClock(){ return 0; };
+UINT16 D3DKMT_GetMaxMemoryClock(){ return 0; };
+UINT64 D3DKMT_GetTotalMemory(){ return 0; };
+UINT64 D3DKMT_GetFreeMemory(){ return 0; };
+UINT8  D3DKMT_GetTemperature(){ return 0; };
 VOID   D3DKMT_ForceMaximumClocks(){};

@@ -148,7 +148,7 @@ typedef struct
 typedef INT32 *(*TYPE_NvAPI_QueryInterface)(UINT32 offset);
 typedef INT32(*TYPE_NvAPI_Initialize)();
 typedef INT32(*TYPE_NvAPI_EnumPhysicalGPUs)(INT32 **handles, INT32* count);
-typedef INT32(*TYPE_NvAPI_GetMemoryInfo)(HANDLE hPhysicalGpu, UINT32* memInfo);
+typedef INT32(*TYPE_NvAPI_GetMemoryInfo)(HANDLE hPhysicalGpu, NV_MEMORY_INFO* memInfo);
 typedef INT32(*TYPE_NvAPI_GPU_GetUsages)(HANDLE handle, NV_USAGES* Usages);
 typedef INT32(*TYPE_NvAPI_GPU_GetAllClocks)(HANDLE GpuHandle, NV_CLOCKS* Clocks);
 typedef INT32(*TYPE_NvAPI_GPU_GetPstatesInfo)(HANDLE GpuHandle, NV_GPU_PERF_PSTATES_INFO *PerfPstatesInfo);

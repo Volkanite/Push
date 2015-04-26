@@ -37,13 +37,13 @@ typedef struct _NVAPI_PRIVATE_MEMORY_DATA
 
 UINT16 OpenNvapi_GetEngineClock()
 {
-    
+    return 0;
 }
 
 
 UINT16 OpenNvapi_GetMemoryClock()
 {
-    
+    return 0;
 }
 
 
@@ -55,13 +55,13 @@ VOID OpenNvapi_GetClocks()
 
 UINT16 OpenNvapi_GetMaxEngineClock()
 {
-
+    return 0;
 }
 
 
 UINT16 OpenNvapi_GetMaxMemoryClock()
 {
-
+    return 0;
 }
 
 
@@ -125,7 +125,7 @@ VOID OpenNvapi_GetMemoryInformation()
 
 UINT8 OpenNvapi_GetTemperature()
 {
-
+    return 0;
 }
 
 
@@ -143,4 +143,6 @@ UINT8 OpenNvapi_GetLoad()
         &usageData,
         sizeof(NVAPI_PRIVATE_USAGE_DATA)
         );
+
+    return 0;
 }
