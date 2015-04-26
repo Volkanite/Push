@@ -388,7 +388,7 @@ VOID OnProcessEvent( PROCESSID processID )
 
         Game_Initialize(fileName, &game);
 
-        if (game.GameSettings.UseRamDisk)
+        if (game.Settings.UseRamDisk)
         {
             PushSharedMemory->GameUsesRamDisk = TRUE;
 
@@ -397,13 +397,15 @@ VOID OnProcessEvent( PROCESSID processID )
             Cache(&game);
         }
 
-        PushSharedMemory->DisableRepeatKeys = game.GameSettings.DisableRepeatKeys;
-        PushSharedMemory->SwapWASD = game.GameSettings.SwapWASD;
-        PushSharedMemory->VsyncOverrideMode = game.GameSettings.VsyncOverrideMode;
-
+        PushSharedMemory->DisableRepeatKeys = game.Settings.DisableRepeatKeys;
+        PushSharedMemory->SwapWASD = game.Settings.SwapWASD;
+        PushSharedMemory->VsyncOverrideMode = game.Settings.VsyncOverrideMode;
+        
         // Check if user wants maximum gpu engine and memory clocks
-        if (SlIniReadBoolean(L"Settings", L"ForceMaxClocks", FALSE, L".\\" PUSH_SETTINGS_FILE))
+        if (game.Settings.ForceMaxClocks)
+        {
             HwForceMaxClocks();
+        }
 
         // i used this to disable one of my audio ports while gaming but of course it probably only
         // works for IDT audio devices

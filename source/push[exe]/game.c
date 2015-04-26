@@ -51,20 +51,23 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
     // Game Settings.
 
     if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"UseRamDisk", FALSE, L".\\" PUSH_SETTINGS_FILE))
-        Game->GameSettings.UseRamDisk = TRUE;
+        Game->Settings.UseRamDisk = TRUE;
 
     if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"DisableRepeatKeys", FALSE, L".\\" PUSH_SETTINGS_FILE))
-        Game->GameSettings.DisableRepeatKeys = TRUE;
+        Game->Settings.DisableRepeatKeys = TRUE;
 
     if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"SwapWASD", FALSE, L".\\" PUSH_SETTINGS_FILE))
-        Game->GameSettings.SwapWASD = TRUE;
+        Game->Settings.SwapWASD = TRUE;
 
     buffer = SlIniReadSubKey(L"Game Settings", gameId, L"ForceVsync", L".\\" PUSH_SETTINGS_FILE);
     
     if (SlStringCompare(buffer, L"FORCE_ON") == 0)
-        Game->GameSettings.VsyncOverrideMode = PUSH_VSYNC_FORCE_ON;
+        Game->Settings.VsyncOverrideMode = PUSH_VSYNC_FORCE_ON;
     else if (SlStringCompare(buffer, L"FORCE_OFF") == 0)
-        Game->GameSettings.VsyncOverrideMode = PUSH_VSYNC_FORCE_OFF;
+        Game->Settings.VsyncOverrideMode = PUSH_VSYNC_FORCE_OFF;
+
+    if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"ForceMaxClocks", FALSE, L".\\" PUSH_SETTINGS_FILE))
+        Game->Settings.ForceMaxClocks = TRUE;
 }
 
 
