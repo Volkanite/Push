@@ -231,20 +231,56 @@ typedef enum _PUSH_VSYNC_OVERRIDE_MODE
 } PUSH_VSYNC_OVERRIDE_MODE;
 
 
+typedef VOID(*OSD_DYNAMIC_FORMAT)(
+    UINT32 Value,
+    WCHAR* Buffer
+    );
+
+
+typedef struct _OSD_ITEM
+{
+    UINT32 Flag;
+    UINT8 Threshold;
+    WCHAR* DisplayFormat;
+
+    //Must be at least 8 bits or you might get garbage,
+    //More than 8 bits and you will get incorrect readings.
+    UINT8 Value;
+
+    //This will be displayed instead of the first, Must be at least 32 bits or you might get garbage,
+    //More than 32 bits and you will get incorrect readings.
+    UINT32 ValueOverride;
+
+    //For when formatting must happen at runtime
+    OSD_DYNAMIC_FORMAT DynamicFormat;
+
+    UINT32 Color;
+    WCHAR Text[20];
+
+}OSD_ITEM;
 // Structure for shared memory
 
 typedef struct _PUSH_SHARED_MEMORY
 {
+    //OSD
+
     //enable/disable OSD items
     unsigned int    OSDFlags;
-    
-    PUSH_HARDWARE_INFORMATION HarwareInformation;
 
     //OSD item threshholds
     unsigned int    Overloads;
 
-    //Other
-    UCHAR                       FrameLimit;
+    //
+    UINT8 NumberOfOsdItems;
+    OSD_ITEM* OsdItemsOffset;
+
+    PUSH_HARDWARE_INFORMATION HarwareInformation;
+
+    UCHAR   FrameLimit;
+    UINT8   FrameBufferCount;
+    UINT32  FrameRate;
+    BOOLEAN IsFrameRateStable;
+    
     PUSH_VSYNC_OVERRIDE_MODE    VsyncOverrideMode;
     UCHAR                       DisableRepeatKeys;
     UCHAR                       SwapWASD;
@@ -253,6 +289,9 @@ typedef struct _PUSH_SHARED_MEMORY
     long long                   performanceFrequency;
     VOID*                       WindowHandle;
     BOOLEAN                     ThreadOptimization;
+
+    OSD_ITEM OsdItems[1];
+    
 
 } PUSH_SHARED_MEMORY;
 

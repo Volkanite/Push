@@ -1,4 +1,4 @@
 /**
-* Refreshes all on-screen display items.
+* Draws all on-screen display items.
 */
-VOID OsdRefresh( OvOverlay* Overlay );
+VOID Osd_Draw(OvOverlay* Overlay);

@@ -7,6 +7,7 @@
 #include <time.h>
 #include <pushbase.h>
 #include <gui.h>
+#include <osd.h>
 
 #include "push.h"
 #include "ramdisk.h"
@@ -794,6 +795,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     MSG messages;
     BOOLEAN bAlreadyRunning;
     OBJECT_ATTRIBUTES objAttrib = {0};
+    UINT32 sharedMemorySize;
     
     // Check if already running
     hMutex = CreateMutexW(0, FALSE, L"PushOneInstance");
@@ -824,11 +826,8 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     // Create file mapping.
 
     PushSharedMemory = NULL;
-
-    PushSharedMemory = (PUSH_SHARED_MEMORY*) SlCreateFileMapping(
-        PUSH_SECTION_NAME, 
-        sizeof(PUSH_SHARED_MEMORY)
-        );
+    sharedMemorySize = sizeof(PUSH_SHARED_MEMORY) + sizeof(OsdItems);
+    PushSharedMemory = (PUSH_SHARED_MEMORY*) SlCreateFileMapping(PUSH_SECTION_NAME, sharedMemorySize);
 
     if (!PushSharedMemory)
     {
@@ -837,7 +836,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     }
 
     //zero struct
-    memset(PushSharedMemory, 0, sizeof(PUSH_SHARED_MEMORY));
+    memset(PushSharedMemory, 0, sharedMemorySize);
 
     //initialize window handle used by overlay
     PushSharedMemory->WindowHandle = PushMainWindow->Handle;
@@ -945,11 +944,11 @@ UpdateSharedMemory()
 }
 
 
-VOID
-PushOnTimer()
+VOID PushOnTimer()
 {
     RefreshHardwareInfo();
     UpdateSharedMemory();
+    OSD_Refresh();
 }
 
 

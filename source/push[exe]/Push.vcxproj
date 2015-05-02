@@ -41,6 +41,9 @@
     <ClCompile Include="Hardware\GPU\NvThermalDiode\NVThermalDiode.cpp" />
     <ClCompile Include="Hardware\GPU\OpenNvapi.c" />
     <ClCompile Include="Hardware\hardware.c" />
+    <ClCompile Include="OSD\local.c" />
+    <ClCompile Include="OSD\osd.c" />
+    <ClCompile Include="OSD\rtss.cpp" />
     <ClCompile Include="push.cpp" />
     <ClCompile Include="ramdisk.c" />
     <ClCompile Include="ring0.c" />
@@ -68,6 +71,7 @@
     <ClInclude Include="Hardware\GPU\NvThermalDiode\NvThermalDiode.h" />
     <ClInclude Include="Hardware\GPU\OpenNvapi.h" />
     <ClInclude Include="Hardware\hardware.h" />
+    <ClInclude Include="OSD\osd.h" />
     <ClInclude Include="push.h" />
     <ClInclude Include="ramdisk.h" />
     <ClInclude Include="ring0.h" />
@@ -131,7 +135,7 @@
     <LibraryPath>$(SolutionDir)resources\sl\lib\i386;$(SolutionDir)resources\ddk\lib;$(SolutionDir)resources\SlAdl;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)source\push[exe]\Hardware;$(SolutionDir)source\push[exe]\RAMdisk;$(SolutionDir)source\push[exe]\GUI;$(SolutionDir)source\push[exe];$(SolutionDir)source;$(SolutionDir)resources\sl;$(SolutionDir)resources\ADL;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)source;$(SolutionDir)source\push[exe];$(SolutionDir)source\push[exe]\Hardware;$(SolutionDir)source\push[exe]\RAMdisk;$(SolutionDir)source\push[exe]\GUI;$(SolutionDir)source\push[exe]\OSD;$(SolutionDir)resources\sl;$(SolutionDir)resources\ADL;$(SolutionDir)resources\RTSS;$(IncludePath)</IncludePath>
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
     <LinkIncremental>false</LinkIncremental>
@@ -141,12 +145,13 @@
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir)source;$(SolutionDir)source\push[exe];$(SolutionDir)source\push[exe]\Hardware;$(SolutionDir)source\push[exe]\RAMdisk;$(SolutionDir)source\push[exe]\GUI;$(SolutionDir)source\push[exe]\OSD;$(SolutionDir)resources\sl;$(SolutionDir)resources\ADL;$(SolutionDir)resources\RTSS;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
     <LibraryPath>$(SolutionDir)resources\sl\lib\i386;$(SolutionDir)resources\ddk\lib;$(SolutionDir)resources\SlAdl;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)source\push[exe]\Hardware;$(SolutionDir)source\push[exe]\RAMdisk;$(SolutionDir)source\push[exe]\GUI;$(SolutionDir)source\push[exe];$(SolutionDir)source;$(SolutionDir)resources\sl;$(SolutionDir)resources\ADL;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)source;$(SolutionDir)source\push[exe];$(SolutionDir)source\push[exe]\Hardware;$(SolutionDir)source\push[exe]\RAMdisk;$(SolutionDir)source\push[exe]\GUI;$(SolutionDir)source\push[exe]\OSD;$(SolutionDir)resources\sl;$(SolutionDir)resources\ADL;$(SolutionDir)resources\RTSS;$(IncludePath)</IncludePath>
     <LinkIncremental>false</LinkIncremental>
     <EmbedManifest>true</EmbedManifest>
     <GenerateManifest>true</GenerateManifest>
@@ -155,6 +160,7 @@
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
     <LibraryPath>$(SolutionDir)source\_resources\nvapi;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)source;$(SolutionDir)source\push[exe];$(SolutionDir)source\push[exe]\Hardware;$(SolutionDir)source\push[exe]\RAMdisk;$(SolutionDir)source\push[exe]\GUI;$(SolutionDir)source\push[exe]\OSD;$(SolutionDir)resources\sl;$(SolutionDir)resources\ADL;$(SolutionDir)resources\RTSS;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

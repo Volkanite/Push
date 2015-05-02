@@ -6,11 +6,8 @@
 #include <stdio.h>
 
 
-UINT32  PushFrameRate;
 UINT8   PushRefreshRate = 60;
 UINT8   PushAcceptableFps = 55;
-UINT8   PushFrameBufferCount = 0;
-BOOLEAN PushStableFrameRate = FALSE;
 BOOLEAN g_SetOSDRefresh = TRUE;
 BOOLEAN g_FontInited = FALSE;
 UINT64 g_cyclesWaited = 0;
@@ -46,8 +43,7 @@ GetPerformanceCounter()
 }
 
 
-VOID
-RunFrameStatistics()
+VOID RunFrameStatistics()
 {
     static double newTickCount = 0.0, lastTickCount = 0.0,
                   oldTick = 0.0, delta = 0.0,
@@ -140,7 +136,7 @@ RunFrameStatistics()
         oldTick2 = newTickCount;
     }
 
-    PushFrameRate = (int) fps;
+    PushSharedMemory->FrameRate = (int) fps;
 
     if (PushSharedMemory->FrameLimit)
     {
@@ -176,11 +172,10 @@ RunFrameStatistics()
 }
 
 
-VOID
-RnRender( OvOverlay* Overlay )
+VOID RnRender( OvOverlay* Overlay )
 {
     RunFrameStatistics();
-    OsdRefresh( Overlay );
+    Osd_Draw( Overlay );
     MnuRender( Overlay );
     //Overlay->DrawText(L"u can draw anything in this render loop!\n");
 }
