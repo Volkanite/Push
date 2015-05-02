@@ -30,7 +30,7 @@ FILE_LIST PushFileList    = 0;
 VOID* PushHeapHandle;
 UINT32 thisPID;
 PUSH_SHARED_MEMORY* PushSharedMemory;
-OVERLAY_INTERFACE PushOverlayInterface = OVERLAY_INTERFACE_RTSS;
+OVERLAY_INTERFACE PushOverlayInterface = OVERLAY_INTERFACE_PURE;
 extern "C" SYSTEM_BASIC_INFORMATION HwInfoSystemBasicInformation;
 
 
@@ -868,6 +868,14 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 
             if (SlIniReadBoolean(L"Settings", L"KeepFps", FALSE, L".\\" PUSH_SETTINGS_FILE))
                 PushSharedMemory->KeepFps = TRUE;
+
+            buffer = SlIniReadString(L"Settings", L"OverlayInterface", NULL, L".\\" PUSH_SETTINGS_FILE);
+
+            if (SlStringCompare(buffer, L"PURE") == 0)
+                PushOverlayInterface = OVERLAY_INTERFACE_PURE;
+            else if (SlStringCompare(buffer, L"RTSS") == 0)
+                PushOverlayInterface = OVERLAY_INTERFACE_RTSS;
+
         }
         else
         {
