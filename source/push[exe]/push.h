@@ -34,17 +34,26 @@ typedef struct _FILE_LIST_ENTRY
 
 } FILE_LIST_ENTRY, *FILE_LIST;
 
+typedef enum _OVERLAY_INTERFACE
+{
+    OVERLAY_INTERFACE_PURE,
+    OVERLAY_INTERFACE_RTSS,
+
+} OVERLAY_INTERFACE;
+
 
 #ifdef __cplusplus
 extern "C" VOID* PushHeapHandle;
 extern "C" VOID* PushInstance;
 extern "C" PUSH_SHARED_MEMORY* PushSharedMemory;
 extern "C" BOOLEAN g_ThreadListLock;
+extern "C" OVERLAY_INTERFACE PushOverlayInterface;
 #else
 extern VOID* PushHeapHandle;
 extern VOID* PushInstance;
 extern PUSH_SHARED_MEMORY* PushSharedMemory;
 extern BOOLEAN g_ThreadListLock;
+extern OVERLAY_INTERFACE PushOverlayInterface;
 #endif
 
 extern BOOLEAN             g_bRecache;

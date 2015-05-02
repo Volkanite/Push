@@ -166,14 +166,6 @@ VOID FormatDiskReadWriteRate(
 }
 
 
-typedef enum _OVERLAY_INTERFACE
-{
-    OVERLAY_INTERFACE_PURE,
-    OVERLAY_INTERFACE_RTSS,
-
-} OVERLAY_INTERFACE;
-
-
 /**
 * Refreshes all on-screen display items.
 */
@@ -182,7 +174,6 @@ VOID OSD_Refresh()
 {
     UINT8 items = sizeof(OsdItems) / sizeof(OsdItems[0]);
     UINT8 i;
-    OVERLAY_INTERFACE overlayInterface;
 
     PushSharedMemory->NumberOfOsdItems = items;
 
@@ -221,10 +212,8 @@ VOID OSD_Refresh()
         }
     }
 
-    overlayInterface = OVERLAY_INTERFACE_RTSS;
-
-    if (overlayInterface == OVERLAY_INTERFACE_PURE)
+    if (PushOverlayInterface == OVERLAY_INTERFACE_PURE)
         memcpy(PushSharedMemory->OsdItems, OsdItems, sizeof(OsdItems));
-    else if (overlayInterface == OVERLAY_INTERFACE_RTSS)
+    else if (PushOverlayInterface == OVERLAY_INTERFACE_RTSS)
         RTSS_Update(OsdItems);
 }

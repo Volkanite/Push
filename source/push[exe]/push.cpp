@@ -30,6 +30,7 @@ FILE_LIST PushFileList    = 0;
 VOID* PushHeapHandle;
 UINT32 thisPID;
 PUSH_SHARED_MEMORY* PushSharedMemory;
+OVERLAY_INTERFACE PushOverlayInterface = OVERLAY_INTERFACE_RTSS;
 extern "C" SYSTEM_BASIC_INFORMATION HwInfoSystemBasicInformation;
 
 
@@ -657,21 +658,27 @@ VOID OnImageEvent( PROCESSID ProcessId )
     
     if (isWow64)
     {
-        SlExtractResource(L"OVERLAY32", PUSH_LIB_NAME_32);
-        Inject32(processHandle);
+        if (PushOverlayInterface == OVERLAY_INTERFACE_PURE)
+        {
+            SlExtractResource(L"OVERLAY32", PUSH_LIB_NAME_32);
+            Inject32(processHandle);
+        }
     }
     else
     {
-        WCHAR szModulePath[260], *pszLastSlash;
+        if (PushOverlayInterface == OVERLAY_INTERFACE_PURE)
+        {
+            WCHAR szModulePath[260], *pszLastSlash;
 
-        GetModuleFileNameW(0, szModulePath, 260);
+            GetModuleFileNameW(0, szModulePath, 260);
 
-        pszLastSlash = SlStringFindLastChar(szModulePath, '\\');
-        pszLastSlash[1] = '\0';
+            pszLastSlash = SlStringFindLastChar(szModulePath, '\\');
+            pszLastSlash[1] = '\0';
 
-        SlExtractResource(L"OVERLAY64", PUSH_LIB_NAME_64);
-        SlStringConcatenate(szModulePath, PUSH_LIB_NAME_64);
-        Inject64(ProcessId, szModulePath);
+            SlExtractResource(L"OVERLAY64", PUSH_LIB_NAME_64);
+            SlStringConcatenate(szModulePath, PUSH_LIB_NAME_64);
+            Inject64(ProcessId, szModulePath);
+        }
     }
 
     NtClose(processHandle);
