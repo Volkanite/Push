@@ -4,6 +4,7 @@
 #include <hardware.h>
 #include "adl.h"
 #include "AmdGpu.h"
+#include "d3dkmt.h"
 
 
 #define R6XX_CONFIG_MEMSIZE 0x5428
@@ -23,6 +24,7 @@ VOID AmdGpu_ForceMaximumClocks();
 VOID AmdGpu_CreateAdapter( GPU_ADAPTER* GpuAdapter )
 {
     Adl_Initialize();
+    D3DKMTInitialize();
 
     GpuAdapter->GetEngineClock          = AmdGpu_GetEngineClock;
     GpuAdapter->GetMemoryClock          = AmdGpu_GetMemoryClock;
@@ -33,14 +35,6 @@ VOID AmdGpu_CreateAdapter( GPU_ADAPTER* GpuAdapter )
     GpuAdapter->GetTemperature          = AmdGpu_GetTemperature;
     GpuAdapter->ForceMaximumClocks      = AmdGpu_ForceMaximumClocks;
     GpuAdapter->GetLoad                 = AmdGpu_GetLoad;
-}
-
-
-UINT16 GetRadeonMemorySize()
-{
-    return ReadGpuRegister(
-        R6XX_CONFIG_MEMSIZE
-        );
 }
 
 
@@ -64,13 +58,20 @@ UINT16 AmdGpu_GetMemoryClock()
 
 UINT64 AmdGpu_GetTotalMemory()
 {
-    return 0;
+    UINT16 megabytes;
+    
+    megabytes = ReadGpuRegister(R6XX_CONFIG_MEMSIZE);
+
+    return megabytes * 1048576; //megabytes -> bytes
 }
 
 
 UINT64 AmdGpu_GetFreeMemory()
 {
-    return 0;
+    UINT64 used = D3DKMTGetMemoryUsage();
+    UINT64 total = AmdGpu_GetTotalMemory();
+
+    return total - used;
 }
 
 
