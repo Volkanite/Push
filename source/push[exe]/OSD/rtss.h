@@ -1,0 +1,1 @@
+void RTSS_Update(OSD_ITEM* OsdItems);
