@@ -160,6 +160,9 @@
     <ClInclude Include="OSD\osd.h">
       <Filter>OSD</Filter>
     </ClInclude>
+    <ClInclude Include="OSD\rtss.h">
+      <Filter>OSD</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="push.ico">

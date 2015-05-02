@@ -72,6 +72,7 @@
     <ClInclude Include="Hardware\GPU\OpenNvapi.h" />
     <ClInclude Include="Hardware\hardware.h" />
     <ClInclude Include="OSD\osd.h" />
+    <ClInclude Include="OSD\rtss.h" />
     <ClInclude Include="push.h" />
     <ClInclude Include="ramdisk.h" />
     <ClInclude Include="ring0.h" />
