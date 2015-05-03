@@ -109,6 +109,11 @@ VOID ProcessOptions()
             WriteFile(hPipe, command, sizeof(command), &dwWritten, NULL);
             CloseHandle(hPipe);
         }
+
+        PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
+        PushSharedMemory->OSDFlags |= OSD_GPU_M_CLK;
+        PushSharedMemory->Overloads &= ~OSD_GPU_E_CLK;
+        PushSharedMemory->Overloads &= ~OSD_GPU_M_CLK;
     }
 }
 
