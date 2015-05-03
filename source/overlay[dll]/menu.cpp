@@ -11,6 +11,7 @@ MenuVars MenuGpu[10];
 
 WCHAR* GroupOpt[] = {L"", L""};
 WCHAR* ItemOpt[] = {L"Off", L"On"};
+WCHAR* PressOpt[] = { L">>", L">>" };
 
 BOOLEAN MnuInitialized;
 HANDLE MenuProcessHeap;
@@ -37,7 +38,7 @@ VOID AddItems()
         Menu->AddItem(L"Disk response time",      ItemOpt, &MenuOsd[12].Var);
         Menu->AddItem(L"Frame Buffer count",      ItemOpt, &MenuOsd[13].Var);
         Menu->AddItem(L"Show Time",               ItemOpt, &MenuOsd[14].Var);
-        Menu->AddItem(L"Reset Overloads",         ItemOpt, &MenuOsd[15].Var);
+        Menu->AddItem(L"Reset Overloads",         PressOpt, &MenuOsd[15].Var);
     }
 
     Menu->AddGroup(L"GPU", GroupOpt, &MenuGpu[0].Var);
