@@ -4,7 +4,7 @@
 #include <overlay.h>
 
 
-SlOverlayMenu* MnuMenu;
+SlOverlayMenu* Menu;
 
 MenuVars MenuOsd[20];
 MenuVars MenuGpu[10];
@@ -19,34 +19,35 @@ HANDLE MenuProcessHeap;
 
 VOID AddItems()
 {
-    MnuMenu->AddGroup(L"OSD", GroupOpt, &MenuOsd[0].Var);
+    Menu->AddGroup(L"OSD", GroupOpt, &MenuOsd[0].Var);
 
     if (MenuOsd[0].Var)
     {
-        MnuMenu->AddItem(L"GPU Core utilization",    ItemOpt, &MenuOsd[1].Var);
-        MnuMenu->AddItem(L"GPU Core temperature",    ItemOpt, &MenuOsd[2].Var);
-        MnuMenu->AddItem(L"GPU Engine Clock",        ItemOpt, &MenuOsd[3].Var);
-        MnuMenu->AddItem(L"GPU Memory Clock",        ItemOpt, &MenuOsd[4].Var);
-        MnuMenu->AddItem(L"GPU VRAM usage",          ItemOpt, &MenuOsd[5].Var);
-        MnuMenu->AddItem(L"CPU utilization",         ItemOpt, &MenuOsd[6].Var);
-        MnuMenu->AddItem(L"CPU temperature",         ItemOpt, &MenuOsd[7].Var);
-        MnuMenu->AddItem(L"RAM usage",               ItemOpt, &MenuOsd[8].Var);
-        MnuMenu->AddItem(L"Max core usage",          ItemOpt, &MenuOsd[9].Var);
-        MnuMenu->AddItem(L"Max thread usage",        ItemOpt, &MenuOsd[10].Var);
-        MnuMenu->AddItem(L"Disk read-write rate",    ItemOpt, &MenuOsd[11].Var);
-        MnuMenu->AddItem(L"Disk response time",      ItemOpt, &MenuOsd[12].Var);
-        MnuMenu->AddItem(L"Frame Buffer count",      ItemOpt, &MenuOsd[13].Var);
-        MnuMenu->AddItem(L"Show Time",               ItemOpt, &MenuOsd[14].Var);
+        Menu->AddItem(L"GPU Core utilization",    ItemOpt, &MenuOsd[1].Var);
+        Menu->AddItem(L"GPU Core temperature",    ItemOpt, &MenuOsd[2].Var);
+        Menu->AddItem(L"GPU Engine Clock",        ItemOpt, &MenuOsd[3].Var);
+        Menu->AddItem(L"GPU Memory Clock",        ItemOpt, &MenuOsd[4].Var);
+        Menu->AddItem(L"GPU VRAM usage",          ItemOpt, &MenuOsd[5].Var);
+        Menu->AddItem(L"CPU utilization",         ItemOpt, &MenuOsd[6].Var);
+        Menu->AddItem(L"CPU temperature",         ItemOpt, &MenuOsd[7].Var);
+        Menu->AddItem(L"RAM usage",               ItemOpt, &MenuOsd[8].Var);
+        Menu->AddItem(L"Max core usage",          ItemOpt, &MenuOsd[9].Var);
+        Menu->AddItem(L"Max thread usage",        ItemOpt, &MenuOsd[10].Var);
+        Menu->AddItem(L"Disk read-write rate",    ItemOpt, &MenuOsd[11].Var);
+        Menu->AddItem(L"Disk response time",      ItemOpt, &MenuOsd[12].Var);
+        Menu->AddItem(L"Frame Buffer count",      ItemOpt, &MenuOsd[13].Var);
+        Menu->AddItem(L"Show Time",               ItemOpt, &MenuOsd[14].Var);
+        Menu->AddItem(L"Reset Overloads",         ItemOpt, &MenuOsd[15].Var);
     }
 
-    MnuMenu->AddGroup(L"GPU", GroupOpt, &MenuGpu[0].Var);
+    Menu->AddGroup(L"GPU", GroupOpt, &MenuGpu[0].Var);
 
     if (MenuGpu[0].Var)
     {
-        MnuMenu->AddItem(L"Force Max Clocks", ItemOpt, &MenuGpu[1].Var);
-        MnuMenu->AddItem(L"NULL", ItemOpt, &MenuGpu[2].Var);
-        MnuMenu->AddItem(L"NULL", ItemOpt, &MenuGpu[3].Var);
-        MnuMenu->AddItem(L"NULL", ItemOpt, &MenuGpu[4].Var);
+        Menu->AddItem(L"Force Max Clocks", ItemOpt, &MenuGpu[1].Var);
+        Menu->AddItem(L"NULL", ItemOpt, &MenuGpu[2].Var);
+        Menu->AddItem(L"NULL", ItemOpt, &MenuGpu[3].Var);
+        Menu->AddItem(L"NULL", ItemOpt, &MenuGpu[4].Var);
     }
 }
 
@@ -90,6 +91,12 @@ VOID ProcessOptions()
     if (MenuOsd[14].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_TIME;
 
+    if (MenuOsd[15].Var > 0)
+    {
+        PushSharedMemory->Overloads = 0;
+        MenuOsd[15].Var = 0;
+    }
+
     if (MenuGpu[1].Var > 0)
     {
         HANDLE hPipe;
@@ -118,20 +125,19 @@ VOID ProcessOptions()
 }
 
 
-VOID
-MnuRender( OvOverlay* Overlay )
+VOID MnuRender( OvOverlay* Overlay )
 {
     if (!MnuInitialized)
     {
-        MnuMenu = new SlOverlayMenu(300);
+        Menu = new SlOverlayMenu(300);
         MnuInitialized = TRUE;
     }
 
-    if( MnuMenu->mSet.MaxItems == 0 )
+    if( Menu->mSet.MaxItems == 0 )
         AddItems();
 
     //Call drawing and navigation functions
-    MnuMenu->Render(100, 200, Overlay);
+    Menu->Render(100, 200, Overlay);
 }
 
 
