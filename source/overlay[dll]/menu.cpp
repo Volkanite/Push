@@ -144,77 +144,79 @@ WNDPROC         OldWNDPROC;
 SlOverlayMenu*  OvmMenu;
 
 
-VOID
-MenuKeyboardHook( WPARAM Key )
+VOID MenuKeyboardHook( WPARAM Key )
 {
     if (!OvmMenu)
         return;
 
-    switch( Key )
+    if (Key == VK_INSERT || Key == VK_UP || Key == VK_DOWN || Key == VK_LEFT || Key == VK_RIGHT)
     {
+        switch (Key)
+        {
         case VK_INSERT:
             OvmMenu->mSet.Show = !OvmMenu->mSet.Show;
             break;
-        
+
         case VK_UP:
-            {
-                if (!OvmMenu->mSet.Show)
-                    break;
+        {
+            if (!OvmMenu->mSet.Show)
+                break;
 
-                OvmMenu->mSet.SeletedIndex--;
-                
-                if (OvmMenu->mSet.SeletedIndex < 0)
-                    OvmMenu->mSet.SeletedIndex = OvmMenu->mSet.MaxItems - 1;
+            OvmMenu->mSet.SeletedIndex--;
 
-            } break;
+            if (OvmMenu->mSet.SeletedIndex < 0)
+                OvmMenu->mSet.SeletedIndex = OvmMenu->mSet.MaxItems - 1;
+
+        } break;
 
         case VK_DOWN:
-            {
-                if (!OvmMenu->mSet.Show)
-                    break;
+        {
+            if (!OvmMenu->mSet.Show)
+                break;
 
-                OvmMenu->mSet.SeletedIndex++;
-                
-                if (OvmMenu->mSet.SeletedIndex == OvmMenu->mSet.MaxItems)
-                    OvmMenu->mSet.SeletedIndex = 0;
+            OvmMenu->mSet.SeletedIndex++;
 
-            } break;
+            if (OvmMenu->mSet.SeletedIndex == OvmMenu->mSet.MaxItems)
+                OvmMenu->mSet.SeletedIndex = 0;
+
+        } break;
 
         case VK_LEFT:
+        {
+            if (!OvmMenu->mSet.Show)
+                break;
+
+            if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var && *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var > 0)
             {
-                if (!OvmMenu->mSet.Show)
-                    break;
+                *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var += -1;
 
-                if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var && *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var > 0)
-                {
-                    *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var += -1;
-                    
-                    if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == GROUP)
-                        OvmMenu->mSet.MaxItems = 0;
-                }
+                if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == GROUP)
+                    OvmMenu->mSet.MaxItems = 0;
+            }
 
-            } break;
+        } break;
 
         case VK_RIGHT:
+        {
+            if (!OvmMenu->mSet.Show)
+                break;
+
+            if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var
+                && *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var < (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].MaxValue - 1))
             {
-                if (!OvmMenu->mSet.Show)
-                    break;
+                *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var += 1;
 
-                if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var 
-                    && *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var < (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].MaxValue - 1))
-                {
-                    *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var += 1;
-
-                    if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == GROUP)
-                        OvmMenu->mSet.MaxItems = 0;
-                }
+                if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == GROUP)
+                    OvmMenu->mSet.MaxItems = 0;
+            }
 
 
-            } break;
+        } break;
+        }
+
+        // Update osd items.
+        ProcessOptions();
     }
-
-    // Update osd items.
-    ProcessOptions();
 }
 
 
