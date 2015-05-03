@@ -7,7 +7,7 @@
 SlOverlayMenu* MnuMenu;
 
 MenuVars MenuOsd[20];
-MenuVars MnuCache[10];
+MenuVars MenuGpu[10];
 
 WCHAR* GroupOpt[] = {L"", L""};
 WCHAR* ItemOpt[] = {L"Off", L"On"};
@@ -17,8 +17,7 @@ HANDLE MenuProcessHeap;
 
 //Add menu items to menu
 
-VOID
-AddItems()
+VOID AddItems()
 {
     MnuMenu->AddGroup(L"OSD", GroupOpt, &MenuOsd[0].Var);
 
@@ -40,20 +39,19 @@ AddItems()
         MnuMenu->AddItem(L"Show Time",               ItemOpt, &MenuOsd[14].Var);
     }
 
-    MnuMenu->AddGroup(L"CACHE", GroupOpt, &MnuCache[0].Var);
+    MnuMenu->AddGroup(L"GPU", GroupOpt, &MenuGpu[0].Var);
 
-    if (MnuCache[0].Var)
+    if (MenuGpu[0].Var)
     {
-        MnuMenu->AddItem(L"NULL", ItemOpt, &MnuCache[1].Var);
-        MnuMenu->AddItem(L"NULL", ItemOpt, &MnuCache[2].Var);
-        MnuMenu->AddItem(L"NULL", ItemOpt, &MnuCache[3].Var);
-        MnuMenu->AddItem(L"NULL", ItemOpt, &MnuCache[4].Var);
+        MnuMenu->AddItem(L"Force Max Clocks", ItemOpt, &MenuGpu[1].Var);
+        MnuMenu->AddItem(L"NULL", ItemOpt, &MenuGpu[2].Var);
+        MnuMenu->AddItem(L"NULL", ItemOpt, &MenuGpu[3].Var);
+        MnuMenu->AddItem(L"NULL", ItemOpt, &MenuGpu[4].Var);
     }
 }
 
 
-VOID
-ProcessOptions()
+VOID ProcessOptions()
 {
     if (MenuOsd[1].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_GPU_LOAD;
@@ -91,6 +89,27 @@ ProcessOptions()
 
     if (MenuOsd[14].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_TIME;
+
+    if (MenuGpu[1].Var > 0)
+    {
+        HANDLE hPipe;
+        DWORD dwWritten;
+        WCHAR command[] = L"ForceMaxClocks";
+
+        hPipe = CreateFile(TEXT("\\\\.\\pipe\\Push"),
+            GENERIC_READ | GENERIC_WRITE,
+            0,
+            NULL,
+            OPEN_EXISTING,
+            0,
+            NULL);
+
+        if (hPipe != INVALID_HANDLE_VALUE)
+        {
+            WriteFile(hPipe, command, sizeof(command), &dwWritten, NULL);
+            CloseHandle(hPipe);
+        }
+    }
 }
 
 

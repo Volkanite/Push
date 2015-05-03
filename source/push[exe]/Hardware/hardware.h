@@ -26,7 +26,7 @@ DWORD ReadGpuRegister(
     DWORD dwAddr
     );
 
-VOID HwForceMaxClocks(
+VOID Hardware_ForceMaxClocks(
     );
 
 #ifdef __cplusplus

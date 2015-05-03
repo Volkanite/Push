@@ -406,7 +406,7 @@ VOID OnProcessEvent( PROCESSID processID )
         // Check if user wants maximum gpu engine and memory clocks
         if (game.Settings.ForceMaxClocks)
         {
-            HwForceMaxClocks();
+            Hardware_ForceMaxClocks();
         }
 
         // i used this to disable one of my audio ports while gaming but of course it probably only
@@ -795,6 +795,85 @@ DWORD __stdcall MonitorThread( VOID* Parameter )
     return 0;
 }
 
+#define PIPE_ACCESS_DUPLEX          0x00000003
+#define PIPE_TYPE_BYTE              0x00000000
+#define PIPE_READMODE_BYTE          0x00000000
+#define PIPE_WAIT                   0x00000000
+#define NMPWAIT_USE_DEFAULT_WAIT        0x00000000
+
+extern "C" HANDLE __stdcall CreateNamedPipeW(
+__in     WCHAR* lpName,
+__in     DWORD dwOpenMode,
+__in     DWORD dwPipeMode,
+__in     DWORD nMaxInstances,
+__in     DWORD nOutBufferSize,
+__in     DWORD nInBufferSize,
+__in     DWORD nDefaultTimeOut,
+__in_opt SECURITY_ATTRIBUTES* lpSecurityAttributes
+);
+
+extern "C" INTBOOL __stdcall ConnectNamedPipe(
+__in        HANDLE hNamedPipe,
+__inout_opt OVERLAPPED* lpOverlapped
+);
+
+extern "C" INTBOOL __stdcall DisconnectNamedPipe(
+__in HANDLE hNamedPipe
+);
+
+extern "C" INTBOOL __stdcall ReadFile(
+__in        HANDLE hFile,
+__in        VOID* lpBuffer,
+__in        DWORD nNumberOfBytesToRead,
+__out_opt   DWORD* lpNumberOfBytesRead,
+__inout_opt OVERLAPPED* lpOverlapped
+);
+
+
+DWORD __stdcall PipeThread( VOID* Parameter )
+{
+    HANDLE pipeHandle;
+    WCHAR buffer[1024];
+
+    pipeHandle = CreateNamedPipeW(
+        L"\\\\.\\pipe\\Push",
+        PIPE_ACCESS_DUPLEX | PIPE_TYPE_BYTE | PIPE_READMODE_BYTE, 
+        PIPE_WAIT, 
+        1, 
+        1024 * 16, 
+        1024 * 16, 
+        NMPWAIT_USE_DEFAULT_WAIT, 
+        NULL
+        );
+
+    while (pipeHandle != INVALID_HANDLE_VALUE)
+    {
+        if (ConnectNamedPipe(pipeHandle, NULL) != FALSE)   // wait for someone to connect to the pipe
+        {
+            //IO_STATUS_BLOCK isb;
+            DWORD dwRead;
+
+            //while (NtReadFile(pipeHandle, NULL, NULL, NULL, &isb, buffer, sizeof(buffer) - 1, NULL, NULL) == STATUS_SUCCESS)
+            while (ReadFile(pipeHandle, buffer, sizeof(buffer) - 1, &dwRead, NULL) != FALSE)
+            {
+                /* add terminating zero */
+                buffer[/*isb.Information*/dwRead] = '\0';
+
+                /* do something with data in buffer */
+                if (SlStringCompare(buffer, L"ForceMaxClocks") == 0)
+                    Hardware_ForceMaxClocks();
+            }
+
+            DWORD error = GetLastError();
+            error = error;
+        }
+
+        DisconnectNamedPipe(pipeHandle);
+    }
+
+    return 0;
+}
+
 
 INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, INT32 iCmdShow )
 {
@@ -903,16 +982,9 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 
     g_szPrevGame[5] = '\0';
 
-    PushMonitorThreadHandle = CreateRemoteThread(
-        NtCurrentProcess(), 
-        0, 
-        0, 
-        &MonitorThread, 
-        NULL, 
-        0, 
-        NULL
-        );
-
+    PushMonitorThreadHandle = CreateRemoteThread(NtCurrentProcess(), 0, 0, &MonitorThread, NULL, 0, NULL);
+    
+    CreateRemoteThread(NtCurrentProcess(), NULL, 0, &PipeThread, NULL, 0, NULL);
 
     // Handle messages
 

@@ -224,7 +224,7 @@ GetDiskResponseTime()
 }
 
 
-VOID HwForceMaxClocks()
+VOID Hardware_ForceMaxClocks()
 {
     Hwinfo_GpuAdapter->ForceMaximumClocks();
 }
