@@ -821,14 +821,6 @@ extern "C" INTBOOL __stdcall DisconnectNamedPipe(
 __in HANDLE hNamedPipe
 );
 
-extern "C" INTBOOL __stdcall ReadFile(
-__in        HANDLE hFile,
-__in        VOID* lpBuffer,
-__in        DWORD nNumberOfBytesToRead,
-__out_opt   DWORD* lpNumberOfBytesRead,
-__inout_opt OVERLAPPED* lpOverlapped
-);
-
 
 DWORD __stdcall PipeThread( VOID* Parameter )
 {
@@ -850,22 +842,16 @@ DWORD __stdcall PipeThread( VOID* Parameter )
     {
         if (ConnectNamedPipe(pipeHandle, NULL) != FALSE)   // wait for someone to connect to the pipe
         {
-            //IO_STATUS_BLOCK isb;
-            DWORD dwRead;
+            IO_STATUS_BLOCK isb;
 
-            //while (NtReadFile(pipeHandle, NULL, NULL, NULL, &isb, buffer, sizeof(buffer) - 1, NULL, NULL) == STATUS_SUCCESS)
-            while (ReadFile(pipeHandle, buffer, sizeof(buffer) - 1, &dwRead, NULL) != FALSE)
+            while (NtReadFile(pipeHandle, NULL, NULL, NULL, &isb, buffer, sizeof(buffer) - 1, NULL, NULL) == STATUS_SUCCESS)
             {
                 /* add terminating zero */
-                buffer[/*isb.Information*/dwRead] = '\0';
+                buffer[isb.Information] = '\0';
 
-                /* do something with data in buffer */
                 if (SlStringCompare(buffer, L"ForceMaxClocks") == 0)
                     Hardware_ForceMaxClocks();
             }
-
-            DWORD error = GetLastError();
-            error = error;
         }
 
         DisconnectNamedPipe(pipeHandle);
