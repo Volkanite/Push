@@ -155,9 +155,15 @@ DWORD Blue      = 0xFF00A4C5;
 WNDPROC         OldWNDPROC;
 SlOverlayMenu*  OvmMenu;
 
-
+VOID ReplaceVirtualMethods();
 VOID MenuKeyboardHook( WPARAM Key )
 {
+	if (Key == VK_INSERT)
+	{
+		ReplaceVirtualMethods();
+		//OutputDebugStringW(L"PRESSED!");
+	}
+
     if (!OvmMenu)
         return;
 
@@ -166,7 +172,9 @@ VOID MenuKeyboardHook( WPARAM Key )
         switch (Key)
         {
         case VK_INSERT:
+
             OvmMenu->mSet.Show = !OvmMenu->mSet.Show;
+			
             break;
 
         case VK_UP:

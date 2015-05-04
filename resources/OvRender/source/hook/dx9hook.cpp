@@ -130,10 +130,10 @@ DX9HOOK_RESET_CALLBACK      Dx9Hook_CreateDevice;
 HOOK_PARAMS hookParams;
 D3DPRESENT_PARAMETERS PresentParams;
 BOOLEAN D3D9Hook_ForceReset = FALSE;
-HOOK_METHOD D3D9Hook_HookMethod = HOOK_METHOD_DETOURXS;
+HOOK_METHOD D3D9Hook_HookMethod = HOOK_METHOD_VMT;
 
 
-VOID ReplaceVirtualMethods(IDirect3DDevice9* Device);
+VOID ReplaceVirtualMethods();
 
 
 HRESULT __stdcall IDirect3DDevice9_Present_Detour(
@@ -293,18 +293,19 @@ HRESULT __stdcall IDirect3DDevice9_BeginStateBlock_Detour( IDirect3DDevice9* Dev
 
     result = D3D9Hook_IDirect3DDevice9_BeginStateBlock( Device );
 
-    ReplaceVirtualMethods( Device );
+    ReplaceVirtualMethods( );
 
     return result;
 }
 
-
-VOID ReplaceVirtualMethods( IDirect3DDevice9* Device )
+VOID **MegaVMT;
+VOID ReplaceVirtualMethods()
 {
     VOID **vmt;
-    vmt = (VOID**)Device;
-    vmt = (VOID**)vmt[0];
+    //vmt = (VOID**)Device;
+    //vmt = (VOID**)vmt[0];
 
+	vmt = MegaVMT;
     vmt[3] = IDirect3DDevice9_TestCooperativeLevel_Detour;
     vmt[16] = IDirect3DDevice9_Reset_Detour;
     vmt[17] = IDirect3DDevice9_Present_Detour;
@@ -347,7 +348,8 @@ HRESULT __stdcall IDirect3D9_CreateDevice_Detour(
         D3D9Hook_IDirect3DDevice9_Present = (TYPE_IDirect3DDevice9_Present)vmt[17];
         D3D9Hook_IDirect3DDevice9_BeginStateBlock = (TYPE_IDirect3DDevice9_BeginStateBlock)vmt[60];
 
-        ReplaceVirtualMethods( *ReturnedDeviceInterface );
+        //ReplaceVirtualMethods( *ReturnedDeviceInterface );
+		MegaVMT = vmt;
     }
 
     return result;
@@ -363,7 +365,7 @@ VOID Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
     D3DDISPLAYMODE d3dDisplayMode;
     D3DPRESENT_PARAMETERS presentationParameters;
     IDirect3DDevice9Ex *deviceEx;
-    IDirect3DSwapChain9 *swap;
+    //IDirect3DSwapChain9 *swap;
 
     Dx9Hook_Present = HookParams->PresentCallback;
     Dx9Hook_Reset = HookParams->ResetCallback;
@@ -427,7 +429,7 @@ VOID Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
         D3D9Hook_IDirect3DDevice9_Present = (TYPE_IDirect3DDevice9_Present)detour->GetTrampoline();
     }
 
-    detour = new DetourXS(vmt[121], IDirect3DDevice9Ex_PresentEx_Detour);
+    /*detour = new DetourXS(vmt[121], IDirect3DDevice9Ex_PresentEx_Detour);
     Dx9Hook_IDirect3DDevice9Ex_PresentEx = (TYPE_IDirect3DDevice9Ex_PresentEx)detour->GetTrampoline();
 
     detour = new DetourXS(vmt[132], Dx9Hook_IDirect3DDevice9Ex_ResetEx_Detour);
@@ -445,5 +447,5 @@ VOID Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
     Dx9Hook_IDirect3DSwapChain9_Present = (TYPE_IDirect3DSwapChain9_Present)detour->GetTrampoline();
 
     deviceEx->Release();
-    d3d9ex->Release();
+    d3d9ex->Release();*/
 }
