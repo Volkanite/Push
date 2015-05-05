@@ -57,40 +57,58 @@ VOID ProcessOptions()
 {
     if (MenuOsd[1].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_GPU_LOAD;
-    /*else
-        PushSharedMemory->OSDFlags &= ~OSD_GPU_LOAD;*/
-    //this needs to be fixed, if it was enable by main gui
-    //checkbox then it'll get disabled. too lazy...
+    else
+        PushSharedMemory->OSDFlags &= ~OSD_GPU_LOAD;
 
     if (MenuOsd[2].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_GPU_TEMP;
+    else
+        PushSharedMemory->OSDFlags &= ~OSD_GPU_TEMP;
 
     if (MenuOsd[3].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
+    else
+        PushSharedMemory->OSDFlags &= ~OSD_GPU_E_CLK;
 
     if (MenuOsd[4].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_GPU_M_CLK;
+    else
+        PushSharedMemory->OSDFlags &= ~OSD_GPU_M_CLK;
 
     if (MenuOsd[7].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_CPU_TEMP;
+    else
+        PushSharedMemory->OSDFlags &= ~OSD_CPU_TEMP;
 
     if (MenuOsd[8].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_RAM;
+    else
+        PushSharedMemory->OSDFlags &= ~OSD_RAM;
         
     if (MenuOsd[9].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_MCU;
+    else
+        PushSharedMemory->OSDFlags &= ~OSD_MCU;
 
     if (MenuOsd[10].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_MTU;
+    else
+        PushSharedMemory->OSDFlags &= ~OSD_MTU;
 
     if (MenuOsd[11].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_DISK_RWRATE;
+    else
+        PushSharedMemory->OSDFlags &= ~OSD_DISK_RWRATE;
 
     if (MenuOsd[12].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_DISK_RESPONSE;
+    else
+        PushSharedMemory->OSDFlags &= ~OSD_DISK_RESPONSE;
 
     if (MenuOsd[14].Var > 0)
         PushSharedMemory->OSDFlags |= OSD_TIME;
+    else
+        PushSharedMemory->OSDFlags &= ~OSD_TIME;
 
     if (MenuOsd[15].Var > 0)
     {
