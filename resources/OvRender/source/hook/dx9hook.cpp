@@ -444,7 +444,7 @@ VOID D3D9Hook_ApplyHooks()
     {
         ReplaceVirtualMethods(D3D9Hook_IDirect3DDevice9);
     }
-    else if (D3D9Hook_HookMethod == HOOK_METHOD_DETOURXS)
+    else if (D3D9Hook_HookMethod == HOOK_METHOD_DETOURXS && D3D9Hook_ManualHook == TRUE)
     {
         ApplyDetourXsHooks(D3D9Hook_IDirect3DDevice9Ex);
     }
