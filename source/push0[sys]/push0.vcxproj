@@ -85,9 +85,9 @@
     <OutDir>$(SolutionDir)bin64\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)resources\sl;C:\WinDDK\inc\api;C:\WinDDK\inc\ddk;C:\WinDDK\inc\crt</IncludePath>
+    <IncludePath>$(SolutionDir)resources\sl;$(SolutionDir)resources\ddk</IncludePath>
     <GenerateManifest>false</GenerateManifest>
-    <LibraryPath>$(SolutionDir)resources\sl\lib\AMD64;C:\WinDDK\lib\win7\amd64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)resources\sl\lib\AMD64;$(SolutionDir)resources\ddk\lib\amd64;$(LibraryPath)</LibraryPath>
     <TargetExt>.sys</TargetExt>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
@@ -96,9 +96,9 @@
     <IntDir>$(Configuration)\</IntDir>
     <LinkIncremental>
     </LinkIncremental>
-    <IncludePath>$(SolutionDir)resources\sl;C:\WinDDK\inc\api;C:\WinDDK\inc\ddk;C:\WinDDK\inc\crt</IncludePath>
+    <IncludePath>$(SolutionDir)resources\sl;$(SolutionDir)resources\ddk</IncludePath>
     <GenerateManifest>false</GenerateManifest>
-    <LibraryPath>$(SolutionDir)resources\sl\lib\i386;C:\WinDDK\lib\win7\i386</LibraryPath>
+    <LibraryPath>$(SolutionDir)resources\sl\lib\i386;$(SolutionDir)resources\ddk\lib\i386</LibraryPath>
     <TargetExt>.sys</TargetExt>
     <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
@@ -106,9 +106,9 @@
     <OutDir>$(SolutionDir)bin64\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)resources\sl;C:\WinDDK\inc\api;C:\WinDDK\inc\ddk;C:\WinDDK\inc\crt</IncludePath>
+    <IncludePath>$(SolutionDir)resources\sl;$(SolutionDir)resources\ddk</IncludePath>
     <GenerateManifest>false</GenerateManifest>
-    <LibraryPath>$(SolutionDir)resources\sl\lib\AMD64;C:\WinDDK\lib\win7\amd64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)resources\sl\lib\AMD64;$(SolutionDir)resources\ddk\lib\amd64;$(LibraryPath)</LibraryPath>
     <TargetExt>.sys</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -116,9 +116,9 @@
     <IntDir>$(Configuration)\</IntDir>
     <LinkIncremental>
     </LinkIncremental>
-    <IncludePath>$(SolutionDir)resources\sl;C:\WinDDK\inc\api;C:\WinDDK\inc\ddk;C:\WinDDK\inc\crt</IncludePath>
+    <IncludePath>$(SolutionDir)resources\sl;$(SolutionDir)resources\ddk</IncludePath>
     <GenerateManifest>false</GenerateManifest>
-    <LibraryPath>$(SolutionDir)resources\sl\lib\i386;C:\WinDDK\lib\win7\i386</LibraryPath>
+    <LibraryPath>$(SolutionDir)resources\sl\lib\i386;$(SolutionDir)resources\ddk\lib\i386</LibraryPath>
     <TargetExt>.sys</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
