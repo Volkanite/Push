@@ -80,6 +80,27 @@ VOID Driver_Extract()
 }
 
 
+VOID StripPermissions( WCHAR* KeyName )
+{
+    HANDLE keyHandle;
+    unsigned char p[9000];
+    PSECURITY_DESCRIPTOR psecdesc = (PSECURITY_DESCRIPTOR)p;
+    VOID* selfSecurityDescriptor;
+    ULONG bufferLength = 20;
+
+    keyHandle = SlOpenKey(KeyName, WRITE_DAC);
+
+    RtlCreateSecurityDescriptor(psecdesc, SECURITY_DESCRIPTOR_REVISION);
+    RtlSetDaclSecurityDescriptor(psecdesc, TRUE, NULL, TRUE);
+
+    selfSecurityDescriptor = RtlAllocateHeap(PushHeapHandle, 0, 20);
+
+    RtlMakeSelfRelativeSD(psecdesc, selfSecurityDescriptor, &bufferLength);
+    NtSetSecurityObject(keyHandle, DACL_SECURITY_INFORMATION, selfSecurityDescriptor);
+    NtClose(keyHandle);
+}
+
+
 VOID Driver_Load()
 {
     NTSTATUS status;
@@ -130,9 +151,6 @@ VOID Driver_Load()
                 HANDLE keyHandle;
                 DWORD size = 255;
                 WCHAR buffer[255];
-                unsigned char p[9000];
-                PSECURITY_DESCRIPTOR psecdesc = (PSECURITY_DESCRIPTOR)p;
-                VOID* selfSecurityDescriptor;
                 BYTE value = 0x01;
                 UNICODE_STRING valueName;
                 SYSTEM_BOOT_ENVIRONMENT_INFORMATION bootEnvironmentInformation;
@@ -140,6 +158,9 @@ VOID Driver_Load()
                 UNICODE_STRING guidAsUnicodeString;
                 WCHAR guidAsWideChar[40];
                 ULONG bufferLength = 20;
+                OBJECT_ATTRIBUTES objectAttributes;
+                UNICODE_STRING keyName;
+                ULONG disposition;
 
                 // Get boot GUID.
 
@@ -162,34 +183,42 @@ VOID Driver_Load()
                 swprintf(
                     buffer,
                     255,
-                    L"\\Registry\\Machine\\BCD00000000\\Objects\\%s\\Elements\\16000049",
+                    L"\\Registry\\Machine\\BCD00000000\\Objects\\%s\\Elements",
                     guidAsWideChar
                     );
 
-                // Change key permissions to allow us to set values.
-
-                keyHandle = SlOpenKey(buffer, WRITE_DAC);
-
-                RtlCreateSecurityDescriptor(psecdesc, SECURITY_DESCRIPTOR_REVISION);
-                RtlSetDaclSecurityDescriptor(psecdesc, TRUE, NULL, TRUE);
-
-                selfSecurityDescriptor = RtlAllocateHeap(PushHeapHandle, 0, 20);
-
-                RtlMakeSelfRelativeSD(psecdesc, selfSecurityDescriptor, &bufferLength);
-                
-                NtSetSecurityObject(
-                    keyHandle, 
-                    DACL_SECURITY_INFORMATION, 
-                    selfSecurityDescriptor
-                    );
-                
-                NtClose(keyHandle);
+                // Change key permissions to allow us to create sub keys.
+                StripPermissions(buffer);
 
                 // Enable test-signing mode.
 
-                keyHandle = SlOpenKey(buffer, KEY_WRITE);
+                SlStringConcatenate(buffer, L"\\16000049");
+                
+                // Change key permissions (if it already exists) to allow us to set values.
+                StripPermissions(buffer);
 
+                SlInitUnicodeString(&keyName, buffer);
                 SlInitUnicodeString(&valueName, L"Element");
+
+                objectAttributes.Length = sizeof(OBJECT_ATTRIBUTES);
+                objectAttributes.RootDirectory = NULL;
+                objectAttributes.ObjectName = &keyName;
+                objectAttributes.Attributes = OBJ_CASE_INSENSITIVE;
+                objectAttributes.SecurityDescriptor = NULL;
+                objectAttributes.SecurityQualityOfService = NULL;
+
+                // Create(NtCreateKey) the key not open(NtOpenKey) it because the key isn't
+                // always there.
+                NtCreateKey(
+                    &keyHandle,
+                    KEY_WRITE,
+                    &objectAttributes,
+                    0,
+                    NULL,
+                    0,
+                    &disposition
+                    );
+
                 NtSetValueKey(keyHandle, &valueName, 0, REG_BINARY, &value, sizeof(BYTE));
                 NtClose(keyHandle);
                 
