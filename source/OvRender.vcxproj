@@ -40,8 +40,6 @@
     <ClInclude Include="font\dx11font.h" />
     <ClInclude Include="font\dx8font.h" />
     <ClInclude Include="font\dx9font.h" />
-    <ClInclude Include="font\effects10.h" />
-    <ClInclude Include="font\effects11.h" />
     <ClInclude Include="font\font.h" />
     <ClInclude Include="font\shaders.h" />
     <ClInclude Include="hook\dx8hook.h" />
@@ -64,7 +62,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v120</PlatformToolset>
-    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -82,7 +80,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
@@ -103,24 +101,28 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\sl;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;..\resources\detourXS;..\resources\d3dx;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\detourXS;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
     <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x86;$(SolutionDir)resources\sl\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\sl;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;..\resources\detourXS;..\resources\d3dx;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\detourXS;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
-    <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x64;$(SolutionDir)resources\sl\lib\AMD64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x64;$(SolutionDir)resources\sl\lib\AMD64;$(SolutionDir)bin64;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)bin64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\sl;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;..\resources\detourXS;..\resources\d3dx;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\detourXS;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
     <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x86;$(SolutionDir)resources\sl\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\sl;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;..\resources\detourXS;..\resources\d3dx;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\detourXS;$(ProjectDir);$(ProjectDir)font;$(ProjectDir)hook;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
-    <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x64;$(SolutionDir)resources\sl\lib\AMD64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x64;$(SolutionDir)resources\sl\lib\AMD64;$(SolutionDir)bin64;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)bin64\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -128,10 +130,11 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatSpecificWarningsAsErrors>4013;4020;4005;4101;4133;4142;4520;4700;4715;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ShowIncludes>false</ShowIncludes>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -150,7 +153,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatSpecificWarningsAsErrors>4013;4020;4005;4101;4133;4142;4520;4700;4715;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -173,11 +176,11 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatSpecificWarningsAsErrors>4013;4020;4005;4101;4133;4142;4520;4700;4715;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
       <DebugInformationFormat>
       </DebugInformationFormat>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
@@ -194,8 +197,7 @@
       <AdditionalDependencies>
       </AdditionalDependencies>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>
-      </IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -206,7 +208,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_CRT_SECURE_NO_WARNINGS;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <TreatSpecificWarningsAsErrors>4013;4020;4005;4101;4133;4142;4520;4700;4715;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
       <DebugInformationFormat>
       </DebugInformationFormat>

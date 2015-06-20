@@ -98,12 +98,6 @@
     <ClInclude Include="overlay\dxgioverlay.h">
       <Filter>overlay</Filter>
     </ClInclude>
-    <ClInclude Include="font\effects10.h">
-      <Filter>font</Filter>
-    </ClInclude>
-    <ClInclude Include="font\effects11.h">
-      <Filter>font</Filter>
-    </ClInclude>
     <ClInclude Include="font\shaders.h">
       <Filter>font</Filter>
     </ClInclude>

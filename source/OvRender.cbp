@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="OvRender" />
+		<Option pch_mode="2" />
+		<Option compiler="msvc10" />
+		<Build>
+			<Target title="Debug Win32">
+				<Option output="../../../bin/OvRender" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option type="2" />
+				<Option compiler="msvc10" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="/Zi" />
+					<Add option="/MTd" />
+					<Add option="/DWIN32" />
+					<Add option="/D_CRT_SECURE_NO_WARNINGS" />
+					<Add option="/D_DEBUG" />
+					<Add option="/D_LIB" />
+					<Add directory="$(DXSDK_DIR)include" />
+					<Add directory="$(SolutionDir)inc" />
+					<Add directory="$(SolutionDir)resources/Effects11/Inc" />
+					<Add directory="$(SolutionDir)resources/sl" />
+					<Add directory="$(SolutionDir)resources/d3dx" />
+					<Add directory="$(SolutionDir)resources/detourXS" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/font" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/hook" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/overlay" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/../resources/d3dx" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/../inc" />
+				</Compiler>
+				<Linker>
+					<Add option="/DEBUG" />
+				</Linker>
+			</Target>
+			<Target title="Debug x64">
+				<Option output="OvRender" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option type="2" />
+				<Option compiler="msvc10" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="/DWIN32" />
+					<Add option="/D_CRT_SECURE_NO_WARNINGS" />
+					<Add option="/D_DEBUG" />
+					<Add option="/D_LIB" />
+					<Add directory="$(DXSDK_DIR)include" />
+					<Add directory="$(SolutionDir)inc" />
+					<Add directory="$(SolutionDir)resources/Effects11/Inc" />
+					<Add directory="$(SolutionDir)resources/sl" />
+					<Add directory="$(SolutionDir)resources/d3dx" />
+					<Add directory="$(SolutionDir)resources/detourXS" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/font" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/hook" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/overlay" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/../resources/d3dx" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/../inc" />
+				</Compiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add directory="$(SolutionDir)$(Configuration)" />
+					<Add directory="$(DXSDK_DIR)Lib/x64" />
+					<Add directory="$(SolutionDir)resources/sl/lib/AMD64" />
+					<Add directory="$(SolutionDir)bin64" />
+					<Add directory="$(LibraryPath)" />
+				</Linker>
+			</Target>
+			<Target title="Release x64">
+				<Option output="OvRender" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option type="2" />
+				<Option compiler="msvc10" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="/DWIN32" />
+					<Add option="/D_CRT_SECURE_NO_WARNINGS" />
+					<Add option="/DNDEBUG" />
+					<Add option="/D_LIB" />
+					<Add directory="$(DXSDK_DIR)include" />
+					<Add directory="$(SolutionDir)inc" />
+					<Add directory="$(SolutionDir)resources/Effects11/Inc" />
+					<Add directory="$(SolutionDir)resources/sl" />
+					<Add directory="$(SolutionDir)resources/d3dx" />
+					<Add directory="$(SolutionDir)resources/detourXS" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/font" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/hook" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/overlay" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/../resources/d3dx" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/../inc" />
+				</Compiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add directory="$(SolutionDir)$(Configuration)" />
+					<Add directory="$(DXSDK_DIR)Lib/x64" />
+					<Add directory="$(SolutionDir)resources/sl/lib/AMD64" />
+					<Add directory="$(SolutionDir)bin64" />
+					<Add directory="$(LibraryPath)" />
+				</Linker>
+			</Target>
+			<Target title="Release Win32">
+				<Option output="OvRender" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option type="2" />
+				<Option compiler="msvc10" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="/DWIN32" />
+					<Add option="/D_CRT_SECURE_NO_WARNINGS" />
+					<Add option="/DNDEBUG" />
+					<Add option="/D_LIB" />
+					<Add directory="$(DXSDK_DIR)include" />
+					<Add directory="$(SolutionDir)inc" />
+					<Add directory="$(SolutionDir)resources/Effects11/Inc" />
+					<Add directory="$(SolutionDir)resources/sl" />
+					<Add directory="$(SolutionDir)resources/d3dx" />
+					<Add directory="$(SolutionDir)resources/detourXS" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/font" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/hook" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/overlay" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/../resources/d3dx" />
+					<Add directory="K:/Code/Push/resources/OvRender/source/../inc" />
+				</Compiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add directory="$(SolutionDir)$(Configuration)" />
+					<Add directory="$(DXSDK_DIR)Lib/x86" />
+					<Add directory="$(SolutionDir)resources/sl/lib" />
+					<Add directory="$(LibraryPath)" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option='/D&quot;_UNICODE&quot; /D &quot;UNICODE&quot;' />
+			<Add directory="../../sl" />
+			<Add directory="../../Effects11/inc" />
+			<Add directory="../../detourXS" />
+		</Compiler>
+		<Unit filename="d3dcompiler.cpp" />
+		<Unit filename="d3dcompiler.h" />
+		<Unit filename="font/dx10font.cpp" />
+		<Unit filename="font/dx10font.h" />
+		<Unit filename="font/dx11font.cpp" />
+		<Unit filename="font/dx11font.h" />
+		<Unit filename="font/dx8font.cpp" />
+		<Unit filename="font/dx8font.h" />
+		<Unit filename="font/dx9font.cpp" />
+		<Unit filename="font/dx9font.h" />
+		<Unit filename="font/effects10.h" />
+		<Unit filename="font/effects11.h" />
+		<Unit filename="font/font.cpp" />
+		<Unit filename="font/font.h" />
+		<Unit filename="hook/dx8hook.cpp" />
+		<Unit filename="hook/dx8hook.h" />
+		<Unit filename="hook/dx9hook.cpp" />
+		<Unit filename="hook/dx9hook.h" />
+		<Unit filename="hook/dxgihook.cpp" />
+		<Unit filename="hook/dxgihook.h" />
+		<Unit filename="overlay/dx10overlay.cpp" />
+		<Unit filename="overlay/dx10overlay.h" />
+		<Unit filename="overlay/dx11overlay.cpp" />
+		<Unit filename="overlay/dx11overlay.h" />
+		<Unit filename="overlay/dx8overlay.cpp" />
+		<Unit filename="overlay/dx8overlay.h" />
+		<Unit filename="overlay/dx9overlay.cpp" />
+		<Unit filename="overlay/dx9overlay.h" />
+		<Unit filename="overlay/dxgioverlay.cpp" />
+		<Unit filename="overlay/dxgioverlay.h" />
+		<Unit filename="overlay/overlay.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
