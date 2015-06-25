@@ -110,6 +110,9 @@
 		<Unit filename="Hardware/GPU/NvThermalDiode/Context.h" />
 		<Unit filename="Hardware/GPU/NvThermalDiode/NvThermalDiode.cpp" />
 		<Unit filename="Hardware/GPU/NvThermalDiode/NvThermalDiode.h" />
+		<Unit filename="Hardware/GPU/NvidiaGpu.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="Hardware/GPU/adl.cpp" />
 		<Unit filename="Hardware/GPU/adl.h" />
 		<Unit filename="Hardware/GPU/amdgpu.cpp" />
@@ -124,7 +127,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Hardware/GPU/nvapi.h" />
-		<Unit filename="Hardware/GPU/nvidiagpu.cpp" />
 		<Unit filename="Hardware/GPU/nvidiagpu.h" />
 		<Unit filename="Hardware/Intel/intel.h" />
 		<Unit filename="Hardware/Nvidia/geforce.h" />

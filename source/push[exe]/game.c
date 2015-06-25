@@ -16,14 +16,14 @@ HeapedString( WCHAR* String )
     WCHAR *buffer;
 
     buffer = (WCHAR*) RtlAllocateHeap( PushHeapHandle, 0, (SlStringGetLength(String) + 1) * sizeof(WCHAR) );
-    
+
     SlStringCopy(buffer, String);
 
     return buffer;
 }
 
 
-VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
+VOID Game::Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
 {
     WCHAR *gameId;
     WCHAR *buffer;
@@ -32,10 +32,10 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
     Game->ExecutablePath = HeapedString(Win32Name);
     lastSlash = SlStringFindLastChar(Game->ExecutablePath, '\\');
     Game->ExecutableName = lastSlash + 1;
-    
+
     gameId = SlIniReadString(L"Games", Game->ExecutablePath, NULL, L".\\" PUSH_SETTINGS_FILE);
     SlStringCopyN(Game->Id, gameId, 2);
-    
+
     buffer = SlIniReadSubKey(L"Game Settings", gameId, L"Name", L".\\" PUSH_SETTINGS_FILE);
 
     if (!buffer) return;
@@ -60,7 +60,7 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
         Game->Settings.SwapWASD = TRUE;
 
     buffer = SlIniReadSubKey(L"Game Settings", gameId, L"ForceVsync", L".\\" PUSH_SETTINGS_FILE);
-    
+
     if (SlStringCompare(buffer, L"FORCE_ON") == 0)
         Game->Settings.VsyncOverrideMode = PUSH_VSYNC_FORCE_ON;
     else if (SlStringCompare(buffer, L"FORCE_OFF") == 0)
@@ -73,8 +73,7 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
 }
 
 
-VOID
-Game_SetName( PUSH_GAME* Game, WCHAR* Name )
+VOID Game::SetName( PUSH_GAME* Game, WCHAR* Name )
 {
     WCHAR* gameId;
 
@@ -84,8 +83,7 @@ Game_SetName( PUSH_GAME* Game, WCHAR* Name )
 }
 
 
-VOID
-Game_SetInstallPath( PUSH_GAME *Game, WCHAR* Path )
+VOID Game::SetInstallPath( PUSH_GAME *Game, WCHAR* Path )
 {
     WCHAR* gameId;
 
@@ -95,8 +93,7 @@ Game_SetInstallPath( PUSH_GAME *Game, WCHAR* Path )
 }
 
 
-VOID
-Game_SetFlags( PUSH_GAME *Game, DWORD Flags )
+VOID Game::SetFlags( PUSH_GAME *Game, DWORD Flags )
 {
     WCHAR* gameId;
 
@@ -107,7 +104,7 @@ Game_SetFlags( PUSH_GAME *Game, DWORD Flags )
 }
 
 
-VOID Game_SetCheckSum( PUSH_GAME* Game, DWORD CheckSum )
+VOID Game::SetCheckSum( PUSH_GAME* Game, DWORD CheckSum )
 {
     WCHAR* gameId;
     WCHAR checkSum[100];
@@ -119,7 +116,7 @@ VOID Game_SetCheckSum( PUSH_GAME* Game, DWORD CheckSum )
 }
 
 
-GAME_LIST Game_GetGames()
+GAME_LIST Game::GetGames()
 {
     static GAME_LIST_ENTRY* firstEntry = NULL;
     GAME_LIST_ENTRY* gameListEntry = NULL;
@@ -153,7 +150,7 @@ GAME_LIST Game_GetGames()
                 gameListEntry->NextEntry = newEntry;
                 gameListEntry = gameListEntry->NextEntry;
             }
-            
+
             gameListEntry->Game = game;
             gameListEntry->NextEntry = NULL;
 
