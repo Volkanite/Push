@@ -44,12 +44,12 @@ LONG WINAPI IDirect3DDevice8_PresentHook(
 {
     HkIDirect3DDevice8_PresentCallback( Device );
 
-    return HkIDirect3DDevice8_Present( 
+    return HkIDirect3DDevice8_Present(
             Device,
             pSourceRect,
             pDestRect,
             hDestWindowOverride,
-            pDirtyRegion 
+            pDirtyRegion
             );
 }
 
@@ -65,8 +65,8 @@ HRESULT WINAPI IDirect3DDevice8_ResetHook(
 }
 
 
-VOID HookD3D8( 
-    HK_IDIRECT3DDEVICE8_PRESENT_CALLBACK IDirect3DDevice8_PresentCallback, 
+VOID HookD3D8(
+    HK_IDIRECT3DDEVICE8_PRESENT_CALLBACK IDirect3DDevice8_PresentCallback,
     HK_IDIRECT3DDEVICE8_RESET_CALLBACK IDirect3DDevice8_ResetCallback
     )
 {
@@ -83,7 +83,7 @@ VOID HookD3D8(
     HkIDirect3DDevice8_ResetCallback = IDirect3DDevice8_ResetCallback;
 
     // Get module handle
-    base = (HMODULE) SlLoadLibrary(L"d3d8.dll");
+    base = (HMODULE) LoadLibraryW(L"d3d8.dll");
 
     // Get IDirect3D8
 

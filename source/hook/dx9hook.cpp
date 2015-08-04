@@ -469,7 +469,7 @@ VOID Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
     Dx9Hook_CreateDevice = HookParams->CreateDeviceCallback;
 
     // Get module handle
-    base = SlLoadLibrary(L"d3d9.dll");
+    base = LoadLibraryW(L"d3d9.dll");
    
     Dx9Hook_Direct3DCreate9Ex = (TYPE_Direct3DCreate9Ex)GetProcAddress(
         (HMODULE)base, 
