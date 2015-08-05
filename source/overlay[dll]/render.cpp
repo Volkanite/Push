@@ -60,11 +60,11 @@ VOID RunFrameStatistics()
       inited = TRUE;
       acceptableFrameTime = (double)1000 / (double)PushAcceptableFps;
     }
-    
+
     newTickCount = GetPerformanceCounter();
     delta = newTickCount - oldTick;
     frameTime = newTickCount- lastTickCount;
-    
+
     frames++;
 
     if (delta > 1000)
@@ -89,7 +89,7 @@ VOID RunFrameStatistics()
                 PushOptimizeThreads();
         }
     }
-    
+
     // Simple Diagnostics.
 
     if (frameTime > acceptableFrameTime)
@@ -120,6 +120,9 @@ VOID RunFrameStatistics()
 
         if (PushSharedMemory->HarwareInformation.Memory.Used > PushSharedMemory->HarwareInformation.Memory.Total)
             PushSharedMemory->Overloads |= OSD_RAM;
+
+        if (PushSharedMemory->HarwareInformation.Disk.ResponseTime > 6000)
+            PushSharedMemory->OSDFlags |= OSD_DISK_RESPONSE;
     }
 
     if ( ((newTickCount - oldTick2) > 30000) && !PushSharedMemory->KeepFps )
