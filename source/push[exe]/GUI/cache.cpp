@@ -1,6 +1,7 @@
 #include <sl.h>
 #include <wchar.h>
 #include <file.h>
+#include <sldirectory.h>
 
 #include "gui.h"
 
@@ -19,7 +20,7 @@ typedef struct tagNMLISTVIEW {
 } NMLISTVIEW, *LPNMLISTVIEW;
 
 extern WINDOW* cacheWindow;
-SlListView* CwListView;
+
 
 
 #define SWP_NOMOVE      0x0002
@@ -42,12 +43,11 @@ LONG __stdcall CacheWndProc(
             RECT windowRect, treeListRect;
             PUSH_GAME game;
 
-            CwListView = new SlListView(Handle, LISTVIEW);
+            ListView::Create(Handle, LISTVIEW, 0, 0);
+            ListView::EnableCheckboxes();
 
-            CwListView->EnableCheckboxes();
-
-            CwListView->AddColumn(L"File");
-            CwListView->AddColumn(L"Size");
+            ListView::AddColumn(L"File");
+            ListView::AddColumn(L"Size");
 
             Game_Initialize(GetComboBoxData(), &game);
 
@@ -57,17 +57,17 @@ LONG __stdcall CacheWndProc(
 
                 return 0;
             }
-            
+
             MwBatchFile = new BfBatchFile(&game);
 
-            FsEnumDirectory(game.InstallPath, L"*", BuildGameFilesList);
+            Directory::Enum(game.InstallPath, L"*", BuildGameFilesList);
             ListViewAddItems();
 
-            CwListView->SortItems(ListViewCompareProc);
-            CwListView->SetColumnWidth();
+            ListView::SortItems(ListViewCompareProc);
+            ListView::SetColumnWidth(0,0);
 
-            columnWidth = CwListView->GetColumnWidth(0);
-            columnWidth += CwListView->GetColumnWidth(1);
+            columnWidth = ListView::GetColumnWidth(0);
+            columnWidth += ListView::GetColumnWidth(1);
             columnWidth += 50;
 
             GetWindowRect(Handle, &windowRect);
@@ -84,10 +84,10 @@ LONG __stdcall CacheWndProc(
                     SWP_NOMOVE | SWP_NOZORDER| SWP_NOACTIVATE
                     );
 
-                GetWindowRect(CwListView->Handle, &treeListRect);
+                GetWindowRect(ListView::Handle, &treeListRect);
 
                 SetWindowPos(
-                    CwListView->Handle,
+                    ListView::Handle,
                     0,
                     0,
                     0,
@@ -117,29 +117,29 @@ LONG __stdcall CacheWndProc(
                 BOOLEAN checkbox = FALSE;
                 FILE_LIST_ENTRY file;
 
-                if (CwListView->IsCheckBox(message->Point))
+                if (ListView::IsCheckBox(message->Point))
                     checkbox = TRUE;
 
-                CwListView->GetItemText(message->Item, 0, fileName, 260);
-                CwListView->GetItemText(message->Item, 1, fileSize, 260);
+                ListView::GetItemText(message->Item, 0, fileName, 260);
+                ListView::GetItemText(message->Item, 1, fileSize, 260);
 
                 file.Name = fileName;
                 //file.Bytes = _wtoi(fileSize);
                 file.Bytes = wcstol(fileSize, NULL, 10);
 
-                if (CwListView->GetCheckState(message->Item))
+                if (ListView::GetCheckState(message->Item))
                 {
                     MwBatchFile->RemoveItem(&file);
 
                     if (!checkbox)
-                        CwListView->SetItemState(message->Item, FALSE);
+                        ListView::SetItemState(message->Item, FALSE);
                 }
                 else
                 {
                     MwBatchFile->AddItem(&file);
 
                     if (!checkbox)
-                        CwListView->SetItemState(message->Item, TRUE);
+                        ListView::SetItemState(message->Item, TRUE);
 
                     g_bRecache = TRUE;
                 }

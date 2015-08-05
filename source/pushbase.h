@@ -280,7 +280,7 @@ typedef struct _PUSH_SHARED_MEMORY
     UINT8   FrameBufferCount;
     UINT32  FrameRate;
     BOOLEAN IsFrameRateStable;
-    
+
     PUSH_VSYNC_OVERRIDE_MODE    VsyncOverrideMode;
     UCHAR                       DisableRepeatKeys;
     UCHAR                       SwapWASD;
@@ -291,7 +291,7 @@ typedef struct _PUSH_SHARED_MEMORY
     BOOLEAN                     ThreadOptimization;
 
     OSD_ITEM OsdItems[1];
-    
+
 
 } PUSH_SHARED_MEMORY;
 
@@ -326,6 +326,7 @@ typedef struct _IMAGE_CALLBACK_INFO
    Structure used by the IOCTL_IMDISK_CREATE_DEVICE and
    IOCTL_IMDISK_QUERY_DEVICE calls and by the ImDiskQueryDevice() function.
 */
+
 typedef struct _RAMDISK_CREATE_DATA
 {
   /// Total size in bytes (in the Cylinders field) and virtual geometry.

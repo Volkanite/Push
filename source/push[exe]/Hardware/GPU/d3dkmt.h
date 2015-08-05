@@ -1,7 +1,3 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 VOID D3DKMTInitialize();
 UINT8 D3DKMT_GetGpuUsage();
 UINT16 D3DKMT_GetEngineClock();
@@ -14,6 +10,3 @@ UINT8  D3DKMT_GetTemperature();
 VOID D3DKMT_ForceMaximumClocks();
 VOID D3DKMT_GetPrivateDriverData(VOID* PrivateDriverData, UINT32 PrivateDriverDataSize);
 UINT64 D3DKMTGetMemoryUsage();
-#ifdef __cplusplus
-}
-#endif

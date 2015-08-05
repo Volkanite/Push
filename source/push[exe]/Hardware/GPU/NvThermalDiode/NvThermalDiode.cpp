@@ -5,11 +5,11 @@
 
 #include <float.h>
 #include <shlwapi.h>
-#include <pushbase.h>
+//#include <pushbase.h>
 
 #include "Context.h"
 #include "NVThermalDiode.h"
-#include "hardware.h"
+//#include "hardware.h"
 /////////////////////////////////////////////////////////////////////////////
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -18,14 +18,19 @@ static char THIS_FILE[] = __FILE__;
 #endif
 /////////////////////////////////////////////////////////////////////////////
 #define MAX_CURVE_POINTS                                            16
-#define MAX_GPU                                                     16  
+#define MAX_GPU                                                     16
 /////////////////////////////////////////////////////////////////////////////
 CContext                        g_context[MAX_GPU];
 
 HINSTANCE                       g_hModule                           = 0;
+
 //////////////////////////////////////////////////////////////////////
 // This helper function is used to get GPU fuse state by fuse number
 //////////////////////////////////////////////////////////////////////
+DWORD ReadGpuRegister(
+    DWORD dwAddr
+    );
+
 LONG GetFuseStateByNumber(DWORD dwGpu, DWORD dwFuse)
 {
     if (g_context[dwGpu].m_dwCoreFamily >= 0x50)
@@ -76,7 +81,7 @@ LONG GetFuseStateByNumber(DWORD dwGpu, DWORD dwFuse)
 // for the specified data source
 //////////////////////////////////////////////////////////////////////
 extern "C"
-BOOLEAN 
+BOOLEAN
 NvtdInitialize()
 {
     DWORD dwGpu     = 0;
@@ -87,11 +92,11 @@ NvtdInitialize()
         return FALSE;
 
     //we've to check if GPU has on-die thermal diode
-    
+
     g_context[dwGpu].m_dwCoreFamily = (ReadGpuRegister(0)>>20) & 0xff;
         //get GPU core family ID
 
-    //init default thermal diode calibration parameters for thermal diode 
+    //init default thermal diode calibration parameters for thermal diode
     //capable GPUs
 
     switch (g_context[dwGpu].m_dwCoreFamily)
@@ -143,7 +148,7 @@ NvtdInitialize()
         g_context[dwGpu].m_dwDiodeMask      = 0x3fff;
         break;
     case 0x92:
-        //init default thermal diode calibration params for G92 
+        //init default thermal diode calibration params for G92
 
         //Warning! These parameters are not used by NVIDIA anywhere and came from ASUS SmartDoctor
         //algorithm (which most likely uses roughly approximated calibration) so the result can be
@@ -158,7 +163,7 @@ NvtdInitialize()
         g_context[dwGpu].m_dwDiodeOffsetDiv = 187;
         g_context[dwGpu].m_dwDiodeMask      = 0x3fff;
         break;
-    default: 
+    default:
         //return error if GPU has no on-die thermal diode
         return FALSE;
     }
@@ -170,7 +175,7 @@ NvtdInitialize()
     //now we'll read diode specific binary offset
 
     LONG dwDiodeOffsetBin   = 0;
-    
+
     switch (g_context[dwGpu].m_dwCoreFamily)
     {
     case 0x46:
@@ -217,7 +222,7 @@ NvtdInitialize()
     }
 
     //find the maximum divider
-    
+
     if (g_context[dwGpu].m_dwMaxDiv < g_context[dwGpu].m_dwTemperatureCompensationDiv)
         g_context[dwGpu].m_dwMaxDiv = g_context[dwGpu].m_dwTemperatureCompensationDiv;
 
@@ -251,21 +256,21 @@ NvtdInitialize()
 /////////////////////////////////////////////////////////////////////////////
 DWORD GetDiodeRawTemp(DWORD dwGpu)
 {
-    if (g_context[dwGpu].m_dwCoreFamily >= 0x84)    
+    if (g_context[dwGpu].m_dwCoreFamily >= 0x84)
         return ReadGpuRegister(0x20008) & g_context[dwGpu].m_dwDiodeMask;
 
-    if (g_context[dwGpu].m_dwCoreFamily >= 0x50)    
+    if (g_context[dwGpu].m_dwCoreFamily >= 0x50)
         return ReadGpuRegister(0x20014) & g_context[dwGpu].m_dwDiodeMask;
 
     return ReadGpuRegister(0x15b4) & g_context[dwGpu].m_dwDiodeMask;
 }
 /////////////////////////////////////////////////////////////////////////////
-// This helper function returns calibrated thermal diode data for G84 and 
-// newer GPU or 0 if GPU doesn't support calibrated thermal diode reading 
+// This helper function returns calibrated thermal diode data for G84 and
+// newer GPU or 0 if GPU doesn't support calibrated thermal diode reading
 /////////////////////////////////////////////////////////////////////////////
 LONG GetDiodeTemp(DWORD dwGpu)
 {
-    if (g_context[dwGpu].m_dwCoreFamily >= 0x84)    
+    if (g_context[dwGpu].m_dwCoreFamily >= 0x84)
         return (char)ReadGpuRegister(0x20400);
 
     return 0;
@@ -277,7 +282,7 @@ extern "C"
 FLOAT
 NvtdGetTemperature()
 {
-    FLOAT   result  = FLT_MAX;  
+    FLOAT   result  = FLT_MAX;
     LONG    temp;
 
     DWORD dwGpu     = 0;
@@ -324,7 +329,7 @@ NvtdGetTemperature()
                 //get raw thermal diode readings
 
             result = (FLOAT)(temp * g_context[dwGpu].m_dwDiodeGainMul + g_context[dwGpu].m_dwDiodeOffsetMul) / g_context[dwGpu].m_dwMaxDiv;
-                //calibrate thermal diode readings 
+                //calibrate thermal diode readings
         }
         else
             result = (FLOAT)GetDiodeTemp(dwGpu);

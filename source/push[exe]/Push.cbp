@@ -18,6 +18,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="/DEBUG" />
+					<Add option='/MANIFEST /MANIFESTDEPENDENCY:&quot;type=&apos;win32&apos; name=&apos;Microsoft.Windows.Common-Controls&apos; version=&apos;6.0.0.0&apos; processorArchitecture=&apos;*&apos; publicKeyToken=&apos;6595b64144ccf1df&apos; language=&apos;*&apos;&quot; /MANIFESTUAC:&quot;level=&apos;requireAdministrator&apos; uiAccess=&apos;false&apos;&quot;' />
 					<Add library="comctl32.lib" />
 					<Add library="d3d9.lib" />
 					<Add library="psapi.lib" />
@@ -53,6 +54,11 @@
 				<Option type="0" />
 				<Option compiler="msvc10" />
 			</Target>
+			<Target title="GCC">
+				<Option output="../../bin/Push" prefix_auto="1" extension_auto="1" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+			</Target>
 		</Build>
 		<VirtualTargets>
 			<Add alias="hgjhj" targets="Debug Win32;Debug x64;Release x64;Release Win32;" />
@@ -66,20 +72,16 @@
 			<Add directory="../../source" />
 			<Add directory="../../resources/sl" />
 			<Add directory="../../resources/ADL" />
+			<Add directory="OSD" />
 		</Compiler>
 		<Linker>
-			<Add option='/MANIFEST /MANIFESTDEPENDENCY:&quot;type=&apos;win32&apos; name=&apos;Microsoft.Windows.Common-Controls&apos; version=&apos;6.0.0.0&apos; processorArchitecture=&apos;*&apos; publicKeyToken=&apos;6595b64144ccf1df&apos; language=&apos;*&apos;&quot; /MANIFESTUAC:&quot;level=&apos;requireAdministrator&apos; uiAccess=&apos;false&apos;&quot;' />
-			<Add library="comctl32" />
-			<Add library="d3d9" />
-			<Add library="psapi" />
+			<Add library="sl" />
 			<Add library="ntdll" />
+			<Add library="imagehlp" />
 			<Add library="advapi32" />
 			<Add library="setupapi" />
-			<Add library="user32" />
-			<Add library="shell32" />
-			<Add library="comdlg32" />
-			<Add library="sl.lib" />
-			<Add library="Imagehlp.lib" />
+			<Add library="gdi32" />
+			<Add library="inject64" />
 			<Add directory="../_resources/ddk/lib" />
 			<Add directory="../_resources/sl/lib" />
 			<Add directory="../../resources/sl/lib/i386" />
@@ -98,10 +100,9 @@
 		<Unit filename="GUI/main.cpp" />
 		<Unit filename="GUI/main.h" />
 		<Unit filename="Hardware/ATI/radeon.h" />
-		<Unit filename="Hardware/CPU/intel.c">
-			<Option compilerVar="CC" />
-		</Unit>
+		<Unit filename="Hardware/CPU/intel.cpp" />
 		<Unit filename="Hardware/CPU/intel.h" />
+		<Unit filename="Hardware/GPU/AmdGpu.cpp" />
 		<Unit filename="Hardware/GPU/GenericGpu.cpp" />
 		<Unit filename="Hardware/GPU/GenericGpu.h" />
 		<Unit filename="Hardware/GPU/IntelGpu.cpp" />
@@ -110,60 +111,47 @@
 		<Unit filename="Hardware/GPU/NvThermalDiode/Context.h" />
 		<Unit filename="Hardware/GPU/NvThermalDiode/NvThermalDiode.cpp" />
 		<Unit filename="Hardware/GPU/NvThermalDiode/NvThermalDiode.h" />
+<<<<<<< HEAD
 		<Unit filename="Hardware/GPU/NvidiaGpu.c">
 			<Option compilerVar="CC" />
 		</Unit>
+=======
+		<Unit filename="Hardware/GPU/NvidiaGpu.cpp" />
+		<Unit filename="Hardware/GPU/OpenNvapi.cpp" />
+		<Unit filename="Hardware/GPU/OpenNvapi.h" />
+>>>>>>> master
 		<Unit filename="Hardware/GPU/adl.cpp" />
 		<Unit filename="Hardware/GPU/adl.h" />
-		<Unit filename="Hardware/GPU/amdgpu.cpp" />
 		<Unit filename="Hardware/GPU/amdgpu.h" />
-		<Unit filename="Hardware/GPU/d3dkmt.c">
-			<Option compilerVar="CC" />
-		</Unit>
+		<Unit filename="Hardware/GPU/d3dkmt.cpp" />
 		<Unit filename="Hardware/GPU/d3dkmt.h" />
 		<Unit filename="Hardware/GPU/gpu.cpp" />
 		<Unit filename="Hardware/GPU/gpu.h" />
-		<Unit filename="Hardware/GPU/nvapi.c">
-			<Option compilerVar="CC" />
-		</Unit>
+		<Unit filename="Hardware/GPU/nvapi.cpp" />
 		<Unit filename="Hardware/GPU/nvapi.h" />
 		<Unit filename="Hardware/GPU/nvidiagpu.h" />
 		<Unit filename="Hardware/Intel/intel.h" />
 		<Unit filename="Hardware/Nvidia/geforce.h" />
 		<Unit filename="Hardware/d3dkmt.h" />
-		<Unit filename="Hardware/disk.c">
-			<Option compilerVar="CC" />
-		</Unit>
+		<Unit filename="Hardware/disk.cpp" />
 		<Unit filename="Hardware/disk.h" />
-		<Unit filename="Hardware/hwinfo.cpp">
-			<Option compilerVar="CC" />
-		</Unit>
+		<Unit filename="Hardware/hardware.cpp" />
 		<Unit filename="Hardware/hwinfo.h" />
-		<Unit filename="RAMdisk/ramdisk.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="RAMdisk/ramdisk.h" />
 		<Unit filename="batch.cpp" />
 		<Unit filename="batch.h" />
-		<Unit filename="driver.c">
-			<Option compilerVar="CC" />
-		</Unit>
+		<Unit filename="driver.cpp" />
 		<Unit filename="driver.h" />
-		<Unit filename="file.c">
-			<Option compilerVar="CC" />
-		</Unit>
+		<Unit filename="file.cpp" />
 		<Unit filename="file.h" />
-		<Unit filename="game.c">
-			<Option compilerVar="CC" />
-		</Unit>
+		<Unit filename="game.cpp" />
 		<Unit filename="game.h" />
 		<Unit filename="ini.h" />
 		<Unit filename="push.cpp" />
 		<Unit filename="push.h" />
 		<Unit filename="push.ico" />
-		<Unit filename="ring0.c">
-			<Option compilerVar="CC" />
-		</Unit>
+		<Unit filename="ramdisk.cpp" />
+		<Unit filename="ring0.cpp" />
 		<Unit filename="ring0.h" />
 		<Extensions>
 			<code_completion />

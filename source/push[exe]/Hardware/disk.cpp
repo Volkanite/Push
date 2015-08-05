@@ -263,7 +263,8 @@ typedef struct _EVENT_TRACE_PROPERTIES {
 static GUID SystemTraceControlGuid_I = { 0x9e814aad, 0x3204, 0x11d2, { 0x9a, 0x82, 0x00, 0x60, 0x08, 0xa8, 0x69, 0x39 } };
 static GUID DiskIoGuid_I = { 0x3d6fa8d4, 0xfe05, 0x11d0, { 0x9d, 0xda, 0x00, 0xc0, 0x4f, 0xd7, 0xba, 0x7c } };
 
-
+extern "C"
+{
 ULONG __stdcall StartTraceW(
     UINT64* TraceHandle,
     WCHAR* InstanceName,
@@ -285,6 +286,7 @@ ULONG __stdcall ProcessTrace(
     FILETIME* StartTime,
     FILETIME* EndTime
     );
+}
 
 
 typedef struct _CIRCULAR_BUFFER
@@ -296,21 +298,13 @@ typedef struct _CIRCULAR_BUFFER
 } CIRCULAR_BUFFER;
 
 
-VOID
-InitializeCircularBuffer(
-    CIRCULAR_BUFFER* Buffer,
-    ULONG Size
-    )
+VOID InitializeCircularBuffer( CIRCULAR_BUFFER* Buffer, ULONG Size )
 {
     Buffer->Size = Size;
     Buffer->Count = 0;
     Buffer->Index = 0;
 
-    Buffer->Data = RtlAllocateHeap(
-                    PushHeapHandle,
-                    0,
-                    sizeof(ULONG) * Buffer->Size
-                    );
+	Buffer->Data = (UINT32*) Memory::Allocate(sizeof(ULONG) * Buffer->Size);
 }
 
 
@@ -355,11 +349,9 @@ GetAverageCircularBuffer(
 CIRCULAR_BUFFER DiskReadWriteHistory;
 
 
-VOID
-__stdcall
-DiskEvents( EVENT_TRACE* EventTrace )
+VOID __stdcall DiskEvents( EVENT_TRACE* EventTrace )
 {
-    DiskIo_TypeGroup1 *data = EventTrace->MofData;
+    DiskIo_TypeGroup1 *data = (DiskIo_TypeGroup1*) EventTrace->MofData;
 
     if (EventTrace->Header.Class.Type == EVENT_TRACE_TYPE_IO_READ
         || EventTrace->Header.Class.Type == EVENT_TRACE_TYPE_IO_WRITE)
@@ -381,7 +373,7 @@ MonitorThread(VOID *h)
     UINT64 traceHandle = NULL, sessionHandle = NULL;
 
     bufferSize = sizeof(EVENT_TRACE_PROPERTIES) + sizeof(KERNEL_LOGGER_NAME);
-    traceProperties = RtlAllocateHeap(PushHeapHandle, 0, bufferSize);
+    traceProperties = (EVENT_TRACE_PROPERTIES*) Memory::Allocate(bufferSize);
 
     memset(traceProperties, 0, sizeof(EVENT_TRACE_PROPERTIES));
 

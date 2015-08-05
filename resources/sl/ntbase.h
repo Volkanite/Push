@@ -17,6 +17,8 @@ DWORD
     VOID* lpData
     );
 
+extern "C"
+{
 UINT32 __stdcall GetDriveTypeW(
     WCHAR* lpRootPathName
     );
@@ -30,7 +32,7 @@ DWORD __stdcall SizeofResource(
     HANDLE hModule,
     HANDLE hResInfo
     );
-    
+
 VOID* __stdcall LockResource(
     HANDLE hResData
     );
@@ -45,3 +47,9 @@ HANDLE __stdcall FindResourceW(
     WCHAR* lpName,
     WCHAR* lpType
     );
+
+INTBOOL __stdcall IsWow64Process(
+    HANDLE hProcess,
+    INTBOOL* Wow64Process
+    );
+}

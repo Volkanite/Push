@@ -8,6 +8,7 @@
 #include <pushbase.h>
 #include <gui.h>
 #include <osd.h>
+#include <slprocess.h>
 
 #include "push.h"
 #include "ramdisk.h"
@@ -31,34 +32,19 @@ VOID* PushHeapHandle;
 UINT32 thisPID;
 PUSH_SHARED_MEMORY* PushSharedMemory;
 OVERLAY_INTERFACE PushOverlayInterface = OVERLAY_INTERFACE_PURE;
-extern "C" SYSTEM_BASIC_INFORMATION HwInfoSystemBasicInformation;
+extern SYSTEM_BASIC_INFORMATION HwInfoSystemBasicInformation;
 
 
-typedef long (__stdcall *TYPE_NtSuspendProcess)( VOID* hProcessHandle );
-typedef long (__stdcall *TYPE_NtResumeProcess)( VOID* hProcessHandle );
 typedef int (__stdcall* TYPE_MuteJack)(CHAR *pin);
-
-
-TYPE_NtSuspendProcess NtSuspendProcess;
-TYPE_NtResumeProcess NtResumeProcess;
 TYPE_MuteJack MuteJack;
 
-
-extern "C" VOID* SlOpenProcess(
-    PROCESSID processID,
-    DWORD rights
-    );
-
 extern "C" DWORD __stdcall MapFileAndCheckSumW(
-    _In_   WCHAR* Filename,
-    _Out_  DWORD* HeaderSum,
-    _Out_  DWORD* CheckSum
+    WCHAR* Filename,
+    DWORD* HeaderSum,
+    DWORD* CheckSum
     );
 
 VOID FormatTime(WCHAR* Buffer);
-extern "C" NTSTATUS SlProcessGetFileName(HANDLE ProcessHandle, WCHAR* FileName);
-extern "C" VOID SlProcessWrite(HANDLE ProcessHandle, VOID* BaseAddress, VOID* Buffer, SIZE_T Size);
-extern "C" VOID* SlGetProcedureAddress(VOID* DllHandle, CHAR* ProcedureName);
 
 
 BOOLEAN IsGame( WCHAR* ExecutablePath )
@@ -66,7 +52,7 @@ BOOLEAN IsGame( WCHAR* ExecutablePath )
     WCHAR *ps;
 
     ps = SlIniReadString(L"Games", ExecutablePath, 0, L".\\" PUSH_SETTINGS_FILE);
-    
+
     if (ps != 0)
     {
         //is game
@@ -81,7 +67,7 @@ BOOLEAN IsGame( WCHAR* ExecutablePath )
         DWORD headerSum;
         DWORD checkSum;
         GAME_LIST gameList = Game_GetGames();
-        wchar_t *executable = SlStringFindLastChar(ExecutablePath, '\\');
+        wchar_t *executable = String::FindLastChar(ExecutablePath, '\\');
 
         executable++;
 
@@ -89,30 +75,30 @@ BOOLEAN IsGame( WCHAR* ExecutablePath )
 
         while (gameList != NULL)
         {
-            if (SlStringCompare(gameList->Game->ExecutableName, executable) == 0)
+            if (String::Compare(gameList->Game->ExecutableName, executable) == 0)
             {
                 if (gameList->Game->CheckSum == checkSum)
                 {
                     // Update path.
 
                     SlIniWriteString(
-                        L"Games", 
-                        gameList->Game->ExecutablePath, 
-                        NULL, 
+                        L"Games",
+                        gameList->Game->ExecutablePath,
+                        NULL,
                         L".\\" PUSH_SETTINGS_FILE
                         );
-                        
+
                     SlIniWriteString(
-                        L"Games", 
-                        ExecutablePath, 
-                        gameList->Game->Id, 
+                        L"Games",
+                        ExecutablePath,
+                        gameList->Game->Id,
                         L".\\" PUSH_SETTINGS_FILE
                         );
 
                     return TRUE;
                 }
             }
-            
+
             gameList = gameList->NextEntry;
         }
     }
@@ -165,32 +151,30 @@ CacheFile( WCHAR *FileName, CHAR cMountPoint )
     destination[2] = '\\';
     destination[3] = '\0';
 
-    pszFileName = SlStringFindLastChar(FileName, '\\') + 1;
+    pszFileName = String::FindLastChar(FileName, '\\') + 1;
 
     if (!bMarkedForCaching)
         // file was a member of a folder marked for caching
     {
-        SlStringConcatenate(destination, g_szLastDir);
-        SlStringConcatenate(destination, L"\\");
+        String::Concatenate(destination, g_szLastDir);
+        String::Concatenate(destination, L"\\");
     }
 
-    SlStringConcatenate(destination, pszFileName);
+    String::Concatenate(destination, pszFileName);
+    File::Copy(FileName, destination, CopyProgress);
+    String::Copy(dosName, FileName);
 
-    SlFileCopy(FileName, destination, CopyProgress);
-
-    SlStringCopy(dosName, FileName);
-
-    slash = SlStringFindChar(dosName, '\\');
+    slash = String::FindFirstChar(dosName, '\\');
     *slash = L'\0';
 
     QueryDosDeviceW(dosName, deviceName, 260);
 
-    SlStringConcatenate(deviceName, L"\\");
-    SlStringConcatenate(deviceName, slash + 1);
+    String::Concatenate(deviceName, L"\\");
+    String::Concatenate(deviceName, slash + 1);
 
     R0QueueFile(
         deviceName,
-        SlStringGetLength(deviceName) + 1
+        String::GetLength(deviceName) + 1
              );
 }
 
@@ -251,10 +235,10 @@ PushAddToFileList( FILE_LIST* FileList, FILE_LIST_ENTRY *FileEntry )
     name = (WCHAR*) RtlAllocateHeap(
             PushHeapHandle,
             0,
-            (SlStringGetLength(FileEntry->Name) + 1) * sizeof(WCHAR)
+            (String::GetLength(FileEntry->Name) + 1) * sizeof(WCHAR)
             );
 
-    SlStringCopy(name, FileEntry->Name);
+    String::Copy(name, FileEntry->Name);
 
     if (*FileList == NULL)
     {
@@ -306,7 +290,7 @@ VOID Cache( PUSH_GAME* Game )
     BfBatchFile batchFile(Game);
 
     // Check if game is already cached so we donot have wait through another
-    if (SlStringCompare(g_szPrevGame, Game->InstallPath) == 0 && !g_bRecache)
+    if (String::Compare(g_szPrevGame, Game->InstallPath) == 0 && !g_bRecache)
         return;
 
     g_bRecache = FALSE;
@@ -365,7 +349,7 @@ VOID Cache( PUSH_GAME* Game )
     // Release batchfile list
     PushFileList = NULL;
 
-    SlStringCopy(g_szPrevGame, Game->InstallPath);
+    String::Copy(g_szPrevGame, Game->InstallPath);
 }
 
 
@@ -376,13 +360,13 @@ VOID OnProcessEvent( PROCESSID processID )
     UINT32 iBytesRead;
     WCHAR *result = 0;
     CHAR szCommand[] = "MUTEPIN 1 a";
-    
-    processHandle = SlOpenProcess(processID, PROCESS_QUERY_INFORMATION | PROCESS_SUSPEND_RESUME);
+
+    processHandle = Process::Open(processID, PROCESS_QUERY_INFORMATION | PROCESS_SUSPEND_RESUME);
 
     if (!processHandle)
         return;
 
-    SlProcessGetFileName(processHandle, fileName);
+    Process::GetFileName(processHandle, fileName);
 
     if (IsGame(fileName))
     {
@@ -395,14 +379,14 @@ VOID OnProcessEvent( PROCESSID processID )
             PushSharedMemory->GameUsesRamDisk = TRUE;
 
             //suspend process to allow us time to cache files
-            NtSuspendProcess(processHandle);
+            Process::Suspend(processHandle);
             Cache(&game);
         }
 
         PushSharedMemory->DisableRepeatKeys = game.Settings.DisableRepeatKeys;
         PushSharedMemory->SwapWASD = game.Settings.SwapWASD;
         PushSharedMemory->VsyncOverrideMode = game.Settings.VsyncOverrideMode;
-        
+
         // Check if user wants maximum gpu engine and memory clocks
         if (game.Settings.ForceMaxClocks)
         {
@@ -412,18 +396,18 @@ VOID OnProcessEvent( PROCESSID processID )
         // i used this to disable one of my audio ports while gaming but of course it probably only
         // works for IDT audio devices
         CallNamedPipeW(
-            L"\\\\.\\pipe\\stacsv", 
-            szCommand, 
-            sizeof(szCommand), 
-            0, 
-            0, 
+            L"\\\\.\\pipe\\stacsv",
+            szCommand,
+            sizeof(szCommand),
+            0,
+            0,
             &iBytesRead,
             NMPWAIT_WAIT_FOREVER
             );
 
         if (PushSharedMemory->GameUsesRamDisk)
             //resume process
-            NtResumeProcess(processHandle);
+            Process::Resume(processHandle);
     }
     else
     {
@@ -443,22 +427,22 @@ VOID Inject32( VOID *hProcess )
 
     GetModuleFileNameW(0, szModulePath, 260);
 
-    pszLastSlash = SlStringFindLastChar(szModulePath, '\\');
+    pszLastSlash = String::FindLastChar(szModulePath, '\\');
 
     pszLastSlash[1] = '\0';
 
-    SlStringConcatenate(szModulePath, PUSH_LIB_NAME_32);
+    String::Concatenate(szModulePath, PUSH_LIB_NAME_32);
 
     // Allocate remote memory
     pLibRemote = VirtualAllocEx(hProcess, 0, sizeof(szModulePath), MEM_COMMIT, PAGE_READWRITE);
 
     // Copy library name
-    SlProcessWrite(hProcess, pLibRemote, szModulePath, sizeof(szModulePath));
+    Process::WriteMemory(hProcess, pLibRemote, szModulePath, sizeof(szModulePath));
 
     // Load dll into the remote process
     threadHandle = CreateRemoteThread(hProcess,
                                  0,0,
-                                 (PTHREAD_START_ROUTINE) SlGetProcedureAddress(hKernel32, "LoadLibraryW"),
+                                 (PTHREAD_START_ROUTINE) Module::GetProcedureAddress(hKernel32, "LoadLibraryW"),
                                  pLibRemote,
                                  0,0);
 
@@ -487,30 +471,27 @@ typedef struct _SECURITY_DESCRIPTOR {
 #define FILE_END             2
 
 extern "C" NTSTATUS __stdcall NtQuerySecurityObject(
-    _In_ HANDLE Handle,
-    _In_ DWORD SecurityInformation,
-    _Out_ SECURITY_DESCRIPTOR* SecurityDescriptor,
-    _In_ ULONG Length,
-    _Out_ ULONG* LengthNeeded
+    HANDLE Handle,
+    DWORD SecurityInformation,
+    SECURITY_DESCRIPTOR* SecurityDescriptor,
+    ULONG Length,
+    ULONG* LengthNeeded
     );
 
 extern "C" NTSTATUS __stdcall NtSetSecurityObject(
-    _In_ HANDLE Handle,
-    _In_ ULONG SecurityInformation,
-    _In_ VOID* SecurityDescriptor
+    HANDLE Handle,
+    ULONG SecurityInformation,
+    VOID* SecurityDescriptor
     );
 
 extern "C" DWORD __stdcall SetFilePointer(
-    _In_         HANDLE hFile,
-    _In_         LONG lDistanceToMove,
-    _Inout_opt_  LONG* lpDistanceToMoveHigh,
-    _In_         DWORD dwMoveMethod
+    HANDLE hFile,
+    LONG lDistanceToMove,
+    LONG* lpDistanceToMoveHigh,
+    DWORD dwMoveMethod
     );
 
-VOID Inject64(
-    _In_ PROCESSID ProcessId, 
-    _In_ WCHAR* Path
-    );
+VOID Inject64(UINT32 ProcessId, WCHAR* Path);
 
 
 VOID OnImageEvent( PROCESSID ProcessId )
@@ -518,7 +499,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
     VOID *processHandle = 0;
     INTBOOL isWow64;
 
-    processHandle = SlOpenProcess(
+    processHandle = Process::Open(
         ProcessId,
         PROCESS_VM_OPERATION |
         PROCESS_VM_READ |
@@ -537,7 +518,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
 
         bufferSize = 0x100;
         securityDescriptor = (SECURITY_DESCRIPTOR*)RtlAllocateHeap(PushHeapHandle, 0, bufferSize);
-        
+
         // Get the DACL of this process since we know we have all rights in it.
         status = NtQuerySecurityObject(
             NtCurrentProcess(),
@@ -560,7 +541,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
                 &bufferSize
                 );
         }
-        
+
         if (!NT_SUCCESS(status))
         {
             RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
@@ -568,7 +549,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
         }
 
         // Open it with WRITE_DAC access so that we can write to the DACL.
-        processHandle = SlOpenProcess(ProcessId, (0x00040000L)); //WRITE_DAC
+        processHandle = Process::Open(ProcessId, (0x00040000L)); //WRITE_DAC
 
         if(processHandle == 0)
         {
@@ -597,7 +578,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
         processHandle = 0;
         RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
 
-        processHandle = SlOpenProcess(
+        processHandle = Process::Open(
             ProcessId,
             PROCESS_VM_OPERATION |
             PROCESS_VM_READ |
@@ -608,7 +589,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
             SYNCHRONIZE
             );
     }
-    
+
     if (!processHandle)
     {
             return;
@@ -616,7 +597,6 @@ VOID OnImageEvent( PROCESSID ProcessId )
 
 #if DEBUG
     HANDLE fileHandle;
-    IO_STATUS_BLOCK isb;
     wchar_t marker = 0xFEFF;
     wchar_t filePath[260];
     wchar_t *buffer;
@@ -624,7 +604,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
     UINT16 bufferSize;
     NTSTATUS status;
 
-    SlFileCreate(
+    File::Create(
         &fileHandle,
         L"debug.log",
         SYNCHRONIZE | FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE,
@@ -633,34 +613,36 @@ VOID OnImageEvent( PROCESSID ProcessId )
         FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
         );
 
-    status = SlProcessGetFileName(processHandle, filePath);
+    status = Process::GetFileName(processHandle, filePath);
 
     if (NT_SUCCESS(status))
     {
-        executableName = SlStringFindLastChar(filePath, '\\');
+        executableName = String::FindLastChar(filePath, '\\');
         executableName++;
-        bufferSize = 54 + (SlStringGetLength(executableName) * sizeof(WCHAR));
-        buffer = (WCHAR*)RtlAllocateHeap(PushHeapHandle, 0, bufferSize);
+        bufferSize = 54 + (String::GetLength(executableName) * sizeof(WCHAR));
+		buffer = (WCHAR*)Memory::Allocate(bufferSize);
 
         FormatTime(buffer);
-        SlStringConcatenate(buffer, L" injecting into ");
-        SlStringConcatenate(buffer, executableName);
-        SlStringConcatenate(buffer, L"\r\n");
-        NtWriteFile(fileHandle, NULL, NULL, NULL, &isb, &marker, sizeof(marker), NULL, NULL); // UTF-16LE
+        
+		String::Concatenate(buffer, L" injecting into ");
+        String::Concatenate(buffer, executableName);
+        String::Concatenate(buffer, L"\r\n");
+
+		File::Write(fileHandle, &marker, sizeof(marker)); // UTF-16LE
         SetFilePointer(fileHandle, 0, NULL, FILE_END);
-        NtWriteFile(fileHandle, NULL, NULL, NULL, &isb, buffer, bufferSize - sizeof(WCHAR), NULL, NULL);
+        File::Write(fileHandle, buffer, bufferSize - sizeof(WCHAR));
     }
-    
-    NtClose(fileHandle);
+
+	File::Close(fileHandle);
 #endif
 
     NtQueryInformationProcess(processHandle, ProcessWow64Information, &isWow64, sizeof(INTBOOL), NULL);
-    
+
     if (isWow64)
     {
         if (PushOverlayInterface == OVERLAY_INTERFACE_PURE)
         {
-            SlExtractResource(L"OVERLAY32", PUSH_LIB_NAME_32);
+            Resource::Extract(L"OVERLAY32", PUSH_LIB_NAME_32);
             Inject32(processHandle);
         }
     }
@@ -672,11 +654,11 @@ VOID OnImageEvent( PROCESSID ProcessId )
 
             GetModuleFileNameW(0, szModulePath, 260);
 
-            pszLastSlash = SlStringFindLastChar(szModulePath, '\\');
+            pszLastSlash = String::FindLastChar(szModulePath, '\\');
             pszLastSlash[1] = '\0';
 
-            SlExtractResource(L"OVERLAY64", PUSH_LIB_NAME_64);
-            SlStringConcatenate(szModulePath, PUSH_LIB_NAME_64);
+            Resource::Extract(L"OVERLAY64", PUSH_LIB_NAME_64);
+            String::Concatenate(szModulePath, PUSH_LIB_NAME_64);
             Inject64(ProcessId, szModulePath);
         }
     }
@@ -763,10 +745,10 @@ DWORD __stdcall MonitorThread( VOID* Parameter )
 {
     VOID *processEvent, *d3dImageEvent;
     VOID *handles[2];
-    
+
     processEvent = OpenEventW(SYNCHRONIZE, FALSE, L"Global\\" PUSH_PROCESS_EVENT_NAME);
     d3dImageEvent = OpenEventW(SYNCHRONIZE, FALSE, L"Global\\" PUSH_IMAGE_EVENT_NAME);
-    
+
     handles[0] = processEvent;
     handles[1] = d3dImageEvent;
 
@@ -802,24 +784,24 @@ DWORD __stdcall MonitorThread( VOID* Parameter )
 #define NMPWAIT_USE_DEFAULT_WAIT        0x00000000
 
 extern "C" HANDLE __stdcall CreateNamedPipeW(
-__in     WCHAR* lpName,
-__in     DWORD dwOpenMode,
-__in     DWORD dwPipeMode,
-__in     DWORD nMaxInstances,
-__in     DWORD nOutBufferSize,
-__in     DWORD nInBufferSize,
-__in     DWORD nDefaultTimeOut,
-__in_opt SECURITY_ATTRIBUTES* lpSecurityAttributes
-);
+    WCHAR* lpName,
+    DWORD dwOpenMode,
+    DWORD dwPipeMode,
+    DWORD nMaxInstances,
+    DWORD nOutBufferSize,
+    DWORD nInBufferSize,
+    DWORD nDefaultTimeOut,
+    SECURITY_ATTRIBUTES* lpSecurityAttributes
+    );
 
 extern "C" INTBOOL __stdcall ConnectNamedPipe(
-__in        HANDLE hNamedPipe,
-__inout_opt OVERLAPPED* lpOverlapped
-);
+    HANDLE hNamedPipe,
+    OVERLAPPED* lpOverlapped
+    );
 
 extern "C" INTBOOL __stdcall DisconnectNamedPipe(
-__in HANDLE hNamedPipe
-);
+    HANDLE hNamedPipe
+    );
 
 
 DWORD __stdcall PipeThread( VOID* Parameter )
@@ -829,12 +811,12 @@ DWORD __stdcall PipeThread( VOID* Parameter )
 
     pipeHandle = CreateNamedPipeW(
         L"\\\\.\\pipe\\Push",
-        PIPE_ACCESS_DUPLEX | PIPE_TYPE_BYTE | PIPE_READMODE_BYTE, 
-        PIPE_WAIT, 
-        1, 
-        1024 * 16, 
-        1024 * 16, 
-        NMPWAIT_USE_DEFAULT_WAIT, 
+        PIPE_ACCESS_DUPLEX | PIPE_TYPE_BYTE | PIPE_READMODE_BYTE,
+        PIPE_WAIT,
+        1,
+        1024 * 16,
+        1024 * 16,
+        NMPWAIT_USE_DEFAULT_WAIT,
         NULL
         );
 
@@ -849,7 +831,7 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                 /* add terminating zero */
                 buffer[isb.Information] = '\0';
 
-                if (SlStringCompare(buffer, L"ForceMaxClocks") == 0)
+                if (String::Compare(buffer, L"ForceMaxClocks") == 0)
                     Hardware_ForceMaxClocks();
             }
         }
@@ -868,11 +850,11 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     BOOLEAN bAlreadyRunning;
     OBJECT_ATTRIBUTES objAttrib = {0};
     UINT32 sharedMemorySize;
-    
+
     // Check if already running
     hMutex = CreateMutexW(0, FALSE, L"PushOneInstance");
 
-    bAlreadyRunning = (GetLastError() == ERROR_ALREADY_EXISTS 
+    bAlreadyRunning = (GetLastError() == ERROR_ALREADY_EXISTS
                         || GetLastError() == ERROR_ACCESS_DENIED);
 
     if (bAlreadyRunning)
@@ -883,12 +865,12 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 
     thisPID = (UINT32) NtCurrentTeb()->ClientId.UniqueProcess;
     PushHeapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
-    
+
     // Start Driver.
 
     Driver_Extract();
     Driver_Load();
-    
+
     //initialize instance
     PushInstance = Instance;
 
@@ -899,7 +881,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 
     PushSharedMemory = NULL;
     sharedMemorySize = sizeof(PUSH_SHARED_MEMORY) + sizeof(OsdItems);
-    PushSharedMemory = (PUSH_SHARED_MEMORY*) SlCreateFileMapping(PUSH_SECTION_NAME, sharedMemorySize);
+    PushSharedMemory = (PUSH_SHARED_MEMORY*) Memory::CreateFileMapping(PUSH_SECTION_NAME, sharedMemorySize);
 
     if (!PushSharedMemory)
     {
@@ -913,15 +895,15 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     //initialize window handle used by overlay
     PushSharedMemory->WindowHandle = PushMainWindow->Handle;
 
-    if (SlFileExists(PUSH_SETTINGS_FILE))
+    if (File::Exists(PUSH_SETTINGS_FILE))
     {
         WCHAR *buffer;
-        
+
         // Check if file is UTF-16LE.
-        buffer = (WCHAR*) SlFileLoad(PUSH_SETTINGS_FILE, NULL);
+        buffer = (WCHAR*) File::Load(PUSH_SETTINGS_FILE, NULL);
 
         if (buffer[0] == 0xFEFF)
-            //is UTF-LE. 
+            //is UTF-LE.
         {
             // Init settings from ini file.
 
@@ -936,16 +918,16 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 
             buffer = SlIniReadString(L"Settings", L"OverlayInterface", NULL, L".\\" PUSH_SETTINGS_FILE);
 
-            if (SlStringCompare(buffer, L"PURE") == 0)
+            if (String::Compare(buffer, L"PURE") == 0)
                 PushOverlayInterface = OVERLAY_INTERFACE_PURE;
-            else if (SlStringCompare(buffer, L"RTSS") == 0)
+            else if (String::Compare(buffer, L"RTSS") == 0)
                 PushOverlayInterface = OVERLAY_INTERFACE_RTSS;
 
         }
         else
         {
             MessageBoxW(
-                NULL, 
+                NULL,
                 L"Settings file not UTF-16LE! "
                 L"Resave the file as \"Unicode\" or Push won't read it!",
                 L"Bad Settings file",
@@ -959,17 +941,15 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 
     //start timer
     SetTimer(PushMainWindow->Handle, 0, 1000, 0);
-    
+
     // Activate process monitoring
-    NtSuspendProcess = (TYPE_NtSuspendProcess) SlGetProcedureAddress(GetModuleHandleW(L"ntdll.dll"), "NtSuspendProcess");
-    NtResumeProcess = (TYPE_NtResumeProcess) SlGetProcedureAddress(GetModuleHandleW(L"ntdll.dll"), "NtResumeProcess");
 
     PushToggleProcessMonitoring(TRUE);
 
     g_szPrevGame[5] = '\0';
 
     PushMonitorThreadHandle = CreateRemoteThread(NtCurrentProcess(), 0, 0, &MonitorThread, NULL, 0, NULL);
-    
+
     CreateRemoteThread(NtCurrentProcess(), NULL, 0, &PipeThread, NULL, 0, NULL);
 
     // Handle messages
@@ -985,15 +965,14 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 }
 
 
-WCHAR*
-GetDirectoryFile( WCHAR *pszFileName )
+WCHAR* GetDirectoryFile( WCHAR *pszFileName )
 {
     static WCHAR szPath[260];
 
     GetCurrentDirectoryW(260, szPath);
 
-    SlStringConcatenate(szPath, L"\\");
-    SlStringConcatenate(szPath, pszFileName);
+    String::Concatenate(szPath, L"\\");
+    String::Concatenate(szPath, pszFileName);
 
     return szPath;
 }

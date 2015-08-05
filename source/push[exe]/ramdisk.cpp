@@ -8,7 +8,6 @@
 PFORMATEX   FormatEx;
 
 #define ERROR_NOT_ENOUGH_MEMORY 0x8
-VOID* SlGetProcedureAddress(VOID* DllHandle, CHAR* ProcedureName);
 
 //----------------------------------------------------------------------
 //
@@ -131,12 +130,11 @@ CreateRamDisk( UINT32 Size, CHAR DriveLetter )
 }
 
 
-VOID*
-OpenRamDisk()
+VOID* OpenRamDisk()
 {
     UNICODE_STRING  fileName;
 
-    SlInitUnicodeString(
+    UnicodeString::Init(
         &fileName,
         PUSH_RAMDISK_DEVICE_NAME
         );
@@ -164,10 +162,10 @@ VOID FormatRamDisk()
     if (createData.DriveLetter == NULL)
         //could not get a drive letter, return.
         return;
-        
+
     mountPoint[0] = createData.DriveLetter;
 
-    FormatEx = (PFORMATEX) SlGetProcedureAddress(SlLoadLibrary(L"fmifs.dll"), "FormatEx");
+    FormatEx = (PFORMATEX) Module::GetProcedureAddress(Module::Load(L"fmifs.dll"), "FormatEx");
 
     FormatEx(mountPoint, FMIFS_HARDDISK, L"NTFS", L"RAM Disk", TRUE, 0, FormatExCallback);
 }
