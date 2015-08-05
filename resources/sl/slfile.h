@@ -1,57 +1,27 @@
-typedef VOID (*TYPE_FsProgessRoutine)(
+#ifndef _FILE_H
+#define _FILE_H
+
+typedef VOID(*TYPE_FsProgessRoutine)(
     UINT64 TotalFileSize,
     UINT64 TotalBytesTransferred
     );
-    
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-NTSTATUS SlFileCreate(
-    VOID** FileHandle,
-    WCHAR* FileName, 
-    DWORD DesiredAccess,
-    DWORD ShareAccess,
-    DWORD CreateDisposition,
-    DWORD CreateOptions
-    );
-    
-BOOLEAN SlFileExists( 
-    WCHAR *fname 
-    );
-    
-    
-/**
-* Copies an existing file to a new file.
-*
-* \param SourceFileName The Win32 file name of source file.
-* \param DestinationFileName The Win32 file name for the new
-* file.
-* \param ProgressRoutine The address of a callback function of
-* type TYPE_FsProgessRoutine that is called each time another
-* portion of the file has been copied. This parameter can be
-* NULL if no progress routine is required.
-*/
 
-VOID SlFileCopy(
-    WCHAR* SourceFileName,
-    WCHAR* DestinationFileName,
-    TYPE_FsProgessRoutine ProgressRoutine
-    );
-    
-    
-/**
-* Loads a file into memory and returns the base address.
-*
-* \param FileName The Win32 file name.
-* \param FileSize Optional, returns the file size.
-*/
+class File
+{
+public:
+    static NTSTATUS Create(VOID** FileHandle, WCHAR* FileName, DWORD DesiredAccess, DWORD ShareAccess, DWORD CreateDisposition, DWORD CreateOptions);
+    static HANDLE Create( WCHAR* FileName );
+    static BOOLEAN Exists(WCHAR *FileName);
+    static VOID Copy(WCHAR* SourceFileName, WCHAR* DestinationFileName, TYPE_FsProgessRoutine ProgressRoutine);
+    static VOID* Load(WCHAR* FileName, UINT64* FileSize);
+    static UINT64 GetSize(WCHAR* FileName);
+    static DWORD GetAttributes( WCHAR* FileName );
+    static UINT32 Read( HANDLE FileHandle, VOID* Buffer, UINT32 Length );
+    static VOID Write( HANDLE FileHandle, VOID* Buffer, UINT32 Length );
+    static VOID SetPointer( HANDLE FileHandle, INT64 DistanceToMove );
+    static VOID Delete( WCHAR* FileName );
+    static VOID Close( HANDLE FileHandle );
+};
 
-VOID* SlFileLoad( 
-    WCHAR* FileName, 
-    UINT64* FileSize 
-    );
-    
-#ifdef __cplusplus
-}
 #endif

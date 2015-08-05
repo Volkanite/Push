@@ -141,13 +141,13 @@ extern "C" {
 #endif
 
 NTSTATUS __stdcall NtQueryInformationProcess(
-    _In_ HANDLE ProcessHandle,
-    _In_ PROCESSINFOCLASS ProcessInformationClass,
-    _Out_ VOID* ProcessInformation,
-    _In_ ULONG ProcessInformationLength,
-    _Out_ ULONG* ReturnLength
+    HANDLE ProcessHandle,
+    PROCESSINFOCLASS ProcessInformationClass,
+    VOID* ProcessInformation,
+    ULONG ProcessInformationLength,
+    ULONG* ReturnLength
     );
-    
+
 #ifdef __cplusplus
 }
 #endif

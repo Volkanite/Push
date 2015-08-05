@@ -1,5 +1,4 @@
 #include <sl.h>
-#include <sal.h>
 #include <sldriver.h>
 #include <slresource.h>
 #include <slregistry.h>
@@ -35,7 +34,8 @@ typedef VOID* PSECURITY_DESCRIPTOR;
 
 #define IDYES 6
 
-
+extern "C"
+{
 NTSTATUS __stdcall RtlCreateSecurityDescriptor(
     VOID* SecurityDescriptor,
     ULONG Revision
@@ -55,10 +55,11 @@ NTSTATUS __stdcall RtlMakeSelfRelativeSD(
     );
 
 NTSTATUS __stdcall NtSetSecurityObject(
-    _In_ HANDLE Handle,
-    _In_ ULONG SecurityInformation,
-    _In_ VOID* SecurityDescriptor
+    HANDLE Handle,
+    ULONG SecurityInformation,
+    VOID* SecurityDescriptor
     );
+}
 
 
 VOID Driver_Extract()
@@ -74,9 +75,9 @@ VOID Driver_Extract()
         );
 
     if (isWow64)
-        SlExtractResource(L"DRIVER64", L"push0.sys");
+        Resource::Extract(L"DRIVER64", L"push0.sys");
     else
-        SlExtractResource(L"DRIVER32", L"push0.sys");
+        Resource::Extract(L"DRIVER32", L"push0.sys");
 }
 
 
@@ -88,7 +89,7 @@ VOID StripPermissions( WCHAR* KeyName )
     VOID* selfSecurityDescriptor;
     ULONG bufferLength = 20;
 
-    keyHandle = SlOpenKey(KeyName, WRITE_DAC);
+    keyHandle = Registry::OpenKey(KeyName, WRITE_DAC);
 
     RtlCreateSecurityDescriptor(psecdesc, SECURITY_DESCRIPTOR_REVISION);
     RtlSetDaclSecurityDescriptor(psecdesc, TRUE, NULL, TRUE);
@@ -127,7 +128,7 @@ VOID Driver_Load()
 
             DeleteFileW(L"push0.sys");
             Driver_Extract();
-            
+
             // Try again.
             Driver_Load();
         }
@@ -172,11 +173,11 @@ VOID Driver_Load()
                     );
 
                 RtlStringFromGUID(
-                    &bootEnvironmentInformation.BootIdentifier, 
+                    &bootEnvironmentInformation.BootIdentifier,
                     &guidAsUnicodeString
                     );
-                    
-                SlStringCopyN(guidAsWideChar, guidAsUnicodeString.Buffer, 39);
+
+                String::CopyN(guidAsWideChar, guidAsUnicodeString.Buffer, 39);
 
                 guidAsWideChar[39] = L'\0';
 
@@ -192,13 +193,13 @@ VOID Driver_Load()
 
                 // Enable test-signing mode.
 
-                SlStringConcatenate(buffer, L"\\16000049");
-                
+                String::Concatenate(buffer, L"\\16000049");
+
                 // Change key permissions (if it already exists) to allow us to set values.
                 StripPermissions(buffer);
 
-                SlInitUnicodeString(&keyName, buffer);
-                SlInitUnicodeString(&valueName, L"Element");
+                UnicodeString::Init(&keyName, buffer);
+                UnicodeString::Init(&valueName, L"Element");
 
                 objectAttributes.Length = sizeof(OBJECT_ATTRIBUTES);
                 objectAttributes.RootDirectory = NULL;
@@ -221,11 +222,11 @@ VOID Driver_Load()
 
                 NtSetValueKey(keyHandle, &valueName, 0, REG_BINARY, &value, sizeof(BYTE));
                 NtClose(keyHandle);
-                
+
                 MessageBoxW(
-                    NULL, 
-                    L"Restart your computer to load driver", 
-                    L"Restart required", 
+                    NULL,
+                    L"Restart your computer to load driver",
+                    L"Restart required",
                     NULL
                     );
             }

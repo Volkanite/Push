@@ -35,28 +35,9 @@ VOID CacheFile(
 
 VOID CacheFiles(CHAR driveLetter);
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 BOOLEAN FolderExists( WCHAR *pszPath );
 
 VOID GetPathOnly( WCHAR *pszFilePath, WCHAR *pszBuffer );
-
-
-/**
-* Enumerates a directory.
-*
-* \param Directory The Win32 directory name.
-* \param SearchPattern Search expression/wildcards.
-* \param Callback The address of a callback function of type FS_ENUM_DIRECTORY that is
-* called for each file that matches the search expression.
-*/
-NTSTATUS FsEnumDirectory(
-    WCHAR* Directory,
-    WCHAR* SearchPattern,
-    FS_ENUM_DIRECTORY Callback
-    );
 
 
 /**
@@ -69,18 +50,3 @@ VOID FsRenameFile(
     WCHAR* FilePath,
     WCHAR* NewFileName
     );
-
-
-/**
-* Retrieves the size of a file.
-*
-* \param FileName The Win32 file name.
-*/
-UINT64 FsFileGetSize(
-    WCHAR* FileName
-    );
-
-
-#ifdef __cplusplus
-}
-#endif

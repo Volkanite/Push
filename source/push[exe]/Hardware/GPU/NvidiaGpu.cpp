@@ -12,8 +12,6 @@
 BYTE GfCoreFamily = 0;
 LONG    m_dwDiodeGainMul;
 LONG GetDiodeGainMul( DWORD coreFamily );
-
-INT32 *displayHandles;
 BOOLEAN GfInitialized;
 
 UINT8 NvidiaGpu_GetActivity();

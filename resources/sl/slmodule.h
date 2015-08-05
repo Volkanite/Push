@@ -1,11 +1,6 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-VOID* SlLoadLibrary( 
-    WCHAR* FileName 
-    );
-
-#ifdef __cplusplus
-}
-#endif
+class Module
+{
+public:
+    static VOID* Load( WCHAR* ModuleName );
+    static VOID* GetProcedureAddress( VOID* DllHandle, CHAR* ProcedureName );
+};

@@ -30,7 +30,6 @@ VOID Initialize()
 }
 
 
-extern "C"
 void RTSS_Update( OSD_ITEM* OsdItems )
 {
     UINT8 i;
@@ -47,9 +46,9 @@ void RTSS_Update( OSD_ITEM* OsdItems )
             || (osdItem->Threshold && osdItem->Value > osdItem->Threshold)) //is the item's value > it's threshold?
         {
             if (i == 0)
-                SlStringCopy(osdText, osdItem->Text);
+                String::Copy(osdText, osdItem->Text);
             else
-                SlStringConcatenate(osdText, osdItem->Text);
+                String::Concatenate(osdText, osdItem->Text);
 
             stuffToDraw = TRUE;
         }

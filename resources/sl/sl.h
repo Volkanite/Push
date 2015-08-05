@@ -1,10 +1,10 @@
 #include <sltypes.h>
-#include <sal.h>
+//#include <sal.h>
 #include <slnt.h>
 #include <slntuapi.h>
 #include <slmodule.h>
-#include <slc.h>
-#include <slmem.h>
+#include <slstring.h>
+#include <slmemory.h>
 #include <slini.h>
 #include <slfile.h>
 #include <sldriver.h>

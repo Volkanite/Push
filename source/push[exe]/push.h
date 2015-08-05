@@ -42,20 +42,11 @@ typedef enum _OVERLAY_INTERFACE
 } OVERLAY_INTERFACE;
 
 
-#ifdef __cplusplus
-extern "C" VOID* PushHeapHandle;
-extern "C" VOID* PushInstance;
-extern "C" PUSH_SHARED_MEMORY* PushSharedMemory;
-extern "C" BOOLEAN g_ThreadListLock;
-extern "C" OVERLAY_INTERFACE PushOverlayInterface;
-#else
 extern VOID* PushHeapHandle;
 extern VOID* PushInstance;
 extern PUSH_SHARED_MEMORY* PushSharedMemory;
 extern BOOLEAN g_ThreadListLock;
 extern OVERLAY_INTERFACE PushOverlayInterface;
-#endif
-
 extern BOOLEAN             g_bRecache;
 
 VOID GetGamePath(
@@ -99,12 +90,6 @@ BOOLEAN ExtractResource(
 }
 #endif
 
-
-    
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 VOID PushToggleProcessMonitoring(
     BOOLEAN Activate
     );
@@ -120,10 +105,6 @@ VOID PushGetThreadInfo(
 VOID PushGetImageInfo(
     IMAGE_CALLBACK_INFO* ImageInformation
     );
-    
-#ifdef __cplusplus
-}
-#endif //__cplusplus
 
 
 #endif //PUSH_H

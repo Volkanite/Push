@@ -4,6 +4,7 @@
 #include <string.h>
 #include <file.h>
 #include <ramdisk.h>
+#include <sldirectory.h>
 
 #include "gui.h"
 
@@ -133,15 +134,14 @@ BOOLEAN TabCtrl_OnSelChanged(VOID)
 }
 
 
-VOID
-GetPathOnly( WCHAR *pszFilePath, WCHAR *pszBuffer )
+VOID GetPathOnly( WCHAR *pszFilePath, WCHAR *pszBuffer )
 {
     WCHAR *pszLastSlash;
 
 
-    pszLastSlash = SlStringFindLastChar(pszFilePath, '\\');
+    pszLastSlash = String::FindLastChar(pszFilePath, '\\');
 
-    SlStringCopyN(pszBuffer,
+    String::CopyN(pszBuffer,
             pszFilePath,
             (pszLastSlash - pszFilePath) + 1);
 
@@ -158,13 +158,13 @@ ListViewAddItems()
 
     while (file != NULL)
     {
-        item = CwListView->AddItem(file->Name, file->Bytes);
+        item = ListView::AddItem(file->Name, file->Bytes);
 
         swprintf(text, 260, L"%u", file->Bytes);
-        CwListView->SetItem(text, item, 1);
+        ListView::SetItemText(text, item, 1);
 
         if (file->Cache)
-            CwListView->SetItemState(item, TRUE);
+            ListView::SetItemState(item, TRUE);
 
         file = file->NextEntry;
     }
@@ -228,22 +228,21 @@ CreateControl(
     MwControlHandles[Control->Id] = handle;
 }
 
-VOID
-AppendFileNameToPath(
+
+VOID AppendFileNameToPath(
     WCHAR* FileName,
     WCHAR* Path,
     WCHAR* Buffer
     )
 {
-    SlStringCopy(Buffer, Path);
+    String::Copy(Buffer, Path);
 
-    SlStringConcatenate(Buffer, L"\\");
-    SlStringConcatenate(Buffer, FileName);
+    String::Concatenate(Buffer, L"\\");
+    String::Concatenate(Buffer, FileName);
 }
 
 
-VOID
-BuildFileList(
+VOID BuildFileList(
     WCHAR* Directory,
     FILE_DIRECTORY_INFORMATION* Information,
     FS_ENUM_DIRECTORY Callback
@@ -268,7 +267,7 @@ BuildFileList(
         WCHAR directory[260];
 
         AppendFileNameToPath(fileName, Directory, directory);
-        FsEnumDirectory(directory, L"*", Callback);
+        Directory::Enum(directory, L"*", Callback);
     }
     else
     {
@@ -436,9 +435,9 @@ MwCreateMainWindow()
 
 
 extern "C" DWORD __stdcall MapFileAndCheckSumW(
-    _In_   WCHAR* Filename,
-    _Out_  DWORD* HeaderSum,
-    _Out_  DWORD* CheckSum
+    WCHAR* Filename,
+    DWORD* HeaderSum,
+    DWORD* CheckSum
     );
 
 
@@ -520,12 +519,12 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                 break;
             case BUTTON_TRAY:
             {
-                SlTrayMinimize(
-                    PushMainWindow->Handle, 
-                    Gui_IconImageHandle, 
+                Tray::Minimize(
+                    PushMainWindow->Handle,
+                    Gui_IconImageHandle,
                     L"Push",
                     IDM_RESTORE,
-                    &Gui_InvisibleWindowHandle, 
+                    &Gui_InvisibleWindowHandle,
                     &Gui_TrayIconHandle
                     );
             }
@@ -555,7 +554,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
 
                     GetOpenFileNameW( &ofn );
 
-                    imageName = SlStringFindLastChar(filePath, '\\') + 1;
+                    imageName = String::FindLastChar(filePath, '\\') + 1;
 
                     if (SlIniReadBoolean(L"Games", imageName, FALSE, L".\\" PUSH_SETTINGS_FILE))
                         imageName = filePath;
@@ -568,7 +567,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     {
                         // Get number of games
                         for (i = 0; games[0] != '\0'; i++)
-                            games = SlStringFindLastChar(games, '\0') + 1;
+                            games = String::FindLastChar(games, '\0') + 1;
                     }
 
                     // Increment counter by 1, this is the new index
@@ -578,7 +577,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     SlIniWriteString(L"Games", filePath, indexString, L".\\" PUSH_SETTINGS_FILE);
                     GetPathOnly(filePath, path);
 
-                    slash = SlStringFindLastChar(path, '\\');
+                    slash = String::FindLastChar(path, '\\');
                     *slash = '\0';
 
                     MapFileAndCheckSumW(filePath, &headerSum, &checkSum);
@@ -626,7 +625,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                                         (LONG) games
                                         );
 
-                                    games = SlStringFindLastChar(games, '\0') + 1;
+                                    games = String::FindLastChar(games, '\0') + 1;
                                 }
                             }
 

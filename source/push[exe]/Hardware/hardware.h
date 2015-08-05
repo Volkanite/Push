@@ -11,11 +11,6 @@ extern PUSH_HARDWARE_INFORMATION hardware;
 #define AMD     0x1002
 #define INTEL   0x8086
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 VOID RefreshHardwareInfo(
     );
 
@@ -28,11 +23,6 @@ DWORD ReadGpuRegister(
 
 VOID Hardware_ForceMaxClocks(
     );
-
-#ifdef __cplusplus
-}
-#endif
-
 
 VOID AddToThreadList(
     UINT16 threadID

@@ -6,26 +6,21 @@
 #include "batch.h"
 
 
-extern "C"
-WCHAR*
-memchrW(const WCHAR *ptr, WCHAR ch, UINT_B n);
-
-
 VOID GetBatchFile( PUSH_GAME* Game, WCHAR* Buffer )
 {
     WCHAR *dot;
     WCHAR batchFile[260] = L"cache\\";
 
-    SlStringConcatenate(batchFile, Game->Name);
+    String::Concatenate(batchFile, Game->Name);
 
-    dot = SlStringFindLastChar(batchFile, '.');
+    dot = String::FindLastChar(batchFile, '.');
 
     if (dot)
-        SlStringCopy(dot, L".txt");
+        String::Copy(dot, L".txt");
     else
-        SlStringConcatenate(batchFile, L".txt");
+        String::Concatenate(batchFile, L".txt");
 
-    SlStringCopy(Buffer, batchFile);
+    String::Copy(Buffer, batchFile);
 }
 
 
@@ -48,22 +43,22 @@ BfBatchFile::BfBatchFile( PUSH_GAME* Game )
     BatchFileName = (WCHAR*) RtlAllocateHeap(
         PushHeapHandle,
         0,
-        (SlStringGetLength(batchFile) + 1) * sizeof(WCHAR)
+        (String::GetLength(batchFile) + 1) * sizeof(WCHAR)
         );
 
     // Save new batchfile name
-    SlStringCopy(BatchFileName, batchFile);
+    String::Copy(BatchFileName, batchFile);
 
     // Open the batchfile and read the entire file into memory
-    buffer = SlFileLoad(batchFile, &fileSize);
+    buffer = File::Load(batchFile, &fileSize);
 
-    if (!buffer) 
+    if (!buffer)
         return;
 
     // Start our reads after the UTF16-LE character marker
     bufferOffset = (WCHAR*) buffer + 1;
 
-    // Update fileSize to reflect. It is now invalid for use as the 
+    // Update fileSize to reflect. It is now invalid for use as the
     // actual file size.
     fileSize -= sizeof(WCHAR);
 
@@ -80,11 +75,11 @@ BfBatchFile::BfBatchFile( PUSH_GAME* Game )
         lineStart = nextLine;
 
         // Try to find new line character
-        nextLine = memchrW(lineStart, '\n', end - lineStart);
+        nextLine = Memory::FindFirstChar(lineStart, '\n', end - lineStart);
 
         if (!nextLine)
             // Didn't find it? How about return?
-            nextLine = memchrW(lineStart, '\r', end - lineStart);
+            nextLine = Memory::FindFirstChar(lineStart, '\r', end - lineStart);
 
         if (!nextLine)
             // Still didn't find any? Must not be one.
@@ -102,7 +97,7 @@ BfBatchFile::BfBatchFile( PUSH_GAME* Game )
 
         // Add to file list
         fileEntry.Name = line;
-        fileEntry.Bytes = FsFileGetSize(line);
+        fileEntry.Bytes = File::GetSize(line);
 
         PushAddToFileList(&FileList, &fileEntry);
 
@@ -142,7 +137,7 @@ BfBatchFile::IsBatchedFile( FILE_LIST_ENTRY* File )
     while (file != NULL)
     {
         if (File->Bytes == file->Bytes
-            && SlStringCompare(File->Name, file->Name) == 0)
+            && String::Compare(File->Name, file->Name) == 0)
             return TRUE;
 
         file = file->NextEntry;
@@ -172,8 +167,7 @@ BfBatchFile::GetBatchSize()
 * \param BatchFile The batchfile.
 */
 
-VOID
-BfBatchFile::SaveBatchFile()
+VOID BfBatchFile::SaveBatchFile()
 {
     VOID *fileHandle;
     IO_STATUS_BLOCK isb;
@@ -181,7 +175,7 @@ BfBatchFile::SaveBatchFile()
     WCHAR marker = 0xFEFF;
     WCHAR end[] = L"\r\n";
 
-    SlFileCreate(
+    File::Create(
         &fileHandle,
         BatchFileName,
         SYNCHRONIZE | FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE,
@@ -216,7 +210,7 @@ BfBatchFile::SaveBatchFile()
             NULL,
             &isb,
             file->Name,
-            SlStringGetLength(file->Name) * sizeof(WCHAR),
+            String::GetLength(file->Name) * sizeof(WCHAR),
             NULL,
             NULL
             );
@@ -286,7 +280,7 @@ BfBatchFile::RemoveItem( FILE_LIST_ENTRY* File )
     while (file != 0)
     {
         if (file->Bytes == File->Bytes
-            && SlStringCompare(file->Name, File->Name) == 0)
+            && String::Compare(file->Name, File->Name) == 0)
         {
             if (file == FileList)
                 FileList = file->NextEntry;

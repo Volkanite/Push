@@ -1,5 +1,8 @@
 #include "slnt.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 VOID* __stdcall OpenSCManagerW(
     WCHAR*  lpMachineName,
@@ -80,10 +83,6 @@ CloseServiceHandle( VOID* hSCObject );
 BYTE __stdcall FlushFileBuffers(
     VOID *hFile
     );
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 VOID __stdcall InitCommonControls(
     VOID
@@ -344,13 +343,6 @@ SendMessageW(
 
 INT32
 __stdcall
-CreateDirectoryW(
-    WCHAR*                  lpPathName,
-    SECURITY_ATTRIBUTES*    lpSecurityAttributes
-    );
-
-INT32
-__stdcall
 RemoveDirectoryW( WCHAR* lpPathName );
 
 INT32
@@ -445,7 +437,7 @@ VirtualFreeEx(
      DWORD AccessMask,
      OBJECT_ATTRIBUTES *ObjectAttributes,
      CLIENT_ID *ClientId );
-     
+
 INT32
 __stdcall
 WriteProcessMemory(
@@ -749,8 +741,23 @@ INTBOOL __stdcall SetPropW(
 
 // Nt
 
+#if defined(MSVC)
 TEB* __stdcall NtCurrentTeb(
     );
+#else
+static __inline__ struct _TEB * NtCurrentTeb(void)
+{
+    struct _TEB *ret;
+
+    __asm__ __volatile__ (
+        "mov{l} {%%fs:0x18,%0|%0,%%fs:0x18}\n"
+        : "=r" (ret)
+        : /* no inputs */
+    );
+
+    return ret;
+}
+#endif
 
 INT32 __stdcall NtOpenProcessToken(
     VOID *ProcessHandle,
@@ -911,17 +918,13 @@ NTSTATUS __stdcall NtCreateSection(
     ULONG AllocationAttributes,
     VOID* FileHandle
     );
-    
-    
+
+
 void __stdcall OutputDebugStringW(
     WCHAR* lpOutputString
-);
+    );
 
-#ifdef __cplusplus
-}
-#endif
-
-LONG __stdcall RtlEnterCriticalSection(
+    LONG __stdcall RtlEnterCriticalSection(
     RTL_CRITICAL_SECTION* CriticalSection
     );
 
@@ -931,5 +934,11 @@ LONG __stdcall LdrLoadDll(
     UNICODE_STRING* Name,
     VOID** BaseAddress
     );
+
+#ifdef __cplusplus
+}
+#endif
+
+
 
 

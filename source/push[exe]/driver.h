@@ -1,2 +1,2 @@
-extern "C" VOID Driver_Extract();
-extern "C" VOID Driver_Load();
+VOID Driver_Extract();
+VOID Driver_Load();

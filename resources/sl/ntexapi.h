@@ -259,12 +259,12 @@ extern "C" {
 #endif
 
 NTSTATUS __stdcall NtQuerySystemInformation(
-    _In_ SYSTEM_INFORMATION_CLASS SystemInformationClass,
-    _Out_ VOID* SystemInformation,
-    _In_ ULONG SystemInformationLength,
-    _Out_opt_ ULONG* ReturnLength
+    SYSTEM_INFORMATION_CLASS SystemInformationClass,
+    VOID* SystemInformation,
+    ULONG SystemInformationLength,
+    ULONG* ReturnLength
     );
-    
+
  #ifdef __cplusplus
  }
  #endif
