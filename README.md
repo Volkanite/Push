@@ -29,6 +29,12 @@ Other:
 - auto-force max gpu clocks
 - in-game settings menu
 
+Help
+----
+- [How to compile](https://github.com/Volkanite/Push/wiki/How-to-compile) <br>
+- [Ini settings](https://github.com/Volkanite/Push/wiki/ini-settings) <br>
+- [Description of on screen display items](https://github.com/Volkanite/Push/wiki/OSD-items) <br>
+
 Credits
 -------
 
