@@ -304,7 +304,7 @@ VOID InitializeCircularBuffer( CIRCULAR_BUFFER* Buffer, ULONG Size )
     Buffer->Count = 0;
     Buffer->Index = 0;
 
-	Buffer->Data = (UINT32*) Memory::Allocate(sizeof(ULONG) * Buffer->Size);
+    Buffer->Data = (UINT32*) Memory::Allocate(sizeof(ULONG) * Buffer->Size);
 }
 
 
@@ -357,7 +357,19 @@ VOID __stdcall DiskEvents( EVENT_TRACE* EventTrace )
         || EventTrace->Header.Class.Type == EVENT_TRACE_TYPE_IO_WRITE)
     {
         DiskBytesDelta += data->TransferSize;
-        DiskResponseTime = data->HighResResponseTime;
+
+#ifdef DEBUG
+        if (data->HighResResponseTime / 1000 > 6000)
+        {
+            WCHAR buffer[100];
+
+            String::Format(buffer, 100, L"Response: %i", data->HighResResponseTime / 1000);
+            OutputDebugStringW(buffer);
+        }
+#endif
+
+        if (data->HighResResponseTime > DiskResponseTime)
+            DiskResponseTime = data->HighResResponseTime;
     }
 }
 
