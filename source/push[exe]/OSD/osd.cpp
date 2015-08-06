@@ -33,7 +33,7 @@ OSD_ITEM OsdItems[] = {
     { OSD_RAM, 90, L"RAM : %i MB"},
     { OSD_CPU_LOAD, 95, L"CPU : %i %%"},
     { OSD_CPU_TEMP, 75, L"CPU : %i °C"},
-    { OSD_MCU, 0, L"MCU : %i %%"},
+    { OSD_MCU, 0, L"CPUm : %i %%"},
     { OSD_MTU, 0, L"MTU : %i %%"},
     { OSD_DISK_RWRATE, 0, NULL, NULL, NULL, FormatDiskReadWriteRate },
     { OSD_DISK_RESPONSE, 0, L"DSK : %i ms"},

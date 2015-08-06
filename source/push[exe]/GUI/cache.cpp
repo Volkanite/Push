@@ -49,7 +49,7 @@ LONG __stdcall CacheWndProc(
             ListView::AddColumn(L"File");
             ListView::AddColumn(L"Size");
 
-            Game_Initialize(GetComboBoxData(), &game);
+            Game::Initialize(GetComboBoxData(), &game);
 
             if (!FolderExists(game.InstallPath))
             {

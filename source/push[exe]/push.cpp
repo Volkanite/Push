@@ -66,7 +66,7 @@ BOOLEAN IsGame( WCHAR* ExecutablePath )
 
         DWORD headerSum;
         DWORD checkSum;
-        GAME_LIST gameList = Game_GetGames();
+        GAME_LIST gameList = Game::GetGames();
         wchar_t *executable = String::FindLastChar(ExecutablePath, '\\');
 
         executable++;
@@ -372,7 +372,7 @@ VOID OnProcessEvent( PROCESSID processID )
     {
         PUSH_GAME game = { 0 };
 
-        Game_Initialize(fileName, &game);
+        Game::Initialize(fileName, &game);
 
         if (game.Settings.UseRamDisk)
         {

@@ -14,21 +14,15 @@ WCHAR* HeapedString( WCHAR* String )
 {
     WCHAR *buffer;
 
-<<<<<<< HEAD:source/push[exe]/game.c
-    buffer = (WCHAR*) RtlAllocateHeap( PushHeapHandle, 0, (SlStringGetLength(String) + 1) * sizeof(WCHAR) );
-
-    SlStringCopy(buffer, String);
-=======
-    buffer = (WCHAR*) RtlAllocateHeap( PushHeapHandle, 0, (String::GetLength(String) + 1) * sizeof(WCHAR) );
+    buffer = (WCHAR*) Memory::Allocate( (String::GetLength(String) + 1) * sizeof(WCHAR) );
 
     String::Copy(buffer, String);
->>>>>>> master:source/push[exe]/game.cpp
 
     return buffer;
 }
 
 
-VOID Game::Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
+VOID Game::Initialize(WCHAR* Win32Name, PUSH_GAME* Game)
 {
     WCHAR *gameId;
     WCHAR *buffer;
@@ -39,12 +33,8 @@ VOID Game::Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
     Game->ExecutableName = lastSlash + 1;
 
     gameId = SlIniReadString(L"Games", Game->ExecutablePath, NULL, L".\\" PUSH_SETTINGS_FILE);
-<<<<<<< HEAD:source/push[exe]/game.c
-    SlStringCopyN(Game->Id, gameId, 2);
-=======
 
     String::CopyN(Game->Id, gameId, 2);
->>>>>>> master:source/push[exe]/game.cpp
 
     buffer = SlIniReadSubKey(L"Game Settings", gameId, L"Name", L".\\" PUSH_SETTINGS_FILE);
 
@@ -71,11 +61,7 @@ VOID Game::Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
 
     buffer = SlIniReadSubKey(L"Game Settings", gameId, L"ForceVsync", L".\\" PUSH_SETTINGS_FILE);
 
-<<<<<<< HEAD:source/push[exe]/game.c
-    if (SlStringCompare(buffer, L"FORCE_ON") == 0)
-=======
     if (String::Compare(buffer, L"FORCE_ON") == 0)
->>>>>>> master:source/push[exe]/game.cpp
         Game->Settings.VsyncOverrideMode = PUSH_VSYNC_FORCE_ON;
     else if (String::Compare(buffer, L"FORCE_OFF") == 0)
         Game->Settings.VsyncOverrideMode = PUSH_VSYNC_FORCE_OFF;
@@ -152,7 +138,7 @@ GAME_LIST Game::GetGames()
             game = (PUSH_GAME*) Memory::Allocate(sizeof(PUSH_GAME));
             newEntry = (GAME_LIST_ENTRY*) Memory::Allocate(sizeof(GAME_LIST_ENTRY));
 
-            Game_Initialize(games, game);
+            Game::Initialize(games, game);
 
             if (!gameListEntry)
             {

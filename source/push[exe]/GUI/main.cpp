@@ -582,11 +582,11 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
 
                     MapFileAndCheckSumW(filePath, &headerSum, &checkSum);
 
-                    Game_Initialize(filePath, &game);
-                    Game_SetName(&game, imageName);
-                    Game_SetInstallPath(&game, path);
-                    Game_SetFlags(&game, GAME_RAMDISK);
-                    Game_SetCheckSum(&game, checkSum);
+                    Game::Initialize(filePath, &game);
+                    Game::SetName(&game, imageName);
+                    Game::SetInstallPath(&game, path);
+                    Game::SetFlags(&game, GAME_RAMDISK);
+                    Game::SetCheckSum(&game, checkSum);
 
                 } break;
 
@@ -609,7 +609,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                                 {
                                     PUSH_GAME game;
 
-                                    Game_Initialize(games, &game);
+                                    Game::Initialize(games, &game);
 
                                     SendMessageW(
                                         MwControlHandles[COMBOBOX_GAMES],
