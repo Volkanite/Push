@@ -560,7 +560,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
 
         if (status == STATUS_BUFFER_TOO_SMALL)
         {
-            RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
+            Memory::Free(securityDescriptor);
             securityDescriptor = (SECURITY_DESCRIPTOR*)RtlAllocateHeap(PushHeapHandle, 0, bufferSize);
 
             status = NtQuerySecurityObject(
@@ -574,7 +574,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
 
         if (!NT_SUCCESS(status))
         {
-            RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
+            Memory::Free(securityDescriptor);
             return;
         }
 
@@ -583,7 +583,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
 
         if(processHandle == 0)
         {
-            RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
+            Memory::Free(securityDescriptor);
            return;
         }
 
@@ -595,7 +595,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
 
         if (!NT_SUCCESS(status))
         {
-            RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
+            Memory::Free(securityDescriptor);
             return;
         }
 
@@ -606,7 +606,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
         Process::Close(processHandle);
 
         processHandle = 0;
-        RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
+        Memory::Free(securityDescriptor);
 
         processHandle = Process::Open(
             ProcessId,
@@ -640,10 +640,8 @@ VOID OnImageEvent( PROCESSID ProcessId )
         executableName++;
         bufferSize = 54 + (String::GetLength(executableName) * sizeof(WCHAR));
         buffer = (WCHAR*)Memory::Allocate(bufferSize);
-
-        FormatTime(buffer);
         
-        String::Concatenate(buffer, L" injecting into ");
+        String::Copy(buffer, L" injecting into ");
         String::Concatenate(buffer, executableName);
 
         Push::Log(buffer);
