@@ -365,6 +365,7 @@ VOID __stdcall DiskEvents( EVENT_TRACE* EventTrace )
 
             String::Format(buffer, 100, L"Response: %i", data->HighResResponseTime / 1000);
             OutputDebugStringW(buffer);
+            Push::Log(buffer);
         }
 #endif
 

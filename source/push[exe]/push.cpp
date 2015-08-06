@@ -414,7 +414,7 @@ VOID OnProcessEvent( PROCESSID processID )
         PushSharedMemory->GameUsesRamDisk = FALSE;
     }
 
-    NtClose(processHandle);
+    Process::Close(processHandle);
 }
 
 
@@ -494,10 +494,40 @@ extern "C" DWORD __stdcall SetFilePointer(
 VOID Inject64(UINT32 ProcessId, WCHAR* Path);
 
 
+VOID Push::Log( WCHAR* Buffer )
+{
+    HANDLE fileHandle;
+    wchar_t marker = 0xFEFF;
+    wchar_t *buffer;
+    UINT16 bufferSize;
+
+    File::Create(
+        &fileHandle,
+        L"debug.log",
+        SYNCHRONIZE | FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE,
+        FILE_SHARE_READ | FILE_SHARE_WRITE,
+        FILE_OPEN_IF,
+        FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
+        );
+
+    bufferSize = 54 + (String::GetLength(Buffer) * sizeof(WCHAR));
+    buffer = (WCHAR*)Memory::Allocate(bufferSize);
+
+    FormatTime(buffer);
+
+    String::Concatenate(buffer, Buffer);
+    String::Concatenate(buffer, L"\r\n");
+
+    File::Write(fileHandle, &marker, sizeof(marker)); // UTF-16LE
+    File::SetPointer(fileHandle, 0, FILE_END);
+    File::Write(fileHandle, buffer, bufferSize - sizeof(WCHAR));
+    File::Close(fileHandle);
+}
+
+
 VOID OnImageEvent( PROCESSID ProcessId )
 {
     VOID *processHandle = 0;
-    INTBOOL isWow64;
 
     processHandle = Process::Open(
         ProcessId,
@@ -573,7 +603,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
         // should be able to open it with the requested
         // privileges now.
 
-        NtClose(processHandle);
+        Process::Close(processHandle);
 
         processHandle = 0;
         RtlFreeHeap(PushHeapHandle, 0, securityDescriptor);
@@ -592,26 +622,15 @@ VOID OnImageEvent( PROCESSID ProcessId )
 
     if (!processHandle)
     {
-            return;
+        return;
     }
 
 #if DEBUG
-    HANDLE fileHandle;
-    wchar_t marker = 0xFEFF;
     wchar_t filePath[260];
     wchar_t *buffer;
     wchar_t *executableName;
     UINT16 bufferSize;
     NTSTATUS status;
-
-    File::Create(
-        &fileHandle,
-        L"debug.log",
-        SYNCHRONIZE | FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE,
-        FILE_SHARE_READ | FILE_SHARE_WRITE,
-        FILE_OPEN_IF,
-        FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
-        );
 
     status = Process::GetFileName(processHandle, filePath);
 
@@ -620,25 +639,18 @@ VOID OnImageEvent( PROCESSID ProcessId )
         executableName = String::FindLastChar(filePath, '\\');
         executableName++;
         bufferSize = 54 + (String::GetLength(executableName) * sizeof(WCHAR));
-		buffer = (WCHAR*)Memory::Allocate(bufferSize);
+        buffer = (WCHAR*)Memory::Allocate(bufferSize);
 
         FormatTime(buffer);
         
-		String::Concatenate(buffer, L" injecting into ");
+        String::Concatenate(buffer, L" injecting into ");
         String::Concatenate(buffer, executableName);
-        String::Concatenate(buffer, L"\r\n");
 
-		File::Write(fileHandle, &marker, sizeof(marker)); // UTF-16LE
-        SetFilePointer(fileHandle, 0, NULL, FILE_END);
-        File::Write(fileHandle, buffer, bufferSize - sizeof(WCHAR));
+        Push::Log(buffer);
     }
-
-	File::Close(fileHandle);
 #endif
 
-    NtQueryInformationProcess(processHandle, ProcessWow64Information, &isWow64, sizeof(INTBOOL), NULL);
-
-    if (isWow64)
+    if (Process::IsWow64(processHandle))
     {
         if (PushOverlayInterface == OVERLAY_INTERFACE_PURE)
         {
@@ -663,7 +675,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
         }
     }
 
-    NtClose(processHandle);
+    Process::Close(processHandle);
 }
 
 
