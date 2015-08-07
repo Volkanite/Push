@@ -121,8 +121,11 @@ VOID RunFrameStatistics()
         if (PushSharedMemory->HarwareInformation.Memory.Used > PushSharedMemory->HarwareInformation.Memory.Total)
             PushSharedMemory->Overloads |= OSD_RAM;
 
-        if (PushSharedMemory->HarwareInformation.Disk.ResponseTime > 6000)
+        if (PushSharedMemory->HarwareInformation.Disk.ResponseTime > 5000)
+        {
             PushSharedMemory->OSDFlags |= OSD_DISK_RESPONSE;
+            PushSharedMemory->Overloads |= OSD_DISK_RESPONSE;
+        }
     }
 
     if ( ((newTickCount - oldTick2) > 30000) && !PushSharedMemory->KeepFps )

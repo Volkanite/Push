@@ -5,6 +5,7 @@
 
 UINT64 DiskBytesDelta;
 UINT32 DiskResponseTime;
+LARGE_INTEGER PerformanceFrequency;
 
 
 typedef struct _EVENT_TRACE_HEADER {        // overlays WNODE_HEADER
@@ -356,21 +357,13 @@ VOID __stdcall DiskEvents( EVENT_TRACE* EventTrace )
     if (EventTrace->Header.Class.Type == EVENT_TRACE_TYPE_IO_READ
         || EventTrace->Header.Class.Type == EVENT_TRACE_TYPE_IO_WRITE)
     {
+        UINT32 responseTime;
+
         DiskBytesDelta += data->TransferSize;
+        responseTime = (FLOAT)data->HighResResponseTime * 1000 / PerformanceFrequency.QuadPart;
 
-#ifdef DEBUG
-        if (data->HighResResponseTime / 1000 > 6000)
-        {
-            WCHAR buffer[100];
-
-            String::Format(buffer, 100, L"Response: %i", data->HighResResponseTime / 1000);
-            OutputDebugStringW(buffer);
-            Push::Log(buffer);
-        }
-#endif
-
-        if (data->HighResResponseTime > DiskResponseTime)
-            DiskResponseTime = data->HighResResponseTime;
+        if (responseTime > DiskResponseTime)
+            DiskResponseTime = responseTime;
     }
 }
 
@@ -415,11 +408,12 @@ MonitorThread(VOID *h)
 }
 
 
-VOID
-DiskStartMonitoring()
+VOID DiskStartMonitoring()
 {
+    LARGE_INTEGER performanceCounter;
+
+    NtQueryPerformanceCounter(&performanceCounter, &PerformanceFrequency);
     InitializeCircularBuffer(&DiskReadWriteHistory, 2);
-    //CreateThread(0,0, &MonitorThread, 0,0,0);
     CreateRemoteThread(NtCurrentProcess(), 0, 0, &MonitorThread, 0, 0, 0);
 }
 
@@ -435,9 +429,8 @@ DiskGetBytesDelta()
 }
 
 
-UINT16
-DiskGetResponseTime()
+UINT16 DiskGetResponseTime()
 {
-    return DiskResponseTime / 1000; //ms
+    return DiskResponseTime; //ms
 }
 
