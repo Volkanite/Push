@@ -510,11 +510,13 @@ VOID Push::Log( WCHAR* Buffer )
         FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
         );
 
-    bufferSize = 54 + (String::GetLength(Buffer) * sizeof(WCHAR));
+    bufferSize = String::GetSize(Buffer);
+    bufferSize += String::GetSize(L"XX:XX:XX \r\n ");
     buffer = (WCHAR*)Memory::Allocate(bufferSize);
 
     FormatTime(buffer);
 
+    String::Concatenate(buffer, L" ");
     String::Concatenate(buffer, Buffer);
     String::Concatenate(buffer, L"\r\n");
 
@@ -641,7 +643,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
         bufferSize = 54 + (String::GetLength(executableName) * sizeof(WCHAR));
         buffer = (WCHAR*)Memory::Allocate(bufferSize);
         
-        String::Copy(buffer, L" injecting into ");
+        String::Copy(buffer, L"injecting into ");
         String::Concatenate(buffer, executableName);
 
         Push::Log(buffer);
