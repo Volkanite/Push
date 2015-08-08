@@ -121,7 +121,7 @@ VOID RunFrameStatistics()
         if (PushSharedMemory->HarwareInformation.Memory.Used > PushSharedMemory->HarwareInformation.Memory.Total)
             PushSharedMemory->Overloads |= OSD_RAM;
 
-        if (PushSharedMemory->HarwareInformation.Disk.ResponseTime > 5000)
+        if (PushSharedMemory->HarwareInformation.Disk.ResponseTime > 4000)
         {
             PushSharedMemory->OSDFlags |= OSD_DISK_RESPONSE;
             PushSharedMemory->Overloads |= OSD_DISK_RESPONSE;
