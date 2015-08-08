@@ -36,7 +36,7 @@ OSD_ITEM OsdItems[] = {
     { OSD_MCU, 0, L"CPUm : %i %%"},
     { OSD_MTU, 0, L"MTU : %i %%"},
     { OSD_DISK_RWRATE, 0, NULL, NULL, NULL, FormatDiskReadWriteRate },
-    { OSD_DISK_RESPONSE, 0, L"DSK : %i ms"},
+    { OSD_DISK_RESPONSE, 4000, L"DSK : %i ms"},
     { OSD_TIME, 0, NULL, NULL, NULL, FormatTime },
     { OSD_BUFFERS, 0, L"Buffers : %i"},
     { OSD_FPS, 0, L"%i"}
@@ -92,8 +92,8 @@ VOID GetValues( OSD_ITEM* Item )
         Item->ValueOverride = hardware.Disk.ReadWriteRate;
         break;
     case OSD_DISK_RESPONSE: 
-        Item->Value = NULL;
-        Item->ValueOverride = hardware.Disk.ResponseTime;
+        Item->Value = hardware.Disk.ResponseTime;
+        Item->ValueOverride = NULL;
         break;
     case OSD_TIME: 
         Item->Value = NULL;

@@ -236,16 +236,14 @@ typedef VOID(*OSD_DYNAMIC_FORMAT)(
     WCHAR* Buffer
     );
 
+typedef UINT16 OSDVALUE;
 
 typedef struct _OSD_ITEM
 {
     UINT32 Flag;
-    UINT8 Threshold;
+    OSDVALUE Threshold;
     WCHAR* DisplayFormat;
-
-    //Must be at least 8 bits or you might get garbage,
-    //More than 8 bits and you will get incorrect readings.
-    UINT8 Value;
+    OSDVALUE Value;
 
     //This will be displayed instead of the first, Must be at least 32 bits or you might get garbage,
     //More than 32 bits and you will get incorrect readings.
