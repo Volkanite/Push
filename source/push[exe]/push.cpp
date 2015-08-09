@@ -815,7 +815,7 @@ extern "C" INTBOOL __stdcall DisconnectNamedPipe(
     HANDLE hNamedPipe
     );
 
-
+#include "Hardware\GPU\adl.h"
 DWORD __stdcall PipeThread( VOID* Parameter )
 {
     HANDLE pipeHandle;
@@ -845,6 +845,8 @@ DWORD __stdcall PipeThread( VOID* Parameter )
 
                 if (String::Compare(buffer, L"ForceMaxClocks") == 0)
                     Hardware_ForceMaxClocks();
+                else if (String::CompareN(buffer, L"Overclock", 9) == 0)
+                    Adl_SetEngineClock(hardware.DisplayDevice.EngineClock + 1);
             }
         }
 

@@ -12,11 +12,24 @@ MenuVars MenuGpu[10];
 WCHAR* GroupOpt[] = {L"", L""};
 WCHAR* ItemOpt[] = {L"Off", L"On"};
 WCHAR* PressOpt[] = { L">>", L">>" };
+WCHAR* GpuSpeedOpt[] = { L"XXX MHz", L"XXX MHz" };
+WCHAR GpuSpeed[20];
 
 BOOLEAN MnuInitialized;
 HANDLE MenuProcessHeap;
 
 //Add menu items to menu
+#include <stdio.h>
+#include <wchar.h>
+
+
+VOID InitGpuSpeed()
+{
+    swprintf(GpuSpeed, 20, L"%i MHz", PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock);
+    GpuSpeedOpt[0] = GpuSpeed;
+    GpuSpeedOpt[1] = GpuSpeed;
+}
+
 
 VOID AddItems()
 {
@@ -46,9 +59,33 @@ VOID AddItems()
     if (MenuGpu[0].Var)
     {
         Menu->AddItem(L"Force Max Clocks", ItemOpt, &MenuGpu[1].Var);
-        Menu->AddItem(L"NULL", ItemOpt, &MenuGpu[2].Var);
+        Menu->AddItem(L"Engine Clock", GpuSpeedOpt, &MenuGpu[2].Var);
         Menu->AddItem(L"NULL", ItemOpt, &MenuGpu[3].Var);
         Menu->AddItem(L"NULL", ItemOpt, &MenuGpu[4].Var);
+
+        //Init gpu clock
+        InitGpuSpeed();
+    }
+}
+
+
+VOID CallPipe( WCHAR* Command )
+{
+    HANDLE hPipe;
+    DWORD dwWritten;
+
+    hPipe = CreateFile(TEXT("\\\\.\\pipe\\Push"),
+        GENERIC_READ | GENERIC_WRITE,
+        0,
+        NULL,
+        OPEN_EXISTING,
+        0,
+        NULL);
+
+    if (hPipe != INVALID_HANDLE_VALUE)
+    {
+        WriteFile(hPipe, Command, (wcslen(Command) + 1) * sizeof(WCHAR), &dwWritten, NULL);
+        CloseHandle(hPipe);
     }
 }
 
@@ -118,28 +155,19 @@ VOID ProcessOptions()
 
     if (MenuGpu[1].Var > 0)
     {
-        HANDLE hPipe;
-        DWORD dwWritten;
-        WCHAR command[] = L"ForceMaxClocks";
-
-        hPipe = CreateFile(TEXT("\\\\.\\pipe\\Push"),
-            GENERIC_READ | GENERIC_WRITE,
-            0,
-            NULL,
-            OPEN_EXISTING,
-            0,
-            NULL);
-
-        if (hPipe != INVALID_HANDLE_VALUE)
-        {
-            WriteFile(hPipe, command, sizeof(command), &dwWritten, NULL);
-            CloseHandle(hPipe);
-        }
+        CallPipe(L"ForceMaxClocks");
 
         PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
         PushSharedMemory->OSDFlags |= OSD_GPU_M_CLK;
         PushSharedMemory->Overloads &= ~OSD_GPU_E_CLK;
         PushSharedMemory->Overloads &= ~OSD_GPU_M_CLK;
+    }
+
+    if (MenuGpu[2].Var > 0)
+    {
+        MenuGpu[2].Var = 0;
+        CallPipe(L"Overclock");
+        InitGpuSpeed();
     }
 }
 
