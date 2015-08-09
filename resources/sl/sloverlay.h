@@ -7,6 +7,7 @@ struct MenuItems
 {
     WCHAR* Title, ** Options;
     int* Var, MaxValue, Type;
+    BOOLEAN* Dirty;
 };
 
 
@@ -20,6 +21,7 @@ struct MenuSettings
 struct MenuVars
 {
     int Var;
+    BOOLEAN Dirty;
 };
 
 
@@ -30,17 +32,17 @@ public:
     MenuSettings mSet;
     int OpX;
 
-    void AddGroup(WCHAR* title, WCHAR** Options, int* Var)
+    void AddGroup(WCHAR* title, WCHAR** Options, MenuVars* Variables)
     {
-        AddItemToMenu(title, Options, Var, 2, GROUP);
+        AddItemToMenu(title, Options, Variables, 2, GROUP);
     }
 
-    void AddItem(WCHAR* Title, WCHAR** Options, int* Var, int MaxValue = 2)
+    void AddItem(WCHAR* Title, WCHAR** Options, MenuVars* Variables, int MaxValue = 2)
     {
-        AddItemToMenu(Title, Options, Var, MaxValue, ITEM);
+        AddItemToMenu(Title, Options, Variables, MaxValue, ITEM);
     }
 
     SlOverlayMenu( int OptionsX );
     void Render( int X, int Y, OvOverlay* Overlay );
-    void AddItemToMenu(WCHAR* Title, WCHAR** Options, int* Var, int MaxValue, int Type);
+    void AddItemToMenu(WCHAR* Title, WCHAR** Options, MenuVars* Variables, int MaxValue, int Type);
 };
