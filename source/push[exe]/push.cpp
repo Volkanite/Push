@@ -844,9 +844,21 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                 buffer[isb.Information] = '\0';
 
                 if (String::Compare(buffer, L"ForceMaxClocks") == 0)
+                {
                     Hardware_ForceMaxClocks();
-                else if (String::CompareN(buffer, L"Overclock", 9) == 0)
-                    Adl_SetEngineClock(hardware.DisplayDevice.EngineClock + 1);
+                } 
+                else if (String::CompareN(buffer, L"Overclock", 8) == 0)
+                {
+                    switch (buffer[10])
+                    {
+                    case 'e':
+                        Adl_SetEngineClock(hardware.DisplayDevice.EngineClock + 1);
+                        break;
+                    case 'm':
+                        Adl_SetMemoryClock(hardware.DisplayDevice.MemoryClock + 1);
+                        break;
+                    }
+                }   
             }
         }
 

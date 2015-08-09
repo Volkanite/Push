@@ -12,8 +12,10 @@ MenuVars MenuGpu[10];
 WCHAR* GroupOpt[] = {L"", L""};
 WCHAR* ItemOpt[] = {L"Off", L"On"};
 WCHAR* PressOpt[] = { L">>", L">>" };
-WCHAR* GpuSpeedOpt[] = { L"XXX MHz", L"XXX MHz" };
-WCHAR GpuSpeed[20];
+WCHAR* GpuSpeedEngineOpt[] = { L"XXX MHz", L"XXX MHz" };
+WCHAR* GpuSpeedMemoryOpt[] = { L"XXX MHz", L"XXX MHz" };
+WCHAR GpuSpeedEngine[20];
+WCHAR GpuSpeedMemory[20];
 
 BOOLEAN MnuInitialized;
 HANDLE MenuProcessHeap;
@@ -25,9 +27,13 @@ HANDLE MenuProcessHeap;
 
 VOID InitGpuSpeed()
 {
-    swprintf(GpuSpeed, 20, L"%i MHz", PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock);
-    GpuSpeedOpt[0] = GpuSpeed;
-    GpuSpeedOpt[1] = GpuSpeed;
+    swprintf(GpuSpeedEngine, 20, L"%i MHz", PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock);
+    GpuSpeedEngineOpt[0] = GpuSpeedEngine;
+    GpuSpeedEngineOpt[1] = GpuSpeedEngine;
+
+    swprintf(GpuSpeedMemory, 20, L"%i MHz", PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock);
+    GpuSpeedMemoryOpt[0] = GpuSpeedMemory;
+    GpuSpeedMemoryOpt[0] = GpuSpeedMemory;
 }
 
 
@@ -59,11 +65,11 @@ VOID AddItems()
     if (MenuGpu[0].Var)
     {
         Menu->AddItem(L"Force Max Clocks", ItemOpt, &MenuGpu[1].Var);
-        Menu->AddItem(L"Engine Clock", GpuSpeedOpt, &MenuGpu[2].Var);
-        Menu->AddItem(L"NULL", ItemOpt, &MenuGpu[3].Var);
+        Menu->AddItem(L"Engine Clock", GpuSpeedEngineOpt, &MenuGpu[2].Var);
+        Menu->AddItem(L"Memory Clock", GpuSpeedMemoryOpt, &MenuGpu[3].Var);
         Menu->AddItem(L"NULL", ItemOpt, &MenuGpu[4].Var);
 
-        //Init gpu clock
+        //Init gpu clocks
         InitGpuSpeed();
     }
 }
@@ -166,7 +172,14 @@ VOID ProcessOptions()
     if (MenuGpu[2].Var > 0)
     {
         MenuGpu[2].Var = 0;
-        CallPipe(L"Overclock");
+        CallPipe(L"Overclock e");
+        InitGpuSpeed();
+    }
+
+    if (MenuGpu[3].Var > 0)
+    {
+        MenuGpu[3].Var = 0;
+        CallPipe(L"Overclock m");
         InitGpuSpeed();
     }
 }
