@@ -852,7 +852,17 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                     switch (buffer[10])
                     {
                     case 'e':
-                        Adl_SetEngineClock(hardware.DisplayDevice.EngineClock + 1);
+                        {
+                            switch (buffer[12])
+                            {
+                            case 'i':
+                                Adl_SetEngineClock(hardware.DisplayDevice.EngineClock + 1);
+                                break;
+                            case 'd':
+                                Adl_SetEngineClock(hardware.DisplayDevice.EngineClock - 1);
+                                break;
+                            }
+                        }
                         break;
                     case 'm':
                         Adl_SetMemoryClock(hardware.DisplayDevice.MemoryClock + 1);

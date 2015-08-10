@@ -171,13 +171,23 @@ VOID ProcessOptions()
         PushSharedMemory->Overloads &= ~OSD_GPU_M_CLK;
     }
 
-    if (MenuGpu[2].Var > 0 && MenuGpu[2].Dirty)
+    if (MenuGpu[2].Dirty)
     {
         MenuGpu[2].Dirty = FALSE;
 
-        CallPipe(L"Overclock e");
+        switch (MenuGpu[2].Var)
+        {
+        case 0:
+            CallPipe(L"Overclock e d");
+            break;
+        case 1:
+            CallPipe(L"Overclock e i");
+            break;
+        }
+
         InitGpuSpeed();
     }
+    
 
     if (MenuGpu[3].Var > 0 && MenuGpu[3].Dirty)
     {
@@ -267,6 +277,8 @@ VOID MenuKeyboardHook( WPARAM Key )
         {
             if (!OvmMenu->mSet.Show)
                 break;
+
+            *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Dirty = TRUE;
 
             if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var && *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var > 0)
             {
