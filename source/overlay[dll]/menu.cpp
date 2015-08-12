@@ -25,7 +25,7 @@ HANDLE MenuProcessHeap;
 #include <wchar.h>
 
 
-VOID InitGpuSpeed()
+VOID UpdateGpuSpeed()
 {
     swprintf(GpuSpeedEngine, 20, L"%i MHz", PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock);
     GpuSpeedEngineOpt[0] = GpuSpeedEngine;
@@ -67,10 +67,10 @@ VOID AddItems()
         Menu->AddItem(L"Force Max Clocks", ItemOpt, &MenuGpu[1]);
         Menu->AddItem(L"Engine Clock", GpuSpeedEngineOpt, &MenuGpu[2]);
         Menu->AddItem(L"Memory Clock", GpuSpeedMemoryOpt, &MenuGpu[3]);
-        Menu->AddItem(L"NULL", ItemOpt, &MenuGpu[4]);
+        Menu->AddItem(L"Voltage", ItemOpt, &MenuGpu[4]);
 
         //Init gpu clocks
-        InitGpuSpeed();
+        UpdateGpuSpeed();
     }
 }
 
@@ -178,23 +178,31 @@ VOID ProcessOptions()
         switch (MenuGpu[2].Var)
         {
         case 0:
-            CallPipe(L"Overclock e d");
-            break;
-        case 1:
-            CallPipe(L"Overclock e i");
-            break;
+        {
+            PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock--;
+            
+            UpdateGpuSpeed();
+            CallPipe(L"UpdateClocks");
         }
+        break;
 
-        InitGpuSpeed();
+        case 1:
+        {
+            PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock++;
+            
+            UpdateGpuSpeed();
+            CallPipe(L"UpdateClocks");
+        }
+        break;
+        }
     }
     
-
     if (MenuGpu[3].Var > 0 && MenuGpu[3].Dirty)
     {
         MenuGpu[3].Dirty = FALSE;
 
         CallPipe(L"Overclock m");
-        InitGpuSpeed();
+        UpdateGpuSpeed();
     }
 }
 

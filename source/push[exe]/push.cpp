@@ -868,7 +868,11 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                         Adl_SetMemoryClock(hardware.DisplayDevice.MemoryClock + 1);
                         break;
                     }
-                }   
+                }
+                else if (String::Compare(buffer, L"UpdateClocks") == 0)
+                {
+                    Adl_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock);
+                }
             }
         }
 
