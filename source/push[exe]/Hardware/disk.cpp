@@ -738,9 +738,8 @@ PPH_STRING EtFileObjectToFileName(
 
     if (realPair)
     {
-        Debug::Print((WCHAR*)realPair->Value);
+        Push::Log((WCHAR*)realPair->Value);
     }
-        //PhSetReference(&fileName, realPair->Value);
 
     return fileName;
 }
