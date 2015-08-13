@@ -180,7 +180,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;sl.lib;inject64.lib;Imagehlp.lib;gdi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;sl.lib;inject64.lib;Imagehlp.lib;gdi32.lib;ole32.lib</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
       <AdditionalOptions>/OPT:NOLBR %(AdditionalOptions)</AdditionalOptions>
@@ -208,7 +208,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalOptions>/OPT:NOLBR %(AdditionalOptions)</AdditionalOptions>
       <IgnoreSpecificDefaultLibraries>msvcrtd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;sl.lib;inject64.lib;Imagehlp.lib;gdi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;sl.lib;inject64.lib;Imagehlp.lib;gdi32.lib;ole32.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -236,7 +236,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ProgramDatabaseFile>$(TEMP)\$(TargetName)\$(TargetName).pdb</ProgramDatabaseFile>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;sl.lib;inject64.lib;Imagehlp.lib;gdi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;sl.lib;inject64.lib;Imagehlp.lib;gdi32.lib;ole32.lib</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <AdditionalManifestDependencies>type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*';%(AdditionalManifestDependencies)</AdditionalManifestDependencies>
@@ -265,7 +265,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ProgramDatabaseFile>$(TEMP)\$(TargetName)\$(TargetName).pdb</ProgramDatabaseFile>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;sl.lib;inject64.lib;Imagehlp.lib;gdi32.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;sl.lib;inject64.lib;Imagehlp.lib;gdi32.lib;ole32.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>

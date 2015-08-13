@@ -4,6 +4,7 @@
 #include <sldirectory.h>
 
 #include "gui.h"
+#include "main.h"
 
 
 #define LISTVIEW 240
@@ -22,17 +23,16 @@ typedef struct tagNMLISTVIEW {
 extern WINDOW* cacheWindow;
 
 
-
 #define SWP_NOMOVE      0x0002
 #define SWP_NOZORDER    0x0004
 #define SWP_NOACTIVATE  0x0010
 
 
-LONG __stdcall CacheWndProc(
-    VOID* Handle,
-    UINT32 uMessage,
-    DWORD wParam,
-    LONG lParam
+LONG __stdcall CacheWndProc( 
+    VOID* Handle, 
+    UINT32 uMessage, 
+    DWORD wParam, 
+    LONG lParam 
     )
 {
     switch(uMessage)
@@ -60,7 +60,12 @@ LONG __stdcall CacheWndProc(
 
             MwBatchFile = new BfBatchFile(&game);
 
-            Directory::Enum(game.InstallPath, L"*", BuildGameFilesList);
+            Directory::Enum(
+                ManualLoad ? ManualLoad : game.InstallPath, 
+                L"*", 
+                BuildGameFilesList
+                );
+
             ListViewAddItems();
 
             ListView::SortItems(ListViewCompareProc);

@@ -39,9 +39,10 @@ CONTROL MwOsdControls[] = {
 };
 
 CONTROL MwCacheControls[] = {
-    {L"Button",     NULL,           BUTTON_STOPRAMDISK, L"Stop RAMDisk",    NULL, 190},
-    {L"Button",     NULL,           BUTTON_ADDGAME,     L"Add Game",        NULL, 190},
-    {L"ComboBox",   CBS_DROPDOWN,   COMBOBOX_GAMES,     NULL,               NULL, 190}
+    {L"Button",     NULL,           BUTTON_STOPRAMDISK, L"Stop RAMDisk",    NULL, 180},
+    {L"Button",     NULL,           BUTTON_ADDGAME,     L"Add Game",        NULL, 180},
+    {L"ComboBox",   CBS_DROPDOWN,   COMBOBOX_GAMES,     NULL,               NULL, 180},
+    {L"Button",     NULL,           BUTTON_MANUALADD,   L"Manual Add",      100, 100}
 };
 
 
@@ -433,12 +434,86 @@ MwCreateMainWindow()
     }
 }
 
+typedef int (__stdcall * BFFCALLBACK)(HANDLE hwnd, UINT32 uMsg, LONG lParam, LONG lpData);
+typedef struct _SHITEMID        // mkid
+{
+    WORD      cb;             // Size of the ID (including cb itself)
+    BYTE        abID[1];        // The item ID (variable length)
+} SHITEMID;
 
-extern "C" DWORD __stdcall MapFileAndCheckSumW(
-    WCHAR* Filename,
-    DWORD* HeaderSum,
-    DWORD* CheckSum
-    );
+typedef struct _ITEMIDLIST {
+    SHITEMID mkid;
+} ITEMIDLIST, *PCIDLIST_ABSOLUTE, *PIDLIST_ABSOLUTE;
+
+typedef struct _browseinfo {
+    HANDLE            hwndOwner;
+    PCIDLIST_ABSOLUTE pidlRoot;
+    WCHAR*            pszDisplayName;
+    WCHAR*            lpszTitle;
+    UINT32              ulFlags;
+    BFFCALLBACK       lpfn;
+    LONG            lParam;
+    int               iImage;
+} BROWSEINFO, *PBROWSEINFO, *LPBROWSEINFO;
+
+
+#define BIF_EDITBOX 16
+#define BIF_NEWDIALOGSTYLE 64
+#define BIF_USENEWUI            (BIF_NEWDIALOGSTYLE | BIF_EDITBOX)
+
+
+extern "C"
+{
+
+    DWORD __stdcall MapFileAndCheckSumW(
+        WCHAR* Filename,
+        DWORD* HeaderSum,
+        DWORD* CheckSum
+        );
+
+    LONG __stdcall OleInitialize(
+        _In_ VOID* pvReserved
+        );
+
+    void __stdcall OleUninitialize(void);
+
+    PIDLIST_ABSOLUTE __stdcall SHBrowseForFolderW(
+        _In_ LPBROWSEINFO lpbi
+        );
+
+    INTBOOL __stdcall SHGetPathFromIDListW(
+        _In_  PCIDLIST_ABSOLUTE pidl,
+        _Out_ WCHAR*            pszPath
+        );
+
+    void __stdcall CoTaskMemFree(
+        _In_opt_ VOID* pv
+        );
+}
+
+WCHAR* ManualLoad;
+
+
+VOID OpenCacheWindow()
+{
+    static INT32 iControls = sizeof(MwCacheControls) / sizeof(MwCacheControls[0]);
+    INT32 j = 0;
+
+    cacheWindow = (WINDOW *)RtlAllocateHeap(PushHeapHandle, 0, sizeof(WINDOW));
+
+    cacheWindow->lastPos = 0;
+
+    cacheWindow->Handle = SlCreateWindow(
+        0,
+        L"Cache Manager",
+        L"Cache Settings",
+        600,
+        500,
+        CacheWndProc,
+        PushMainWindow->Handle,
+        NULL
+        );
+}
 
 
 INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lParam )
@@ -636,26 +711,48 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
 
                     if (HIWORD(wParam) == CBN_SELCHANGE)
                     {
-                        static INT32 iControls = sizeof(MwCacheControls) / sizeof(MwCacheControls[0]);
-                        INT32 j = 0;
-
-                        cacheWindow = (WINDOW *) RtlAllocateHeap(PushHeapHandle, 0, sizeof(WINDOW));
-
-                        cacheWindow->lastPos = 0;
-
-                        cacheWindow->Handle = SlCreateWindow(
-                                                0,
-                                                L"Cache Manager",
-                                                L"Cache Settings",
-                                                600,
-                                                500,
-                                                CacheWndProc,
-                                                PushMainWindow->Handle,
-                                                NULL
-                                                );
+                        OpenCacheWindow();
                     }
 
                 } break;
+
+            case BUTTON_MANUALADD:
+                {
+                    // The BROWSEINFO struct tells the shell 
+                    // how it should display the dialog.
+                    BROWSEINFO bi;
+                    memset(&bi, 0, sizeof(bi));
+
+                    bi.ulFlags = BIF_USENEWUI;
+                    bi.hwndOwner = PushMainWindow->Handle;
+                    bi.lpszTitle = L"Select folder for caching";
+
+                    // must call this if using BIF_USENEWUI
+                    OleInitialize(NULL);
+
+                    // Show the dialog and get the itemIDList for the selected folder.
+                    ITEMIDLIST *pIDL = SHBrowseForFolderW(&bi);
+
+                    if (pIDL != NULL)
+                    {
+                        // Create a buffer to store the path, then get the path.
+                        WCHAR buffer[260] = { '\0' };
+                        
+                        if (SHGetPathFromIDListW(pIDL, buffer) != 0)
+                        {
+                            ManualLoad = (WCHAR*)Memory::Allocate(String::GetSize(buffer));
+
+                            String::Copy(ManualLoad, buffer);
+                        }
+
+                        // free the item id list
+                        CoTaskMemFree(pIDL);
+                    }
+
+                    OleUninitialize();
+                    OpenCacheWindow();
+                }
+                break;
             }
 
         } break;
