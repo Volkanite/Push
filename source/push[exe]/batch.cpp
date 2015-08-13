@@ -169,13 +169,14 @@ BfBatchFile::GetBatchSize()
 
 VOID BfBatchFile::SaveBatchFile()
 {
-    VOID *fileHandle;
+    HANDLE fileHandle = NULL;
     IO_STATUS_BLOCK isb;
     FILE_LIST_ENTRY *file;
     WCHAR marker = 0xFEFF;
     WCHAR end[] = L"\r\n";
+    NTSTATUS status;
 
-    File::Create(
+    status = File::Create(
         &fileHandle,
         BatchFileName,
         SYNCHRONIZE | FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE,
@@ -183,6 +184,34 @@ VOID BfBatchFile::SaveBatchFile()
         FILE_OVERWRITE_IF,
         FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
         );
+
+    // Check if \cache folder has not been created yet.
+
+    if (status == STATUS_OBJECT_PATH_NOT_FOUND)
+    {
+        HANDLE directoryHandle;
+
+        File::Create(
+            &directoryHandle,
+            L"cache",
+            FILE_LIST_DIRECTORY | SYNCHRONIZE,
+            FILE_SHARE_READ | FILE_SHARE_WRITE,
+            FILE_CREATE,
+            FILE_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT | FILE_OPEN_FOR_BACKUP_INTENT
+            );
+
+        File::Close(directoryHandle);
+
+        //try again.
+        File::Create(
+            &fileHandle,
+            BatchFileName,
+            SYNCHRONIZE | FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE,
+            FILE_SHARE_READ | FILE_SHARE_WRITE,
+            FILE_OVERWRITE_IF,
+            FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
+            );
+    }
 
     file = (FILE_LIST_ENTRY*) FileList;
 
@@ -231,7 +260,10 @@ VOID BfBatchFile::SaveBatchFile()
         file = file->NextEntry;
     }
 
-    NtClose(fileHandle);
+    if (fileHandle)
+    {
+        File::Close(fileHandle);
+    }
 }
 
 
