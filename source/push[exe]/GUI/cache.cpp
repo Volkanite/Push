@@ -64,7 +64,7 @@ LONG __stdcall CacheWndProc(
             ListViewAddItems();
 
             ListView::SortItems(ListViewCompareProc);
-            ListView::SetColumnWidth(0,0);
+            ListView::SetColumnWidth(0, LVSCW_AUTOSIZE_USEHEADER);
 
             columnWidth = ListView::GetColumnWidth(0);
             columnWidth += ListView::GetColumnWidth(1);
