@@ -867,6 +867,9 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                     case 'm':
                         Adl_SetMemoryClock(hardware.DisplayDevice.MemoryClock + 1);
                         break;
+                    case 'v':
+                        Adl_SetVoltage(hardware.DisplayDevice.Voltage + 1);
+                        break;
                     }
                 }
                 else if (String::Compare(buffer, L"UpdateClocks") == 0)

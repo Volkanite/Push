@@ -178,6 +178,7 @@ typedef struct _PUSH_HARDWARE_INFORMATION
         UINT32  MemoryClock;
         UINT32  EngineClockMax;
         UINT32  MemoryClockMax;
+        UINT32  Voltage;
         ULONG   pciAddress;
         ULONG   BarAddress;
         unsigned short    VendorId;

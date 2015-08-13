@@ -530,6 +530,8 @@ VOID GetHardwareInfo()
 }
 
 
+#include "GPU\adl.h"
+
 VOID RefreshHardwareInfo()
 {
     PhpUpdateCpuInformation();
@@ -540,6 +542,7 @@ VOID RefreshHardwareInfo()
     hardware.DisplayDevice.Load             = GetGpuLoad();
     hardware.DisplayDevice.EngineClock      = GetEngineClock();
     hardware.DisplayDevice.MemoryClock      = GetMemoryClock();
+    hardware.DisplayDevice.Voltage          = Adl_GetVoltage();
     hardware.DisplayDevice.Temperature      = GetGpuTemp();
     hardware.DisplayDevice.FrameBuffer.Used = GetVramUsed();
     hardware.DisplayDevice.FrameBuffer.Load = GetVramUsage();

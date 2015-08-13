@@ -14,8 +14,10 @@ WCHAR* ItemOpt[] = {L"Off", L"On"};
 WCHAR* PressOpt[] = { L">>", L">>" };
 WCHAR* GpuSpeedEngineOpt[] = { L"XXX MHz", L"XXX MHz" };
 WCHAR* GpuSpeedMemoryOpt[] = { L"XXX MHz", L"XXX MHz" };
+WCHAR* GpuVoltageOpt[] = { L"XXX mV", L"XXX mV" };
 WCHAR GpuSpeedEngine[20];
 WCHAR GpuSpeedMemory[20];
+WCHAR GpuVoltage[20];
 
 BOOLEAN MnuInitialized;
 HANDLE MenuProcessHeap;
@@ -25,7 +27,7 @@ HANDLE MenuProcessHeap;
 #include <wchar.h>
 
 
-VOID UpdateGpuSpeed()
+VOID UpdateGpuInformation()
 {
     swprintf(GpuSpeedEngine, 20, L"%i MHz", PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock);
     GpuSpeedEngineOpt[0] = GpuSpeedEngine;
@@ -34,6 +36,10 @@ VOID UpdateGpuSpeed()
     swprintf(GpuSpeedMemory, 20, L"%i MHz", PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock);
     GpuSpeedMemoryOpt[0] = GpuSpeedMemory;
     GpuSpeedMemoryOpt[1] = GpuSpeedMemory;
+
+    swprintf(GpuVoltage, 20, L"%i mV", PushSharedMemory->HarwareInformation.DisplayDevice.Voltage);
+    GpuVoltageOpt[0] = GpuVoltage;
+    GpuVoltageOpt[1] = GpuVoltage;
 }
 
 
@@ -67,10 +73,10 @@ VOID AddItems()
         Menu->AddItem(L"Force Max Clocks", ItemOpt, &MenuGpu[1]);
         Menu->AddItem(L"Engine Clock", GpuSpeedEngineOpt, &MenuGpu[2]);
         Menu->AddItem(L"Memory Clock", GpuSpeedMemoryOpt, &MenuGpu[3]);
-        Menu->AddItem(L"Voltage", ItemOpt, &MenuGpu[4]);
+        Menu->AddItem(L"Voltage", GpuVoltageOpt, &MenuGpu[4]);
 
-        //Init gpu clocks
-        UpdateGpuSpeed();
+        //Init gpu information
+        UpdateGpuInformation();
     }
 }
 
@@ -181,7 +187,7 @@ VOID ProcessOptions()
         {
             PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock--;
             
-            UpdateGpuSpeed();
+            UpdateGpuInformation();
             CallPipe(L"UpdateClocks");
         }
         break;
@@ -190,7 +196,7 @@ VOID ProcessOptions()
         {
             PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock++;
             
-            UpdateGpuSpeed();
+            UpdateGpuInformation();
             CallPipe(L"UpdateClocks");
         }
         break;
@@ -202,7 +208,14 @@ VOID ProcessOptions()
         MenuGpu[3].Dirty = FALSE;
 
         CallPipe(L"Overclock m");
-        UpdateGpuSpeed();
+        UpdateGpuInformation();
+    }
+
+    if (MenuGpu[4].Dirty)
+    {
+        MenuGpu[4].Dirty = FALSE;
+
+        CallPipe(L"Overclock v");
     }
 }
 
