@@ -101,7 +101,8 @@ LONG __stdcall CacheWndProc(
 
     case WM_CLOSE:
         {
-            MwBatchFile->SaveBatchFile();
+            if (MwBatchFile)
+                MwBatchFile->SaveBatchFile();
 
             break;
         }
