@@ -45,7 +45,7 @@ VOID UpdateGpuInformation()
 
 VOID AddItems()
 {
-    Menu->AddGroup(L"OSD", GroupOpt, &MenuOsd[0]);
+    Menu->AddGroup(L"OSD >", GroupOpt, &MenuOsd[0]);
 
     if (MenuOsd[0].Var)
     {
@@ -66,7 +66,7 @@ VOID AddItems()
         Menu->AddItem(L"Reset Overloads",         PressOpt, &MenuOsd[15]);
     }
 
-    Menu->AddGroup(L"GPU", GroupOpt, &MenuGpu[0]);
+    Menu->AddGroup(L"GPU >", GroupOpt, &MenuGpu[0]);
 
     if (MenuGpu[0].Var)
     {
