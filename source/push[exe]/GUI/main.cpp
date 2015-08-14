@@ -34,8 +34,8 @@ CONTROL MwOsdControls[] = {
     {L"Button", BS_AUTOCHECKBOX,    CHECKBOX_DISK_RESPONSE, L"Disk response time"},
     {L"Button", BS_AUTOCHECKBOX,    CHECKBOX_BACKBUFFERS,   L"Frame Buffer count"},
     {L"Button", BS_AUTOCHECKBOX,    CHECKBOX_TIME,          L"Show Time"},
-    {L"Button", NULL,               BUTTON_RESET_GPU,       L"Reset overloads", 285,    190},
-    {L"Button", NULL,               BUTTON_TRAY,            L"To tray..",       NULL,   190}
+    {L"Button", NULL,               BUTTON_RESET_GPU,       L"Reset overloads", 285,    180},
+    {L"Button", NULL,               BUTTON_TRAY,            L"To tray..",       NULL,   180}
 };
 
 CONTROL MwCacheControls[] = {

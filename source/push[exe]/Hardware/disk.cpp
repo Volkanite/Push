@@ -1,4 +1,5 @@
 #include <sl.h>
+#include <slprocess.h>
 #include <string.h>
 #include <push.h>
 
@@ -739,6 +740,7 @@ PPH_STRING EtFileObjectToFileName(
     if (realPair)
     {
         Push::Log((WCHAR*)realPair->Value);
+        //Debug::Print((WCHAR*)realPair->Value);
     }
 
     return fileName;
@@ -856,7 +858,7 @@ PPH_HASHTABLE PhCreateSimpleHashtable(
 }
 
 
-VOID __stdcall DiskEvents(EVENT_TRACE* EventTrace)
+VOID __stdcall DiskEvents( EVENT_TRACE* EventTrace )
 {
     DiskIo_TypeGroup1 *data = (DiskIo_TypeGroup1*)EventTrace->MofData;
 
@@ -868,12 +870,15 @@ VOID __stdcall DiskEvents(EVENT_TRACE* EventTrace)
         DiskBytesDelta += data->TransferSize;
         responseTime = (FLOAT)data->HighResResponseTime * 1000 / PerformanceFrequency.QuadPart;
 
-        if (responseTime > DiskResponseTime)
-            DiskResponseTime = responseTime;
-        
-        if (DiskResponseTime > 4000)
+        if (EventTrace->Header.ProcessId == GameProcessId)
         {
-            EtFileObjectToFileName(data->FileObject);
+            if (responseTime > DiskResponseTime)
+                DiskResponseTime = responseTime;
+
+            if (DiskResponseTime > 4000)
+            {
+                EtFileObjectToFileName(data->FileObject);
+            }
         }
     }
 }
@@ -885,14 +890,17 @@ VOID __stdcall FileEvents( EVENT_TRACE* EventTrace )
     PH_KEY_VALUE_PAIR pair;
     PPH_KEY_VALUE_PAIR realPair;
 
-    data = (FileIo_Name*)EventTrace->MofData;
+    //if (EventTrace->Header.ProcessId == GameProcessId)
+    //{
+        data = (FileIo_Name*)EventTrace->MofData;
 
-    pair.Key = (VOID*) data->FileObject;
-    pair.Value = Memory::Allocate(String::GetSize(data->FileName) + 1);
+        pair.Key = (VOID*)data->FileObject;
+        pair.Value = Memory::Allocate(String::GetSize(data->FileName) + 1);
 
-    String::Copy((WCHAR*) pair.Value, data->FileName);
+        String::Copy((WCHAR*)pair.Value, data->FileName);
 
-    realPair = (PH_KEY_VALUE_PAIR*) PhAddEntryHashtableEx(EtFileNameHashtable, &pair, NULL);
+        realPair = (PH_KEY_VALUE_PAIR*)PhAddEntryHashtableEx(EtFileNameHashtable, &pair, NULL);
+    //}
 }
 
 

@@ -48,6 +48,8 @@ extern PUSH_SHARED_MEMORY* PushSharedMemory;
 extern BOOLEAN g_ThreadListLock;
 extern OVERLAY_INTERFACE PushOverlayInterface;
 extern BOOLEAN             g_bRecache;
+extern UINT32 GameProcessId;
+
 
 VOID GetGamePath(
     WCHAR *pszGame,
@@ -109,7 +111,7 @@ VOID PushGetImageInfo(
 class Push
 {
 public:
-	static VOID Log( WCHAR* Buffer );
+    static VOID Log( WCHAR* Buffer );
 };
 
 #endif //PUSH_H

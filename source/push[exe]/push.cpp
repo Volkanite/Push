@@ -33,6 +33,7 @@ UINT32 thisPID;
 PUSH_SHARED_MEMORY* PushSharedMemory;
 OVERLAY_INTERFACE PushOverlayInterface = OVERLAY_INTERFACE_PURE;
 extern SYSTEM_BASIC_INFORMATION HwInfoSystemBasicInformation;
+UINT32 GameProcessId;
 
 
 typedef int (__stdcall* TYPE_MuteJack)(CHAR *pin);
@@ -649,6 +650,8 @@ VOID OnImageEvent( PROCESSID ProcessId )
         Push::Log(buffer);
     }
 #endif
+
+    GameProcessId = ProcessId;
 
     if (Process::IsWow64(processHandle))
     {
