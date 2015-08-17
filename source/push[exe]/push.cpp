@@ -798,41 +798,86 @@ DWORD __stdcall MonitorThread( VOID* Parameter )
 #define PIPE_WAIT                   0x00000000
 #define NMPWAIT_USE_DEFAULT_WAIT        0x00000000
 
-extern "C" HANDLE __stdcall CreateNamedPipeW(
-    WCHAR* lpName,
-    DWORD dwOpenMode,
-    DWORD dwPipeMode,
-    DWORD nMaxInstances,
-    DWORD nOutBufferSize,
-    DWORD nInBufferSize,
-    DWORD nDefaultTimeOut,
-    SECURITY_ATTRIBUTES* lpSecurityAttributes
-    );
+extern "C"
+{
+    INTBOOL __stdcall ConnectNamedPipe(
+        HANDLE hNamedPipe,
+        OVERLAPPED* lpOverlapped
+        );
 
-extern "C" INTBOOL __stdcall ConnectNamedPipe(
-    HANDLE hNamedPipe,
-    OVERLAPPED* lpOverlapped
-    );
+    INTBOOL __stdcall DisconnectNamedPipe(
+        HANDLE hNamedPipe
+        );
 
-extern "C" INTBOOL __stdcall DisconnectNamedPipe(
-    HANDLE hNamedPipe
-    );
+    NTSTATUS __stdcall NtCreateNamedPipeFile(
+        _Out_ HANDLE* FileHandle,
+        _In_ ULONG DesiredAccess,
+        _In_ OBJECT_ATTRIBUTES* ObjectAttributes,
+        _Out_ PIO_STATUS_BLOCK IoStatusBlock,
+        _In_ ULONG ShareAccess,
+        _In_ ULONG CreateDisposition,
+        _In_ ULONG CreateOptions,
+        _In_ ULONG NamedPipeType,
+        _In_ ULONG ReadMode,
+        _In_ ULONG CompletionMode,
+        _In_ ULONG MaximumInstances,
+        _In_ ULONG InboundQuota,
+        _In_ ULONG OutboundQuota,
+        _In_opt_ LARGE_INTEGER* DefaultTimeout
+        );
+}
+
 
 #include "Hardware\GPU\adl.h"
+#define PIPE_ACCEPT_REMOTE_CLIENTS 0x00000000
+
+
 DWORD __stdcall PipeThread( VOID* Parameter )
 {
     HANDLE pipeHandle;
     WCHAR buffer[1024];
+    OBJECT_ATTRIBUTES objAttributes;
+    UNICODE_STRING pipeName;
+    IO_STATUS_BLOCK isb;
+    LARGE_INTEGER timeOut;
 
-    pipeHandle = CreateNamedPipeW(
-        L"\\\\.\\pipe\\Push",
-        PIPE_ACCESS_DUPLEX | PIPE_TYPE_BYTE | PIPE_READMODE_BYTE,
-        PIPE_WAIT,
-        1,
+    /*pipeHandle = CreateNamedPipeW(
+        L"\\\\.\\pipe\\Push", 
+        PIPE_ACCESS_DUPLEX, 
+        PIPE_WAIT | PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_ACCEPT_REMOTE_CLIENTS, 
+        1, 
         1024 * 16,
         1024 * 16,
         NMPWAIT_USE_DEFAULT_WAIT,
         NULL
+        );*/
+
+    RtlDosPathNameToNtPathName_U(L"\\\\.\\pipe\\Push", &pipeName, NULL, NULL);
+
+    objAttributes.Length = sizeof(OBJECT_ATTRIBUTES);
+    objAttributes.RootDirectory = NULL;
+    objAttributes.ObjectName = &pipeName;
+    objAttributes.Attributes = OBJ_CASE_INSENSITIVE;
+    objAttributes.SecurityDescriptor = NULL;
+    objAttributes.SecurityQualityOfService = NULL;
+
+    timeOut.QuadPart = 0xfffffffffff85ee0;
+
+    NtCreateNamedPipeFile(
+        &pipeHandle,
+        GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE,
+        &objAttributes,
+        &isb,
+        FILE_SHARE_READ | FILE_SHARE_WRITE,
+        FILE_OPEN_IF,
+        FILE_SYNCHRONOUS_IO_NONALERT,
+        0,
+        0,
+        0,
+        1,
+        1024 * 16,
+        1024 * 16,
+        &timeOut
         );
 
     while (pipeHandle != INVALID_HANDLE_VALUE)
@@ -878,6 +923,16 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                 else if (String::Compare(buffer, L"UpdateClocks") == 0)
                 {
                     Adl_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock);
+                }
+                else if (String::CompareN(buffer, L"GetDiskResponseTime", 19) == 0)
+                {
+                    UINT32 processId;
+                    UINT16 responseTime;
+
+                    processId = String::ToInteger(&buffer[20]);
+                    responseTime = GetDiskResponseTime(processId);
+
+                    File::Write(pipeHandle, &responseTime, 2);
                 }
             }
         }

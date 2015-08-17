@@ -92,7 +92,7 @@ VOID GetValues( OSD_ITEM* Item )
         Item->ValueOverride = hardware.Disk.ReadWriteRate;
         break;
     case OSD_DISK_RESPONSE: 
-        Item->Value = hardware.Disk.ResponseTime;
+        //Item->Value = hardware.Disk.ResponseTime;
         Item->ValueOverride = NULL;
         break;
     case OSD_TIME: 

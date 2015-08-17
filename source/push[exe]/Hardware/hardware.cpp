@@ -217,10 +217,9 @@ GetDiskReadWriteRate()
 }
 
 
-UINT16
-GetDiskResponseTime()
+UINT16 GetDiskResponseTime( UINT32 ProcessId )
 {
-    return DiskGetResponseTime();
+    return DiskGetResponseTime(ProcessId);
 }
 
 
@@ -549,7 +548,7 @@ VOID RefreshHardwareInfo()
     hardware.Memory.Used                    = GetRamUsed();
     hardware.Memory.Load                    = GetRamUsage();
     hardware.Disk.ReadWriteRate             = GetDiskReadWriteRate();
-    hardware.Disk.ResponseTime              = GetDiskResponseTime();
+    //hardware.Disk.ResponseTime              = GetDiskResponseTime();
 
     // We actually get some information from other sources
     hardware.Processor.MaxThreadUsage = PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage;

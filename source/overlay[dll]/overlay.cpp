@@ -282,6 +282,43 @@ VOID* DetourApi( WCHAR* dllName, CHAR* apiName, BYTE* NewFunction )
 }
 
 
+VOID CallPipe( WCHAR* Command, UINT16* Output )
+{
+    HANDLE pipeHandle;
+    DWORD dwWritten;
+
+    pipeHandle = CreateFile(TEXT("\\\\.\\pipe\\Push"),
+        GENERIC_READ | GENERIC_WRITE,
+        0,
+        NULL,
+        OPEN_EXISTING,
+        0,
+        NULL);
+
+    if (pipeHandle != INVALID_HANDLE_VALUE)
+    {
+        DWORD bytesRead;
+
+        WriteFile(
+            pipeHandle,
+            Command, 
+            (wcslen(Command) + 1) * sizeof(WCHAR), 
+            &dwWritten, 
+            NULL
+            );
+
+        if (Output)
+        {
+            //DebugBreak();
+            ReadFile(pipeHandle, Output, 2, &bytesRead, NULL);
+        }
+            
+
+        CloseHandle(pipeHandle);
+    }
+}
+
+
 BOOL __stdcall DllMain( 
     _In_ HINSTANCE Instance, 
     _In_ ULONG fdwReason, 

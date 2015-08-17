@@ -4,8 +4,16 @@
 #include <push.h>
 
 
+typedef struct _PROCESS_RESPONSE_TIME
+{
+    UINT32 ProcessId;
+    UINT32 DiskResponseTime;
+}PROCESS_RESPONSE_TIME;
+
+
 UINT64 DiskBytesDelta;
-UINT32 DiskResponseTime;
+UINT8 ResponseTimeProcessCount;
+PROCESS_RESPONSE_TIME* ProcessResponseTimes;
 LARGE_INTEGER PerformanceFrequency;
 
 
@@ -866,20 +874,56 @@ VOID __stdcall DiskEvents( EVENT_TRACE* EventTrace )
         || EventTrace->Header.Class.Type == EVENT_TRACE_TYPE_IO_WRITE)
     {
         UINT32 responseTime;
+        PROCESS_RESPONSE_TIME *processResponseTime;
+        int i;
+        BOOLEAN inArray = FALSE;
 
         DiskBytesDelta += data->TransferSize;
         responseTime = (FLOAT)data->HighResResponseTime * 1000 / PerformanceFrequency.QuadPart;
 
-        if (EventTrace->Header.ProcessId == GameProcessId)
+        if (!ProcessResponseTimes)
         {
-            if (responseTime > DiskResponseTime)
-                DiskResponseTime = responseTime;
+            ProcessResponseTimes = (PROCESS_RESPONSE_TIME*)Memory::Allocate(sizeof(PROCESS_RESPONSE_TIME));
 
-            if (DiskResponseTime > 4000)
+            Memory::Clear(ProcessResponseTimes, sizeof(PROCESS_RESPONSE_TIME));
+            
+            ResponseTimeProcessCount++;
+        }
+
+parse:
+        for (i = 0, processResponseTime = ProcessResponseTimes; i < ResponseTimeProcessCount; i++, processResponseTime++)
+        {
+            if (!processResponseTime->ProcessId)
             {
-                EtFileObjectToFileName(data->FileObject);
+                processResponseTime->ProcessId = EventTrace->Header.ProcessId;
+                processResponseTime->DiskResponseTime = responseTime;
+                inArray = TRUE;
+            }   
+            else if (processResponseTime->ProcessId == EventTrace->Header.ProcessId)
+            {
+                inArray = TRUE;
+
+                if (responseTime > processResponseTime->DiskResponseTime)
+                    processResponseTime->DiskResponseTime = responseTime;
             }
         }
+            
+        if (!inArray)
+        {
+            ProcessResponseTimes = (PROCESS_RESPONSE_TIME*)Memory::ReAllocate(
+                ProcessResponseTimes,
+                sizeof(PROCESS_RESPONSE_TIME) * (ResponseTimeProcessCount + 1)
+                );
+
+            Memory::Clear(ProcessResponseTimes + ResponseTimeProcessCount, sizeof(PROCESS_RESPONSE_TIME));
+
+            ResponseTimeProcessCount++;
+
+            goto parse;
+        }
+        
+        if (responseTime > 4000)
+            EtFileObjectToFileName(data->FileObject);
     }
 }
 
@@ -965,8 +1009,30 @@ DiskGetBytesDelta()
 }
 
 
-UINT16 DiskGetResponseTime()
+/*VOID DiskGetResponseTimes( PROCESS_RESPONSE_TIME** ResponseTimes, UINT8* ResponseTimesCount )
 {
-    return DiskResponseTime; //ms
+    PROCESS_RESPONSE_TIME *responseTimes = (PROCESS_RESPONSE_TIME*) Memory::Allocate(
+        sizeof(PROCESS_RESPONSE_TIME) * ResponseTimeProcessCount
+        );
+    
+    Memory::Copy(responseTimes, ProcessResponseTimes, sizeof(PROCESS_RESPONSE_TIME) * ResponseTimeProcessCount);
+
+    *ResponseTimes = responseTimes;
+    *ResponseTimesCount = ResponseTimeProcessCount;
+}*/
+
+
+UINT16 DiskGetResponseTime( UINT32 ProcessId )
+{
+    PROCESS_RESPONSE_TIME *responseTime;
+    int i;
+
+    for (i = 0, responseTime = ProcessResponseTimes; i < ResponseTimeProcessCount; i++, responseTime++)
+    {
+        if (responseTime->ProcessId == ProcessId)
+            return responseTime->DiskResponseTime;
+    }
+
+    return 0;
 }
 

@@ -31,3 +31,5 @@ VOID AddToThreadList(
 VOID RemoveThreadEntry(
     UINT16 threadID
     );
+
+UINT16 GetDiskResponseTime(UINT32 ProcessId);

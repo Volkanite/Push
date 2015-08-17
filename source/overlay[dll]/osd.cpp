@@ -22,6 +22,19 @@ VOID Osd_Draw( OvOverlay* Overlay )
             || PushSharedMemory->OSDFlags & osdItem->Flag //if it has a flag, is it set?
             || (osdItem->Threshold && osdItem->Value > osdItem->Threshold)) //is the item's value > it's threshold?
         {
+            //special case
+            if (osdItem->Flag == OSD_DISK_RESPONSE)
+            {
+                osdItem->Value = DiskResponseTime;
+
+                swprintf(
+                    osdItem->Text,
+                    20,
+                    L"DSK : %i ms",
+                    osdItem->Value
+                    );
+            }
+
             Overlay->DrawText(osdItem->Text, osdItem->Color);
         }
     }

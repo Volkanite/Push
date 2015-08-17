@@ -11,6 +11,7 @@ UINT8   PushAcceptableFps = 55;
 BOOLEAN g_SetOSDRefresh = TRUE;
 BOOLEAN g_FontInited = FALSE;
 UINT64 g_cyclesWaited = 0;
+UINT16 DiskResponseTime;
 
 
 double PCFreq = 0.0;
@@ -69,6 +70,8 @@ VOID RunFrameStatistics()
 
     if (delta > 1000)
     {
+        // Every second.
+
         double dummy = delta / 1000.0f;
 
         fps         = frames / dummy;
@@ -88,6 +91,13 @@ VOID RunFrameStatistics()
             if (PushSharedMemory->ThreadOptimization)
                 PushOptimizeThreads();
         }
+
+        WCHAR buffer[100];
+
+        swprintf(buffer, 100, L"GetDiskResponseTime %i", GetCurrentProcessId());
+        CallPipe(buffer, &DiskResponseTime);
+        swprintf(buffer, 100, L"Process Response Time: %i", DiskResponseTime);
+        OutputDebugStringW(buffer);
     }
 
     // Simple Diagnostics.
@@ -121,8 +131,13 @@ VOID RunFrameStatistics()
         if (PushSharedMemory->HarwareInformation.Memory.Used > PushSharedMemory->HarwareInformation.Memory.Total)
             PushSharedMemory->Overloads |= OSD_RAM;
 
+        PushSharedMemory->HarwareInformation.Disk.ResponseTime = DiskResponseTime;
+
         if (PushSharedMemory->HarwareInformation.Disk.ResponseTime > 4000)
+        {
             PushSharedMemory->Overloads |= OSD_DISK_RESPONSE;
+            PushSharedMemory->OSDFlags |= OSD_DISK_RESPONSE;
+        }
     }
 
     if ( ((newTickCount - oldTick2) > 30000) && !PushSharedMemory->KeepFps )

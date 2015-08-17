@@ -81,27 +81,6 @@ VOID AddItems()
 }
 
 
-VOID CallPipe( WCHAR* Command )
-{
-    HANDLE hPipe;
-    DWORD dwWritten;
-
-    hPipe = CreateFile(TEXT("\\\\.\\pipe\\Push"),
-        GENERIC_READ | GENERIC_WRITE,
-        0,
-        NULL,
-        OPEN_EXISTING,
-        0,
-        NULL);
-
-    if (hPipe != INVALID_HANDLE_VALUE)
-    {
-        WriteFile(hPipe, Command, (wcslen(Command) + 1) * sizeof(WCHAR), &dwWritten, NULL);
-        CloseHandle(hPipe);
-    }
-}
-
-
 VOID ProcessOptions()
 {
     if (MenuOsd[1].Var > 0)
@@ -169,7 +148,7 @@ VOID ProcessOptions()
     {
         MenuGpu[1].Dirty = FALSE;
 
-        CallPipe(L"ForceMaxClocks");
+        CallPipe(L"ForceMaxClocks", NULL);
 
         PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
         PushSharedMemory->OSDFlags |= OSD_GPU_M_CLK;
@@ -188,7 +167,7 @@ VOID ProcessOptions()
             PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock--;
             
             UpdateGpuInformation();
-            CallPipe(L"UpdateClocks");
+            CallPipe(L"UpdateClocks", NULL);
         }
         break;
 
@@ -197,7 +176,7 @@ VOID ProcessOptions()
             PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock++;
             
             UpdateGpuInformation();
-            CallPipe(L"UpdateClocks");
+            CallPipe(L"UpdateClocks", NULL);
         }
         break;
         }
@@ -207,7 +186,7 @@ VOID ProcessOptions()
     {
         MenuGpu[3].Dirty = FALSE;
 
-        CallPipe(L"Overclock m");
+        CallPipe(L"Overclock m", NULL);
         UpdateGpuInformation();
     }
 
@@ -215,7 +194,7 @@ VOID ProcessOptions()
     {
         MenuGpu[4].Dirty = FALSE;
 
-        CallPipe(L"Overclock v");
+        CallPipe(L"Overclock v", NULL);
     }
 }
 
