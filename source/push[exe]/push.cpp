@@ -310,7 +310,7 @@ VOID Cache( PUSH_GAME* Game )
         NULL
         );
 
-    availableMemory = (performanceInfo.CommitLimit - performanceInfo.CommittedPages) * HwInfoSystemBasicInformation.PageSize;
+    availableMemory = performanceInfo.AvailablePages * HwInfoSystemBasicInformation.PageSize;
 
     // Read batch file
     PushFileList = 0;
@@ -620,20 +620,20 @@ VOID OnImageEvent( PROCESSID ProcessId )
         executableName = String::FindLastChar(filePath, '\\');
         executableName++;
         bufferSize = 54 + (String::GetLength(executableName) * sizeof(WCHAR));
-		buffer = (WCHAR*)Memory::Allocate(bufferSize);
+        buffer = (WCHAR*)Memory::Allocate(bufferSize);
 
         FormatTime(buffer);
         
-		String::Concatenate(buffer, L" injecting into ");
+        String::Concatenate(buffer, L" injecting into ");
         String::Concatenate(buffer, executableName);
         String::Concatenate(buffer, L"\r\n");
 
-		File::Write(fileHandle, &marker, sizeof(marker)); // UTF-16LE
+        File::Write(fileHandle, &marker, sizeof(marker)); // UTF-16LE
         SetFilePointer(fileHandle, 0, NULL, FILE_END);
         File::Write(fileHandle, buffer, bufferSize - sizeof(WCHAR));
     }
 
-	File::Close(fileHandle);
+    File::Close(fileHandle);
 #endif
 
     NtQueryInformationProcess(processHandle, ProcessWow64Information, &isWow64, sizeof(INTBOOL), NULL);
@@ -826,7 +826,17 @@ DWORD __stdcall PipeThread( VOID* Parameter )
         {
             IO_STATUS_BLOCK isb;
 
-            while (NtReadFile(pipeHandle, NULL, NULL, NULL, &isb, buffer, sizeof(buffer) - 1, NULL, NULL) == STATUS_SUCCESS)
+            while (NtReadFile(
+                pipeHandle, 
+                NULL, 
+                NULL, 
+                NULL, 
+                &isb, 
+                buffer, 
+                sizeof(buffer) - 1, 
+                NULL, 
+                NULL
+                ) == STATUS_SUCCESS)
             {
                 /* add terminating zero */
                 buffer[isb.Information] = '\0';
