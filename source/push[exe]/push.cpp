@@ -185,6 +185,8 @@ extern "C" NTSTATUS __stdcall NtTerminateThread(
     NTSTATUS ExitStatus
     );
 
+#define MB_TOPMOST          0x00040000L
+
 
 VOID
 CacheFiles(CHAR driveLetter)
@@ -335,7 +337,7 @@ VOID Cache( PUSH_GAME* Game )
             L"The Ramdisk will be set to an acceptable size and filled with what it can hold.\n"
             L"Please upgrade RAM.",
             L"Push",
-            NULL
+            MB_TOPMOST
             );
     }
 

@@ -96,8 +96,6 @@ VOID RunFrameStatistics()
 
         swprintf(buffer, 100, L"GetDiskResponseTime %i", GetCurrentProcessId());
         CallPipe(buffer, &DiskResponseTime);
-        swprintf(buffer, 100, L"Process Response Time: %i", DiskResponseTime);
-        OutputDebugStringW(buffer);
     }
 
     // Simple Diagnostics.
