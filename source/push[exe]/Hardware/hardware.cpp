@@ -545,6 +545,7 @@ VOID RefreshHardwareInfo()
     hardware.DisplayDevice.Temperature      = GetGpuTemp();
     hardware.DisplayDevice.FrameBuffer.Used = GetVramUsed();
     hardware.DisplayDevice.FrameBuffer.Load = GetVramUsage();
+    hardware.DisplayDevice.FanSpeed         = Adl_GetFanSpeed();
     hardware.Memory.Used                    = GetRamUsed();
     hardware.Memory.Load                    = GetRamUsage();
     hardware.Disk.ReadWriteRate             = GetDiskReadWriteRate();

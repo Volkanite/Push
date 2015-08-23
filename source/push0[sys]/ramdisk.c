@@ -114,35 +114,14 @@ ImDiskCreateDriveLetter(IN wchar_t DriveLetter)
 
     sym_link_wchar[12] = DriveLetter;
 
-    KdPrint(("      Creating symlink '%ws' -> '%ws'.\n",
-       sym_link_wchar, device_name_buffer));
-
     RtlInitUnicodeString(&sym_link, sym_link_wchar);
 
     status = IoCreateUnprotectedSymbolicLink(&sym_link, &deviceName);
-
-    if (!NT_SUCCESS(status))
-    {
-      KdPrint(("ImDisk: Cannot symlink '%ws' to '%ws'. (%#x)\n",
-           sym_link_global_wchar, device_name_buffer, status));
-    }
-
     sym_link_global_wchar[19] = DriveLetter;
-
-    KdPrint(("      Creating symlink '%ws' -> '%ws'.\n",
-       sym_link_global_wchar, device_name_buffer));
 
     RtlInitUnicodeString(&sym_link, sym_link_global_wchar);
 
     status = IoCreateUnprotectedSymbolicLink(&sym_link, &deviceName);
-
-    if (!NT_SUCCESS(status))
-    {
-      KdPrint(("ImDisk: Cannot symlink '%ws' to '%ws'. (%#x)\n",
-           sym_link_global_wchar, device_name_buffer, status));
-    }
-
-    //ExFreePoolWithTag(device_name_buffer, POOL_TAG);
 
     DbgPrint("[PUSH] <= (ImDiskCreateDriveLetter)");
 
@@ -220,10 +199,6 @@ ImDiskCreateDevice(
       "  .T/C         = %u\n"
       "  .S/T         = %u\n"
       "  .B/S         = %u\n"
-      "Offset         = 0x%.8x%.8x\n"
-      "Flags          = %#x\n"
-      "FileNameLength = %u\n"
-      "FileName       = '%.*ws'\n"
       "DriveLetter    = %wc\n",
       CreateData->DiskGeometry.Cylinders.HighPart,
       CreateData->DiskGeometry.Cylinders.LowPart,
@@ -231,12 +206,6 @@ ImDiskCreateDevice(
       CreateData->DiskGeometry.TracksPerCylinder,
       CreateData->DiskGeometry.SectorsPerTrack,
       CreateData->DiskGeometry.BytesPerSector,
-      CreateData->ImageOffset.HighPart,
-      CreateData->ImageOffset.LowPart,
-      CreateData->Flags,
-      CreateData->FileNameLength,
-      (int)(CreateData->FileNameLength / sizeof(*CreateData->FileName)),
-      CreateData->FileName,
       CreateData->DriveLetter));
 
     // Auto-select type if not specified.
@@ -397,10 +366,6 @@ ImDiskCreateDevice(
       "  .T/C         = %u\n"
       "  .S/T         = %u\n"
       "  .B/S         = %u\n"
-      "Offset         = 0x%.8x%.8x\n"
-      "Flags          = %#x\n"
-      "FileNameLength = %u\n"
-      "FileName       = '%.*ws'\n"
       "DriveLetter    = %wc\n",
       //CreateData->DeviceNumber,
       CreateData->DiskGeometry.Cylinders.HighPart,
@@ -409,55 +374,8 @@ ImDiskCreateDevice(
       CreateData->DiskGeometry.TracksPerCylinder,
       CreateData->DiskGeometry.SectorsPerTrack,
       CreateData->DiskGeometry.BytesPerSector,
-      CreateData->ImageOffset.HighPart,
-      CreateData->ImageOffset.LowPart,
-      CreateData->Flags,
-      CreateData->FileNameLength,
-      (int)(CreateData->FileNameLength / sizeof(*CreateData->FileName)),
-      CreateData->FileName,
       CreateData->DriveLetter));
 
-  // Buffer for device name
-  /*device_name_buffer = ExAllocatePoolWithTag(PagedPool,
-                         MAXIMUM_FILENAME_LENGTH *
-                         sizeof(*device_name_buffer),
-                         POOL_TAG);*/
-
-  /*if (device_name_buffer == NULL)
-    {
-      SIZE_T free_size = 0;
-      ImDiskCloseProxy(&proxy);
-      if (file_handle != NULL)
-    ZwClose(file_handle);
-      if (file_name.Buffer != NULL)
-    ExFreePoolWithTag(file_name.Buffer, POOL_TAG);
-      if (image_buffer != NULL)
-    ZwFreeVirtualMemory(NtCurrentProcess(),
-                &image_buffer,
-                &free_size, MEM_RELEASE);
-
-      ImDiskLogError((DriverObject,
-              0,
-              0,
-              NULL,
-              0,
-              1000,
-              STATUS_INSUFFICIENT_RESOURCES,
-              102,
-              STATUS_INSUFFICIENT_RESOURCES,
-              0,
-              0,
-              NULL,
-              L"Memory allocation error."));
-
-      return STATUS_INSUFFICIENT_RESOURCES;
-    }*/
-
-  /*_snwprintf(device_name_buffer, MAXIMUM_FILENAME_LENGTH - 1,
-         PUSH_DEVICE_BASE_NAME L"%u", 0);
-  device_name_buffer[MAXIMUM_FILENAME_LENGTH - 1] = 0;*/
-
-  //RtlInitUnicodeString(&device_name, device_name_buffer);
     RtlInitUnicodeString(&deviceName, PUSH_RAMDISK_DEVICE_NAME);
 
   // Driver can no longer be completely paged.
@@ -466,8 +384,8 @@ ImDiskCreateDevice(
   MmResetDriverPaging((PVOID)(ULONG_PTR) DriverEntry);
 
   KdPrint
-    (("ImDisk: Creating device '%ws'. Device type %#x, characteristics %#x.\n",
-      device_name_buffer, device_type, device_characteristics));
+    (("ImDisk: Creating device. Device type %#x, characteristics %#x.\n",
+      device_type, device_characteristics));
 
   status = IoCreateDevice(DriverObject,
               sizeof(DEVICE_EXTENSION),
@@ -585,7 +503,7 @@ ImDiskCreateDevice(
 
   (*DeviceObject)->Flags &= ~DO_DEVICE_INITIALIZING;
 
-  KdPrint(("ImDisk: Device '%ws' created.\n", device_name_buffer));
+  KdPrint(("ImDisk: Device created.\n"));
 
   //ExFreePoolWithTag(device_name_buffer, POOL_TAG);
 

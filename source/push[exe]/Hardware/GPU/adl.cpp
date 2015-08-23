@@ -30,6 +30,12 @@ typedef INT32 (*TYPE_ADL_Overdrive5_ODPerformanceLevels_Set )(
     ADLODPerformanceLevels *lpOdPerformanceLevels
     );
 
+typedef INT32 (*TYPE_ADL_Overdrive5_FanSpeed_Get)(
+    INT32 iAdapterIndex, 
+    INT32 iThermalControllerIndex, 
+    ADLFanSpeedValue *lpFanSpeedValue
+    );
+
 
 TYPE_ADL_Main_Control_Create                ADL_Main_Control_Create;
 TYPE_ADL_Overdrive5_CurrentActivity_Get     ADL_Overdrive5_CurrentActivity_Get;
@@ -37,6 +43,7 @@ TYPE_ADL_Overdrive5_Temperature_Get         ADL_Overdrive5_Temperature_Get;
 TYPE_ADL_Overdrive5_ODParameters_Get        ADL_Overdrive5_ODParameters_Get;
 TYPE_ADL_Overdrive5_ODPerformanceLevels_Get ADL_Overdrive5_ODPerformanceLevels_Get;
 TYPE_ADL_Overdrive5_ODPerformanceLevels_Set ADL_Overdrive5_ODPerformanceLevels_Set;
+TYPE_ADL_Overdrive5_FanSpeed_Get            ADL_Overdrive5_FanSpeed_Get;
 
 
 VOID* __stdcall ADL_Main_Memory_Alloc( INT32 Size )
@@ -75,6 +82,9 @@ VOID Adl_Initialize()
 
     ADL_Overdrive5_ODPerformanceLevels_Set = (TYPE_ADL_Overdrive5_ODPerformanceLevels_Set) 
         Module::GetProcedureAddress(adl, "ADL_Overdrive5_ODPerformanceLevels_Set");
+
+    ADL_Overdrive5_FanSpeed_Get = (TYPE_ADL_Overdrive5_FanSpeed_Get)
+        Module::GetProcedureAddress(adl, "ADL_Overdrive5_FanSpeed_Get");
 
     ADL_Main_Control_Create(ADL_Main_Memory_Alloc, 1);
 
@@ -255,3 +265,13 @@ UINT8 Adl_GetTemperature()
 }
 
 
+UINT32 Adl_GetFanSpeed()
+{
+    ADLFanSpeedValue fanSpeed;
+
+    fanSpeed.iSpeedType = ADL_DL_FANCTRL_SPEED_TYPE_RPM;
+
+    ADL_Overdrive5_FanSpeed_Get(0, 0, &fanSpeed);
+
+    return fanSpeed.iFanSpeed;
+}

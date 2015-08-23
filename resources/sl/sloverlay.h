@@ -7,7 +7,7 @@ struct MenuItems
 {
     WCHAR* Title, ** Options;
     int* Var, MaxValue, Type;
-    BOOLEAN* Dirty;
+    DWORD* Id;
 };
 
 
@@ -21,7 +21,7 @@ struct MenuSettings
 struct MenuVars
 {
     int Var;
-    BOOLEAN Dirty;
+    DWORD Id;
 };
 
 
@@ -37,8 +37,10 @@ public:
         AddItemToMenu(title, Options, Variables, 2, GROUP);
     }
 
-    void AddItem(WCHAR* Title, WCHAR** Options, MenuVars* Variables, int MaxValue = 2)
+    void AddItem(WCHAR* Title, WCHAR** Options, MenuVars* Variables, DWORD Id = 0, int MaxValue = 2)
     {
+        Variables->Id = Id;
+
         AddItemToMenu(Title, Options, Variables, MaxValue, ITEM);
     }
 

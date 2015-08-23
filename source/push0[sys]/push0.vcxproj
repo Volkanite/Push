@@ -245,7 +245,7 @@
       <WarningLevel>Level3</WarningLevel>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>$(DDKROOT)\inc\wxp;$(DDKROOT)\inc\ddk\wxp;$(DDKROOT)\inc\ddk\wdm\wxp;$(DDKROOT)\inc\crt;$(DDKROOT)\inc\crt\gl;$(DDKROOT)\inc\crt\sys;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_AMD64_;_WIN32_WINNT=0x0601;_WIN64</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_AMD64_;_WIN32_WINNT=0x0601;_WIN64;DBG</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Debug\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\Debug\phymem.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>.\Debug\</ObjectFileName>

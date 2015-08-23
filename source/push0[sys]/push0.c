@@ -482,8 +482,7 @@ NTSTATUS DispatchIoCtl(IN PDEVICE_OBJECT fdo, IN PIRP irp)
         KdPrint(("ImDisk: Invalid input buffer size (1). "
              "Got: %u Expected at least: %u.\n",
              irpStack->Parameters.DeviceIoControl.InputBufferLength,
-             sizeof(IMDISK_CREATE_DATA) -
-             sizeof(*create_data->FileName)));
+             sizeof(RAMDISK_CREATE_DATA)));
 
         ntStatus = STATUS_INVALID_PARAMETER;
         irp->IoStatus.Information = 0;
@@ -500,9 +499,7 @@ NTSTATUS DispatchIoCtl(IN PDEVICE_OBJECT fdo, IN PIRP irp)
         KdPrint(("ImDisk: Invalid input buffer size (2). "
              "Got: %u Expected at least: %u.\n",
              irpStack->Parameters.DeviceIoControl.InputBufferLength,
-             sizeof(IMDISK_CREATE_DATA) +
-             create_data->FileNameLength -
-             sizeof(*create_data->FileName)));
+             sizeof(RAMDISK_CREATE_DATA)));
 
         ntStatus = STATUS_INVALID_PARAMETER;
         irp->IoStatus.Information = 0;

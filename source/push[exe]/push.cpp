@@ -9,6 +9,7 @@
 #include <gui.h>
 #include <osd.h>
 #include <slprocess.h>
+#include <sldebug.h>
 
 #include "push.h"
 #include "ramdisk.h"
@@ -650,6 +651,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
         String::Concatenate(buffer, executableName);
 
         Push::Log(buffer);
+        Debug::Print(buffer);
     }
 #endif
 
@@ -783,10 +785,16 @@ DWORD __stdcall MonitorThread( VOID* Parameter )
 
         if (handles[result - WAIT_OBJECT_0] == processEvent)
         {
+#if DEBUG
+            Push::Log(L"Creating process thread...");
+#endif
             CreateRemoteThread(NtCurrentProcess(), 0, 0, &RetrieveProcessEvent, NULL, 0, NULL);
         }
         else if (handles[result - WAIT_OBJECT_0] == d3dImageEvent)
         {
+#if DEBUG
+            Push::Log(L"Creating image thread...");
+#endif
             CreateRemoteThread(NtCurrentProcess(), 0, 0, &RetrieveImageEvent, NULL, 0, NULL);
         }
     }
@@ -794,11 +802,13 @@ DWORD __stdcall MonitorThread( VOID* Parameter )
     return 0;
 }
 
+
 #define PIPE_ACCESS_DUPLEX          0x00000003
 #define PIPE_TYPE_BYTE              0x00000000
 #define PIPE_READMODE_BYTE          0x00000000
 #define PIPE_WAIT                   0x00000000
 #define NMPWAIT_USE_DEFAULT_WAIT        0x00000000
+
 
 extern "C"
 {

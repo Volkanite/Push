@@ -22,6 +22,13 @@ WCHAR GpuVoltage[20];
 BOOLEAN MnuInitialized;
 HANDLE MenuProcessHeap;
 
+#define FUNC_RESET      0x00010000
+#define FUNC_FORCEMAX   0x00020000
+#define FUNC_ECLOCK     0x00040000
+#define FUNC_MCLOCK     0x00080000
+#define FUNC_VOLTAGE    0x00100000
+
+
 //Add menu items to menu
 #include <stdio.h>
 #include <wchar.h>
@@ -49,31 +56,35 @@ VOID AddItems()
 
     if (MenuOsd[0].Var)
     {
-        Menu->AddItem(L"GPU Core utilization",    ItemOpt, &MenuOsd[1]);
-        Menu->AddItem(L"GPU Core temperature",    ItemOpt, &MenuOsd[2]);
-        Menu->AddItem(L"GPU Engine Clock",        ItemOpt, &MenuOsd[3]);
-        Menu->AddItem(L"GPU Memory Clock",        ItemOpt, &MenuOsd[4]);
-        Menu->AddItem(L"GPU VRAM usage",          ItemOpt, &MenuOsd[5]);
-        Menu->AddItem(L"CPU utilization",         ItemOpt, &MenuOsd[6]);
-        Menu->AddItem(L"CPU temperature",         ItemOpt, &MenuOsd[7]);
-        Menu->AddItem(L"RAM usage",               ItemOpt, &MenuOsd[8]);
-        Menu->AddItem(L"Max core usage",          ItemOpt, &MenuOsd[9]);
-        Menu->AddItem(L"Max thread usage",        ItemOpt, &MenuOsd[10]);
-        Menu->AddItem(L"Disk read-write rate",    ItemOpt, &MenuOsd[11]);
-        Menu->AddItem(L"Disk response time",      ItemOpt, &MenuOsd[12]);
-        Menu->AddItem(L"Frame Buffer count",      ItemOpt, &MenuOsd[13]);
-        Menu->AddItem(L"Show Time",               ItemOpt, &MenuOsd[14]);
-        Menu->AddItem(L"Reset Overloads",         PressOpt, &MenuOsd[15]);
+        UINT8 i = 1;
+
+        Menu->AddItem(L"GPU Core utilization",    ItemOpt, &MenuOsd[i++], OSD_GPU_LOAD);
+        Menu->AddItem(L"GPU Core temperature",    ItemOpt, &MenuOsd[i++], OSD_GPU_TEMP);
+        Menu->AddItem(L"GPU Engine Clock",        ItemOpt, &MenuOsd[i++], OSD_GPU_E_CLK);
+        Menu->AddItem(L"GPU Memory Clock",        ItemOpt, &MenuOsd[i++], OSD_GPU_M_CLK);
+        Menu->AddItem(L"GPU VRAM usage",          ItemOpt, &MenuOsd[i++], OSD_GPU_VRAM);
+        Menu->AddItem(L"GPU Fan Speed",           ItemOpt, &MenuOsd[i++], OSD_GPU_FAN);
+        Menu->AddItem(L"CPU utilization",         ItemOpt, &MenuOsd[i++], OSD_CPU_LOAD);
+        Menu->AddItem(L"CPU temperature",         ItemOpt, &MenuOsd[i++], OSD_CPU_TEMP);
+        Menu->AddItem(L"RAM usage",               ItemOpt, &MenuOsd[i++], OSD_RAM);
+        Menu->AddItem(L"Max core usage",          ItemOpt, &MenuOsd[i++], OSD_MCU);
+        Menu->AddItem(L"Max thread usage",        ItemOpt, &MenuOsd[i++], OSD_MTU);
+        Menu->AddItem(L"Disk read-write rate",    ItemOpt, &MenuOsd[i++], OSD_DISK_RWRATE);
+        Menu->AddItem(L"Disk response time",      ItemOpt, &MenuOsd[i++], OSD_DISK_RESPONSE);
+        Menu->AddItem(L"Frame Buffer count",      ItemOpt, &MenuOsd[i++], OSD_BUFFERS);
+        Menu->AddItem(L"Show Time",               ItemOpt, &MenuOsd[i++], OSD_TIME);
+
+        Menu->AddItem(L"Reset Overloads", PressOpt, &MenuOsd[i++], FUNC_RESET);
     }
 
     Menu->AddGroup(L"GPU >", GroupOpt, &MenuGpu[0]);
 
     if (MenuGpu[0].Var)
     {
-        Menu->AddItem(L"Force Max Clocks", ItemOpt, &MenuGpu[1]);
-        Menu->AddItem(L"Engine Clock", GpuSpeedEngineOpt, &MenuGpu[2]);
-        Menu->AddItem(L"Memory Clock", GpuSpeedMemoryOpt, &MenuGpu[3]);
-        Menu->AddItem(L"Voltage", GpuVoltageOpt, &MenuGpu[4]);
+        Menu->AddItem(L"Force Max Clocks", ItemOpt, &MenuGpu[1], FUNC_FORCEMAX);
+        Menu->AddItem(L"Engine Clock", GpuSpeedEngineOpt, &MenuGpu[2], FUNC_ECLOCK);
+        Menu->AddItem(L"Memory Clock", GpuSpeedMemoryOpt, &MenuGpu[3], FUNC_MCLOCK);
+        Menu->AddItem(L"Voltage", GpuVoltageOpt, &MenuGpu[4], FUNC_VOLTAGE);
 
         //Init gpu information
         UpdateGpuInformation();
@@ -81,120 +92,68 @@ VOID AddItems()
 }
 
 
-VOID ProcessOptions()
+VOID ProcessOptions( MenuItems* Item )
 {
-    if (MenuOsd[1].Var > 0)
-        PushSharedMemory->OSDFlags |= OSD_GPU_LOAD;
-    else
-        PushSharedMemory->OSDFlags &= ~OSD_GPU_LOAD;
-
-    if (MenuOsd[2].Var > 0)
-        PushSharedMemory->OSDFlags |= OSD_GPU_TEMP;
-    else
-        PushSharedMemory->OSDFlags &= ~OSD_GPU_TEMP;
-
-    if (MenuOsd[3].Var > 0)
-        PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
-    else
-        PushSharedMemory->OSDFlags &= ~OSD_GPU_E_CLK;
-
-    if (MenuOsd[4].Var > 0)
-        PushSharedMemory->OSDFlags |= OSD_GPU_M_CLK;
-    else
-        PushSharedMemory->OSDFlags &= ~OSD_GPU_M_CLK;
-
-    if (MenuOsd[7].Var > 0)
-        PushSharedMemory->OSDFlags |= OSD_CPU_TEMP;
-    else
-        PushSharedMemory->OSDFlags &= ~OSD_CPU_TEMP;
-
-    if (MenuOsd[8].Var > 0)
-        PushSharedMemory->OSDFlags |= OSD_RAM;
-    else
-        PushSharedMemory->OSDFlags &= ~OSD_RAM;
-        
-    if (MenuOsd[9].Var > 0)
-        PushSharedMemory->OSDFlags |= OSD_MCU;
-    else
-        PushSharedMemory->OSDFlags &= ~OSD_MCU;
-
-    if (MenuOsd[10].Var > 0)
-        PushSharedMemory->OSDFlags |= OSD_MTU;
-    else
-        PushSharedMemory->OSDFlags &= ~OSD_MTU;
-
-    if (MenuOsd[11].Var > 0)
-        PushSharedMemory->OSDFlags |= OSD_DISK_RWRATE;
-    else
-        PushSharedMemory->OSDFlags &= ~OSD_DISK_RWRATE;
-
-    if (MenuOsd[12].Var > 0)
-        PushSharedMemory->OSDFlags |= OSD_DISK_RESPONSE;
-    else
-        PushSharedMemory->OSDFlags &= ~OSD_DISK_RESPONSE;
-
-    if (MenuOsd[14].Var > 0)
-        PushSharedMemory->OSDFlags |= OSD_TIME;
-    else
-        PushSharedMemory->OSDFlags &= ~OSD_TIME;
-
-    if (MenuOsd[15].Var > 0)
+    switch (*Item->Id)
     {
+    case FUNC_RESET:
         PushSharedMemory->Overloads = 0;
-        MenuOsd[15].Var = 0;
-    }
+        break;
 
-    if (MenuGpu[1].Var > 0 && MenuGpu[1].Dirty)
-    {
-        MenuGpu[1].Dirty = FALSE;
-
+    case FUNC_FORCEMAX:
         CallPipe(L"ForceMaxClocks", NULL);
 
         PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
         PushSharedMemory->OSDFlags |= OSD_GPU_M_CLK;
         PushSharedMemory->Overloads &= ~OSD_GPU_E_CLK;
         PushSharedMemory->Overloads &= ~OSD_GPU_M_CLK;
-    }
+        break;
 
-    if (MenuGpu[2].Dirty)
-    {
-        MenuGpu[2].Dirty = FALSE;
+    case FUNC_ECLOCK:
+        {
+            switch (*Item->Var)
+            {
+            case 0:
+            {
+                PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock--;
 
-        switch (MenuGpu[2].Var)
-        {
-        case 0:
-        {
-            PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock--;
-            
-            UpdateGpuInformation();
-            CallPipe(L"UpdateClocks", NULL);
+                UpdateGpuInformation();
+                CallPipe(L"UpdateClocks", NULL);
+            }
+            break;
+
+            case 1:
+            {
+                PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock++;
+
+                UpdateGpuInformation();
+                CallPipe(L"UpdateClocks", NULL);
+            }
+            break;
+            }
         }
         break;
 
-        case 1:
+    case FUNC_MCLOCK:
         {
-            PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock++;
-            
-            UpdateGpuInformation();
-            CallPipe(L"UpdateClocks", NULL);
+            if (*Item->Var > 0)
+            {
+                CallPipe(L"Overclock m", NULL);
+                UpdateGpuInformation();
+            }
         }
         break;
-        }
-    }
-    
-    if (MenuGpu[3].Var > 0 && MenuGpu[3].Dirty)
-    {
-        MenuGpu[3].Dirty = FALSE;
 
-        CallPipe(L"Overclock m", NULL);
-        UpdateGpuInformation();
-    }
-
-    if (MenuGpu[4].Dirty)
-    {
-        MenuGpu[4].Dirty = FALSE;
-
+    case FUNC_VOLTAGE:
         CallPipe(L"Overclock v", NULL);
+        break;
+
+    default:
+        if (*Item->Var > 0)
+            PushSharedMemory->OSDFlags |= *Item->Id;
+        else
+            PushSharedMemory->OSDFlags &= *Item->Id;
+        break;
     }
 }
 
@@ -229,6 +188,8 @@ WNDPROC         OldWNDPROC;
 SlOverlayMenu*  OvmMenu;
 
 VOID D3D9Hook_ApplyHooks();
+
+
 VOID MenuKeyboardHook( WPARAM Key )
 {
     if (Key == VK_INSERT)
@@ -274,44 +235,42 @@ VOID MenuKeyboardHook( WPARAM Key )
         } break;
 
         case VK_LEFT:
-        {
-            if (!OvmMenu->mSet.Show)
-                break;
-
-            *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Dirty = TRUE;
-
-            if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var && *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var > 0)
             {
-                *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var += -1;
+                if (!OvmMenu->mSet.Show)
+                    break;
 
-                if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == GROUP)
-                    OvmMenu->mSet.MaxItems = 0;
-            }
+                if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var && *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var > 0)
+                {
+                    *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var += -1;
 
-        } break;
+                    if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == GROUP)
+                        OvmMenu->mSet.MaxItems = 0;
+                }
+
+                if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == ITEM)
+                    ProcessOptions(&OvmMenu->Items[OvmMenu->mSet.SeletedIndex]);
+            } 
+            break;
 
         case VK_RIGHT:
-        {
-            if (!OvmMenu->mSet.Show)
-                break;
-
-            *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Dirty = TRUE;
-
-            if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var
-                && *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var < (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].MaxValue - 1))
             {
-                *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var += 1;
+                if (!OvmMenu->mSet.Show)
+                    break;
 
-                if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == GROUP)
-                    OvmMenu->mSet.MaxItems = 0;
-            }
+                if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var
+                    && *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var < (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].MaxValue - 1))
+                {
+                    *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var += 1;
 
-
-        } break;
+                    if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == GROUP)
+                        OvmMenu->mSet.MaxItems = 0;
+                }
+                
+                if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == ITEM)
+                    ProcessOptions(&OvmMenu->Items[OvmMenu->mSet.SeletedIndex]);
+            } 
+            break;
         }
-
-        // Update osd items.
-        ProcessOptions();
     }
 }
 
@@ -336,7 +295,8 @@ void SlOverlayMenu::AddItemToMenu(WCHAR* Title, WCHAR** Options, MenuVars* Varia
     Items[mSet.MaxItems].Var = &Variables->Var;
     Items[mSet.MaxItems].MaxValue = MaxValue;
     Items[mSet.MaxItems].Type = Type;
-    Items[mSet.MaxItems].Dirty = &Variables->Dirty;
+    Items[mSet.MaxItems].Id = &Variables->Id;
+
     mSet.MaxItems++;
 }
 

@@ -83,3 +83,17 @@ typedef struct ADLODPerformanceLevels
 /// Array of performance state descriptors. Must have ADLODParameters.iNumberOfPerformanceLevels elements.
   ADLODPerformanceLevel Levels [1];
 } ADLODPerformanceLevels;
+
+
+typedef struct ADLFanSpeedValue {
+    int iSize;
+    int iSpeedType;
+    int iFanSpeed;
+    int iFlags;
+} ADLFanSpeedValue;
+
+
+enum {
+    ADL_DL_FANCTRL_SPEED_TYPE_PERCENT = 1,
+    ADL_DL_FANCTRL_SPEED_TYPE_RPM = 2,
+};

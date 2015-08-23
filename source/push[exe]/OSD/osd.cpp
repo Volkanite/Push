@@ -30,6 +30,7 @@ OSD_ITEM OsdItems[] = {
     { OSD_GPU_E_CLK, 0, L"GPU : %i MHz"},
     { OSD_GPU_M_CLK, 0, L"GPU : %i MHz"},
     { OSD_GPU_VRAM, 90, L"VRAM : %i MB"},
+    { OSD_GPU_FAN, 0, L"GPU : %i RPM"},
     { OSD_RAM, 90, L"RAM : %i MB"},
     { OSD_CPU_LOAD, 95, L"CPU : %i %%"},
     { OSD_CPU_TEMP, 75, L"CPU : %i °C"},
@@ -66,6 +67,10 @@ VOID GetValues( OSD_ITEM* Item )
     case OSD_GPU_VRAM: 
         Item->Value = hardware.DisplayDevice.FrameBuffer.Load;
         Item->ValueOverride = hardware.DisplayDevice.FrameBuffer.Used;
+        break;
+    case OSD_GPU_FAN:
+        Item->Value = hardware.DisplayDevice.FanSpeed;
+        Item->ValueOverride = NULL;
         break;
     case OSD_RAM: 
         Item->Value = hardware.Memory.Load;
