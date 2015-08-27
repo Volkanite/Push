@@ -301,7 +301,7 @@ VOID Cache( PUSH_GAME* Game )
 
     if (!FolderExists(Game->InstallPath))
     {
-        MessageBoxW(0, L"Folder not exist!", 0,0);
+        MessageBoxW(0, L"Folder not exist!", 0, MB_TOPMOST);
 
         return;
     }
