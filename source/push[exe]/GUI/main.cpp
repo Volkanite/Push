@@ -443,7 +443,7 @@ typedef struct _SHITEMID        // mkid
 
 typedef struct _ITEMIDLIST {
     SHITEMID mkid;
-} ITEMIDLIST, *PCIDLIST_ABSOLUTE, *PIDLIST_ABSOLUTE;
+} ITEMIDLIST, *LPITEMIDLIST, *PCIDLIST_ABSOLUTE, *PIDLIST_ABSOLUTE;
 
 typedef struct _browseinfo {
     HANDLE            hwndOwner;
@@ -454,7 +454,7 @@ typedef struct _browseinfo {
     BFFCALLBACK       lpfn;
     LONG            lParam;
     int               iImage;
-} BROWSEINFO, *PBROWSEINFO, *LPBROWSEINFO;
+} BROWSEINFOW, *PBROWSEINFO, *LPBROWSEINFOW;
 
 
 #define BIF_EDITBOX 16
@@ -478,7 +478,7 @@ extern "C"
     void __stdcall OleUninitialize(void);
 
     PIDLIST_ABSOLUTE __stdcall SHBrowseForFolderW(
-        _In_ LPBROWSEINFO lpbi
+        _In_ LPBROWSEINFOW lpbi
         );
 
     INTBOOL __stdcall SHGetPathFromIDListW(
@@ -489,6 +489,18 @@ extern "C"
     void __stdcall CoTaskMemFree(
         _In_opt_ VOID* pv
         );
+
+	INT32 __stdcall DialogBoxParamW(
+		_In_opt_ HANDLE hInstance,
+		_In_     WCHAR*   lpTemplateName,
+		_In_opt_ HANDLE      hWndParent,
+		_In_opt_ VOID*   lpDialogFunc,
+		_In_     LONG    dwInitParam
+		);
+
+	void __stdcall ILFree(
+		_In_ VOID* pidl
+		);
 }
 
 WCHAR* ManualLoad;
@@ -513,6 +525,61 @@ VOID OpenCacheWindow()
         PushMainWindow->Handle,
         NULL
         );
+}
+/* original margins and control size */
+typedef struct tagLAYOUT_DATA
+{
+	LONG left, width, right;
+	LONG top, height, bottom;
+} LAYOUT_DATA;
+typedef struct tagbrowse_info
+{
+	HANDLE          hWnd;
+	HANDLE          hwndTreeView;
+	LPBROWSEINFOW lpBrowseInfo;
+	LPITEMIDLIST  pidlRet;
+	LAYOUT_DATA  *layout;  /* filled by LayoutInit, used by LayoutUpdate */
+	UINT32          szMin;
+} browse_info;
+#define IDD_BROWSE_FOR_FOLDER             21
+#define IDD_BROWSE_FOR_FOLDER_NEW         22
+#define MAKEINTRESOURCEW(i) ((WCHAR*)((ULONG_PTR)((WORD)(i))))
+LPITEMIDLIST BrowseForFolder( LPBROWSEINFOW lpbi )
+{
+	browse_info info;
+	DWORD r;
+	LONG hr;
+	WORD wDlgId;
+
+	info.hWnd = 0;
+	info.pidlRet = NULL;
+	info.lpBrowseInfo = lpbi;
+	info.hwndTreeView = NULL;
+
+	hr = OleInitialize(NULL);
+
+	if (lpbi->ulFlags & BIF_NEWDIALOGSTYLE)
+		wDlgId = IDD_BROWSE_FOR_FOLDER_NEW;
+	else
+		wDlgId = IDD_BROWSE_FOR_FOLDER;
+	
+	r = DialogBoxParamW(
+		Module::Load(L"shell32.dll"), 
+		MAKEINTRESOURCEW(1087),
+		lpbi->hwndOwner,
+		(VOID*)0x7628da23,
+		(LONG)&info
+		);
+
+	if (hr == 0)
+		OleUninitialize();
+	if (!r)
+	{
+		ILFree(info.pidlRet);
+		return NULL;
+	}
+
+	return info.pidlRet;
 }
 
 
@@ -720,7 +787,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                 {
                     // The BROWSEINFO struct tells the shell 
                     // how it should display the dialog.
-                    BROWSEINFO bi;
+                    BROWSEINFOW bi;
                     memset(&bi, 0, sizeof(bi));
 
                     bi.ulFlags = BIF_USENEWUI;
@@ -731,7 +798,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     OleInitialize(NULL);
 
                     // Show the dialog and get the itemIDList for the selected folder.
-                    ITEMIDLIST *pIDL = SHBrowseForFolderW(&bi);
+					ITEMIDLIST *pIDL = /*SHBrowseForFolderW*/BrowseForFolder(&bi);
 
                     if (pIDL != NULL)
                     {
