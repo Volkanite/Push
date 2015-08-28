@@ -12,6 +12,7 @@ BOOLEAN g_SetOSDRefresh = TRUE;
 BOOLEAN g_FontInited = FALSE;
 UINT64 g_cyclesWaited = 0;
 UINT16 DiskResponseTime;
+UINT32 FrameRate;
 
 
 double PCFreq = 0.0;
@@ -152,7 +153,7 @@ VOID RunFrameStatistics()
         oldTick2 = newTickCount;
     }
 
-    PushSharedMemory->FrameRate = (int) fps;
+    FrameRate = (int) fps;
 
     if (PushSharedMemory->FrameLimit)
     {

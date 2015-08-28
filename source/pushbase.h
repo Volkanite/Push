@@ -281,8 +281,6 @@ typedef struct _PUSH_SHARED_MEMORY
 
     UCHAR   FrameLimit;
     UINT8   FrameBufferCount;
-    UINT32  FrameRate;
-    BOOLEAN IsFrameRateStable;
 
     PUSH_VSYNC_OVERRIDE_MODE    VsyncOverrideMode;
     UCHAR                       DisableRepeatKeys;

@@ -108,9 +108,9 @@ VOID GetValues( OSD_ITEM* Item )
         Item->Value = PushSharedMemory->FrameBufferCount;
         Item->ValueOverride = NULL;
         break;
-    case OSD_FPS: 
-        Item->Value = PushSharedMemory->IsFrameRateStable;
-        Item->ValueOverride = PushSharedMemory->FrameRate;
+    case OSD_FPS:
+        Item->Value = NULL;
+        Item->ValueOverride = NULL;
         break;
     }
 }
