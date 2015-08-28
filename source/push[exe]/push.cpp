@@ -390,6 +390,7 @@ VOID OnProcessEvent( PROCESSID processID )
         PushSharedMemory->DisableRepeatKeys = game.Settings.DisableRepeatKeys;
         PushSharedMemory->SwapWASD = game.Settings.SwapWASD;
         PushSharedMemory->VsyncOverrideMode = game.Settings.VsyncOverrideMode;
+        PushSharedMemory->OSDFlags |= OSD_FPS; //enable fps counter
 
         // Check if user wants maximum gpu engine and memory clocks
         if (game.Settings.ForceMaxClocks)

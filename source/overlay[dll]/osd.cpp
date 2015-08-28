@@ -22,8 +22,17 @@ VOID Osd_Draw( OvOverlay* Overlay )
         switch (osdItem->Flag)
         {
         case OSD_FPS:
-            osdItem->Value = FrameRate;
-            swprintf(osdItem->Text, 20, L"%i", osdItem->Value);
+            {
+                if (!IsStableFramerate)
+                {
+                    osdItem->Value = FrameRate;
+                    swprintf(osdItem->Text, 20, L"%i", osdItem->Value);
+                }
+                else
+                {
+                    continue;
+                }
+            }
             break;
         case OSD_DISK_RESPONSE:
             osdItem->Value = DiskResponseTime;

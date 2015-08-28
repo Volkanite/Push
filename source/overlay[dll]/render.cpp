@@ -13,6 +13,7 @@ BOOLEAN g_FontInited = FALSE;
 UINT64 g_cyclesWaited = 0;
 UINT16 DiskResponseTime;
 UINT32 FrameRate;
+BOOLEAN IsStableFramerate;
 
 
 double PCFreq = 0.0;
@@ -139,13 +140,12 @@ VOID RunFrameStatistics()
         }
     }
 
-    if ( ((newTickCount - oldTick2) > 30000) && !PushSharedMemory->KeepFps )
+    if (((newTickCount - oldTick2) > 30000) && !PushSharedMemory->KeepFps)
         //frame rate has been stable for at least 30 seconds, we can disable the thing
-        PushSharedMemory->OSDFlags &= ~OSD_FPS;
+        IsStableFramerate = TRUE;
     else
         //you haz really bad frame rates, for you i give an fps meter.
-        PushSharedMemory->OSDFlags |= OSD_FPS;
-
+        IsStableFramerate = FALSE;
 
     if (fps < PushRefreshRate - 1)
     {
