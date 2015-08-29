@@ -461,6 +461,19 @@ typedef struct _browseinfo {
 #define BIF_NEWDIALOGSTYLE 64
 #define BIF_USENEWUI            (BIF_NEWDIALOGSTYLE | BIF_EDITBOX)
 
+typedef PIDLIST_ABSOLUTE (__stdcall *TYPE_SHBrowseForFolderW)(
+    _In_ LPBROWSEINFOW lpbi
+    );
+
+typedef INTBOOL (__stdcall *TYPE_SHGetPathFromIDListW)(
+    _In_  PCIDLIST_ABSOLUTE pidl,
+    _Out_ WCHAR*            pszPath
+    );
+
+
+TYPE_SHBrowseForFolderW     SHBrowseForFolderW;
+TYPE_SHGetPathFromIDListW   SHGetPathFromIDListW;
+
 
 extern "C"
 {
@@ -477,30 +490,21 @@ extern "C"
 
     void __stdcall OleUninitialize(void);
 
-    PIDLIST_ABSOLUTE __stdcall SHBrowseForFolderW(
-        _In_ LPBROWSEINFOW lpbi
-        );
-
-    INTBOOL __stdcall SHGetPathFromIDListW(
-        _In_  PCIDLIST_ABSOLUTE pidl,
-        _Out_ WCHAR*            pszPath
-        );
-
     void __stdcall CoTaskMemFree(
         _In_opt_ VOID* pv
         );
 
-	INT32 __stdcall DialogBoxParamW(
-		_In_opt_ HANDLE hInstance,
-		_In_     WCHAR*   lpTemplateName,
-		_In_opt_ HANDLE      hWndParent,
-		_In_opt_ VOID*   lpDialogFunc,
-		_In_     LONG    dwInitParam
-		);
+    INT32 __stdcall DialogBoxParamW(
+        _In_opt_ HANDLE hInstance,
+        _In_     WCHAR*   lpTemplateName,
+        _In_opt_ HANDLE      hWndParent,
+        _In_opt_ VOID*   lpDialogFunc,
+        _In_     LONG    dwInitParam
+        );
 
-	void __stdcall ILFree(
-		_In_ VOID* pidl
-		);
+    void __stdcall ILFree(
+        _In_ VOID* pidl
+        );
 }
 
 WCHAR* ManualLoad;
@@ -526,63 +530,8 @@ VOID OpenCacheWindow()
         NULL
         );
 }
-/* original margins and control size */
-typedef struct tagLAYOUT_DATA
-{
-	LONG left, width, right;
-	LONG top, height, bottom;
-} LAYOUT_DATA;
-typedef struct tagbrowse_info
-{
-	HANDLE          hWnd;
-	HANDLE          hwndTreeView;
-	LPBROWSEINFOW lpBrowseInfo;
-	LPITEMIDLIST  pidlRet;
-	LAYOUT_DATA  *layout;  /* filled by LayoutInit, used by LayoutUpdate */
-	UINT32          szMin;
-} browse_info;
-#define IDD_BROWSE_FOR_FOLDER             21
-#define IDD_BROWSE_FOR_FOLDER_NEW         22
-#define MAKEINTRESOURCEW(i) ((WCHAR*)((ULONG_PTR)((WORD)(i))))
-LPITEMIDLIST BrowseForFolder( LPBROWSEINFOW lpbi )
-{
-	browse_info info;
-	DWORD r;
-	LONG hr;
-	WORD wDlgId;
-
-	info.hWnd = 0;
-	info.pidlRet = NULL;
-	info.lpBrowseInfo = lpbi;
-	info.hwndTreeView = NULL;
-
-	hr = OleInitialize(NULL);
-
-	if (lpbi->ulFlags & BIF_NEWDIALOGSTYLE)
-		wDlgId = IDD_BROWSE_FOR_FOLDER_NEW;
-	else
-		wDlgId = IDD_BROWSE_FOR_FOLDER;
-	
-	r = DialogBoxParamW(
-		Module::Load(L"shell32.dll"), 
-		MAKEINTRESOURCEW(1087),
-		lpbi->hwndOwner,
-		(VOID*)0x7628da23,
-		(LONG)&info
-		);
-
-	if (hr == 0)
-		OleUninitialize();
-	if (!r)
-	{
-		ILFree(info.pidlRet);
-		return NULL;
-	}
-
-	return info.pidlRet;
-}
-
-
+typedef INT32 (__stdcall *TYPE_GetOpenFileNameW)( VOID* );
+TYPE_GetOpenFileNameW GetOpenFileNameW;
 INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lParam )
 {
     switch (uMessage)
@@ -694,6 +643,11 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     ofn.lpstrDefExt = L"";
                     ofn.Title = L"Select game executable";
 
+                    GetOpenFileNameW = (TYPE_GetOpenFileNameW) Module::GetProcedureAddress(
+                        Module::Load(L"comdlg32.dll"),
+                        "GetOpenFileNameW"
+                        );
+
                     GetOpenFileNameW( &ofn );
 
                     imageName = String::FindLastChar(filePath, '\\') + 1;
@@ -788,7 +742,9 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     // The BROWSEINFO struct tells the shell 
                     // how it should display the dialog.
                     BROWSEINFOW bi;
-                    memset(&bi, 0, sizeof(bi));
+                    HANDLE shell32;
+
+                    Memory::Clear(&bi, sizeof(bi));
 
                     bi.ulFlags = BIF_USENEWUI;
                     bi.hwndOwner = PushMainWindow->Handle;
@@ -797,8 +753,20 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     // must call this if using BIF_USENEWUI
                     OleInitialize(NULL);
 
+                    shell32 = Module::Load(L"shell32.dll");
+
+                    SHBrowseForFolderW = (TYPE_SHBrowseForFolderW) Module::GetProcedureAddress(
+                        shell32,
+                        "SHBrowseForFolderW"
+                        );
+
+                    SHGetPathFromIDListW = (TYPE_SHGetPathFromIDListW) Module::GetProcedureAddress(
+                        shell32,
+                        "SHGetPathFromIDListW"
+                        );
+
                     // Show the dialog and get the itemIDList for the selected folder.
-					ITEMIDLIST *pIDL = /*SHBrowseForFolderW*/BrowseForFolder(&bi);
+                    ITEMIDLIST *pIDL = SHBrowseForFolderW(&bi);
 
                     if (pIDL != NULL)
                     {

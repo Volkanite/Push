@@ -295,13 +295,6 @@ SetWindowPos(
 
 INT32
 __stdcall
-Shell_NotifyIconW(
-    DWORD dwMessage,
-    NOTIFYICONDATA *lpData
-    );
-
-INT32
-__stdcall
 MessageBoxW(
     VOID*   hWnd,
     WCHAR*  lpText,
@@ -390,10 +383,6 @@ DWORD
 __stdcall
 GetLogicalDrives( VOID );
 
-INT32
-__stdcall
-GetOpenFileNameW( VOID* );
-
 VOID*
 __stdcall
 GetModuleHandleW( WCHAR* lpModuleName );
@@ -404,13 +393,6 @@ GetModuleFileNameW(
     VOID*   hModule,
     WCHAR*  lpFilename,
     DWORD   nSize
-    );
-
-FARPROC
-__stdcall
-GetProcAddress (
-    VOID* hModule,
-    CHAR* lpProcName
     );
 
 VOID*
@@ -594,42 +576,6 @@ WideCharToMultiByte(
     INT32           cbMultiByte,
     const CHAR      *lpDefaultChar,
     INT32           *lpUsedDefaultChar);
-
-INT32
-__stdcall
-SetupDiDestroyDeviceInfoList(
-    VOID *DeviceInfoSet
-    );
-
-VOID*
-__stdcall
-SetupDiGetClassDevsW(
-    const GUID  *ClassGuid,
-    const WCHAR *Enumerator,
-    VOID        *hwndParent,
-    DWORD       Flags
-    );
-
-INT32
-__stdcall
-SetupDiEnumDeviceInterfaces(
-    VOID                        *DeviceInfoSet,
-    SP_DEVINFO_DATA             *DeviceInfoData,
-    const GUID                  *InterfaceClassGuid,
-    DWORD                       MemberIndex,
-    SP_DEVICE_INTERFACE_DATA    *DeviceInterfaceData
-    );
-
-INT32
-__stdcall
-SetupDiGetDeviceInterfaceDetailW(
-    VOID                                *DeviceInfoSet,
-    SP_DEVICE_INTERFACE_DATA            *DeviceInterfaceData,
-    SP_DEVICE_INTERFACE_DETAIL_DATA_W   *DeviceInterfaceDetailData,
-    DWORD                               DeviceInterfaceDetailDataSize,
-    DWORD                               *RequiredSize,
-    SP_DEVINFO_DATA                     *DeviceInfoData
-    );
 
 BYTE
 __stdcall
