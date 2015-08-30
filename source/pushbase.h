@@ -291,6 +291,7 @@ typedef struct _PUSH_SHARED_MEMORY
     VOID*                       WindowHandle;
     BOOLEAN                     ThreadOptimization;
     BOOLEAN                     LogFileIo;
+    BOOLEAN                     AutoLogFileIo;
 
     OSD_ITEM OsdItems[1];
 

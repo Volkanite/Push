@@ -29,6 +29,7 @@ HANDLE MenuProcessHeap;
 #define FUNC_MCLOCK         0x00080000
 #define FUNC_VOLTAGE        0x00100000
 #define FUNC_FILELOGGING    0x00200000
+#define FUNC_FILEAUTOLOG    0x00400000
 
 
 //Add menu items to menu
@@ -97,6 +98,7 @@ VOID AddItems()
     if (Diagnostics[0].Var)
     {
         Menu->AddItem(L"File Logging", ItemOpt, &Diagnostics[1], FUNC_FILELOGGING);
+        Menu->AddItem(L"Auto-log files when lagging", ItemOpt, &Diagnostics[2], FUNC_FILEAUTOLOG);
     }
 }
 
@@ -162,6 +164,13 @@ VOID ProcessOptions( MenuItems* Item )
             PushSharedMemory->LogFileIo = TRUE;
         else
             PushSharedMemory->LogFileIo = FALSE;
+        break;
+
+    case FUNC_FILEAUTOLOG:
+        if (*Item->Var > 0)
+            PushSharedMemory->AutoLogFileIo = TRUE;
+        else
+            PushSharedMemory->AutoLogFileIo = FALSE;
         break;
 
     default:

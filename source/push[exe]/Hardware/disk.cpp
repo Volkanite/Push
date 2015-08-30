@@ -923,7 +923,13 @@ parse:
         }
         
         if (responseTime > 4000 || PushSharedMemory->LogFileIo)
+        {
             EtFileObjectToFileName(data->FileObject);
+
+            if (PushSharedMemory->AutoLogFileIo)
+                PushSharedMemory->LogFileIo = FALSE;
+        }
+            
     }
 }
 

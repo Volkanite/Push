@@ -138,6 +138,9 @@ VOID RunFrameStatistics()
             PushSharedMemory->Overloads |= OSD_DISK_RESPONSE;
             PushSharedMemory->OSDFlags |= OSD_DISK_RESPONSE;
         }
+
+        if (PushSharedMemory->AutoLogFileIo)
+            PushSharedMemory->LogFileIo = TRUE;
     }
 
     if (((newTickCount - oldTick2) > 30000) && !PushSharedMemory->KeepFps)
