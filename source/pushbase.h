@@ -290,6 +290,7 @@ typedef struct _PUSH_SHARED_MEMORY
     long long                   performanceFrequency;
     VOID*                       WindowHandle;
     BOOLEAN                     ThreadOptimization;
+    BOOLEAN                     LogFileIo;
 
     OSD_ITEM OsdItems[1];
 

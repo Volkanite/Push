@@ -8,6 +8,7 @@ SlOverlayMenu* Menu;
 
 MenuVars MenuOsd[20];
 MenuVars MenuGpu[10];
+MenuVars Diagnostics[5];
 
 WCHAR* GroupOpt[] = {L"", L""};
 WCHAR* ItemOpt[] = {L"Off", L"On"};
@@ -22,11 +23,12 @@ WCHAR GpuVoltage[20];
 BOOLEAN MnuInitialized;
 HANDLE MenuProcessHeap;
 
-#define FUNC_RESET      0x00010000
-#define FUNC_FORCEMAX   0x00020000
-#define FUNC_ECLOCK     0x00040000
-#define FUNC_MCLOCK     0x00080000
-#define FUNC_VOLTAGE    0x00100000
+#define FUNC_RESET          0x00010000
+#define FUNC_FORCEMAX       0x00020000
+#define FUNC_ECLOCK         0x00040000
+#define FUNC_MCLOCK         0x00080000
+#define FUNC_VOLTAGE        0x00100000
+#define FUNC_FILELOGGING    0x00200000
 
 
 //Add menu items to menu
@@ -89,6 +91,13 @@ VOID AddItems()
         //Init gpu information
         UpdateGpuInformation();
     }
+
+    Menu->AddGroup(L"Diag >", GroupOpt, &Diagnostics[0]);
+
+    if (Diagnostics[0].Var)
+    {
+        Menu->AddItem(L"File Logging", ItemOpt, &Diagnostics[1], FUNC_FILELOGGING);
+    }
 }
 
 
@@ -146,6 +155,13 @@ VOID ProcessOptions( MenuItems* Item )
 
     case FUNC_VOLTAGE:
         CallPipe(L"Overclock v", NULL);
+        break;
+
+    case FUNC_FILELOGGING:
+        if (*Item->Var > 0)
+            PushSharedMemory->LogFileIo = TRUE;
+        else
+            PushSharedMemory->LogFileIo = FALSE;
         break;
 
     default:
