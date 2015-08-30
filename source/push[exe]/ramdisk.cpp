@@ -6,19 +6,25 @@
 
 
 PFORMATEX   FormatEx;
+#define DONE   0x01
 
-#define ERROR_NOT_ENOUGH_MEMORY 0x8
 
-//----------------------------------------------------------------------
-//
-// FormatExCallback
-//
-// The file system library will call us back with commands that we
-// can interpret. If we wanted to halt the chkdsk we could return FALSE.
-//
-//----------------------------------------------------------------------
-BOOLEAN __stdcall FormatExCallback( CALLBACKCOMMAND Command, DWORD Modifier, VOID* Argument )
+BOOLEAN __stdcall FormatExCallback( 
+    CALLBACKCOMMAND Command, 
+    DWORD Modifier, 
+    VOID* Argument 
+    )
 {
+    if (Command == DONE)
+    {
+        BOOLEAN* success;
+
+        success = (BOOLEAN*)Argument;
+
+        if (*success == FALSE)
+            MessageBoxW(0, L"Could not format ram disk!", 0, 0);
+    }
+
     return TRUE;
 }
 
@@ -105,7 +111,6 @@ CreateRamDisk( UINT32 Size, CHAR DriveLetter )
 
     if (!NT_SUCCESS(status))
     {
-        //if (RtlNtStatusToDosError(status) == ERROR_NOT_ENOUGH_MEMORY)
         if (status = STATUS_SECTION_TOO_BIG)
         {
             MessageBoxW(
@@ -165,9 +170,20 @@ VOID FormatRamDisk()
 
     mountPoint[0] = createData.DriveLetter;
 
-    FormatEx = (PFORMATEX) Module::GetProcedureAddress(Module::Load(L"fmifs.dll"), "FormatEx");
+    FormatEx = (PFORMATEX) Module::GetProcedureAddress(
+        Module::Load(L"fmifs.dll"), 
+        "FormatEx"
+        );
 
-    FormatEx(mountPoint, FMIFS_HARDDISK, L"NTFS", L"RAM Disk", TRUE, 0, FormatExCallback);
+    FormatEx(
+        mountPoint, 
+        FMIFS_HARDDISK, 
+        L"NTFS", 
+        L"RAM Disk", 
+        TRUE, 
+        0, 
+        FormatExCallback
+        );
 }
 
 
