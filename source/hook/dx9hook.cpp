@@ -133,6 +133,7 @@ HOOK_METHOD D3D9Hook_HookMethod = HOOK_METHOD_DETOURXS;
 
 BOOLEAN D3D9Hook_ForceReset = FALSE;
 BOOLEAN D3D9Hook_ManualHook = FALSE;
+BOOLEAN D3D9Hook_WindowMode = FALSE;
 
 IDirect3DDevice9Ex* D3D9Hook_IDirect3DDevice9Ex;
 IDirect3DDevice9*   D3D9Hook_IDirect3DDevice9;
