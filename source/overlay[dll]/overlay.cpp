@@ -116,11 +116,7 @@ PushKeySwapCallback( LPMSG Message )
 BOOLEAN MessageHook( LPMSG Message )
 {
     static BOOLEAN ignoreRawInput = FALSE;
-<<<<<<< HEAD
-	static BOOLEAN usingRawInput = FALSE;
-=======
     static BOOLEAN usingRawInput = FALSE;
->>>>>>> master
 
     switch (Message->message)    
     {   
@@ -128,19 +124,11 @@ BOOLEAN MessageHook( LPMSG Message )
             {
                 ignoreRawInput = TRUE;
 
-<<<<<<< HEAD
-				if (usingRawInput)
-				{
-					usingRawInput = FALSE;
-					return TRUE;
-				}
-=======
                 if (usingRawInput)
                 {
                     usingRawInput = FALSE;
                     return TRUE;
                 }
->>>>>>> master
 
                 MenuKeyboardHook(Message->wParam);
 
@@ -184,11 +172,7 @@ BOOLEAN MessageHook( LPMSG Message )
             {
                 UINT dwSize;
                 RAWINPUT *buffer;
-<<<<<<< HEAD
-				
-=======
                 
->>>>>>> master
                 if(ignoreRawInput)
                     return TRUE;
                 
@@ -216,11 +200,7 @@ BOOLEAN MessageHook( LPMSG Message )
                     if(buffer->header.dwType == RIM_TYPEKEYBOARD 
                         && buffer->data.keyboard.Message == WM_KEYDOWN)
                     {
-<<<<<<< HEAD
-						usingRawInput = TRUE;
-=======
                         usingRawInput = TRUE;
->>>>>>> master
 
                         MenuKeyboardHook(buffer->data.keyboard.VKey);
                     }
@@ -253,13 +233,9 @@ BOOL WINAPI PeekMessageWHook(
         wRemoveMsg 
         );
 
-<<<<<<< HEAD
-	if (result && wRemoveMsg & PM_REMOVE)
-=======
     if (result && wRemoveMsg & PM_REMOVE)
->>>>>>> master
     {
-		result = MessageHook( lpMsg );
+        result = MessageHook( lpMsg );
     }
     
     return result;
@@ -284,13 +260,9 @@ BOOL WINAPI PeekMessageAHook(
         wRemoveMsg 
         );
     
-<<<<<<< HEAD
-	if (result && wRemoveMsg & PM_REMOVE)
-=======
     if (result && wRemoveMsg & PM_REMOVE)
->>>>>>> master
     {
-		result = MessageHook( lpMsg );
+        result = MessageHook( lpMsg );
     }
 
     return result;
