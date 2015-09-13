@@ -24,6 +24,7 @@ WCHAR GpuVoltage[20];
 BOOLEAN MnuInitialized;
 HANDLE MenuProcessHeap;
 extern BOOLEAN D3D9Hook_WindowMode;
+extern BOOLEAN D3D9Hook_ForceReset;
 
 #define FUNC_RESET          0x00010000
 #define FUNC_FORCEMAX       0x00020000
@@ -32,7 +33,7 @@ extern BOOLEAN D3D9Hook_WindowMode;
 #define FUNC_VOLTAGE        0x00100000
 #define FUNC_FILELOGGING    0x00200000
 #define FUNC_FILEAUTOLOG    0x00400000
-#define FUNC_WINDOWED		0x00800000
+#define FUNC_WINDOWED       0x00800000
 
 
 //Add menu items to menu
@@ -104,12 +105,12 @@ VOID AddItems()
         Menu->AddItem(L"Auto-log files when lagging", ItemOpt, &Diagnostics[2], FUNC_FILEAUTOLOG);
     }
 
-	Menu->AddGroup(L"D3D >", GroupOpt, &D3DTweaks[0]);
+    Menu->AddGroup(L"D3D >", GroupOpt, &D3DTweaks[0]);
 
-	if (D3DTweaks[0].Var)
-	{
-		Menu->AddItem(L"Windowed", ItemOpt, &D3DTweaks[1], FUNC_WINDOWED);
-	}
+    if (D3DTweaks[0].Var)
+    {
+        Menu->AddItem(L"Windowed", ItemOpt, &D3DTweaks[1], FUNC_WINDOWED);
+    }
 }
 
 
@@ -183,9 +184,10 @@ VOID ProcessOptions( MenuItems* Item )
             PushSharedMemory->AutoLogFileIo = FALSE;
         break;
 
-	case FUNC_WINDOWED:
-		D3D9Hook_WindowMode = TRUE;
-		break;
+    case FUNC_WINDOWED:
+        D3D9Hook_WindowMode = TRUE;
+        D3D9Hook_ForceReset = TRUE;
+        break;
 
     default:
         if (*Item->Var > 0)
