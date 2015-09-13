@@ -113,16 +113,22 @@ PushKeySwapCallback( LPMSG Message )
 }
 
 
-BOOLEAN
-MessageHook( LPMSG Message )
+BOOLEAN MessageHook( LPMSG Message )
 {
     static BOOLEAN ignoreRawInput = FALSE;
+	static BOOLEAN usingRawInput = FALSE;
 
     switch (Message->message)    
     {   
         case WM_KEYDOWN:
             {
                 ignoreRawInput = TRUE;
+
+				if (usingRawInput)
+				{
+					usingRawInput = FALSE;
+					return TRUE;
+				}
 
                 MenuKeyboardHook(Message->wParam);
 
@@ -166,7 +172,7 @@ MessageHook( LPMSG Message )
             {
                 UINT dwSize;
                 RAWINPUT *buffer;
-
+				
                 if(ignoreRawInput)
                     return TRUE;
                 
@@ -194,6 +200,8 @@ MessageHook( LPMSG Message )
                     if(buffer->header.dwType == RIM_TYPEKEYBOARD 
                         && buffer->data.keyboard.Message == WM_KEYDOWN)
                     {
+						usingRawInput = TRUE;
+
                         MenuKeyboardHook(buffer->data.keyboard.VKey);
                     }
                 }
@@ -225,9 +233,9 @@ BOOL WINAPI PeekMessageWHook(
         wRemoveMsg 
         );
 
-    if (result)
+	if (result && wRemoveMsg & PM_REMOVE)
     {
-        result = MessageHook( lpMsg );
+		result = MessageHook( lpMsg );
     }
     
     return result;
@@ -252,9 +260,9 @@ BOOL WINAPI PeekMessageAHook(
         wRemoveMsg 
         );
     
-    if (result)
+	if (result && wRemoveMsg & PM_REMOVE)
     {
-        result = MessageHook( lpMsg );
+		result = MessageHook( lpMsg );
     }
 
     return result;
