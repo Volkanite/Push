@@ -81,7 +81,7 @@ VOID AddItems()
         Menu->AddItem(L"Frame Buffer count",      ItemOpt, &MenuOsd[i++], OSD_BUFFERS);
         Menu->AddItem(L"Show Time",               ItemOpt, &MenuOsd[i++], OSD_TIME);
 
-        Menu->AddItem(L"Reset Overloads", PressOpt, &MenuOsd[i++], FUNC_RESET);
+        Menu->AddItem(L"Reset Overlay", PressOpt, &MenuOsd[i++], FUNC_RESET);
     }
 
     Menu->AddGroup(L"GPU >", GroupOpt, &MenuGpu[0]);
@@ -120,6 +120,8 @@ VOID ProcessOptions( MenuItems* Item )
     {
     case FUNC_RESET:
         PushSharedMemory->Overloads = 0;
+        PushSharedMemory->OSDFlags = 0;
+        PushSharedMemory->OSDFlags |= OSD_FPS;
         break;
 
     case FUNC_FORCEMAX:
