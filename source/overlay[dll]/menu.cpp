@@ -187,8 +187,16 @@ VOID ProcessOptions( MenuItems* Item )
         break;
 
     case FUNC_WINDOWED:
-        D3D9Hook_WindowMode = TRUE;
-        D3D9Hook_ForceReset = TRUE;
+        if (*Item->Var > 0)
+        {
+            D3D9Hook_WindowMode = TRUE;
+            D3D9Hook_ForceReset = TRUE;
+        }
+        else
+        {
+            D3D9Hook_WindowMode = FALSE;
+            D3D9Hook_ForceReset = TRUE;
+        }
         break;
 
     default:
