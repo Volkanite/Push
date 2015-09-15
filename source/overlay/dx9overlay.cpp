@@ -26,12 +26,16 @@ VOID UpdatePresentationParameters( D3DPRESENT_PARAMETERS* PresentationParameters
         PresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
     }
 
-	if (D3D9Hook_WindowMode)
-	{
-		PresentationParameters->Windowed = TRUE;
-		PresentationParameters->Flags = 0;
-		PresentationParameters->FullScreen_RefreshRateInHz = 0;
-	}
+    if (D3D9Hook_WindowMode)
+    {
+        PresentationParameters->Windowed = TRUE;
+        PresentationParameters->Flags = 0;
+        PresentationParameters->FullScreen_RefreshRateInHz = 0;
+    }
+    else
+    {
+        PresentationParameters->Windowed = FALSE;
+    }
 }
 
 
