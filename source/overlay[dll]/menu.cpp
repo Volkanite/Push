@@ -23,6 +23,8 @@ WCHAR GpuVoltage[20];
 
 BOOLEAN MnuInitialized;
 HANDLE MenuProcessHeap;
+WNDPROC OldWNDPROC;
+
 extern BOOLEAN D3D9Hook_WindowMode;
 extern BOOLEAN D3D9Hook_ForceReset;
 
@@ -34,6 +36,7 @@ extern BOOLEAN D3D9Hook_ForceReset;
 #define FUNC_FILELOGGING    0x00200000
 #define FUNC_FILEAUTOLOG    0x00400000
 #define FUNC_WINDOWED       0x00800000
+#define FUNC_KEEPACTIVE     0x01000000
 
 
 //Add menu items to menu
@@ -102,7 +105,7 @@ VOID AddItems()
     if (Diagnostics[0].Var)
     {
         Menu->AddItem(L"File Logging", ItemOpt, &Diagnostics[1], FUNC_FILELOGGING);
-        Menu->AddItem(L"Auto-log files when lagging", ItemOpt, &Diagnostics[2], FUNC_FILEAUTOLOG);
+        Menu->AddItem(L"Auto-log", ItemOpt, &Diagnostics[2], FUNC_FILEAUTOLOG);
     }
 
     Menu->AddGroup(L"D3D >", GroupOpt, &D3DTweaks[0]);
@@ -110,7 +113,29 @@ VOID AddItems()
     if (D3DTweaks[0].Var)
     {
         Menu->AddItem(L"Windowed", ItemOpt, &D3DTweaks[1], FUNC_WINDOWED);
+        Menu->AddItem(L"Keep active", ItemOpt, &D3DTweaks[2], FUNC_KEEPACTIVE);
     }
+}
+
+
+LONG WINAPI KeyboardHook(HWND Handle, UINT Message, WPARAM wParam, LPARAM lParam)
+{
+    switch (Message)
+    {
+    case WM_KEYDOWN:
+        break;
+
+    case WM_CHAR:
+        break;
+
+    case WM_NCACTIVATE:
+    case WM_ACTIVATE:
+    case WM_KILLFOCUS:
+        return 0;
+        break;
+    }
+
+    return CallWindowProc(OldWNDPROC, Handle, Message, wParam, lParam);
 }
 
 
@@ -199,6 +224,17 @@ VOID ProcessOptions( MenuItems* Item )
         }
         break;
 
+    case FUNC_KEEPACTIVE:
+        if (*Item->Var > 0)
+        {
+            OldWNDPROC = (WNDPROC) SetWindowLongPtr(
+                FindWindowW(NULL, L"Need for Speed™ Most Wanted"), 
+                GWL_WNDPROC, 
+                (LONG)KeyboardHook
+                );
+        }
+        break;
+
     default:
         if (*Item->Var > 0)
             PushSharedMemory->OSDFlags |= *Item->Id;
@@ -235,7 +271,6 @@ DWORD Green     = 0xFF33FF00;
 DWORD White     = 0xFFE6E6E6;
 DWORD Blue      = 0xFF00A4C5;
 
-WNDPROC         OldWNDPROC;
 SlOverlayMenu*  OvmMenu;
 
 VOID D3D9Hook_ApplyHooks();
