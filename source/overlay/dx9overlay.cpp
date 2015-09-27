@@ -28,9 +28,29 @@ VOID UpdatePresentationParameters( D3DPRESENT_PARAMETERS* PresentationParameters
 
     if (D3D9Hook_WindowMode)
     {
+        RECT r;
+
         PresentationParameters->Windowed = TRUE;
         PresentationParameters->Flags = 0;
         PresentationParameters->FullScreen_RefreshRateInHz = 0;
+
+        SetWindowLong(
+            PresentationParameters->hDeviceWindow, 
+            GWL_STYLE, 
+            WS_POPUP | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE
+            );
+
+        GetClientRect(PresentationParameters->hDeviceWindow, &r);
+
+        SetWindowPos(
+            PresentationParameters->hDeviceWindow, 
+            HWND_NOTOPMOST, 
+            0, 
+            0,
+            PresentationParameters->BackBufferWidth + (PresentationParameters->BackBufferWidth - r.right),
+            PresentationParameters->BackBufferHeight + (PresentationParameters->BackBufferHeight - r.bottom),
+            SWP_FRAMECHANGED | SWP_SHOWWINDOW | SWP_NOMOVE
+            );
     }
     else
     {
