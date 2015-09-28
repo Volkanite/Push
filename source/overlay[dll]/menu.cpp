@@ -10,6 +10,7 @@ MenuVars MenuOsd[20];
 MenuVars MenuGpu[10];
 MenuVars Diagnostics[5];
 MenuVars D3DTweaks[5];
+MenuVars Process[5];
 
 WCHAR* GroupOpt[] = {L"", L""};
 WCHAR* ItemOpt[] = {L"Off", L"On"};
@@ -37,6 +38,7 @@ extern BOOLEAN D3D9Hook_ForceReset;
 #define FUNC_FILEAUTOLOG    0x00400000
 #define FUNC_WINDOWED       0x00800000
 #define FUNC_KEEPACTIVE     0x01000000
+#define FUNC_TERMINATE      0x02000000
 
 
 //Add menu items to menu
@@ -114,6 +116,13 @@ VOID AddItems()
     {
         Menu->AddItem(L"Windowed", ItemOpt, &D3DTweaks[1], FUNC_WINDOWED);
         Menu->AddItem(L"Keep active", ItemOpt, &D3DTweaks[2], FUNC_KEEPACTIVE);
+    }
+
+    Menu->AddGroup(L"PROC >", GroupOpt, &Process[0]);
+
+    if (Process[0].Var)
+    {
+        Menu->AddItem(L"Terminate", ItemOpt, &Process[1], FUNC_TERMINATE);
     }
 }
 
@@ -232,6 +241,13 @@ VOID ProcessOptions( MenuItems* Item )
                 GWL_WNDPROC, 
                 (LONG)KeyboardHook
                 );
+        }
+        break;
+
+    case FUNC_TERMINATE:
+        if (*Item->Var > 0)
+        {
+            TerminateProcess(GetCurrentProcess(), 0);
         }
         break;
 
