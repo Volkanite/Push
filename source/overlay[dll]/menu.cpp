@@ -26,7 +26,7 @@ BOOLEAN MnuInitialized;
 HANDLE MenuProcessHeap;
 WNDPROC OldWNDPROC;
 
-extern BOOLEAN D3D9Hook_WindowMode;
+extern OV_WINDOW_MODE D3D9Hook_WindowMode;
 extern BOOLEAN D3D9Hook_ForceReset;
 
 #define FUNC_RESET          0x00010000
@@ -223,12 +223,12 @@ VOID ProcessOptions( MenuItems* Item )
     case FUNC_WINDOWED:
         if (*Item->Var > 0)
         {
-            D3D9Hook_WindowMode = TRUE;
+            D3D9Hook_WindowMode = WINDOW_WINDOWED;
             D3D9Hook_ForceReset = TRUE;
         }
         else
         {
-            D3D9Hook_WindowMode = FALSE;
+            D3D9Hook_WindowMode = WINDOW_FULLSCREEN;
             D3D9Hook_ForceReset = TRUE;
         }
         break;
