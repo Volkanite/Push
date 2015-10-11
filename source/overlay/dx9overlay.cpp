@@ -10,7 +10,7 @@
 Dx9Font* Dx9OvFont;
 extern Dx9Overlay* D3D9Overlay;
 IDirect3DDevice9* Dx9OvDevice;
-extern BOOLEAN D3D9Hook_WindowMode;
+OV_WINDOW_MODE D3D9Hook_WindowMode;
 
 
 VOID UpdatePresentationParameters( D3DPRESENT_PARAMETERS* PresentationParameters )
@@ -26,7 +26,7 @@ VOID UpdatePresentationParameters( D3DPRESENT_PARAMETERS* PresentationParameters
         PresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
     }
 
-    if (D3D9Hook_WindowMode)
+    if (D3D9Hook_WindowMode == WINDOW_WINDOWED)
     {
         RECT r;
 
@@ -52,7 +52,7 @@ VOID UpdatePresentationParameters( D3DPRESENT_PARAMETERS* PresentationParameters
             SWP_FRAMECHANGED | SWP_SHOWWINDOW | SWP_NOMOVE
             );
     }
-    else
+    else if (D3D9Hook_WindowMode == WINDOW_FULLSCREEN)
     {
         PresentationParameters->Windowed = FALSE;
     }

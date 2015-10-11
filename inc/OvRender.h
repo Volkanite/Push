@@ -5,7 +5,7 @@
 class OvOverlay;
 typedef VOID (*OV_RENDER)( OvOverlay* Overlay );
 
-typedef enum _OV_VSYNC_OVERRIDE_MODE
+typedef enum OV_VSYNC_OVERRIDE_MODE
 {
     VSYNC_UNCHANGED = 0,
     VSYNC_FORCE_ON,
@@ -13,7 +13,15 @@ typedef enum _OV_VSYNC_OVERRIDE_MODE
 
 } OV_VSYNC_OVERRIDE_MODE;
 
-typedef struct _OV_HOOK_PARAMS{
+typedef enum OV_WINDOW_MODE
+{
+    WINDOW_UNCHANGED = 0,
+    WINDOW_FULLSCREEN,
+    WINDOW_WINDOWED,
+
+} OV_WINDOW_MODE;
+
+typedef struct OV_HOOK_PARAMS{
     OV_RENDER               RenderFunction;
     OV_VSYNC_OVERRIDE_MODE  VsyncOverrideMode;
     BOOLEAN                 ForceTrippleBuffering;
