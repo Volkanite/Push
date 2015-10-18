@@ -8,6 +8,7 @@
 Dx8Overlay*     OvDx8Overlay;
 Dx9Overlay*     D3D9Overlay;
 DxgiOverlay*    OvDxgiOverlay;
+extern CRITICAL_SECTION OvCriticalSection;
 
 
 OvOverlay::OvOverlay()
@@ -30,6 +31,8 @@ OvOverlay::Render()
 
 ULONG __stdcall CreateOverlay( LPVOID Param )
 {
+    EnterCriticalSection(&OvCriticalSection);
+    
     OV_HOOK_PARAMS *hookParams = (OV_HOOK_PARAMS*) Param;
     OvOverlay *overlay = NULL;
 
@@ -41,7 +44,9 @@ ULONG __stdcall CreateOverlay( LPVOID Param )
 
     if (GetModuleHandleA("d3d9.dll") && D3D9Overlay == NULL)
     {
+        
         D3D9Overlay = new Dx9Overlay( hookParams->RenderFunction );
+        
         overlay = D3D9Overlay;
     }
 
@@ -53,7 +58,9 @@ ULONG __stdcall CreateOverlay( LPVOID Param )
 
     if (overlay)
         overlay->VsyncOverrideMode = hookParams->VsyncOverrideMode;
-        
+    
+    LeaveCriticalSection(&OvCriticalSection);
+    
     return NULL;
 }
 
