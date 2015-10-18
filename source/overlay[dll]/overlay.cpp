@@ -9,7 +9,6 @@
 #include "menu.h"
 
 
-
 CHAR *pszModuleName;
 PUSH_SHARED_MEMORY   *PushSharedMemory;
 void            *hEvent = NULL;
@@ -17,6 +16,7 @@ BOOLEAN dxgiHooked              = FALSE;
 BOOLEAN g_DXGI                  = FALSE;
 ThreadMonitor* PushThreadMonitor;
 HANDLE PushProcessHeap;
+CRITICAL_SECTION OvCriticalSection;
 
 
 VOID
@@ -360,7 +360,8 @@ BOOL __stdcall DllMain(
                 L"Global\\" 
                 PUSH_IMAGE_EVENT_NAME 
                 );
-            
+
+            InitializeCriticalSection(&OvCriticalSection);
             CreateOverlay();
             CreateThread(0, 0, &MonitorThread, 0, 0, 0);
             EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &devMode);
