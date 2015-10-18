@@ -79,11 +79,11 @@ VOID Dx9Overlay_Reset( D3DPRESENT_PARAMETERS* PresentationParameters )
 }
 
 
-VOID
-Dx9OvRender( IDirect3DDevice9* Device )
+VOID Dx9OvRender( IDirect3DDevice9* Device )
 {
     IDirect3DSurface9 *renderTarget = NULL;
     IDirect3DSurface9 *backBuffer = NULL;
+    D3DSURFACE_DESC backBufferDesc;
     D3DVIEWPORT9 viewport;
 
     if (Dx9OvFont == NULL)
@@ -103,15 +103,14 @@ Dx9OvRender( IDirect3DDevice9* Device )
 
     // Set backbuffer as new render target.
     
-    Device->GetBackBuffer( 
-        0, 
-        0, 
-        D3DBACKBUFFER_TYPE_MONO, 
-        &backBuffer 
-        );
+    Device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &backBuffer);
+    backBuffer->GetDesc(&backBufferDesc);
 
-    Device->SetRenderTarget( 0, backBuffer );
-    
+    if (backBufferDesc.Width != 1 && backBufferDesc.Height != 1)
+    {
+        Device->SetRenderTarget(0, backBuffer);
+    }
+        
     // Render our stuff.
     D3D9Overlay->Render();
 
