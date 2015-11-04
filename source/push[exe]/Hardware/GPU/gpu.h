@@ -12,8 +12,12 @@ typedef struct _GPU_ADAPTER
     UINT8(*GetLoad)();
     UINT16(*GetMaximumEngineClock)();
     UINT16(*GetMaximumMemoryClock)();
+    UINT16(*GetVoltage)();
+    UINT16(*GetFanSpeed)();
     VOID(*ForceMaximumClocks)();
 }GPU_ADAPTER;
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -12,10 +12,12 @@ UINT16 IntelGpu_GetMaxMemoryClock();
 UINT64 IntelGpu_GetTotalMemory();
 UINT64 IntelGpu_GetFreeMemory();
 UINT8  IntelGpu_GetTemperature();
+UINT16 IntelGpu_GetVoltage();
+UINT16 IntelGpu_GetFanSpeed();
 VOID IntelGpu_ForceMaximumClocks();
 
 
-VOID IntelGpu_CreateAdapter(GPU_ADAPTER* GpuAdapter)
+VOID IntelGpu_CreateAdapter( GPU_ADAPTER* GpuAdapter )
 {
     GpuAdapter->GetEngineClock          = IntelGpu_GetEngineClock;
     GpuAdapter->GetMemoryClock          = IntelGpu_GetMemoryClock;
@@ -26,6 +28,8 @@ VOID IntelGpu_CreateAdapter(GPU_ADAPTER* GpuAdapter)
     GpuAdapter->GetTemperature          = IntelGpu_GetTemperature;
     GpuAdapter->ForceMaximumClocks      = IntelGpu_ForceMaximumClocks;
     GpuAdapter->GetLoad                 = IntelGpu_GetLoad;
+    GpuAdapter->GetVoltage              = IntelGpu_GetVoltage;
+    GpuAdapter->GetFanSpeed             = IntelGpu_GetFanSpeed;
 }
 
 
@@ -72,6 +76,18 @@ UINT16 IntelGpu_GetMaxEngineClock()
 
 
 UINT16 IntelGpu_GetMaxMemoryClock()
+{
+    return 0;
+}
+
+
+UINT16 IntelGpu_GetVoltage()
+{
+    return 0;
+}
+
+
+UINT16 IntelGpu_GetFanSpeed()
 {
     return 0;
 }

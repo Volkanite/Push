@@ -42,6 +42,15 @@ UINT16 GetMemoryClock()
 }
 
 
+UINT16 GetVoltage()
+{
+    if (!Hwinfo_GpuAdapter)
+        return 0;
+
+    return Hwinfo_GpuAdapter->GetVoltage();
+}
+
+
 UINT8 GetGpuTemp()
 {
     if (!Hwinfo_GpuAdapter)
@@ -57,6 +66,12 @@ UINT8 GetGpuLoadHardware()
         return 0;
 
     return Hwinfo_GpuAdapter->GetLoad();
+}
+
+
+UINT16 GetFanSpeed()
+{
+    return Hwinfo_GpuAdapter->GetFanSpeed();
 }
 
 
@@ -541,11 +556,11 @@ VOID RefreshHardwareInfo()
     hardware.DisplayDevice.Load             = GetGpuLoad();
     hardware.DisplayDevice.EngineClock      = GetEngineClock();
     hardware.DisplayDevice.MemoryClock      = GetMemoryClock();
-    hardware.DisplayDevice.Voltage          = Adl_GetVoltage();
+    hardware.DisplayDevice.Voltage          = GetVoltage();
     hardware.DisplayDevice.Temperature      = GetGpuTemp();
     hardware.DisplayDevice.FrameBuffer.Used = GetVramUsed();
     hardware.DisplayDevice.FrameBuffer.Load = GetVramUsage();
-    hardware.DisplayDevice.FanSpeed         = Adl_GetFanSpeed();
+    hardware.DisplayDevice.FanSpeed         = GetFanSpeed();
     hardware.Memory.Used                    = GetRamUsed();
     hardware.Memory.Load                    = GetRamUsage();
     hardware.Disk.ReadWriteRate             = GetDiskReadWriteRate();
