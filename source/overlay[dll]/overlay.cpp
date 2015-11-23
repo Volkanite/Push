@@ -57,9 +57,69 @@ VOID CreateOverlay()
     OvCreateOverlayEx(&hookParams);
 }
 
+HHOOK hKeyboardHook;
+
+
+LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
+{
+    if ((0x80000000 & lParam) == 0)//key down
+    {
+        MenuKeyboardHook(wParam);
+    }
+    else
+    {
+        //keyup
+    }
+        
+
+    return CallNextHookEx(hKeyboardHook, nCode, wParam, lParam);
+}
+
+
+BOOL CALLBACK KeyboardHookWindowEnum(HWND hwnd, LPARAM lParam)
+{
+    DWORD dwID;
+    DWORD thatthread;
+
+    thatthread = GetWindowThreadProcessId(hwnd, &dwID);
+
+    if (dwID == (DWORD)lParam)
+    {
+        if (!hKeyboardHook)
+        {
+            hKeyboardHook = SetWindowsHookEx(
+                WH_KEYBOARD,
+                KeyboardProc,
+                GetModuleHandleW(NULL),
+                thatthread
+                );
+
+            if (hKeyboardHook)
+                OutputDebugStringW(L"Keyboard hook success!");
+            else
+                OutputDebugStringW(L"Keyboard hook failure!");
+        }
+    }
+
+    return TRUE;
+}
+
+
+VOID HookKeyboard( DWORD dwPID )
+{
+    EnumWindows((WNDENUMPROC)KeyboardHookWindowEnum, (LPARAM)dwPID);
+}
+
 
 ULONG __stdcall MonitorThread(LPVOID v)
 {
+    while (!hKeyboardHook)
+    {
+        HookKeyboard(GetCurrentProcessId());
+
+        Sleep(500);
+    }
+
     while (TRUE)
     {
         WaitForSingleObject(hEvent, INFINITE);
@@ -68,204 +128,6 @@ ULONG __stdcall MonitorThread(LPVOID v)
     }
 
     return NULL;
-}
-
-
-typedef BOOL (WINAPI* TYPE_PeekMessageW)(
-    LPMSG lpMsg,
-    HWND hWnd,
-    UINT wMsgFilterMin,
-    UINT wMsgFilterMax,
-    UINT wRemoveMsg
-    );
-
-typedef BOOL (WINAPI* TYPE_PeekMessageA)(
-    LPMSG lpMsg,
-    HWND hWnd,
-    UINT wMsgFilterMin,
-    UINT wMsgFilterMax,
-    UINT wRemoveMsg
-    );
-
-
-TYPE_PeekMessageW       PushPeekMessageW;
-TYPE_PeekMessageA       PushPeekMessageA;
-
-
-VOID
-PushKeySwapCallback( LPMSG Message )
-{
-    switch (Message->wParam)
-    {
-    case 'W':
-        Message->wParam = VK_UP;
-        break;
-    case 'A':
-        Message->wParam = VK_LEFT;
-        break;
-    case 'S':
-        Message->wParam = VK_DOWN;
-        break;
-    case 'D':
-        Message->wParam = VK_RIGHT;
-        break;
-    }
-}
-
-
-BOOLEAN MessageHook( LPMSG Message )
-{
-    static BOOLEAN ignoreRawInput = FALSE;
-    static BOOLEAN usingRawInput = FALSE;
-
-    switch (Message->message)    
-    {   
-        case WM_KEYDOWN:
-            {
-                ignoreRawInput = TRUE;
-
-                if (usingRawInput)
-                {
-                    usingRawInput = FALSE;
-                    return TRUE;
-                }
-
-                MenuKeyboardHook(Message->wParam);
-
-                if (PushSharedMemory->SwapWASD)
-                {
-                    PushKeySwapCallback( Message );
-                }
-
-                if (PushSharedMemory->DisableRepeatKeys)
-                {
-                    int repeatCount = (Message->lParam & 0x40000000);
-
-                    if (repeatCount) 
-                        return FALSE;
-                }
-
-            } break;
-
-        case WM_KEYUP:
-            {
-                if (PushSharedMemory->SwapWASD)
-                {
-                    PushKeySwapCallback( Message );
-                }
-
-            } break;
-
-        case WM_CHAR:
-            {
-                if (PushSharedMemory->DisableRepeatKeys)
-                {
-                    int repeatCount = (Message->lParam & 0x40000000);
-
-                    if (repeatCount) 
-                        return FALSE;
-                }
-
-            } break;
-
-        case WM_INPUT:
-            {
-                UINT dwSize;
-                RAWINPUT *buffer;
-                
-                if(ignoreRawInput)
-                    return TRUE;
-                
-                // Request size of the raw input buffer to dwSize
-                GetRawInputData(
-                    (HRAWINPUT)Message->lParam, 
-                    RID_INPUT, 
-                    NULL, 
-                    &dwSize, 
-                    sizeof(RAWINPUTHEADER)
-                    );
-         
-                // allocate buffer for input data
-                buffer = (RAWINPUT*)HeapAlloc(PushProcessHeap, 0, dwSize);
-         
-                if (GetRawInputData(
-                    (HRAWINPUT)Message->lParam, 
-                    RID_INPUT, 
-                    buffer, 
-                    &dwSize, 
-                    sizeof(RAWINPUTHEADER)))
-                {
-                    // if this is keyboard message and WM_KEYDOWN, process
-                    // the key
-                    if(buffer->header.dwType == RIM_TYPEKEYBOARD 
-                        && buffer->data.keyboard.Message == WM_KEYDOWN)
-                    {
-                        usingRawInput = TRUE;
-
-                        MenuKeyboardHook(buffer->data.keyboard.VKey);
-                    }
-                }
-         
-                // free the buffer
-                HeapFree(PushProcessHeap, 0, buffer);
-            } break;
-    }
-
-    return TRUE;
-}
-
-
-BOOL WINAPI PeekMessageWHook( 
-    _In_ LPMSG lpMsg, 
-    _In_ HWND hWnd, 
-    _In_ UINT wMsgFilterMin, 
-    _In_ UINT wMsgFilterMax, 
-    _In_ UINT wRemoveMsg 
-    )
-{
-    BOOL result;
-
-    result = PushPeekMessageW( 
-        lpMsg, 
-        hWnd, 
-        wMsgFilterMin, 
-        wMsgFilterMax, 
-        wRemoveMsg 
-        );
-
-    if (result && wRemoveMsg & PM_REMOVE)
-    {
-        result = MessageHook( lpMsg );
-    }
-    
-    return result;
-}
-
-
-BOOL WINAPI PeekMessageAHook( 
-    _In_ LPMSG lpMsg, 
-    _In_ HWND hWnd, 
-    _In_ UINT wMsgFilterMin, 
-    _In_ UINT wMsgFilterMax, 
-    _In_ UINT wRemoveMsg 
-    )
-{
-    BOOL result;
-
-    result = PushPeekMessageA( 
-        lpMsg, 
-        hWnd, 
-        wMsgFilterMin, 
-        wMsgFilterMax, 
-        wRemoveMsg 
-        );
-    
-    if (result && wRemoveMsg & PM_REMOVE)
-    {
-        result = MessageHook( lpMsg );
-    }
-
-    return result;
 }
 
 
@@ -337,6 +199,8 @@ BOOL __stdcall DllMain(
     {
     case DLL_PROCESS_ATTACH:
         {
+            
+
             void *sectionHandle;
             DEVMODE devMode;
             
@@ -369,19 +233,6 @@ BOOL __stdcall DllMain(
             PushRefreshRate = devMode.dmDisplayFrequency;
             PushAcceptableFps = PushRefreshRate - 5;
             PushProcessHeap = GetProcessHeap();
-
-            PushPeekMessageW = (TYPE_PeekMessageW) DetourApi(
-                L"user32.dll", 
-                "PeekMessageW", 
-                (BYTE*) PeekMessageWHook
-                );
-
-            PushPeekMessageA = (TYPE_PeekMessageA) DetourApi(
-                L"user32.dll", 
-                "PeekMessageA", 
-                (BYTE*) PeekMessageAHook
-                );
-
         } break;
 
     case DLL_PROCESS_DETACH:
