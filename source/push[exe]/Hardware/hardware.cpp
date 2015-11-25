@@ -123,6 +123,7 @@ UINT32 GetFrameBufferSize()
 }
 
 
+//in megabytes
 UINT32 GetRamUsed()
 {
     SYSTEM_BASIC_PERFORMANCE_INFORMATION performanceInfo;
@@ -136,8 +137,8 @@ UINT32 GetRamUsed()
 }
 
 
-UINT8
-GetRamUsage()
+//percentage (non-float)
+UINT8 GetRamUsage()
 {
     return 100 * ( (float) hardware.Memory.Used / (float) hardware.Memory.Total);
 }
@@ -501,6 +502,10 @@ VOID GetHardwareInfo()
 {
     int i = 0;
     CORE_LIST *coreListEntry;
+    
+    //use 64 bits to force allmul() on 32 bit builds
+    UINT64 physicalPages;
+    UINT64 pageSize;
 
     InitGpuHardware();
     Hwinfo_GpuAdapter = CreateGpuAdapter(hardware.DisplayDevice.VendorId);
@@ -519,7 +524,12 @@ VOID GetHardwareInfo()
     NtQuerySystemInformation(SystemBasicInformation, &HwInfoSystemBasicInformation, sizeof(SYSTEM_BASIC_INFORMATION), 0);
 
     hardware.Processor.NumberOfCores = HwInfoSystemBasicInformation.NumberOfProcessors;
-    hardware.Memory.Total = (HwInfoSystemBasicInformation.NumberOfPhysicalPages * HwInfoSystemBasicInformation.PageSize) / 1048576; //byte => megabytes
+    
+    physicalPages = HwInfoSystemBasicInformation.NumberOfPhysicalPages;
+    pageSize = HwInfoSystemBasicInformation.PageSize;
+
+    //byte => megabytes
+    hardware.Memory.Total = (physicalPages * pageSize) / 1048576;
     
     coreListEntry = &hardware.Processor.coreList;
 
