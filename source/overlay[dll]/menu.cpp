@@ -255,7 +255,7 @@ VOID ProcessOptions( MenuItems* Item )
         if (*Item->Var > 0)
             PushSharedMemory->OSDFlags |= *Item->Id;
         else
-            PushSharedMemory->OSDFlags &= *Item->Id;
+            PushSharedMemory->OSDFlags &= ~*Item->Id;
         break;
     }
 }
