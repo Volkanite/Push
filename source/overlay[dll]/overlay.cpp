@@ -57,26 +57,22 @@ VOID CreateOverlay()
     OvCreateOverlayEx(&hookParams);
 }
 
-HHOOK hKeyboardHook;
+HHOOK hMessageHook;
+BOOLEAN MessageHook(LPMSG Message);
 
 
-LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK MessageHookProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
-    if ((0x80000000 & lParam) == 0)//key down
+    if (nCode == HC_ACTION && wParam & PM_REMOVE)
     {
-        MenuKeyboardHook(wParam);
+        MessageHook((LPMSG)lParam);
     }
-    else
-    {
-        //keyup
-    }
-        
 
-    return CallNextHookEx(hKeyboardHook, nCode, wParam, lParam);
+    return CallNextHookEx(hMessageHook, nCode, wParam, lParam);
 }
 
 
-BOOL CALLBACK KeyboardHookWindowEnum(HWND hwnd, LPARAM lParam)
+BOOL CALLBACK MessageHookWindowEnum(HWND hwnd, LPARAM lParam)
 {
     DWORD dwID;
     DWORD thatthread;
@@ -85,19 +81,19 @@ BOOL CALLBACK KeyboardHookWindowEnum(HWND hwnd, LPARAM lParam)
 
     if (dwID == (DWORD)lParam)
     {
-        if (!hKeyboardHook)
+        if (!hMessageHook)
         {
-            hKeyboardHook = SetWindowsHookEx(
-                WH_KEYBOARD,
-                KeyboardProc,
+            hMessageHook = SetWindowsHookEx(
+                WH_GETMESSAGE,
+                MessageHookProc,
                 GetModuleHandleW(NULL),
                 thatthread
                 );
 
-            if (hKeyboardHook)
-                OutputDebugStringW(L"Keyboard hook success!");
+            if (hMessageHook)
+                OutputDebugStringW(L"Message hook success!");
             else
-                OutputDebugStringW(L"Keyboard hook failure!");
+                OutputDebugStringW(L"Message hook failure!");
         }
     }
 
@@ -105,17 +101,17 @@ BOOL CALLBACK KeyboardHookWindowEnum(HWND hwnd, LPARAM lParam)
 }
 
 
-VOID HookKeyboard( DWORD dwPID )
+VOID HookMessages(DWORD dwPID)
 {
-    EnumWindows((WNDENUMPROC)KeyboardHookWindowEnum, (LPARAM)dwPID);
+    EnumWindows((WNDENUMPROC)MessageHookWindowEnum, (LPARAM)dwPID);
 }
 
 
 ULONG __stdcall MonitorThread(LPVOID v)
 {
-    while (!hKeyboardHook)
+    while (!hMessageHook)
     {
-        HookKeyboard(GetCurrentProcessId());
+        HookMessages(GetCurrentProcessId());
 
         Sleep(500);
     }
@@ -128,6 +124,129 @@ ULONG __stdcall MonitorThread(LPVOID v)
     }
 
     return NULL;
+}
+
+
+VOID
+PushKeySwapCallback( LPMSG Message )
+{
+    switch (Message->wParam)
+    {
+    case 'W':
+        Message->wParam = VK_UP;
+        break;
+    case 'A':
+        Message->wParam = VK_LEFT;
+        break;
+    case 'S':
+        Message->wParam = VK_DOWN;
+        break;
+    case 'D':
+        Message->wParam = VK_RIGHT;
+        break;
+    }
+}
+
+
+BOOLEAN MessageHook( LPMSG Message )
+{
+    static BOOLEAN ignoreRawInput = FALSE;
+    static BOOLEAN usingRawInput = FALSE;
+
+    switch (Message->message)    
+    {   
+        case WM_KEYDOWN:
+            {
+                ignoreRawInput = TRUE;
+
+                if (usingRawInput)
+                {
+                    usingRawInput = FALSE;
+                    return TRUE;
+                }
+
+                MenuKeyboardHook(Message->wParam);
+
+                if (PushSharedMemory->SwapWASD)
+                {
+                    PushKeySwapCallback( Message );
+                }
+
+                if (PushSharedMemory->DisableRepeatKeys)
+                {
+                    int repeatCount = (Message->lParam & 0x40000000);
+
+                    if (repeatCount) 
+                        return FALSE;
+                }
+
+            } break;
+
+        case WM_KEYUP:
+            {
+                if (PushSharedMemory->SwapWASD)
+                {
+                    PushKeySwapCallback( Message );
+                }
+
+            } break;
+
+        case WM_CHAR:
+            {
+                if (PushSharedMemory->DisableRepeatKeys)
+                {
+                    int repeatCount = (Message->lParam & 0x40000000);
+
+                    if (repeatCount) 
+                        return FALSE;
+                }
+
+            } break;
+
+        case WM_INPUT:
+            {
+                UINT dwSize;
+                RAWINPUT *buffer;
+                
+                if(ignoreRawInput)
+                    return TRUE;
+                
+                // Request size of the raw input buffer to dwSize
+                GetRawInputData(
+                    (HRAWINPUT)Message->lParam, 
+                    RID_INPUT, 
+                    NULL, 
+                    &dwSize, 
+                    sizeof(RAWINPUTHEADER)
+                    );
+         
+                // allocate buffer for input data
+                buffer = (RAWINPUT*)HeapAlloc(PushProcessHeap, 0, dwSize);
+         
+                if (GetRawInputData(
+                    (HRAWINPUT)Message->lParam, 
+                    RID_INPUT, 
+                    buffer, 
+                    &dwSize, 
+                    sizeof(RAWINPUTHEADER)))
+                {
+                    // if this is keyboard message and WM_KEYDOWN, process
+                    // the key
+                    if(buffer->header.dwType == RIM_TYPEKEYBOARD 
+                        && buffer->data.keyboard.Message == WM_KEYDOWN)
+                    {
+                        usingRawInput = TRUE;
+
+                        MenuKeyboardHook(buffer->data.keyboard.VKey);
+                    }
+                }
+         
+                // free the buffer
+                HeapFree(PushProcessHeap, 0, buffer);
+            } break;
+    }
+
+    return TRUE;
 }
 
 
@@ -199,8 +318,6 @@ BOOL __stdcall DllMain(
     {
     case DLL_PROCESS_ATTACH:
         {
-            
-
             void *sectionHandle;
             DEVMODE devMode;
             
@@ -233,6 +350,7 @@ BOOL __stdcall DllMain(
             PushRefreshRate = devMode.dmDisplayFrequency;
             PushAcceptableFps = PushRefreshRate - 5;
             PushProcessHeap = GetProcessHeap();
+
         } break;
 
     case DLL_PROCESS_DETACH:
