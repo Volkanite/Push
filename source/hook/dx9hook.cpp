@@ -212,11 +212,21 @@ HRESULT __stdcall IDirect3DSwapChain9_Present_Detour(
     )
 {
     static IDirect3DDevice9 *device = NULL;
+    static IDirect3DSwapChain9 *backupSwap = NULL;
     HRESULT result;
-
-    if (!device)
+    
+    if (!backupSwap || !device)
     {   
+        backupSwap = Swap;
         Swap->GetDevice(&device);
+    }
+
+    if (backupSwap != Swap)
+    {
+        backupSwap = NULL;
+        device = NULL;
+        D3D9Hook_ForceReset = TRUE;
+        return D3DERR_DEVICELOST;
     }
 
     Dx9Hook_Present( device );
