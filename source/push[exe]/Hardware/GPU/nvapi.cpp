@@ -10,7 +10,8 @@ TYPE_NvAPI_GPU_GetUsages            NvAPI_GPU_GetUsages;
 TYPE_NvAPI_GPU_GetAllClocks         NvAPI_GPU_GetAllClocks;
 TYPE_NvAPI_GPU_GetPstatesInfo       NvAPI_GPU_GetPstatesInfo;
 TYPE_NvAPI_GPU_GetThermalSettings   NvAPI_GPU_GetThermalSettings;
-
+TYPE_NvAPI_GPU_GetVoltages          NvAPI_GPU_GetVoltages;
+TYPE_NvAPI_GPU_GetTachReading       NvAPI_GPU_GetTachReading;
 
 INT32 *gpuHandles[NVAPI_MAX_PHYSICAL_GPUS] = { NULL };
 INT32 gpuCount = 0;
@@ -37,6 +38,8 @@ BOOLEAN Nvapi_Initialize()
     NvAPI_GPU_GetPstatesInfo     =  (TYPE_NvAPI_GPU_GetPstatesInfo) NvAPI_QueryInterface(0xBA94C56E);
     NvAPI_GetMemoryInfo          =  (TYPE_NvAPI_GetMemoryInfo) NvAPI_QueryInterface(0x774AA982);
     NvAPI_GPU_GetThermalSettings =  (TYPE_NvAPI_GPU_GetThermalSettings) NvAPI_QueryInterface(0xE3640A56);
+    NvAPI_GPU_GetVoltages        =  (TYPE_NvAPI_GPU_GetVoltages)NvAPI_QueryInterface(0x7D656244);
+    NvAPI_GPU_GetTachReading     =  (TYPE_NvAPI_GPU_GetTachReading)NvAPI_QueryInterface(0x5F608315);
 
     NvAPI_Initialize();
     NvAPI_EnumPhysicalGPUs(gpuHandles, &gpuCount);
@@ -141,6 +144,30 @@ UINT8 Nvapi_GetTemperature()
     NvAPI_GPU_GetThermalSettings(gpuHandles[0], 0, &thermalInfo);
 
     return thermalInfo.sensor[0].CurrentTemp;
+}
+
+
+UINT32 Nvapi_GetVoltage()
+{
+    NV_VOLTAGES voltageInfo = { 0 };
+
+    voltageInfo.Version = sizeof(NV_VOLTAGES) | 0x10000;
+    voltageInfo.Flags = 0;
+    voltageInfo.voltages[0].domainId = NVAPI_GPU_PERF_VOLTAGE_INFO_DOMAIN_CORE;
+
+    NvAPI_GPU_GetVoltages(gpuHandles[0], &voltageInfo);
+
+    return voltageInfo.voltages[0].info[2].mvolt;
+}
+
+
+UINT32 Nvapi_GetFanSpeed()
+{
+    UINT32 tachValue = 0;
+
+    NvAPI_GPU_GetTachReading(gpuHandles[0], &tachValue);
+
+    return tachValue;
 }
 
 

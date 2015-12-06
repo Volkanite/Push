@@ -144,6 +144,35 @@ typedef struct
 
 } NV_GPU_THERMAL_SETTINGS;
 
+#define NVAPI_MAX_GPU_PERF_VOLTAGES     16
+
+typedef enum _NV_GPU_PERF_VOLTAGE_INFO_DOMAIN_ID
+{
+    NVAPI_GPU_PERF_VOLTAGE_INFO_DOMAIN_CORE = 0,
+    NVAPI_GPU_PERF_VOLTAGE_INFO_DOMAIN_UNDEFINED = NVAPI_MAX_GPU_PERF_VOLTAGES,
+} NV_GPU_PERF_VOLTAGE_INFO_DOMAIN_ID;
+
+typedef struct _NV_VOLTAGES_INFO
+{
+    NV_GPU_PERF_VOLTAGE_INFO_DOMAIN_ID      domainId;       //!< ID of the voltage domain
+    UINT32                                   unknown1;
+    UINT32                                   max;
+
+    struct
+    {
+        UINT32                               unknown2;
+        UINT32                               mvolt;          //!< Voltage in mV
+    } info[128];
+} NV_VOLTAGES_INFO;
+
+typedef struct _NV_VOLTAGES
+{
+    UINT32                                   Version;        //!< Structure version
+    UINT32                                   Flags;          //!< Reserved for future use. Must be set to 0
+    UINT32                                   max;
+    NV_VOLTAGES_INFO voltages[NVAPI_MAX_GPU_PERF_VOLTAGES];
+} NV_VOLTAGES;
+
 
 typedef INT32 *(*TYPE_NvAPI_QueryInterface)(UINT32 offset);
 typedef INT32(*TYPE_NvAPI_Initialize)();
@@ -153,6 +182,9 @@ typedef INT32(*TYPE_NvAPI_GPU_GetUsages)(HANDLE handle, NV_USAGES* Usages);
 typedef INT32(*TYPE_NvAPI_GPU_GetAllClocks)(HANDLE GpuHandle, NV_CLOCKS* Clocks);
 typedef INT32(*TYPE_NvAPI_GPU_GetPstatesInfo)(HANDLE GpuHandle, NV_GPU_PERF_PSTATES_INFO *PerfPstatesInfo);
 typedef INT32(*TYPE_NvAPI_GPU_GetThermalSettings)(HANDLE PhysicalGpu, UINT32 SensorIndex, NV_GPU_THERMAL_SETTINGS* ThermalSettings);
+typedef INT32(*TYPE_NvAPI_GPU_GetVoltages)(HANDLE PhysicalGPU, NV_VOLTAGES* pPerfVoltages);
+typedef INT32(*TYPE_NvAPI_GPU_GetTachReading)(HANDLE PhysicalGPU, UINT32* pValue);
+
 
 
 BOOLEAN Nvapi_Initialize();
@@ -164,4 +196,6 @@ UINT16 Nvapi_GetMaxMemoryClock();
 UINT64 Nvapi_GetTotalMemory();
 UINT64 Nvapi_GetFreeMemory();
 UINT8  Nvapi_GetTemperature();
+UINT32 Nvapi_GetVoltage();
+UINT32 Nvapi_GetFanSpeed();
 VOID Nvapi_ForceMaximumClocks();

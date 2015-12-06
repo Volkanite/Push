@@ -24,7 +24,8 @@ UINT64 NvidiaGpu_GetFreeMemory();
 UINT8  NvidiaGpu_GetTemperature();
 VOID NvidiaGpu_ForceMaximumClocks();
 UINT8 NvidiaGpu_GetLoad();
-
+UINT16 NvidiaGpu_GetVoltage();
+UINT16 NvidiaGpu_GetFanSpeed();
 
 BOOLEAN
 InitGeForce()
@@ -149,6 +150,8 @@ VOID NvidiaGpu_CreateAdapter( GPU_ADAPTER* GpuAdapter )
         GpuAdapter->GetTemperature          = NvidiaGpu_GetTemperature;
         GpuAdapter->ForceMaximumClocks      = NvidiaGpu_ForceMaximumClocks;
         GpuAdapter->GetLoad                 = NvidiaGpu_GetLoad;
+        GpuAdapter->GetVoltage              = NvidiaGpu_GetVoltage;
+        GpuAdapter->GetFanSpeed             = NvidiaGpu_GetFanSpeed;
     break;
     }
 }
@@ -208,4 +211,15 @@ UINT16 NvidiaGpu_GetMaxMemoryClock()
 VOID NvidiaGpu_ForceMaximumClocks()
 {
 
+}
+
+
+UINT16 NvidiaGpu_GetVoltage()
+{
+    return Nvapi_GetVoltage();
+}
+
+UINT16 NvidiaGpu_GetFanSpeed()
+{
+    return Nvapi_GetFanSpeed();
 }
