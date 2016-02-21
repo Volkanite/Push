@@ -1,7 +1,7 @@
 #include <windows.h>
 #include <OvRender.h>
-#include "dx8overlay.h"
-#include "dx9overlay.h"
+#include "d3d8overlay.h"
+#include "d3d9overlay.h"
 #include "dxgioverlay.h"
 
 

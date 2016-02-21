@@ -24,79 +24,87 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="d3d8\d3d8font.cpp">
-      <Filter>d3d8</Filter>
+    <ClCompile Include="source\ddraw\ddrawhook.cpp">
+      <Filter>ddraw</Filter>
     </ClCompile>
-    <ClCompile Include="d3d8\d3d8hook.cpp">
-      <Filter>d3d8</Filter>
-    </ClCompile>
-    <ClCompile Include="d3d8\d3d8overlay.cpp">
-      <Filter>d3d8</Filter>
-    </ClCompile>
-    <ClCompile Include="d3d9\d3d9font.cpp">
-      <Filter>d3d9</Filter>
-    </ClCompile>
-    <ClCompile Include="d3d9\d3d9hook.cpp">
-      <Filter>d3d9</Filter>
-    </ClCompile>
-    <ClCompile Include="d3d9\d3d9overlay.cpp">
-      <Filter>d3d9</Filter>
-    </ClCompile>
-    <ClCompile Include="d3d10\d3d10font.cpp">
-      <Filter>d3d10</Filter>
-    </ClCompile>
-    <ClCompile Include="d3d10\d3d10overlay.cpp">
-      <Filter>d3d10</Filter>
-    </ClCompile>
-    <ClCompile Include="d3d11\d3d11font.cpp">
-      <Filter>d3d11</Filter>
-    </ClCompile>
-    <ClCompile Include="d3d11\d3d11overlay.cpp">
-      <Filter>d3d11</Filter>
-    </ClCompile>
-    <ClCompile Include="dxgi\dxgihook.cpp">
+    <ClCompile Include="source\font.cpp" />
+    <ClCompile Include="source\overlay.cpp" />
+    <ClCompile Include="source\shaders.cpp" />
+    <ClCompile Include="source\dxgi\dxgihook.cpp">
       <Filter>dxgi</Filter>
     </ClCompile>
-    <ClCompile Include="dxgi\dxgioverlay.cpp">
+    <ClCompile Include="source\dxgi\dxgioverlay.cpp">
       <Filter>dxgi</Filter>
+    </ClCompile>
+    <ClCompile Include="source\d3d9\d3d9font.cpp">
+      <Filter>d3d9</Filter>
+    </ClCompile>
+    <ClCompile Include="source\d3d9\d3d9hook.cpp">
+      <Filter>d3d9</Filter>
+    </ClCompile>
+    <ClCompile Include="source\d3d9\d3d9overlay.cpp">
+      <Filter>d3d9</Filter>
+    </ClCompile>
+    <ClCompile Include="source\d3d8\d3d8font.cpp">
+      <Filter>d3d8</Filter>
+    </ClCompile>
+    <ClCompile Include="source\d3d8\d3d8hook.cpp">
+      <Filter>d3d8</Filter>
+    </ClCompile>
+    <ClCompile Include="source\d3d8\d3d8overlay.cpp">
+      <Filter>d3d8</Filter>
+    </ClCompile>
+    <ClCompile Include="source\d3d11\d3d11font.cpp">
+      <Filter>d3d11</Filter>
+    </ClCompile>
+    <ClCompile Include="source\d3d11\d3d11overlay.cpp">
+      <Filter>d3d11</Filter>
+    </ClCompile>
+    <ClCompile Include="source\d3d10\d3d10font.cpp">
+      <Filter>d3d10</Filter>
+    </ClCompile>
+    <ClCompile Include="source\d3d10\d3d10overlay.cpp">
+      <Filter>d3d10</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="d3d8\d3d8font.h">
-      <Filter>d3d8</Filter>
-    </ClInclude>
-    <ClInclude Include="d3d8\d3d8hook.h">
-      <Filter>d3d8</Filter>
-    </ClInclude>
-    <ClInclude Include="d3d8\d3d8overlay.h">
-      <Filter>d3d8</Filter>
-    </ClInclude>
-    <ClInclude Include="d3d9\d3d9font.h">
-      <Filter>d3d9</Filter>
-    </ClInclude>
-    <ClInclude Include="d3d9\d3d9hook.h">
-      <Filter>d3d9</Filter>
-    </ClInclude>
-    <ClInclude Include="d3d9\d3d9overlay.h">
-      <Filter>d3d9</Filter>
-    </ClInclude>
-    <ClInclude Include="d3d10\d3d10font.h">
-      <Filter>d3d10</Filter>
-    </ClInclude>
-    <ClInclude Include="d3d10\d3d10overlay.h">
-      <Filter>d3d10</Filter>
-    </ClInclude>
-    <ClInclude Include="d3d11\d3d11font.h">
-      <Filter>d3d11</Filter>
-    </ClInclude>
-    <ClInclude Include="d3d11\d3d11overlay.h">
-      <Filter>d3d11</Filter>
-    </ClInclude>
-    <ClInclude Include="dxgi\dxgihook.h">
+    <ClInclude Include="source\font.h" />
+    <ClInclude Include="source\shaders.h" />
+    <ClInclude Include="source\dxgi\dxgihook.h">
       <Filter>dxgi</Filter>
     </ClInclude>
-    <ClInclude Include="dxgi\dxgioverlay.h">
+    <ClInclude Include="source\dxgi\dxgioverlay.h">
       <Filter>dxgi</Filter>
+    </ClInclude>
+    <ClInclude Include="source\d3d9\d3d9font.h">
+      <Filter>d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="source\d3d9\d3d9hook.h">
+      <Filter>d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="source\d3d9\d3d9overlay.h">
+      <Filter>d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="source\d3d8\d3d8font.h">
+      <Filter>d3d8</Filter>
+    </ClInclude>
+    <ClInclude Include="source\d3d8\d3d8hook.h">
+      <Filter>d3d8</Filter>
+    </ClInclude>
+    <ClInclude Include="source\d3d8\d3d8overlay.h">
+      <Filter>d3d8</Filter>
+    </ClInclude>
+    <ClInclude Include="source\d3d11\d3d11font.h">
+      <Filter>d3d11</Filter>
+    </ClInclude>
+    <ClInclude Include="source\d3d11\d3d11overlay.h">
+      <Filter>d3d11</Filter>
+    </ClInclude>
+    <ClInclude Include="source\d3d10\d3d10font.h">
+      <Filter>d3d10</Filter>
+    </ClInclude>
+    <ClInclude Include="source\d3d10\d3d10overlay.h">
+      <Filter>d3d10</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

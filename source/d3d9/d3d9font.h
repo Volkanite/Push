@@ -1,7 +1,7 @@
 #ifndef D3DFONT_H
 #define D3DFONT_H
 #include <D3D9.h>
-#include "font.h"
+#include <font.h>
 
 
 //-----------------------------------------------------------------------------

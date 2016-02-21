@@ -19,32 +19,38 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="d3d10\d3d10font.cpp" />
-    <ClCompile Include="d3d10\d3d10overlay.cpp" />
-    <ClCompile Include="d3d11\d3d11font.cpp" />
-    <ClCompile Include="d3d11\d3d11overlay.cpp" />
-    <ClCompile Include="d3d8\d3d8font.cpp" />
-    <ClCompile Include="d3d8\d3d8hook.cpp" />
-    <ClCompile Include="d3d8\d3d8overlay.cpp" />
-    <ClCompile Include="d3d9\d3d9font.cpp" />
-    <ClCompile Include="d3d9\d3d9hook.cpp" />
-    <ClCompile Include="d3d9\d3d9overlay.cpp" />
-    <ClCompile Include="dxgi\dxgihook.cpp" />
-    <ClCompile Include="dxgi\dxgioverlay.cpp" />
+    <ClCompile Include="source\d3d10\d3d10font.cpp" />
+    <ClCompile Include="source\d3d10\d3d10overlay.cpp" />
+    <ClCompile Include="source\d3d11\d3d11font.cpp" />
+    <ClCompile Include="source\d3d11\d3d11overlay.cpp" />
+    <ClCompile Include="source\d3d8\d3d8font.cpp" />
+    <ClCompile Include="source\d3d8\d3d8hook.cpp" />
+    <ClCompile Include="source\d3d8\d3d8overlay.cpp" />
+    <ClCompile Include="source\d3d9\d3d9font.cpp" />
+    <ClCompile Include="source\d3d9\d3d9hook.cpp" />
+    <ClCompile Include="source\d3d9\d3d9overlay.cpp" />
+    <ClCompile Include="source\ddraw\ddrawhook.cpp" />
+    <ClCompile Include="source\dxgi\dxgihook.cpp" />
+    <ClCompile Include="source\dxgi\dxgioverlay.cpp" />
+    <ClCompile Include="source\font.cpp" />
+    <ClCompile Include="source\overlay.cpp" />
+    <ClCompile Include="source\shaders.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="d3d10\d3d10font.h" />
-    <ClInclude Include="d3d10\d3d10overlay.h" />
-    <ClInclude Include="d3d11\d3d11font.h" />
-    <ClInclude Include="d3d11\d3d11overlay.h" />
-    <ClInclude Include="d3d8\d3d8font.h" />
-    <ClInclude Include="d3d8\d3d8hook.h" />
-    <ClInclude Include="d3d8\d3d8overlay.h" />
-    <ClInclude Include="d3d9\d3d9font.h" />
-    <ClInclude Include="d3d9\d3d9hook.h" />
-    <ClInclude Include="d3d9\d3d9overlay.h" />
-    <ClInclude Include="dxgi\dxgihook.h" />
-    <ClInclude Include="dxgi\dxgioverlay.h" />
+    <ClInclude Include="source\d3d10\d3d10font.h" />
+    <ClInclude Include="source\d3d10\d3d10overlay.h" />
+    <ClInclude Include="source\d3d11\d3d11font.h" />
+    <ClInclude Include="source\d3d11\d3d11overlay.h" />
+    <ClInclude Include="source\d3d8\d3d8font.h" />
+    <ClInclude Include="source\d3d8\d3d8hook.h" />
+    <ClInclude Include="source\d3d8\d3d8overlay.h" />
+    <ClInclude Include="source\d3d9\d3d9font.h" />
+    <ClInclude Include="source\d3d9\d3d9hook.h" />
+    <ClInclude Include="source\d3d9\d3d9overlay.h" />
+    <ClInclude Include="source\dxgi\dxgihook.h" />
+    <ClInclude Include="source\dxgi\dxgioverlay.h" />
+    <ClInclude Include="source\font.h" />
+    <ClInclude Include="source\shaders.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{99E0E745-ACD1-498F-B7EB-385EE594D30C}</ProjectGuid>
@@ -96,25 +102,25 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\detourXS;$(ProjectDir);$(ProjectDir)d3d11;$(ProjectDir)d3d10;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\detourXS;$(SolutionDir)source;$(SolutionDir)source\d3d11;$(SolutionDir)source\d3d10;$(SolutionDir)source\d3d9;$(SolutionDir)source\d3d8;$(SolutionDir)source\dxgi;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
     <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x86;$(SolutionDir)resources\sl\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\detourXS;$(ProjectDir);$(ProjectDir)d3d11;$(ProjectDir)d3d10;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\detourXS;$(SolutionDir)source;$(SolutionDir)source\d3d11;$(SolutionDir)source\d3d10;$(SolutionDir)source\d3d9;$(SolutionDir)source\d3d8;$(SolutionDir)source\dxgi;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
     <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x64;$(SolutionDir)resources\sl\lib\AMD64;$(SolutionDir)bin64;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\detourXS;$(ProjectDir);$(ProjectDir)d3d11;$(ProjectDir)d3d10;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\detourXS;$(SolutionDir)source;$(SolutionDir)source\d3d11;$(SolutionDir)source\d3d10;$(SolutionDir)source\d3d9;$(SolutionDir)source\d3d8;$(SolutionDir)source\dxgi;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
     <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x86;$(SolutionDir)resources\sl\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\detourXS;$(ProjectDir);$(ProjectDir)d3d11;$(ProjectDir)d3d10;$(ProjectDir)overlay;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)inc;$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\d3dx;$(SolutionDir)resources\detourXS;$(SolutionDir)source;$(SolutionDir)source\d3d11;$(SolutionDir)source\d3d10;$(SolutionDir)source\d3d9;$(SolutionDir)source\d3d8;$(SolutionDir)source\dxgi;$(ProjectDir)..\resources\d3dx;$(ProjectDir)..\inc;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
     <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x64;$(SolutionDir)resources\sl\lib\AMD64;$(SolutionDir)bin64;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin64\</OutDir>
