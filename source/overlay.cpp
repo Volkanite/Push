@@ -36,13 +36,13 @@ ULONG __stdcall CreateOverlay( LPVOID Param )
     OV_HOOK_PARAMS *hookParams = (OV_HOOK_PARAMS*) Param;
     OvOverlay *overlay = NULL;
 
-    if (GetModuleHandleA("d3d8.dll") && OvDx8Overlay == NULL)
+    if (GetModuleHandleW(L"d3d8.dll") && OvDx8Overlay == NULL)
     {
         OvDx8Overlay = new Dx8Overlay( hookParams->RenderFunction );
         overlay = OvDx8Overlay;
     }
 
-    if (GetModuleHandleA("d3d9.dll") && D3D9Overlay == NULL)
+    if (GetModuleHandleW(L"d3d9.dll") && D3D9Overlay == NULL)
     {
         
         D3D9Overlay = new Dx9Overlay( hookParams->RenderFunction );
@@ -50,11 +50,16 @@ ULONG __stdcall CreateOverlay( LPVOID Param )
         overlay = D3D9Overlay;
     }
 
-    if (GetModuleHandleA("dxgi.dll") && OvDxgiOverlay == NULL)
+    if (GetModuleHandleW(L"dxgi.dll") && OvDxgiOverlay == NULL)
     {
         OvDxgiOverlay = new DxgiOverlay( hookParams->RenderFunction );
         overlay = D3D9Overlay;
     }
+
+	if (GetModuleHandleW(L"ddraw.dll"))
+	{
+		OutputDebugStringW(L"DirectDraw Overlay not implemented!");
+	}
 
     if (overlay)
         overlay->VsyncOverrideMode = hookParams->VsyncOverrideMode;
