@@ -1,9 +1,9 @@
 #include <windows.h>
 #include <d3d9.h>
 
-#include "dx9overlay.h"
-#include "dx9font.h"
-#include "dx9hook.h"
+#include "d3d9overlay.h"
+#include "d3d9font.h"
+#include "d3d9hook.h"
 #include <OvRender.h>
 
 

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <tchar.h>
 #include <D3DX8.h>
-#include "dx8font.h"
+#include "d3d8font.h"
 
 
 //-----------------------------------------------------------------------------

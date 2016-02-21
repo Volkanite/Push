@@ -7,8 +7,8 @@ typedef struct _D3DLOCKED_RECT
     INT                 Pitch;
     void*               pBits;
 } D3DLOCKED_RECT;
-#include "dx10font.h"
-#include "dx10overlay.h"
+#include "d3d10font.h"
+#include "d3d10overlay.h"
 
 // maps unsigned 8 bits/channel to D3DCOLOR
 #define D3DCOLOR_ARGB(a,r,g,b) \

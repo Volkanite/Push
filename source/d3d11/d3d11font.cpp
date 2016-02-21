@@ -10,7 +10,7 @@ typedef struct _D3DLOCKED_RECT
     INT                 Pitch;
     void*               pBits;
 } D3DLOCKED_RECT;
-#include "dx11font.h"
+#include "d3d11font.h"
 #include "shaders.h"
 
 

@@ -2,7 +2,7 @@
 #include <tchar.h>
 #include <D3DX9.h>
 
-#include "dx9font.h"
+#include "d3d9font.h"
 #define SAFE_RELEASE(x) if (x) { x->Release(); x = 0; }
 
 //-----------------------------------------------------------------------------

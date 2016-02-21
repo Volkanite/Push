@@ -6,8 +6,8 @@
 
 #include <OvRender.h>
 #include "dxgioverlay.h"
-#include "dx11overlay.h"
-#include "dx10overlay.h"
+#include "d3d11overlay.h"
+#include "d3d10overlay.h"
 #include "dxgihook.h"
 
 

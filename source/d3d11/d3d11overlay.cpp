@@ -1,7 +1,7 @@
 #include <windows.h>
 #include <D3D11.h>
 
-#include "dx11overlay.h"
+#include "d3d11overlay.h"
 
 
 typedef struct _D3DLOCKED_RECT
@@ -15,7 +15,7 @@ typedef struct _D3DLOCKED_RECT
     ((DWORD)((((a)&0xff)<<24)|(((r)&0xff)<<16)|(((g)&0xff)<<8)|((b)&0xff)))
     
 
-#include "dx11font.h"
+#include "d3d11font.h"
 
 
 Dx11Font* Dx11OvFont;

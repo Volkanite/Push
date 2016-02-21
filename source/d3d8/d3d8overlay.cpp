@@ -1,9 +1,9 @@
 #include <windows.h>
 #include <d3d8.h>
 
-#include "dx8font.h"
-#include "dx8overlay.h"
-#include "dx8hook.h"
+#include "d3d8font.h"
+#include "d3d8overlay.h"
+#include "d3d8hook.h"
 
 
 Dx8Font* Dx8OvFont;

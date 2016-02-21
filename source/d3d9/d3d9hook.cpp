@@ -3,7 +3,7 @@
 #include <slmodule.h>
 #include <detourxs.h>
 
-#include "dx9hook.h"
+#include "d3d9hook.h"
 
 
 typedef struct _HOOK_PARAMS
