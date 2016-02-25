@@ -1,6 +1,7 @@
 #ifndef OVERLAY_H
 #define OVERLAY_H
 
+#include <Windows.h>
 
 class OvOverlay;
 typedef VOID (*OV_RENDER)( OvOverlay* Overlay );

@@ -3,11 +3,13 @@
 #include "d3d8overlay.h"
 #include "d3d9overlay.h"
 #include "dxgioverlay.h"
+#include "ddraw\ddrawoverlay.h"
 
 
 Dx8Overlay*     OvDx8Overlay;
 Dx9Overlay*     D3D9Overlay;
-DxgiOverlay*    OvDxgiOverlay;
+DxgiOverlay*    DXGIOverlay;
+DDrawOverlay*	DirectDrawOverlay;
 extern CRITICAL_SECTION OvCriticalSection;
 
 
@@ -50,15 +52,16 @@ ULONG __stdcall CreateOverlay( LPVOID Param )
         overlay = D3D9Overlay;
     }
 
-    if (GetModuleHandleW(L"dxgi.dll") && OvDxgiOverlay == NULL)
+	if (GetModuleHandleW(L"dxgi.dll") && DXGIOverlay == NULL)
     {
-        OvDxgiOverlay = new DxgiOverlay( hookParams->RenderFunction );
-        overlay = D3D9Overlay;
+		DXGIOverlay = new DxgiOverlay(hookParams->RenderFunction);
+		overlay = DXGIOverlay;
     }
 
-	if (GetModuleHandleW(L"ddraw.dll"))
+	if (GetModuleHandleW(L"ddraw.dll") && DirectDrawOverlay == NULL)
 	{
-		OutputDebugStringW(L"DirectDraw Overlay not implemented!");
+		DirectDrawOverlay = new DDrawOverlay(hookParams->RenderFunction);
+		overlay = DirectDrawOverlay;
 	}
 
     if (overlay)

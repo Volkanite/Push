@@ -13,7 +13,7 @@
 
 Dx11Overlay* DxgiOvDx11Overlay;
 Dx10Overlay* DxgiOvDx10Overlay;
-extern DxgiOverlay* OvDxgiOverlay;
+extern DxgiOverlay* DXGIOverlay;
 
 
 
@@ -38,11 +38,11 @@ DxgiOvInit( IDXGISwapChain* SwapChain )
 
     if (SUCCEEDED(SwapChain->GetDevice(__uuidof(ID3D11Device), (void **) &device11)))
     {
-        DxgiOvDx11Overlay = new Dx11Overlay( device11, OvDxgiOverlay->UserRenderFunction );
+		DxgiOvDx11Overlay = new Dx11Overlay(device11, DXGIOverlay->UserRenderFunction);
     }
     else if (SUCCEEDED(SwapChain->GetDevice(__uuidof(ID3D10Device), (void **) &device10)))
     {
-        DxgiOvDx10Overlay = new Dx10Overlay( device10, OvDxgiOverlay->UserRenderFunction );
+		DxgiOvDx10Overlay = new Dx10Overlay(device10, DXGIOverlay->UserRenderFunction);
     }
 
     DxgiOvInitialized = TRUE;
