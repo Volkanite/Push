@@ -44,7 +44,7 @@ UINT16 GetMemoryClock()
 
 UINT16 GetVoltage()
 {
-    if (!Hwinfo_GpuAdapter)
+    if (!Hwinfo_GpuAdapter || !Hwinfo_GpuAdapter->GetVoltage)
         return 0;
 
     return Hwinfo_GpuAdapter->GetVoltage();
@@ -71,6 +71,9 @@ UINT8 GetGpuLoadHardware()
 
 UINT16 GetFanSpeed()
 {
+    if (!Hwinfo_GpuAdapter || !Hwinfo_GpuAdapter->GetFanSpeed)
+        return 0;
+
     return Hwinfo_GpuAdapter->GetFanSpeed();
 }
 

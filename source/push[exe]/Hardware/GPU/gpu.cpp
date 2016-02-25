@@ -17,7 +17,7 @@ GPU_ADAPTER* CreateGpuAdapter( WORD VendorId )
 {
     GPU_ADAPTER *gpuAdapter = (GPU_ADAPTER*) RtlAllocateHeap(
         PushHeapHandle, 
-        0, 
+        HEAP_ZERO_MEMORY,
         sizeof(GPU_ADAPTER)
         );
 
