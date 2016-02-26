@@ -18,10 +18,7 @@ SYSTEM_BASIC_INFORMATION    HwInfoSystemBasicInformation;
 GPU_ADAPTER*                Hwinfo_GpuAdapter;
 
 
-#define REGISTER_VENDORID   0x00
-#define REGISTER_CLASSCODE  0x08
-#define REGISTER_BAR0       0x10
-#define REGISTER_BAR2       0x18
+
 
 
 UINT16 GetEngineClock()
@@ -60,12 +57,12 @@ UINT8 GetGpuTemp()
 }
 
 
-UINT8 GetGpuLoadHardware()
+UINT8 GetGpuLoad()
 {
-    if (!Hwinfo_GpuAdapter)
-        return 0;
+	if (!Hwinfo_GpuAdapter)
+		return 0;
 
-    return Hwinfo_GpuAdapter->GetLoad();
+	return Hwinfo_GpuAdapter->GetLoad();
 }
 
 
@@ -75,16 +72,6 @@ UINT16 GetFanSpeed()
         return 0;
 
     return Hwinfo_GpuAdapter->GetFanSpeed();
-}
-
-
-UINT8
-GetGpuLoad()
-{
-    if (PushGpuLoadD3DKMT)
-        return D3DKMT_GetGpuUsage();
-    else
-        return GetGpuLoadHardware();
 }
 
 
@@ -511,7 +498,7 @@ VOID GetHardwareInfo()
     UINT64 pageSize;
 
     InitGpuHardware();
-    Hwinfo_GpuAdapter = CreateGpuAdapter(hardware.DisplayDevice.VendorId);
+    Hwinfo_GpuAdapter = CreateGpuAdapter(hardware.DisplayDevice.pciAddress);
 
     if (Hwinfo_GpuAdapter)
     {

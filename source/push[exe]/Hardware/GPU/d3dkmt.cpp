@@ -2,6 +2,7 @@
 #include <sld3dkmt.h>
 #include <string.h>
 #include <push.h>
+#include "gpu.h"
 
 
 GUID GUID_DISPLAY_DEVICE_ARRIVAL_I  = { 0x1ca05180, 0xa699, 0x450a, { 0x9a, 0x0c, 0xde, 0x4f, 0xbe, 0x3d, 0xdd, 0x89 } };

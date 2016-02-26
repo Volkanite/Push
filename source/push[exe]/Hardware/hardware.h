@@ -4,6 +4,10 @@ extern "C" PUSH_HARDWARE_INFORMATION hardware;
 extern PUSH_HARDWARE_INFORMATION hardware;
 #endif
 
+#define REGISTER_VENDORID   0x00
+#define REGISTER_CLASSCODE  0x08
+#define REGISTER_BAR0       0x10
+#define REGISTER_BAR2       0x18
 
 
 

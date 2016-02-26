@@ -1,4 +1,6 @@
 #include <sl.h>
+
+#include "gpu.h"
 #include "nvapi.h"
 
 

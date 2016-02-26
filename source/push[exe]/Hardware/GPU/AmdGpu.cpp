@@ -8,7 +8,7 @@
 
 
 #define R6XX_CONFIG_MEMSIZE 0x5428
-
+WORD DeviceId;
 
 UINT8 AmdGpu_GetLoad();
 UINT16 AmdGpu_GetEngineClock();
@@ -35,6 +35,8 @@ VOID AmdGpu_CreateAdapter( GPU_ADAPTER* GpuAdapter )
     GpuAdapter->GetTemperature          = AmdGpu_GetTemperature;
     GpuAdapter->ForceMaximumClocks      = AmdGpu_ForceMaximumClocks;
     GpuAdapter->GetLoad                 = AmdGpu_GetLoad;
+
+	DeviceId = GpuAdapter->DeviceId;
 }
 
 
@@ -87,24 +89,31 @@ UINT8 AmdGpu_GetTemperature()
 
 UINT8 AmdGpu_GetLoad()
 {
-    DWORD usage, reg6do;
-    FLOAT f1;
+	if (DeviceId == 0x9832)
+	{
+		return Adl_GetActivity();
+	}
+	else
+	{
+		DWORD usage, reg6do;
+		FLOAT f1;
 
-    usage = ReadGpuRegister(0x668);
+		usage = ReadGpuRegister(0x668);
 
-    reg6do = ReadGpuRegister(0x6D0);
+		reg6do = ReadGpuRegister(0x6D0);
 
-    reg6do = (reg6do & 0x0000ffff);
+		reg6do = (reg6do & 0x0000ffff);
 
-    usage = (usage & 0x0000ffff);
+		usage = (usage & 0x0000ffff);
 
-    f1 = usage;
+		f1 = usage;
 
-    f1 = f1 * 200.0f;
+		f1 = f1 * 200.0f;
 
-    f1 = f1 / (float) reg6do;
+		f1 = f1 / (float)reg6do;
 
-    return f1;
+		return f1;
+	}
 }
 
 
