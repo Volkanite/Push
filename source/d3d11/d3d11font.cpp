@@ -13,6 +13,7 @@ typedef struct _D3DLOCKED_RECT
 #include "d3d11font.h"
 #include "shaders.h"
 
+#define SAFE_RELEASE(x) if (x) { x->Release(); x = 0; }
 
 enum
 {
@@ -442,6 +443,12 @@ VOID Dx11Font::EndBatch( )
     UINT viewportCount = 1, stride, offset, spritesToDraw;
     UINT startIndex;
     D3D11_VIEWPORT vp;
+    ID3D11Buffer* vertexBuffer;
+    UINT vertexBufferStride;
+    UINT vertexBufferOffset;
+    ID3D11Buffer* indexBuffer;
+    DXGI_FORMAT format;
+    UINT indexBufferOffset;
 
     deviceContext->RSGetViewports(&viewportCount, &vp);
 
@@ -451,12 +458,15 @@ VOID Dx11Font::EndBatch( )
     stride = sizeof( SpriteVertex );
     offset = 0;
 
+    // Save device state
+    deviceContext->IAGetIndexBuffer(&indexBuffer, &format, &indexBufferOffset);
+    deviceContext->IAGetVertexBuffers(0, 1, &vertexBuffer, &vertexBufferStride, &vertexBufferOffset);
+
+    // Set new state
     deviceContext->IASetInputLayout( inputLayout );
     deviceContext->IASetIndexBuffer(IB, DXGI_FORMAT_R16_UINT, 0 );
     deviceContext->IASetVertexBuffers(0, 1, &VB, &stride, &offset );
     deviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-
-    //effectSRV->SetResource(BatchTexSRV);
     deviceContext->PSSetShaderResources(0, 1, &shaderResourceView);
     deviceContext->VSSetShader(D3D11Font_VertexShader, NULL, 0);
     deviceContext->PSSetShader(D3D11Font_PixelShader, NULL, 0);
@@ -479,7 +489,14 @@ VOID Dx11Font::EndBatch( )
         }
     }
 
-    BatchTexSRV->Release();
+    // Restore device state
+    deviceContext->IASetIndexBuffer(indexBuffer, format, indexBufferOffset);
+    deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexBufferStride, &vertexBufferOffset);
+
+    // Release interfaces
+    SAFE_RELEASE(BatchTexSRV);
+    SAFE_RELEASE(indexBuffer);
+    SAFE_RELEASE(vertexBuffer);
 }
 
 
