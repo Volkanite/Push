@@ -1,1 +1,1 @@
-UINT8 GetIntelTemp();
+UINT8 Intel_GetTemperature();

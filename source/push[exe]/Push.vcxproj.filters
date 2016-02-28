@@ -94,6 +94,12 @@
       <Filter>OSD</Filter>
     </ClCompile>
     <ClCompile Include="ring0.cpp" />
+    <ClCompile Include="Hardware\CPU\amd.cpp">
+      <Filter>Hardware\CPU</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\CPU\cpu.cpp">
+      <Filter>Hardware\CPU</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\cache.h">
@@ -162,6 +168,15 @@
     </ClInclude>
     <ClInclude Include="OSD\rtss.h">
       <Filter>OSD</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\CPU\cpu.h">
+      <Filter>Hardware\CPU</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\vendors.h">
+      <Filter>Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\CPU\amd.h">
+      <Filter>Hardware\CPU</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

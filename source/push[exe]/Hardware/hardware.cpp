@@ -4,7 +4,7 @@
 #include <ring0.h>
 
 #include "GPU\d3dkmt.h"
-#include "CPU\intel.h"
+#include "CPU\cpu.h"
 #include "disk.h"
 #include "hardware.h"
 #include "GPU\gpu.h"
@@ -59,10 +59,10 @@ UINT8 GetGpuTemp()
 
 UINT8 GetGpuLoad()
 {
-	if (!Hwinfo_GpuAdapter)
-		return 0;
+    if (!Hwinfo_GpuAdapter)
+        return 0;
 
-	return Hwinfo_GpuAdapter->GetLoad();
+    return Hwinfo_GpuAdapter->GetLoad();
 }
 
 
@@ -75,11 +75,11 @@ UINT16 GetFanSpeed()
 }
 
 
-UINT8
-GetCpuTemp()
+UINT8 GetCpuTemp()
 {
-    return GetIntelTemp();
+    return CPU_GetTemperature();
 }
+
 
 UINT64
 D3DKMTGetMemoryUsage();
@@ -541,6 +541,8 @@ VOID GetHardwareInfo()
     
     // Start disk monitoring;
     DiskStartMonitoring();
+
+    CPU_Intialize();
 }
 
 

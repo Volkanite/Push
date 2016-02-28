@@ -59,7 +59,7 @@ UINT64 IntelGpu_GetFreeMemory()
 
 UINT8 IntelGpu_GetTemperature()
 {
-    return GetIntelTemp();
+    return 0;
 }
 
 

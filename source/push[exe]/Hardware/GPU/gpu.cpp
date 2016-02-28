@@ -11,20 +11,18 @@
 
 
 
-#define NVIDIA  0x10DE
-#define AMD     0x1002
-#define INTEL   0x8086
+
 
 typedef struct _PCI_CONFIG
 {
-	WORD VendorId;
-	WORD DeviceId;
+    WORD VendorId;
+    WORD DeviceId;
 }PCI_CONFIG;
 
 
 GPU_ADAPTER* CreateGpuAdapter( ULONG PciAddress )
 {
-	PCI_CONFIG pciConfig;
+    PCI_CONFIG pciConfig;
 
     GPU_ADAPTER *gpuAdapter = (GPU_ADAPTER*) RtlAllocateHeap(
         PushHeapHandle, 
@@ -32,14 +30,14 @@ GPU_ADAPTER* CreateGpuAdapter( ULONG PciAddress )
         sizeof(GPU_ADAPTER)
         );
 
-	R0ReadPciConfig(
-		PciAddress,
-		REGISTER_VENDORID,
-		(BYTE *)&pciConfig,
-		sizeof(pciConfig)
-		);
+    R0ReadPciConfig(
+        PciAddress,
+        REGISTER_VENDORID,
+        (BYTE *)&pciConfig,
+        sizeof(pciConfig)
+        );
 
-	gpuAdapter->DeviceId = pciConfig.DeviceId;
+    gpuAdapter->DeviceId = pciConfig.DeviceId;
 
     switch (pciConfig.VendorId)
     {

@@ -4,8 +4,7 @@
 
 #define IA32_THERM_STATUS_MSR 0x019C
 
-UINT8 
-GetIntelTemp()
+UINT8 Intel_GetTemperature()
 {
     INT32 retTemp = 0;
     INT32 i= 0;
