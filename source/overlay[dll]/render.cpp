@@ -83,13 +83,13 @@ VOID RunFrameStatistics()
         lcyclesWaited = 0;
         g_SetOSDRefresh = TRUE;
 
-        if (PushSharedMemory->ThreadOptimization || PushSharedMemory->OSDFlags & OSD_MTU)
-        {
+        //if (PushSharedMemory->ThreadOptimization || PushSharedMemory->OSDFlags & OSD_MTU)
+        //{
             PushRefreshThreadMonitor();
 
-            if (PushSharedMemory->OSDFlags & OSD_MTU)
+            //if (PushSharedMemory->OSDFlags & OSD_MTU)
             PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage = PushGetMaxThreadUsage();
-        }
+        //}
 
         WCHAR buffer[100];
 
@@ -138,6 +138,12 @@ VOID RunFrameStatistics()
 
         if (PushSharedMemory->AutoLogFileIo)
             PushSharedMemory->LogFileIo = TRUE;
+
+        if (PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage > 95)
+        {
+            PushSharedMemory->Overloads |= OSD_MTU;
+            PushSharedMemory->OSDFlags |= OSD_MTU;
+        }
     }
 
     if (((newTickCount - oldTick2) > 30000) && !PushSharedMemory->KeepFps)
