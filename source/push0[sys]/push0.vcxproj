@@ -124,7 +124,7 @@
       <AdditionalOptions>/DRIVER  /subsystem:NATIVE,5.02  /IGNORE:4078</AdditionalOptions>
       <SetChecksum>true</SetChecksum>
       <BaseAddress>0x10000</BaseAddress>
-      <AdditionalDependencies>ntoskrnl.lib;hal.lib;slpci.lib;fltmgr.lib;bufferoverflowK.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ntoskrnl.lib;hal.lib;slpci.lib;fltmgr.lib;bufferoverflowK.lib</AdditionalDependencies>
       <StackReserveSize>262144</StackReserveSize>
       <StackCommitSize>4096</StackCommitSize>
       <EntryPointSymbol>DriverEntry</EntryPointSymbol>

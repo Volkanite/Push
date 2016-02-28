@@ -88,8 +88,8 @@
       <PreprocessorDefinitions>_AMD64_;_WIN32_WINNT=0x0601;_WIN64</PreprocessorDefinitions>
       <AssemblerListingLocation>.\Release\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\Release\phymem.pch</PrecompiledHeaderOutputFile>
-      <ObjectFileName>.\Release\</ObjectFileName>
-      <ProgramDataBaseFileName>.\Release\</ProgramDataBaseFileName>
+      <ObjectFileName>$(Platform)\$(Configuration)\</ObjectFileName>
+      <ProgramDataBaseFileName>$(Platform)\$(Configuration)\</ProgramDataBaseFileName>
       <CallingConvention>StdCall</CallingConvention>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <TreatSpecificWarningsAsErrors>4020;4005;4101;4133;4142;4520;4700;4715;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
