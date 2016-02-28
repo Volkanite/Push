@@ -118,7 +118,7 @@ VOID AddItems()
         Menu->AddItem(L"Keep active", ItemOpt, &D3DTweaks[2], FUNC_KEEPACTIVE);
     }
 
-    Menu->AddGroup(L"PROC >", GroupOpt, &Process[0]);
+    Menu->AddGroup(L"Proc >", GroupOpt, &Process[0]);
 
     if (Process[0].Var)
     {
