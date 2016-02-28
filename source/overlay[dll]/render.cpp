@@ -89,9 +89,6 @@ VOID RunFrameStatistics()
 
             if (PushSharedMemory->OSDFlags & OSD_MTU)
             PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage = PushGetMaxThreadUsage();
-
-            if (PushSharedMemory->ThreadOptimization)
-                PushOptimizeThreads();
         }
 
         WCHAR buffer[100];

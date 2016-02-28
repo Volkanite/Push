@@ -36,13 +36,6 @@ PushGetMaxThreadUsage()
 }
 
 
-VOID
-PushOptimizeThreads()
-{
-    PushThreadMonitor->OptimizeThreads();
-}
-
-
 VOID CreateOverlay()
 {
     OV_HOOK_PARAMS hookParams = { 0 };

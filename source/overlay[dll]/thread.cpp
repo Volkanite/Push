@@ -16,23 +16,26 @@ typedef struct _THREAD_LIST {
     THREAD_LIST_ENTRY*  NextEntry;
 
 } THREAD_LIST_ENTRY, *THREAD_LIST;
+typedef struct _PROCESSOR_POWER_INFORMATION {
+    ULONG Number;
+    ULONG MaxMhz;
+    ULONG CurrentMhz;
+    ULONG MhzLimit;
+    ULONG MaxIdleState;
+    ULONG CurrentIdleState;
+} PROCESSOR_POWER_INFORMATION, *PPROCESSOR_POWER_INFORMATION;
 
-
-typedef VOID* (__stdcall* TYPE_CreateThread)(
-    SECURITY_ATTRIBUTES* lpThreadAttributes,
-    UINT_B dwStackSize,
-    VOID* lpStartAddress,
-    VOID* lpParameter,
-    DWORD dwCreationFlags,
-    DWORD* lpThreadId
-);
-
-
-TYPE_CreateThread       TmCreateThread;
 THREAD_LIST_ENTRY* TmThreadList = 0;
 VOID* TmHeapHandle;
-
-
+ULONG MaxMhz;
+#define ProcessorInformation 11
+extern "C" NTSTATUS __stdcall CallNtPowerInformation(
+    UINT32 InformationLevel,
+    VOID*                   lpInputBuffer,
+    ULONG                   nInputBufferSize,
+    VOID*                   lpOutputBuffer,
+    ULONG                   nOutputBufferSize
+    );
 #ifdef _WIN64
 #include <intrin.h>
 
@@ -44,7 +47,7 @@ TEB* __stdcall NtCurrentTeb()
 
 
 VOID
-AddToThreadList( UINT16 threadID )
+AddToThreadList( UINT16 ThreadId )
 {
     THREAD_LIST_ENTRY *threadListEntry;
     OBJECT_ATTRIBUTES objectAttributes = {0};
@@ -58,7 +61,7 @@ AddToThreadList( UINT16 threadID )
     //memset(&id, 0, sizeof(id));
 
     id.UniqueProcess = 0;
-    id.UniqueThread = (VOID*) threadID;
+    id.UniqueThread = (VOID*)ThreadId;
 
     /*NtOpenThread(&handle,
                  THREAD_SET_INFORMATION | THREAD_QUERY_INFORMATION,
@@ -79,7 +82,7 @@ AddToThreadList( UINT16 threadID )
         TmThreadList->cpuUsage      = 0;
         TmThreadList->cycles        = 0;
         //threadListFirstEntry->handle        = handle;
-        TmThreadList->ThreadId      = threadID;
+        TmThreadList->ThreadId = ThreadId;
 
         return;
     }
@@ -89,6 +92,10 @@ AddToThreadList( UINT16 threadID )
     //move to empty list
     while(threadListEntry->NextEntry != 0)
     {
+        //check if already added
+        if (threadListEntry->ThreadId == ThreadId)
+            return;
+
         threadListEntry = threadListEntry->NextEntry;
     }
 
@@ -108,121 +115,19 @@ AddToThreadList( UINT16 threadID )
     threadListEntry->cpuUsage       = 0;
     threadListEntry->cycles         = 0;
     //threadListEntry->handle         = handle;
-    threadListEntry->ThreadId       = threadID;
+    threadListEntry->ThreadId = ThreadId;
 }
 
 
-VOID* __stdcall CreateThreadHook(
-    SECURITY_ATTRIBUTES* ThreadAttributes,
-    UINT_B StackSize,
-    VOID* StartAddress,
-    VOID* Parameter,
-    DWORD CreationFlags,
-    DWORD* ThreadId
-    )
-{
-    VOID* threadHandle;
-    DWORD threadId = 0;
-
-    threadHandle = TmCreateThread(
-                    ThreadAttributes,
-                    StackSize,
-                    StartAddress,
-                    Parameter,
-                    CreationFlags,
-                    &threadId
-                    );
-
-    printf("new thread : %u\n", threadId);
-
-    AddToThreadList( threadId );
-
-    if (ThreadId)
-        *ThreadId = threadId;
-
-    return threadHandle;
-}
-
-
-extern "C"
-DWORD
-__stdcall
-GetCurrentThreadId(
-    VOID
-    );
-
-VOID
-Swap( THREAD_LIST_ENTRY* a,
-      THREAD_LIST_ENTRY* b )
-{
-    THREAD_LIST_ENTRY threadListEntry;
-
-    threadListEntry.affinitized = a->affinitized;
-    threadListEntry.cpuUsage    = a->cpuUsage;
-    threadListEntry.cycles      = a->cycles;
-    //threadListEntry.handle      = a->handle;
-    threadListEntry.ThreadId    = a->ThreadId;
-
-    a->affinitized  = b->affinitized;
-    a->cpuUsage     = b->cpuUsage;
-    a->cycles       = b->cycles;
-    //a->handle       = b->handle;
-    a->ThreadId     = b->ThreadId;
-
-    b->affinitized  = threadListEntry.affinitized;
-    b->cpuUsage     = threadListEntry.cpuUsage;
-    b->cycles       = threadListEntry.cycles;
-    //b->handle       = threadListEntry.handle;
-    b->ThreadId     = threadListEntry.ThreadId;
-}
-
-
-VOID
-Sort( THREAD_LIST_ENTRY* start )
-{
-    int swapped;
-    THREAD_LIST_ENTRY *ptr1, *lptr = 0;
-
-    do
-    {
-        swapped = 0;
-        ptr1 = start;
-
-        while (ptr1->NextEntry != lptr)
-        {
-            if (ptr1->cycles < ptr1->NextEntry->cycles)
-            {
-                Swap(ptr1, ptr1->NextEntry);
-                swapped = 1;
-            }
-            ptr1 = ptr1->NextEntry;
-        }
-        lptr = ptr1;
-    }
-    while (swapped);
-}
-VOID* DetourApi(
-    WCHAR* dllName,
-    CHAR* apiName,
-    BYTE* NewFunction
-    );
-
-ThreadMonitor::ThreadMonitor()
+SYSTEM_PROCESS_INFORMATION* GetProcessInformation( UINT32* BufferSize )
 {
     UINT64 delta = 0;
     UINT32 ProcOffset = 0;
-    UINT32 n, bufferSize;
+    UINT32 bufferSize;
     PROCESSID processId;
     INT32 status = 0;
     VOID*           ProcThrdInfo = 0;
     SYSTEM_PROCESS_INFORMATION *processEntry;
-    SYSTEM_THREAD_INFORMATION *threads;
-
-    TmCreateThread = (TYPE_CreateThread) DetourApi(
-                        L"kernel32.dll",
-                        "CreateThread",
-                        (BYTE*)CreateThreadHook
-                        );
 
     bufferSize = 0x4000;
 
@@ -238,15 +143,15 @@ ThreadMonitor::ThreadMonitor()
     while (TRUE)
     {
         status = NtQuerySystemInformation(
-                    SystemProcessInformation,
-                    ProcThrdInfo,
-                    bufferSize,
-                    &bufferSize
-                    );
+            SystemProcessInformation,
+            ProcThrdInfo,
+            bufferSize,
+            &bufferSize
+            );
 
-        if(status == STATUS_BUFFER_TOO_SMALL || status == STATUS_INFO_LENGTH_MISMATCH)
+        if (status == STATUS_BUFFER_TOO_SMALL || status == STATUS_INFO_LENGTH_MISMATCH)
         {
-            NtFreeVirtualMemory((VOID*)-1, &ProcThrdInfo,(UINT32*)&bufferSize, MEM_RELEASE);
+            NtFreeVirtualMemory((VOID*)-1, &ProcThrdInfo, (UINT32*)&bufferSize, MEM_RELEASE);
 
             ProcThrdInfo = 0;
 
@@ -266,27 +171,36 @@ ThreadMonitor::ThreadMonitor()
     }
 
     processEntry = (SYSTEM_PROCESS_INFORMATION*)ProcThrdInfo;
-    processId = (UINT32) NtCurrentTeb()->ClientId.UniqueProcess;
+    processId = (UINT32)NtCurrentTeb()->ClientId.UniqueProcess;
 
     do
     {
-      processEntry = (SYSTEM_PROCESS_INFORMATION*)((UINT_B)processEntry + ProcOffset);
+        processEntry = (SYSTEM_PROCESS_INFORMATION*)((UINT_B)processEntry + ProcOffset);
 
-      if ((UINT16)processEntry->UniqueProcessId == processId)
-      {
-          printf(
-            "processEntry->UniqueProcessId [%u] matches processId [%u]\n", 
-            (UINT32)processEntry->UniqueProcessId, 
-            processId
-            );
-            
-          break;
-      }
+        if ((UINT16)processEntry->UniqueProcessId == processId)
+        {
+            break;
+        }
 
 
-     ProcOffset = processEntry->NextEntryOffset;
+        ProcOffset = processEntry->NextEntryOffset;
 
-    } while(processEntry != 0 && processEntry->NextEntryOffset != 0);
+    } while (processEntry != 0 && processEntry->NextEntryOffset != 0);
+
+    return processEntry;
+}
+
+
+ThreadMonitor::ThreadMonitor()
+{
+    UINT64 delta = 0;
+    UINT32 ProcOffset = 0;
+    UINT32 n, bufferSize;
+    INT32 status = 0;
+    SYSTEM_PROCESS_INFORMATION *processEntry;
+    SYSTEM_THREAD_INFORMATION *threads;
+
+    processEntry = GetProcessInformation(&bufferSize);
 
     threads = processEntry->Threads;
     TmHeapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
@@ -297,7 +211,58 @@ ThreadMonitor::ThreadMonitor()
         printf("adding thread %u to list\n", (UINT16) threads[n].ClientId.UniqueThread);
     }
 
-    NtFreeVirtualMemory((VOID*)-1, &ProcThrdInfo, (UINT32*)&bufferSize, MEM_RELEASE);
+    NtFreeVirtualMemory(
+        (VOID*)-1, 
+        (VOID**)&processEntry, 
+        (UINT32*)&bufferSize, 
+        MEM_RELEASE
+        );
+
+    SYSTEM_BASIC_INFORMATION basicInfo;
+    PPROCESSOR_POWER_INFORMATION ppi;
+
+    NtQuerySystemInformation(
+        SystemBasicInformation, 
+        &basicInfo, 
+        sizeof(SYSTEM_BASIC_INFORMATION), 
+        0
+        );
+
+    const int size = basicInfo.NumberOfProcessors * sizeof(PROCESSOR_POWER_INFORMATION);
+    ppi = (PPROCESSOR_POWER_INFORMATION) RtlAllocateHeap(
+        NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap,
+        HEAP_ZERO_MEMORY,
+        size
+        );
+
+    CallNtPowerInformation(ProcessorInformation, 0, 0, ppi, size);
+    MaxMhz = ppi->MaxMhz;
+}
+
+
+VOID UpdateThreadList()
+{
+    SYSTEM_PROCESS_INFORMATION *processInfo;
+    static UINT8 currentThreadCount;
+    UINT8 n;
+    UINT32 bufferSize;
+
+    processInfo = GetProcessInformation(&bufferSize);
+    
+    if (currentThreadCount != processInfo->NumberOfThreads)
+    {
+        for (n = 0; n < processInfo->NumberOfThreads; n++)
+        {
+            AddToThreadList((UINT16)processInfo->Threads[n].ClientId.UniqueThread);
+        }
+    }
+
+    NtFreeVirtualMemory(
+        (VOID*)-1, 
+        (VOID**)&processInfo, 
+        (UINT32*)&bufferSize, 
+        MEM_RELEASE
+        );
 }
 
 
@@ -373,12 +338,11 @@ ThreadMonitor::Refresh()
 }
 
 
-UINT8
-ThreadMonitor::GetMaxThreadUsage()
+UINT8 ThreadMonitor::GetMaxThreadUsage()
 {
     FLOAT threadUsage = 0.0f;
 
-    threadUsage = (MaxThreadCyclesDelta / 100000000) * PushSharedMemory->HarwareInformation.Processor.NumberOfCores;
+    threadUsage = ((FLOAT)MaxThreadCyclesDelta / (FLOAT)(MaxMhz * 1000000)) * 100;
 
     //clip calculated thread usage to [0-100] range to filter calculation non-ideality
 
@@ -389,106 +353,4 @@ ThreadMonitor::GetMaxThreadUsage()
         threadUsage = 100.0f;
 
     return threadUsage;
-}
-
-
-/////////////////////////////////////////////////////////////////
-// give first [cores - 1] threads sorted by cycle time
-// their own core which minimizes context switches
-/////////////////////////////////////////////////////////////////
-VOID
-ThreadMonitor::OptimizeThreads()
-{
-    THREAD_LIST_ENTRY *thread, *previousEntry;
-    UINT8 i = 0;
-    BOOLEAN affinityChanged = FALSE;
-    NTSTATUS status;
-    VOID *threadHandle;
-
-    // Sort thread list by cycles
-    Sort(TmThreadList);
-
-    thread = TmThreadList;
-
-    // Give first [cores - 1] threads their own core
-    for(i = 0; i < PushSharedMemory->HarwareInformation.Processor.NumberOfCores - 1; i++)
-    {
-        if (thread->affinitized == FALSE)
-        {
-            OBJECT_ATTRIBUTES objectAttributes = {0};
-            CLIENT_ID id = {0};
-
-            objectAttributes.Length = sizeof(OBJECT_ATTRIBUTES);
-
-            id.UniqueProcess = 0;
-            id.UniqueThread = (VOID*) thread->ThreadId;
-
-            status = NtOpenThread(
-                    &threadHandle,
-                    THREAD_SET_INFORMATION | THREAD_QUERY_INFORMATION,
-                    &objectAttributes,
-                    &id
-                    );
-
-            if(!NT_SUCCESS(status))
-            {
-                printf("cannot get information for thread %u\n", thread->ThreadId);
-
-                if (thread == TmThreadList)
-                    TmThreadList = thread->NextEntry;
-                else
-                    previousEntry->NextEntry = thread->NextEntry;
-
-                thread = thread->NextEntry;
-
-                continue;
-            }
-
-            SetThreadAffinityMask(threadHandle, 1<<i);
-            NtClose(threadHandle);
-
-            thread->affinitized = TRUE;
-            affinityChanged = TRUE;
-        }
-
-        if (thread->NextEntry == 0)
-            break;
-
-        previousEntry = thread;
-        thread = thread->NextEntry;
-    }
-
-    // Set other threads back to normal. Can be easily modified to set other threads to
-    // last core but they seem more happy being able to choose which core to run on.
-    // Also, piling a ton of threads on one core probably isn't such a good idea.
-    if (affinityChanged)
-    {
-        while (thread != 0)
-        {
-            OBJECT_ATTRIBUTES objectAttributes = {0};
-            CLIENT_ID id = {0};
-
-            objectAttributes.Length = sizeof(OBJECT_ATTRIBUTES);
-
-            id.UniqueProcess = 0;
-            id.UniqueThread = (VOID*) thread->ThreadId;
-
-            NtOpenThread(
-                &threadHandle,
-                THREAD_SET_INFORMATION | THREAD_QUERY_INFORMATION,
-                &objectAttributes,
-                &id
-                );
-
-            SetThreadAffinityMask(
-                threadHandle,
-                (1 << PushSharedMemory->HarwareInformation.Processor.NumberOfCores) - 1
-                );
-
-            NtClose(threadHandle);
-
-            thread->affinitized = FALSE;
-            thread = thread->NextEntry;
-        }
-    }
 }
