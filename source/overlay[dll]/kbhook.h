@@ -1,1 +1,9 @@
-void Keyboard_Hook(__int32 HookType);
+typedef enum _KEYBOARD_HOOK_TYPE
+{
+    KEYBOARD_HOOK_MESSAGE,
+    KEYBOARD_HOOK_KEYBOARD,
+    KEYBOARD_HOOK_DETOURS
+
+}KEYBOARD_HOOK_TYPE;
+
+void Keyboard_Hook(KEYBOARD_HOOK_TYPE HookType);

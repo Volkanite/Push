@@ -51,14 +51,14 @@ VOID CreateOverlay()
     OvCreateOverlayEx(&hookParams);
 }
 
-extern HHOOK hMessageHook;
+extern HHOOK KeyboardHookHandle;
 
 
 ULONG __stdcall MonitorThread(LPVOID v)
 {
-    while (!hMessageHook)
+    while (!KeyboardHookHandle)
     {
-        Keyboard_Hook(WH_GETMESSAGE);
+        Keyboard_Hook(KEYBOARD_HOOK_MESSAGE);
 
         Sleep(500);
     }

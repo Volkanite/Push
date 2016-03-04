@@ -1,8 +1,10 @@
 #include <Windows.h>
 #include "overlay.h"
 #include <OvRender.h>
+#include <detourxs.h>
 
 #include "menu.h"
+#include "kbhook.h"
 
 
 typedef struct _KEYBOARD_HOOK_PARAMS
@@ -15,7 +17,7 @@ typedef struct _KEYBOARD_HOOK_PARAMS
 
 
 HANDLE ProcessHeap;
-HHOOK hMessageHook;
+HHOOK KeyboardHookHandle;
 
 
 VOID PushKeySwapCallback( LPMSG Message )
@@ -151,7 +153,7 @@ LRESULT CALLBACK MessageProc(
         MessageHook((LPMSG)lParam);
     }
 
-    return CallNextHookEx(hMessageHook, nCode, wParam, lParam);
+    return CallNextHookEx(KeyboardHookHandle, nCode, wParam, lParam);
 }
 
 
@@ -166,7 +168,7 @@ LRESULT CALLBACK KeyboardProc(
         MenuKeyboardHook(wParam);
     }
 
-    return CallNextHookEx(hMessageHook, nCode, wParam, lParam);
+    return CallNextHookEx(KeyboardHookHandle, nCode, wParam, lParam);
 }
 
 
@@ -179,16 +181,16 @@ BOOL CALLBACK MessageHookWindowEnum(HWND hwnd, LPARAM lParam)
 
     if (processId == ((KEYBOARD_HOOK_PARAMS*)lParam)->ProcessId)
     {
-        if (!hMessageHook)
+        if (!KeyboardHookHandle)
         {
-            hMessageHook = SetWindowsHookEx(
+            KeyboardHookHandle = SetWindowsHookEx(
                 ((KEYBOARD_HOOK_PARAMS*)lParam)->HookType,
                 ((KEYBOARD_HOOK_PARAMS*)lParam)->HookProcedure,
                 GetModuleHandleW(NULL),
                 threadId
                 );
 
-            if (hMessageHook)
+            if (KeyboardHookHandle)
                 OutputDebugStringW(L"Message hook success!");
             else
                 OutputDebugStringW(L"Message hook failure!");
@@ -199,27 +201,129 @@ BOOL CALLBACK MessageHookWindowEnum(HWND hwnd, LPARAM lParam)
 }
 
 
-void Keyboard_Hook( __int32 HookType )
+typedef BOOL(WINAPI* TYPE_PeekMessageW)(
+    LPMSG lpMsg,
+    HWND hWnd,
+    UINT wMsgFilterMin,
+    UINT wMsgFilterMax,
+    UINT wRemoveMsg
+    );
+
+typedef BOOL(WINAPI* TYPE_PeekMessageA)(
+    LPMSG lpMsg,
+    HWND hWnd,
+    UINT wMsgFilterMin,
+    UINT wMsgFilterMax,
+    UINT wRemoveMsg
+    );
+
+VOID* DetourApi(
+    WCHAR* dllName, 
+    CHAR* apiName, 
+    BYTE* NewFunction
+    );
+
+
+TYPE_PeekMessageW       PushPeekMessageW;
+TYPE_PeekMessageA       PushPeekMessageA;
+
+
+BOOL WINAPI PeekMessageWHook(
+    _In_ LPMSG lpMsg,
+    _In_ HWND hWnd,
+    _In_ UINT wMsgFilterMin,
+    _In_ UINT wMsgFilterMax,
+    _In_ UINT wRemoveMsg
+    )
+{
+    BOOL result;
+
+    result = PushPeekMessageW(
+        lpMsg,
+        hWnd,
+        wMsgFilterMin,
+        wMsgFilterMax,
+        wRemoveMsg
+        );
+
+    if (result && wRemoveMsg & PM_REMOVE)
+    {
+        result = MessageHook(lpMsg);
+    }
+
+    return result;
+}
+
+
+BOOL WINAPI PeekMessageAHook(
+    _In_ LPMSG lpMsg,
+    _In_ HWND hWnd,
+    _In_ UINT wMsgFilterMin,
+    _In_ UINT wMsgFilterMax,
+    _In_ UINT wRemoveMsg
+    )
+{
+    BOOL result;
+
+    result = PushPeekMessageA(
+        lpMsg,
+        hWnd,
+        wMsgFilterMin,
+        wMsgFilterMax,
+        wRemoveMsg
+        );
+
+    if (result && wRemoveMsg & PM_REMOVE)
+    {
+        result = MessageHook(lpMsg);
+    }
+
+    return result;
+}
+
+
+void InitializeDetourHook()
+{
+    PushPeekMessageW = (TYPE_PeekMessageW)DetourApi(
+        L"user32.dll",
+        "PeekMessageW",
+        (BYTE*)PeekMessageWHook
+        );
+
+    PushPeekMessageA = (TYPE_PeekMessageA)DetourApi(
+        L"user32.dll",
+        "PeekMessageA",
+        (BYTE*)PeekMessageAHook
+        );
+}
+
+
+void Keyboard_Hook( KEYBOARD_HOOK_TYPE HookType )
 {
     KEYBOARD_HOOK_PARAMS keyboardHook;
 
     ProcessHeap = GetProcessHeap();
 
-    keyboardHook.HookType = HookType;
     keyboardHook.ProcessId = GetCurrentProcessId();
 
     switch (HookType)
     {
-    case WH_GETMESSAGE:
+    case KEYBOARD_HOOK_MESSAGE:
         keyboardHook.HookProcedure = MessageProc;
+        keyboardHook.HookType = WH_GETMESSAGE;
+        EnumWindows(MessageHookWindowEnum, (LPARAM)&keyboardHook);
         break;
-    case WH_KEYBOARD:
+    case KEYBOARD_HOOK_KEYBOARD:
         keyboardHook.HookProcedure = KeyboardProc;
+        keyboardHook.HookType = WH_KEYBOARD;
+        EnumWindows(MessageHookWindowEnum, (LPARAM)&keyboardHook);
+        break;
+    case KEYBOARD_HOOK_DETOURS:
+        InitializeDetourHook();
+        KeyboardHookHandle = (HHOOK) 0xffffffff; //LOL
         break;
     default:
         keyboardHook.HookProcedure = NULL;
         break;
     }
-
-    EnumWindows(MessageHookWindowEnum, (LPARAM)&keyboardHook);
 }
