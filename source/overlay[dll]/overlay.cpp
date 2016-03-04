@@ -7,6 +7,7 @@
 #include "render.h"
 #include "thread.h"
 #include "menu.h"
+#include "kbhook.h"
 
 
 CHAR *pszModuleName;
@@ -50,61 +51,14 @@ VOID CreateOverlay()
     OvCreateOverlayEx(&hookParams);
 }
 
-HHOOK hMessageHook;
-BOOLEAN MessageHook(LPMSG Message);
-
-
-LRESULT CALLBACK MessageHookProc(int nCode, WPARAM wParam, LPARAM lParam)
-{
-    if (nCode == HC_ACTION && wParam & PM_REMOVE)
-    {
-        MessageHook((LPMSG)lParam);
-    }
-
-    return CallNextHookEx(hMessageHook, nCode, wParam, lParam);
-}
-
-
-BOOL CALLBACK MessageHookWindowEnum(HWND hwnd, LPARAM lParam)
-{
-    DWORD dwID;
-    DWORD thatthread;
-
-    thatthread = GetWindowThreadProcessId(hwnd, &dwID);
-
-    if (dwID == (DWORD)lParam)
-    {
-        if (!hMessageHook)
-        {
-            hMessageHook = SetWindowsHookEx(
-                WH_GETMESSAGE,
-                MessageHookProc,
-                GetModuleHandleW(NULL),
-                thatthread
-                );
-
-            if (hMessageHook)
-                OutputDebugStringW(L"Message hook success!");
-            else
-                OutputDebugStringW(L"Message hook failure!");
-        }
-    }
-
-    return TRUE;
-}
-
-
-VOID HookMessages(DWORD dwPID)
-{
-    EnumWindows((WNDENUMPROC)MessageHookWindowEnum, (LPARAM)dwPID);
-}
+extern HHOOK hMessageHook;
 
 
 ULONG __stdcall MonitorThread(LPVOID v)
 {
     while (!hMessageHook)
     {
-        HookMessages(GetCurrentProcessId());
+        Keyboard_Hook(WH_GETMESSAGE);
 
         Sleep(500);
     }
@@ -117,129 +71,6 @@ ULONG __stdcall MonitorThread(LPVOID v)
     }
 
     return NULL;
-}
-
-
-VOID
-PushKeySwapCallback( LPMSG Message )
-{
-    switch (Message->wParam)
-    {
-    case 'W':
-        Message->wParam = VK_UP;
-        break;
-    case 'A':
-        Message->wParam = VK_LEFT;
-        break;
-    case 'S':
-        Message->wParam = VK_DOWN;
-        break;
-    case 'D':
-        Message->wParam = VK_RIGHT;
-        break;
-    }
-}
-
-
-BOOLEAN MessageHook( LPMSG Message )
-{
-    static BOOLEAN ignoreRawInput = FALSE;
-    static BOOLEAN usingRawInput = FALSE;
-
-    switch (Message->message)    
-    {   
-        case WM_KEYDOWN:
-            {
-                ignoreRawInput = TRUE;
-
-                if (usingRawInput)
-                {
-                    usingRawInput = FALSE;
-                    return TRUE;
-                }
-
-                MenuKeyboardHook(Message->wParam);
-
-                if (PushSharedMemory->SwapWASD)
-                {
-                    PushKeySwapCallback( Message );
-                }
-
-                if (PushSharedMemory->DisableRepeatKeys)
-                {
-                    int repeatCount = (Message->lParam & 0x40000000);
-
-                    if (repeatCount) 
-                        return FALSE;
-                }
-
-            } break;
-
-        case WM_KEYUP:
-            {
-                if (PushSharedMemory->SwapWASD)
-                {
-                    PushKeySwapCallback( Message );
-                }
-
-            } break;
-
-        case WM_CHAR:
-            {
-                if (PushSharedMemory->DisableRepeatKeys)
-                {
-                    int repeatCount = (Message->lParam & 0x40000000);
-
-                    if (repeatCount) 
-                        return FALSE;
-                }
-
-            } break;
-
-        case WM_INPUT:
-            {
-                UINT dwSize;
-                RAWINPUT *buffer;
-                
-                if(ignoreRawInput)
-                    return TRUE;
-                
-                // Request size of the raw input buffer to dwSize
-                GetRawInputData(
-                    (HRAWINPUT)Message->lParam, 
-                    RID_INPUT, 
-                    NULL, 
-                    &dwSize, 
-                    sizeof(RAWINPUTHEADER)
-                    );
-         
-                // allocate buffer for input data
-                buffer = (RAWINPUT*)HeapAlloc(PushProcessHeap, 0, dwSize);
-         
-                if (GetRawInputData(
-                    (HRAWINPUT)Message->lParam, 
-                    RID_INPUT, 
-                    buffer, 
-                    &dwSize, 
-                    sizeof(RAWINPUTHEADER)))
-                {
-                    // if this is keyboard message and WM_KEYDOWN, process
-                    // the key
-                    if(buffer->header.dwType == RIM_TYPEKEYBOARD 
-                        && buffer->data.keyboard.Message == WM_KEYDOWN)
-                    {
-                        usingRawInput = TRUE;
-
-                        MenuKeyboardHook(buffer->data.keyboard.VKey);
-                    }
-                }
-         
-                // free the buffer
-                HeapFree(PushProcessHeap, 0, buffer);
-            } break;
-    }
-
-    return TRUE;
 }
 
 

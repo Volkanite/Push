@@ -1,0 +1,1 @@
+void Keyboard_Hook(__int32 HookType);
