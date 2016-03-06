@@ -17,7 +17,7 @@ extern "C" {
 
 
 
-DWORD PushReadMsr(
+DWORD R0ReadMsr(
     DWORD Index
     );
 
@@ -60,9 +60,6 @@ R0QueueFile(
 // Bus Number, Device Number and Function Number to PCI Device Address
 #define PciBusDevFunc(Bus, Dev, Func)   ((Bus&0xFF)<<8) | ((Dev&0x1F)<<3) | (Func&7)
 
-#ifdef __cplusplus
-extern "C" VOID *R0DriverHandle;
-#else
 extern VOID *R0DriverHandle;
-#endif // __cplusplus
+
 

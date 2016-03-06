@@ -29,16 +29,16 @@ WNDPROC OldWNDPROC;
 extern OV_WINDOW_MODE D3D9Hook_WindowMode;
 extern BOOLEAN D3D9Hook_ForceReset;
 
-#define FUNC_RESET          0x00010000
-#define FUNC_FORCEMAX       0x00020000
-#define FUNC_ECLOCK         0x00040000
-#define FUNC_MCLOCK         0x00080000
-#define FUNC_VOLTAGE        0x00100000
-#define FUNC_FILELOGGING    0x00200000
-#define FUNC_FILEAUTOLOG    0x00400000
-#define FUNC_WINDOWED       0x00800000
-#define FUNC_KEEPACTIVE     0x01000000
-#define FUNC_TERMINATE      0x02000000
+#define FUNC_RESET          OSD_LAST_ITEM+1
+#define FUNC_FORCEMAX       OSD_LAST_ITEM+2
+#define FUNC_ECLOCK         OSD_LAST_ITEM+3
+#define FUNC_MCLOCK         OSD_LAST_ITEM+4
+#define FUNC_VOLTAGE        OSD_LAST_ITEM+5
+#define FUNC_FILELOGGING    OSD_LAST_ITEM+6
+#define FUNC_FILEAUTOLOG    OSD_LAST_ITEM+7
+#define FUNC_WINDOWED       OSD_LAST_ITEM+8
+#define FUNC_KEEPACTIVE     OSD_LAST_ITEM+9
+#define FUNC_TERMINATE      OSD_LAST_ITEM+10
 
 
 //Add menu items to menu
@@ -76,6 +76,7 @@ VOID AddItems()
         Menu->AddItem(L"GPU Memory Clock",        ItemOpt, &MenuOsd[i++], OSD_GPU_M_CLK);
         Menu->AddItem(L"GPU VRAM usage",          ItemOpt, &MenuOsd[i++], OSD_GPU_VRAM);
         Menu->AddItem(L"GPU Fan Speed",           ItemOpt, &MenuOsd[i++], OSD_GPU_FAN);
+        Menu->AddItem(L"CPU Speed",               ItemOpt, &MenuOsd[i++], OSD_CPU_SPEED);
         Menu->AddItem(L"CPU utilization",         ItemOpt, &MenuOsd[i++], OSD_CPU_LOAD);
         Menu->AddItem(L"CPU temperature",         ItemOpt, &MenuOsd[i++], OSD_CPU_TEMP);
         Menu->AddItem(L"RAM usage",               ItemOpt, &MenuOsd[i++], OSD_RAM);

@@ -2,12 +2,14 @@
 #include <vendors.h>
 #include <intrin.h>
 #include <string.h>
+#include <pushbase.h>
 
 #include "amd.h"
 #include "intel.h"
 
 
 WORD Vendor;
+extern VOID *R0DriverHandle;
 
 
 BOOLEAN Cpuid(
@@ -104,6 +106,28 @@ VOID CPU_Intialize()
 }
 
 
+DWORD CPU_ReadMsr( DWORD Index )
+{
+    IO_STATUS_BLOCK isb;
+    QWORD eax;
+
+    NtDeviceIoControlFile(
+        R0DriverHandle,
+        NULL,
+        NULL,
+        NULL,
+        &isb,
+        IOCTL_PUSH_READ_MSR,
+        &Index,
+        sizeof(DWORD),
+        &eax,
+        sizeof(eax)
+        );
+
+    return eax;
+}
+
+
 UINT8 CPU_GetTemperature()
 {
     switch (Vendor)
@@ -113,6 +137,20 @@ UINT8 CPU_GetTemperature()
         break;
     case AMD:
         return AMD_GetTemperature();
+        break;
+    default:
+        return 0;
+        break;
+    }
+}
+
+
+UINT16 CPU_GetSpeed()
+{
+    switch (Vendor)
+    {
+    case AMD:
+        return AMD_GetSpeed();
         break;
     default:
         return 0;

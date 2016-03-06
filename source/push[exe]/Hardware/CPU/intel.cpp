@@ -1,8 +1,11 @@
 #include <sl.h>
 #include <ring0.h>
 
+#include "cpu.h"
+
 
 #define IA32_THERM_STATUS_MSR 0x019C
+
 
 UINT8 Intel_GetTemperature()
 {
@@ -13,10 +16,7 @@ UINT8 Intel_GetTemperature()
     for (i = 0; i < 4; i++)
     {
         DWORD eax;
-        //DWORD index         = IA32_THERM_STATUS_MSR;
         DWORD mask          = 0;
-        //DWORD iByteReturned = 0;
-        //BYTE outBuf[8]      = {0};
         float deltaT;   
         float tjMax;        
         float tSlope;   
@@ -27,14 +27,7 @@ UINT8 Intel_GetTemperature()
         
         mask = SetThreadAffinityMask(hThread, 1UL << i);
 
-        /*DeviceIoControl(PushDriverHandle,
-                        IOCTL_PUSH_READ_MSR,
-                        &index, sizeof(index),
-                        &outBuf, sizeof(outBuf),
-                        &iByteReturned,
-                        NULL);*/
-
-        eax = PushReadMsr(IA32_THERM_STATUS_MSR);
+        eax = CPU_ReadMsr(IA32_THERM_STATUS_MSR);
 
         //memcpy(&eax, outBuf, 4);
         

@@ -154,6 +154,8 @@ typedef struct _IMDISK_SET_DEVICE_FLAGS
 #define OSD_GPU_E_CLK       0x00002000
 #define OSD_GPU_M_CLK       0x00004000
 #define OSD_GPU_FAN         0x00008000
+#define OSD_CPU_SPEED       0x00010000
+#define OSD_LAST_ITEM       0x00010000 //Update me!
 
 
 typedef struct _CORE_LIST CORE_LIST;
@@ -200,6 +202,7 @@ typedef struct _PUSH_HARDWARE_INFORMATION
     struct
     {
         UINT8 NumberOfCores;
+        UINT16 Speed; //Mhz
         UINT8 Load;
         UINT8 MaxThreadUsage;
         UINT8 MaxCoreUsage;

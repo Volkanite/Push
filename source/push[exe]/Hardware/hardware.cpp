@@ -18,9 +18,6 @@ SYSTEM_BASIC_INFORMATION    HwInfoSystemBasicInformation;
 GPU_ADAPTER*                Hwinfo_GpuAdapter;
 
 
-
-
-
 UINT16 GetEngineClock()
 {
     if (!Hwinfo_GpuAdapter)
@@ -552,6 +549,7 @@ VOID RefreshHardwareInfo()
 {
     PhpUpdateCpuInformation();
 
+    hardware.Processor.Speed                = CPU_GetSpeed();
     hardware.Processor.Load                 = GetCpuLoad();
     hardware.Processor.MaxCoreUsage         = GetMaxCoreLoad();
     hardware.Processor.Temperature          = GetCpuTemp();

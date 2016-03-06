@@ -1,11 +1,15 @@
 #include <sl.h>
 #include <ring0.h>
 
+#include "cpu.h"
+
 
 #define PCI_BUS 0
 #define PCI_BASE_DEVICE 0x18
 #define MISCELLANEOUS_CONTROL_FUNCTION 3
 #define REPORTED_TEMPERATURE_CONTROL_REGISTER 0xA4
+#define COFVID_STATUS 0xC0010071
+
 
 DWORD MiscellaneousControlAddress;
 
@@ -38,4 +42,22 @@ UINT8 AMD_GetTemperature()
         );
 
     return ((value >> 21) & 0x7FF) / 8.0f;
+}
+
+
+UINT16 AMD_GetSpeed()
+{
+    DWORD eax;
+    unsigned __int32 cpuDid;
+    unsigned __int32 cpuFid;
+    double multiplier;
+
+    eax = CPU_ReadMsr(COFVID_STATUS);
+    
+    cpuDid = (eax >> 6) & 7;
+    cpuFid = eax & 0x1F;
+
+    multiplier = (cpuFid + 0x10) >> cpuDid;
+
+    return 99.81f * multiplier;
 }

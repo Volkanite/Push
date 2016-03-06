@@ -101,29 +101,6 @@ R0ReadPciConfig(
 }
 
 
-DWORD
-PushReadMsr( DWORD Index )
-{
-    IO_STATUS_BLOCK isb;
-    QWORD eax;
-
-    NtDeviceIoControlFile(
-        R0DriverHandle,
-        NULL,
-        NULL,
-        NULL,
-        &isb,
-        IOCTL_PUSH_READ_MSR,
-        &Index,
-        sizeof(DWORD),
-        &eax,
-        sizeof(eax)
-        );
-
-    return eax;
-}
-
-
 VOID
 PushToggleProcessMonitoring(
     BOOLEAN Activate
