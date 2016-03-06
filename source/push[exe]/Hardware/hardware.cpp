@@ -59,7 +59,10 @@ UINT8 GetGpuLoad()
     if (!Hwinfo_GpuAdapter)
         return 0;
 
-    return Hwinfo_GpuAdapter->GetLoad();
+    if (PushGpuLoadD3DKMT || hardware.DisplayDevice.VendorId == AMD) //AMD ADL gpu load is finicky
+        return D3DKMT_GetGpuUsage();
+    else
+        return Hwinfo_GpuAdapter->GetLoad(); 
 }
 
 
@@ -116,7 +119,12 @@ UINT32 GetRamUsed()
     SYSTEM_BASIC_PERFORMANCE_INFORMATION performanceInfo;
     UINT64 committedPages; //force allmul() on x86
 
-    NtQuerySystemInformation(SystemBasicPerformanceInformation, &performanceInfo, sizeof(SYSTEM_BASIC_PERFORMANCE_INFORMATION), NULL);
+    NtQuerySystemInformation(
+        SystemBasicPerformanceInformation, 
+        &performanceInfo, 
+        sizeof(SYSTEM_BASIC_PERFORMANCE_INFORMATION), 
+        NULL
+        );
 
     committedPages = performanceInfo.CommittedPages;
 
