@@ -4,6 +4,5 @@
 		<Project filename="source/push[exe]/Push.cbp" />
 		<Project filename="source/overlay[dll]/overlay.cbp" />
 		<Project filename="source/push0[sys]/push0.cbp" />
-		<Project filename="resources/OvRender/source/OvRender.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

@@ -201,4 +201,5 @@ VOID RnRender( OvOverlay* Overlay )
     Osd_Draw( Overlay );
     MnuRender( Overlay );
     //Overlay->DrawText(L"u can draw anything in this render loop!\n");
+    OutputDebugStringW(L"running!");
 }
