@@ -51,6 +51,9 @@
 			<Add directory="../../resources/OvRender/source/d3d8" />
 			<Add directory="../../resources/OvRender/source/d3d9" />
 			<Add directory="../../resources/OvRender/source/dxgi" />
+			<Add directory="../../resources/OvRender/source/d3d10" />
+			<Add directory="../../resources/OvRender/source/d3d11" />
+			<Add directory="../../resources/OvRender/resources/d3dx" />
 		</Compiler>
 		<Linker>
 			<Add library="user32.lib" />
@@ -58,12 +61,28 @@
 			<Add library="dxgi.lib" />
 			<Add library="gdi32.lib" />
 			<Add library="gdiplus.lib" />
+			<Add library="ntdll.lib" />
+			<Add library="PowrProf.lib" />
 			<Add directory="../../resources/detourXS" />
 			<Add directory="../../resources/OvRender/bin" />
+			<Add directory="../../resources/sl/lib/i386" />
 		</Linker>
+		<Unit filename="../../resources/OvRender/source/d3d10/d3d10font.cpp" />
+		<Unit filename="../../resources/OvRender/source/d3d10/d3d10overlay.cpp" />
+		<Unit filename="../../resources/OvRender/source/d3d11/d3d11font.cpp" />
+		<Unit filename="../../resources/OvRender/source/d3d11/d3d11overlay.cpp" />
+		<Unit filename="../../resources/OvRender/source/d3d8/d3d8font.cpp" />
+		<Unit filename="../../resources/OvRender/source/d3d8/d3d8hook.cpp" />
+		<Unit filename="../../resources/OvRender/source/d3d8/d3d8overlay.cpp" />
+		<Unit filename="../../resources/OvRender/source/d3d9/d3d9font.cpp" />
 		<Unit filename="../../resources/OvRender/source/d3d9/d3d9hook.cpp" />
 		<Unit filename="../../resources/OvRender/source/d3d9/d3d9overlay.cpp" />
+		<Unit filename="../../resources/OvRender/source/ddraw/ddrawoverlay.cpp" />
+		<Unit filename="../../resources/OvRender/source/dxgi/dxgihook.cpp" />
+		<Unit filename="../../resources/OvRender/source/dxgi/dxgioverlay.cpp" />
+		<Unit filename="../../resources/OvRender/source/font.cpp" />
 		<Unit filename="../../resources/OvRender/source/overlay.cpp" />
+		<Unit filename="../../resources/OvRender/source/shaders.cpp" />
 		<Unit filename="../../resources/detourXS/detourxs.cpp" />
 		<Unit filename="dx10/dx10font.h" />
 		<Unit filename="dx10/dx10overlay.h" />
@@ -75,6 +94,7 @@
 		<Unit filename="dx9/dx9hook.h" />
 		<Unit filename="dx9/dx9overlay.h" />
 		<Unit filename="dxgi/dxgioverlay.h" />
+		<Unit filename="kbhook.cpp" />
 		<Unit filename="menu.cpp" />
 		<Unit filename="menu.h" />
 		<Unit filename="osd.cpp">

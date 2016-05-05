@@ -67,6 +67,7 @@ ULONG __stdcall MonitorThread(LPVOID v)
     {
         WaitForSingleObject(hEvent, INFINITE);
 
+        OutputDebugStringW(L"new image event!");
         CreateOverlay();
     }
 
@@ -114,9 +115,9 @@ VOID CallPipe( WCHAR* Command, UINT16* Output )
 
         WriteFile(
             pipeHandle,
-            Command, 
-            (wcslen(Command) + 1) * sizeof(WCHAR), 
-            &dwWritten, 
+            Command,
+            (wcslen(Command) + 1) * sizeof(WCHAR),
+            &dwWritten,
             NULL
             );
 
@@ -125,17 +126,17 @@ VOID CallPipe( WCHAR* Command, UINT16* Output )
             //DebugBreak();
             ReadFile(pipeHandle, Output, 2, &bytesRead, NULL);
         }
-            
+
 
         CloseHandle(pipeHandle);
     }
 }
 
 
-BOOL __stdcall DllMain( 
-    _In_ HINSTANCE Instance, 
-    _In_ ULONG fdwReason, 
-    _In_ LPVOID lpReserved 
+BOOL __stdcall DllMain(
+    _In_ HINSTANCE Instance,
+    _In_ ULONG fdwReason,
+    _In_ LPVOID lpReserved
     )
 {
     switch(fdwReason)
@@ -144,11 +145,11 @@ BOOL __stdcall DllMain(
         {
             void *sectionHandle;
             DEVMODE devMode;
-            
-            sectionHandle = OpenFileMappingW( 
-                FILE_MAP_ALL_ACCESS, 
-                FALSE, 
-                PUSH_SECTION_NAME 
+
+            sectionHandle = OpenFileMappingW(
+                FILE_MAP_ALL_ACCESS,
+                FALSE,
+                PUSH_SECTION_NAME
                 );
 
             PushSharedMemory = (PUSH_SHARED_MEMORY *) MapViewOfFile(
@@ -159,11 +160,11 @@ BOOL __stdcall DllMain(
                                     sizeof(PUSH_SHARED_MEMORY)
                                     );
 
-            hEvent = OpenEventW( 
-                SYNCHRONIZE, 
-                FALSE, 
-                L"Global\\" 
-                PUSH_IMAGE_EVENT_NAME 
+            hEvent = OpenEventW(
+                SYNCHRONIZE,
+                FALSE,
+                L"Global\\"
+                PUSH_IMAGE_EVENT_NAME
                 );
 
             InitializeCriticalSection(&OvCriticalSection);

@@ -349,4 +349,4 @@ extern BOOLEAN DisallowedDriveLetters[L'Z'-L'A'+1];
 extern PDRIVER_OBJECT   PushDriverObject;
 extern PKEVENT          ProcessEvent;
 extern PKEVENT          ThreadEvent;
-extern PKEVENT          PushGpuAccelerationEvent;
+extern PKEVENT          ImageEvent;

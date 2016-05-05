@@ -49,7 +49,7 @@
 				<Option output="../../bin/push0" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="" />
 				<Option type="5" />
-				<Option compiler="msvc10" />
+				<Option compiler="microsoft_visual_c_2010_x64" />
 				<Compiler>
 					<Add option="/D_AMD64_" />
 					<Add option="/D_WIN64" />
@@ -79,15 +79,15 @@
 			<Add option="/GS-" />
 			<Add option="/D_WIN32_WINNT=0x0601" />
 			<Add directory="../../source" />
-			<Add directory="C:/WinDDK/inc/ddk" />
-			<Add directory="C:/WinDDK/inc/api" />
 			<Add directory="../../resources/sl" />
+			<Add directory="../../resources/ddk" />
 		</Compiler>
 		<Linker>
 			<Add option='/ENTRY:&quot;DriverEntry&quot;' />
 			<Add library="ntoskrnl.lib" />
 			<Add library="hal.lib" />
 			<Add library="fltmgr.lib" />
+			<Add directory="../../resources/ddk/lib/amd64" />
 		</Linker>
 		<Unit filename="filter.c">
 			<Option compilerVar="CC" />

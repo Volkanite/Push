@@ -170,9 +170,7 @@ FilterPreCreate(
                     deviceExtension = g_DeviceObject->DeviceExtension;
                     deviceExtension->imageEvent.processID = processId;
 
-                    KeSetEvent(PushGpuAccelerationEvent, 0, FALSE);
-                    KeClearEvent(PushGpuAccelerationEvent);
-
+                    KePulseEvent(ImageEvent, 0, FALSE);
                     DbgPrint("[PUSH] %u loaded %wZ\n", processId, fullPath);
                 }
             }

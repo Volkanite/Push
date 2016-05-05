@@ -41,7 +41,7 @@ PDEVICE_OBJECT  g_DeviceObject      = NULL;
 PDEVICE_OBJECT  g_pDiskDeviceObject = NULL;
 PKEVENT         ProcessEvent        = NULL;
 PKEVENT         ThreadEvent         = NULL;
-PKEVENT         PushGpuAccelerationEvent          = NULL;
+PKEVENT         ImageEvent          = NULL;
 
 
 NTSTATUS
@@ -102,11 +102,11 @@ DriverEntry( DRIVER_OBJECT *DriverObject, UNICODE_STRING *RegistryPath )
 
     ProcessEvent = IoCreateNotificationEvent(&processEventName, &processEventHandle);
     ThreadEvent = IoCreateNotificationEvent(&threadEventName, &threadEventHandle);
-    PushGpuAccelerationEvent = IoCreateNotificationEvent(&imageEventName, &imageEventHandle);
+    ImageEvent = IoCreateNotificationEvent(&imageEventName, &imageEventHandle);
 
     KeClearEvent(ProcessEvent);
     KeClearEvent(ThreadEvent);
-    KeClearEvent(PushGpuAccelerationEvent);
+    KeClearEvent(ImageEvent);
 
     DbgPrint("[PUSH] <= (DriverEntry)\n");
 

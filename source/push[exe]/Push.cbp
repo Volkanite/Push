@@ -111,53 +111,10 @@
 		<Unit filename="Hardware/GPU/NvThermalDiode/Context.h" />
 		<Unit filename="Hardware/GPU/NvThermalDiode/NvThermalDiode.cpp" />
 		<Unit filename="Hardware/GPU/NvThermalDiode/NvThermalDiode.h" />
-<<<<<<< HEAD
-		<Unit filename="Hardware/GPU/NvidiaGpu.c">
-			<Option compilerVar="CC" />
-		</Unit>
-=======
-		<Unit filename="Hardware/GPU/NvidiaGpu.cpp" />
-		<Unit filename="Hardware/GPU/OpenNvapi.cpp" />
-		<Unit filename="Hardware/GPU/OpenNvapi.h" />
->>>>>>> master
-		<Unit filename="Hardware/GPU/adl.cpp" />
-		<Unit filename="Hardware/GPU/adl.h" />
-		<Unit filename="Hardware/GPU/amdgpu.h" />
-		<Unit filename="Hardware/GPU/d3dkmt.cpp" />
-		<Unit filename="Hardware/GPU/d3dkmt.h" />
-		<Unit filename="Hardware/GPU/gpu.cpp" />
-		<Unit filename="Hardware/GPU/gpu.h" />
-		<Unit filename="Hardware/GPU/nvapi.cpp" />
-		<Unit filename="Hardware/GPU/nvapi.h" />
-		<Unit filename="Hardware/GPU/nvidiagpu.h" />
-		<Unit filename="Hardware/Intel/intel.h" />
-		<Unit filename="Hardware/Nvidia/geforce.h" />
-		<Unit filename="Hardware/d3dkmt.h" />
-		<Unit filename="Hardware/disk.cpp" />
-		<Unit filename="Hardware/disk.h" />
-		<Unit filename="Hardware/hardware.cpp" />
-		<Unit filename="Hardware/hwinfo.h" />
-		<Unit filename="RAMdisk/ramdisk.h" />
-		<Unit filename="batch.cpp" />
-		<Unit filename="batch.h" />
-		<Unit filename="driver.cpp" />
-		<Unit filename="driver.h" />
-		<Unit filename="file.cpp" />
-		<Unit filename="file.h" />
-		<Unit filename="game.cpp" />
-		<Unit filename="game.h" />
-		<Unit filename="ini.h" />
 		<Unit filename="push.cpp" />
-		<Unit filename="push.h" />
-		<Unit filename="push.ico" />
-		<Unit filename="ramdisk.cpp" />
-		<Unit filename="ring0.cpp" />
-		<Unit filename="ring0.h" />
 		<Extensions>
 			<code_completion />
-			<envvars />
 			<debugger />
-			<lib_finder disable_auto="1" />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
