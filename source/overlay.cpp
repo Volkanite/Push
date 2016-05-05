@@ -34,41 +34,88 @@ OvOverlay::Render()
 ULONG __stdcall CreateOverlay( LPVOID Param )
 {
     EnterCriticalSection(&OvCriticalSection);
-    
+
     OV_HOOK_PARAMS *hookParams = (OV_HOOK_PARAMS*) Param;
     OvOverlay *overlay = NULL;
+    BOOLEAN d3d8, d3d9, dxgi, ddraw;
 
-    if (GetModuleHandleW(L"d3d8.dll") && OvDx8Overlay == NULL)
+    if (GetModuleHandleW(L"d3d8.dll"))
     {
+        OutputDebugStringW(L"GetModuleHandle(\"d3d8.dll\") returned TRUE");
+        d3d8 = TRUE;
+    }
+    else
+    {
+        OutputDebugStringW(L"GetModuleHandle(\"d3d8.dll\") returned FALSE");
+        d3d8 = FALSE;
+    }
+
+    if (GetModuleHandleW(L"d3d9.dll"))
+    {
+        OutputDebugStringW(L"GetModuleHandle(\"d3d9.dll\") returned TRUE");
+        d3d9 = TRUE;
+    }
+    else
+    {
+        OutputDebugStringW(L"GetModuleHandle(\"d3d9.dll\") returned FALSE");
+        d3d9 = FALSE;
+    }
+
+    if (GetModuleHandleW(L"dxgi.dll"))
+    {
+        OutputDebugStringW(L"GetModuleHandle(\"dxgi.dll\") returned TRUE");
+        dxgi = TRUE;
+    }
+    else
+    {
+        OutputDebugStringW(L"GetModuleHandle(\"dxgi.dll\") returned FALSE");
+        dxgi = FALSE;
+    }
+
+    if (GetModuleHandleW(L"ddraw.dll"))
+    {
+        OutputDebugStringW(L"GetModuleHandle(\"ddraw.dll\") returned TRUE");
+        ddraw = TRUE;
+    }
+    else
+    {
+        OutputDebugStringW(L"GetModuleHandle(\"ddraw.dll\") returned FALSE");
+        ddraw = FALSE;
+    }
+
+    if (d3d8 && OvDx8Overlay == NULL)
+    {
+        OutputDebugStringW(L"Hooking d3d8...");
         OvDx8Overlay = new Dx8Overlay( hookParams->RenderFunction );
         overlay = OvDx8Overlay;
     }
 
-    if (GetModuleHandleW(L"d3d9.dll") && D3D9Overlay == NULL)
+    if (d3d9 && D3D9Overlay == NULL)
     {
-        
+        OutputDebugStringW(L"Hooking d3d9...");
         D3D9Overlay = new Dx9Overlay( hookParams->RenderFunction );
-        
         overlay = D3D9Overlay;
     }
 
-	if (GetModuleHandleW(L"dxgi.dll") && DXGIOverlay == NULL)
+	if (dxgi && DXGIOverlay == NULL)
     {
+        OutputDebugStringW(L"Hooking dxgi...");
 		DXGIOverlay = new DxgiOverlay(hookParams->RenderFunction);
 		overlay = DXGIOverlay;
     }
 
-	if (GetModuleHandleW(L"ddraw.dll") && DirectDrawOverlay == NULL)
+	if (ddraw && DirectDrawOverlay == NULL)
 	{
+        OutputDebugStringW(L"Hooking ddraw...");
 		DirectDrawOverlay = new DDrawOverlay(hookParams->RenderFunction);
 		overlay = DirectDrawOverlay;
 	}
 
     if (overlay)
         overlay->VsyncOverrideMode = hookParams->VsyncOverrideMode;
-    
+
     LeaveCriticalSection(&OvCriticalSection);
-    
+
     return NULL;
 }
 
@@ -90,13 +137,13 @@ OvCreateOverlayEx( OV_HOOK_PARAMS* HookParameters )
     OV_HOOK_PARAMS *hookParams;
 
     hookParams = (OV_HOOK_PARAMS*) HeapAlloc(
-        GetProcessHeap(), 
-        HEAP_ZERO_MEMORY, 
+        GetProcessHeap(),
+        HEAP_ZERO_MEMORY,
         sizeof(OV_HOOK_PARAMS)
         );
 
     hookParams->RenderFunction = HookParameters->RenderFunction;
     hookParams->VsyncOverrideMode = HookParameters->VsyncOverrideMode;
-    
+
     CreateThread(0, 0, &CreateOverlay, hookParams, 0, 0);
 }
