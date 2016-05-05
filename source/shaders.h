@@ -6,5 +6,5 @@ VOID CompileShader(
     _In_ SIZE_T DataLength,
     _In_ char* EntryPoint,
     _In_ char* ShaderModel,
-    _Out_ ID3DBlob** Blob
+    _Out_ void** Blob
     );

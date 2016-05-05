@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include <d3dcommon.h>
 #include <stdio.h>
+#include <d3dx10.h>
 
 #define D3DCOMPILE_DEBUG                          (1 << 0)
 
@@ -14,8 +15,8 @@ typedef INT32(__stdcall *TYPE_D3DCompile)(
     LPCSTR pTarget,
     UINT Flags1,
     UINT Flags2,
-    ID3DBlob** ppCode,
-    ID3DBlob**ppErrorMsgs
+    void** ppCode,
+    void**ppErrorMsgs
     );
 
 static TYPE_D3DCompile IMP_D3DCompile;
@@ -89,7 +90,7 @@ VOID CompileShader(
     _In_ SIZE_T DataLength,
     _In_ char* EntryPoint,
     _In_ char* ShaderModel,
-    _Out_ ID3DBlob** Blob
+    _Out_ void** Blob
     )
 {
     DWORD shaderFlags = 0;
@@ -100,22 +101,22 @@ VOID CompileShader(
 #endif
 
     IMP_D3DCompile = (TYPE_D3DCompile)GetProcAddress(
-        GetD3DCompiler(), 
+        GetD3DCompiler(),
         "D3DCompile"
         );
 
     IMP_D3DCompile(
-        Data, 
-        DataLength, 
-        NULL, 
-        NULL, 
-        NULL, 
-        EntryPoint, 
-        ShaderModel, 
-        shaderFlags, 
-        0, 
-        Blob, 
-        &errorMessages
+        Data,
+        DataLength,
+        NULL,
+        NULL,
+        NULL,
+        EntryPoint,
+        ShaderModel,
+        shaderFlags,
+        0,
+        Blob,
+        (void**)&errorMessages
         );
 
     if (errorMessages)

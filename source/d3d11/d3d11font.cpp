@@ -177,7 +177,7 @@ BOOLEAN Dx11Font::InitD3D11Sprite( )
         sizeof(D3DXFont_VertexShaderData),
         "VS",
         vertexShaderModel,
-        &vertexShaderBlob
+        (void**)&vertexShaderBlob
         );
 
     device->CreateVertexShader(
@@ -217,7 +217,7 @@ BOOLEAN Dx11Font::InitD3D11Sprite( )
         sizeof(D3DXFont_PixelShaderData),
         "PS",
         pixelShaderModel,
-        &pixelShaderBlob
+        (void**)&pixelShaderBlob
         );
 
     device->CreatePixelShader(

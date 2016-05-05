@@ -82,7 +82,7 @@ BOOLEAN Dx10Font::InitD3D10Sprite( )
         sizeof(D3DXFont_VertexShaderData),
         "VS",
         "vs_4_0",
-        &vertexShaderBlob
+        (void**)&vertexShaderBlob
         );
 
     D3D10Font_Device->CreateVertexShader(
@@ -117,7 +117,7 @@ BOOLEAN Dx10Font::InitD3D10Sprite( )
         sizeof(D3DXFont_PixelShaderData),
         "PS",
         "ps_4_0",
-        &pixelShaderBlob
+        (void**)&pixelShaderBlob
         );
 
     // Create the pixel shader
