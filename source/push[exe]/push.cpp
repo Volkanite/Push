@@ -729,7 +729,10 @@ VOID OnImageEvent( PROCESSID ProcessId )
 
             Resource::Extract(L"OVERLAY64", PUSH_LIB_NAME_64);
             String::Concatenate(szModulePath, PUSH_LIB_NAME_64);
+            
+            #ifdef _MSC_PLATFORM_TOOLSET_v120
             Inject64(ProcessId, szModulePath);
+            #endif
         }
     }
 

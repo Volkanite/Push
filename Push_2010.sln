@@ -1,0 +1,82 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Push", "source\push[exe]\Push_2010.vcxproj", "{35E23888-EDF5-4CC4-8C93-CC138F34E25E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{76309B41-A554-B920-3148-F5A7AAE4B42E} = {76309B41-A554-B920-3148-F5A7AAE4B42E}
+		{283BE159-F62E-4F1A-BF48-AD3E50AEC180} = {283BE159-F62E-4F1A-BF48-AD3E50AEC180}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "overlay", "source\overlay[dll]\overlay_2010.vcxproj", "{92A59583-EA15-461C-9249-64FAA431ABA5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "push032", "source\push0[sys]\push0_2010.vcxproj", "{76309B41-A554-B920-3148-F5A7AAE4B42E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "push064", "source\push0[sys]\push064_2010.vcxproj", "{283BE159-F62E-4F1A-BF48-AD3E50AEC180}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Debug|x64 Driver + x86 App = Debug|x64 Driver + x86 App
+		Debug|x86 Driver + x86 App = Debug|x86 Driver + x86 App
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+		Release|x64 Driver + x86 App = Release|x64 Driver + x86 App
+		Release|x86 Driver + x86 App = Release|x86 Driver + x86 App
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{35E23888-EDF5-4CC4-8C93-CC138F34E25E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{35E23888-EDF5-4CC4-8C93-CC138F34E25E}.Debug|Win32.Build.0 = Debug|Win32
+		{35E23888-EDF5-4CC4-8C93-CC138F34E25E}.Debug|x64.ActiveCfg = Debug|x64
+		{35E23888-EDF5-4CC4-8C93-CC138F34E25E}.Debug|x64.Build.0 = Debug|x64
+		{35E23888-EDF5-4CC4-8C93-CC138F34E25E}.Debug|x64 Driver + x86 App.ActiveCfg = Debug|Win32
+		{35E23888-EDF5-4CC4-8C93-CC138F34E25E}.Debug|x64 Driver + x86 App.Build.0 = Debug|Win32
+		{35E23888-EDF5-4CC4-8C93-CC138F34E25E}.Debug|x86 Driver + x86 App.ActiveCfg = Debug|x64
+		{35E23888-EDF5-4CC4-8C93-CC138F34E25E}.Release|Win32.ActiveCfg = Release|Win32
+		{35E23888-EDF5-4CC4-8C93-CC138F34E25E}.Release|Win32.Build.0 = Release|Win32
+		{35E23888-EDF5-4CC4-8C93-CC138F34E25E}.Release|x64.ActiveCfg = Release|x64
+		{35E23888-EDF5-4CC4-8C93-CC138F34E25E}.Release|x64.Build.0 = Release|x64
+		{35E23888-EDF5-4CC4-8C93-CC138F34E25E}.Release|x64 Driver + x86 App.ActiveCfg = Release|x64
+		{35E23888-EDF5-4CC4-8C93-CC138F34E25E}.Release|x86 Driver + x86 App.ActiveCfg = Release|x64
+		{92A59583-EA15-461C-9249-64FAA431ABA5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{92A59583-EA15-461C-9249-64FAA431ABA5}.Debug|Win32.Build.0 = Debug|Win32
+		{92A59583-EA15-461C-9249-64FAA431ABA5}.Debug|x64.ActiveCfg = Debug|Win32
+		{92A59583-EA15-461C-9249-64FAA431ABA5}.Debug|x64 Driver + x86 App.ActiveCfg = Debug|Win32
+		{92A59583-EA15-461C-9249-64FAA431ABA5}.Debug|x64 Driver + x86 App.Build.0 = Debug|Win32
+		{92A59583-EA15-461C-9249-64FAA431ABA5}.Debug|x86 Driver + x86 App.ActiveCfg = Debug|Win32
+		{92A59583-EA15-461C-9249-64FAA431ABA5}.Release|Win32.ActiveCfg = Release|Win32
+		{92A59583-EA15-461C-9249-64FAA431ABA5}.Release|Win32.Build.0 = Release|Win32
+		{92A59583-EA15-461C-9249-64FAA431ABA5}.Release|x64.ActiveCfg = Release|Win32
+		{92A59583-EA15-461C-9249-64FAA431ABA5}.Release|x64 Driver + x86 App.ActiveCfg = Release|Win32
+		{92A59583-EA15-461C-9249-64FAA431ABA5}.Release|x86 Driver + x86 App.ActiveCfg = Release|Win32
+		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Debug|Win32.Build.0 = Debug|Win32
+		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Debug|x64.ActiveCfg = Debug|x64
+		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Debug|x64.Build.0 = Debug|x64
+		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Debug|x64 Driver + x86 App.ActiveCfg = Debug|Win32
+		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Debug|x64 Driver + x86 App.Build.0 = Debug|Win32
+		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Debug|x86 Driver + x86 App.ActiveCfg = Debug|x64
+		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Release|Win32.ActiveCfg = Release|Win32
+		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Release|Win32.Build.0 = Release|Win32
+		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Release|x64.ActiveCfg = Release|x64
+		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Release|x64.Build.0 = Release|x64
+		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Release|x64 Driver + x86 App.ActiveCfg = Release|x64
+		{76309B41-A554-B920-3148-F5A7AAE4B42E}.Release|x86 Driver + x86 App.ActiveCfg = Release|x64
+		{283BE159-F62E-4F1A-BF48-AD3E50AEC180}.Debug|Win32.ActiveCfg = Debug|Win32
+		{283BE159-F62E-4F1A-BF48-AD3E50AEC180}.Debug|Win32.Build.0 = Debug|Win32
+		{283BE159-F62E-4F1A-BF48-AD3E50AEC180}.Debug|x64.ActiveCfg = Debug|x64
+		{283BE159-F62E-4F1A-BF48-AD3E50AEC180}.Debug|x64.Build.0 = Debug|x64
+		{283BE159-F62E-4F1A-BF48-AD3E50AEC180}.Debug|x64 Driver + x86 App.ActiveCfg = Debug|x64
+		{283BE159-F62E-4F1A-BF48-AD3E50AEC180}.Debug|x64 Driver + x86 App.Build.0 = Debug|x64
+		{283BE159-F62E-4F1A-BF48-AD3E50AEC180}.Debug|x86 Driver + x86 App.ActiveCfg = Debug|x64
+		{283BE159-F62E-4F1A-BF48-AD3E50AEC180}.Release|Win32.ActiveCfg = Release|Win32
+		{283BE159-F62E-4F1A-BF48-AD3E50AEC180}.Release|Win32.Build.0 = Release|Win32
+		{283BE159-F62E-4F1A-BF48-AD3E50AEC180}.Release|x64.ActiveCfg = Release|x64
+		{283BE159-F62E-4F1A-BF48-AD3E50AEC180}.Release|x64.Build.0 = Release|x64
+		{283BE159-F62E-4F1A-BF48-AD3E50AEC180}.Release|x64 Driver + x86 App.ActiveCfg = Release|x64
+		{283BE159-F62E-4F1A-BF48-AD3E50AEC180}.Release|x86 Driver + x86 App.ActiveCfg = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
