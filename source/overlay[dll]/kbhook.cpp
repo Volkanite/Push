@@ -148,10 +148,37 @@ LRESULT CALLBACK MessageProc(
     LPARAM lParam
     )
 {
+	wchar_t fileName[260];
+
     if (nCode == HC_ACTION && wParam & PM_REMOVE)
     {
         MessageHook((LPMSG)lParam);
     }
+
+	GetModuleFileNameW(NULL, fileName, 260);
+	
+	if (wcscmp(fileName, L"E:\\Steam\\steamapps\\common\\Tom Clany's HAWX\\HAWX.exe") == 0)
+	{
+		wchar_t output[260];
+		MSG *msg;
+
+		//swprintf(output, L"MessageProc(%i, 0x%x, 0x%x)", nCode, wParam, lParam);
+		msg = (MSG*) lParam;
+
+		swprintf(
+			output,
+			L"MessageProc(0x%x, %i, 0x%x, 0x%x, %i, %i, %i)",
+			msg->hwnd, 
+			msg->message, 
+			msg->wParam,
+			msg->lParam,
+			msg->time,
+			msg->pt.x,
+			msg->pt.y
+			);
+
+		OutputDebugStringW(output);
+	}
 
     return CallNextHookEx(KeyboardHookHandle, nCode, wParam, lParam);
 }
