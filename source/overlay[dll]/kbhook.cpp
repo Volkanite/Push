@@ -9,15 +9,41 @@
 
 typedef struct _KEYBOARD_HOOK_PARAMS
 {
-    __int32 HookType;
-    __int32 ProcessId;
-    HOOKPROC HookProcedure;
-
+    unsigned __int32 ProcessId;
+    unsigned __int32 ThreadId;  //Out
+    HWND WindowHandle;          //Out
 }KEYBOARD_HOOK_PARAMS;
 
 
 HANDLE ProcessHeap;
 HHOOK KeyboardHookHandle;
+WNDPROC OldWNDPROC;
+
+
+LONG WINAPI KeyboardHook(
+    HWND Handle, 
+    UINT Message, 
+    WPARAM wParam, 
+    LPARAM lParam
+    )
+{
+    OutputDebugStringW(L"Hookbook!");
+    /*switch (Message)
+    {
+    case WM_KEYDOWN:
+        break;
+
+    case WM_CHAR:
+        break;
+
+    case WM_NCACTIVATE:
+    case WM_ACTIVATE:
+    case WM_KILLFOCUS:
+        break;
+    }*/
+
+    return CallWindowProc(OldWNDPROC, Handle, Message, wParam, lParam);
+}
 
 
 VOID PushKeySwapCallback( LPMSG Message )
@@ -148,10 +174,39 @@ LRESULT CALLBACK MessageProc(
     LPARAM lParam
     )
 {
+    wchar_t fileName[260];
+
     if (nCode == HC_ACTION && wParam & PM_REMOVE)
     {
         MessageHook((LPMSG)lParam);
     }
+
+    GetModuleFileNameW(NULL, fileName, 260);
+    
+    /*if (wcsstr(
+        fileName, 
+        L"E:\\Steam\\steamapps\\common\\Tom Clany's HAWX\\HAWX") == 0)
+    {*/
+        wchar_t output[260];
+        MSG *msg;
+
+        //swprintf(output, L"MessageProc(%i, 0x%x, 0x%x)", nCode, wParam, lParam);
+        msg = (MSG*) lParam;
+
+        swprintf(
+            output,
+            L"MessageProc(0x%x, %i, 0x%x, 0x%x, %i, %i, %i)",
+            msg->hwnd, 
+            msg->message, 
+            msg->wParam,
+            msg->lParam,
+            msg->time,
+            msg->pt.x,
+            msg->pt.y
+            );
+
+        OutputDebugStringW(output);
+    //}
 
     return CallNextHookEx(KeyboardHookHandle, nCode, wParam, lParam);
 }
@@ -172,7 +227,7 @@ LRESULT CALLBACK KeyboardProc(
 }
 
 
-BOOL CALLBACK MessageHookWindowEnum(HWND hwnd, LPARAM lParam)
+BOOL CALLBACK MessageHookWindowEnum( HWND hwnd, LPARAM lParam )
 {
     DWORD processId;
     DWORD threadId;
@@ -181,20 +236,11 @@ BOOL CALLBACK MessageHookWindowEnum(HWND hwnd, LPARAM lParam)
 
     if (processId == ((KEYBOARD_HOOK_PARAMS*)lParam)->ProcessId)
     {
-        if (!KeyboardHookHandle)
-        {
-            KeyboardHookHandle = SetWindowsHookEx(
-                ((KEYBOARD_HOOK_PARAMS*)lParam)->HookType,
-                ((KEYBOARD_HOOK_PARAMS*)lParam)->HookProcedure,
-                GetModuleHandleW(NULL),
-                threadId
-                );
+        ((KEYBOARD_HOOK_PARAMS*)lParam)->ThreadId = threadId;
+        ((KEYBOARD_HOOK_PARAMS*)lParam)->WindowHandle = hwnd;
 
-            if (KeyboardHookHandle)
-                OutputDebugStringW(L"Message hook success!");
-            else
-                OutputDebugStringW(L"Message hook failure!");
-        }
+        //found, prevent further processing by setting ProcessId to 0;
+        ((KEYBOARD_HOOK_PARAMS*)lParam)->ProcessId = 0;
     }
 
     return TRUE;
@@ -308,22 +354,77 @@ void Keyboard_Hook( KEYBOARD_HOOK_TYPE HookType )
 
     switch (HookType)
     {
+    case KEYBOARD_HOOK_SUBCLASS:
+         
+        if (!OldWNDPROC)
+        {
+            EnumWindows(MessageHookWindowEnum, (LPARAM)&keyboardHook);
+
+            OldWNDPROC = (WNDPROC)SetWindowLongPtr(
+                keyboardHook.WindowHandle,
+                GWL_WNDPROC,
+                (LONG)KeyboardHook
+                );
+        }
+        
+        break;
     case KEYBOARD_HOOK_MESSAGE:
-        keyboardHook.HookProcedure = MessageProc;
-        keyboardHook.HookType = WH_GETMESSAGE;
-        EnumWindows(MessageHookWindowEnum, (LPARAM)&keyboardHook);
-        break;
     case KEYBOARD_HOOK_KEYBOARD:
-        keyboardHook.HookProcedure = KeyboardProc;
-        keyboardHook.HookType = WH_KEYBOARD;
-        EnumWindows(MessageHookWindowEnum, (LPARAM)&keyboardHook);
+
+        if (!KeyboardHookHandle)
+        {
+            wchar_t output[260];
+            int hookId;
+            HOOKPROC hookProcedure;
+
+            EnumWindows(MessageHookWindowEnum, (LPARAM)&keyboardHook);
+
+            if (HookType == KEYBOARD_HOOK_MESSAGE)
+            {
+                hookId = WH_GETMESSAGE;
+                hookProcedure = MessageProc;
+            }
+            else if (HookType == KEYBOARD_HOOK_KEYBOARD)
+            {
+                hookId = WH_KEYBOARD;
+                hookProcedure = KeyboardProc;
+            }
+
+            KeyboardHookHandle = SetWindowsHookExW(
+                hookId,
+                hookProcedure,
+                GetModuleHandleW(NULL),
+                keyboardHook.ThreadId
+                );
+
+            
+            if (KeyboardHookHandle)
+            {
+                swprintf(
+                    output,
+                    L"Message hook success on thread %i",
+                    keyboardHook.ThreadId
+                    );
+            }
+            else
+            {
+                swprintf(
+                    output,
+                    L"Message hook failure on thread %i",
+                    keyboardHook.ThreadId
+                    );
+            }
+                
+            OutputDebugStringW(output);
+        }
+
         break;
+
     case KEYBOARD_HOOK_DETOURS:
         InitializeDetourHook();
         KeyboardHookHandle = (HHOOK) 0xffffffff; //LOL
         break;
     default:
-        keyboardHook.HookProcedure = NULL;
         break;
     }
 }

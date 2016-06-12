@@ -24,7 +24,6 @@ WCHAR GpuVoltage[20];
 
 BOOLEAN MnuInitialized;
 HANDLE MenuProcessHeap;
-WNDPROC OldWNDPROC;
 
 extern OV_WINDOW_MODE D3D9Hook_WindowMode;
 extern BOOLEAN D3D9Hook_ForceReset;
@@ -128,27 +127,6 @@ VOID AddItems()
 }
 
 
-LONG WINAPI KeyboardHook(HWND Handle, UINT Message, WPARAM wParam, LPARAM lParam)
-{
-    switch (Message)
-    {
-    case WM_KEYDOWN:
-        break;
-
-    case WM_CHAR:
-        break;
-
-    case WM_NCACTIVATE:
-    case WM_ACTIVATE:
-    case WM_KILLFOCUS:
-        return 0;
-        break;
-    }
-
-    return CallWindowProc(OldWNDPROC, Handle, Message, wParam, lParam);
-}
-
-
 VOID ProcessOptions( MenuItems* Item )
 {
     switch (*Item->Id)
@@ -237,11 +215,7 @@ VOID ProcessOptions( MenuItems* Item )
     case FUNC_KEEPACTIVE:
         if (*Item->Var > 0)
         {
-            OldWNDPROC = (WNDPROC) SetWindowLongPtr(
-                FindWindowW(NULL, L"Need for Speed™ Most Wanted"), 
-                GWL_WNDPROC, 
-                (LONG)KeyboardHook
-                );
+            
         }
         break;
 

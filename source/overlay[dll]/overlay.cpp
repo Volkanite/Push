@@ -58,7 +58,7 @@ ULONG __stdcall MonitorThread(LPVOID v)
 {
     while (!KeyboardHookHandle)
     {
-        Keyboard_Hook(KEYBOARD_HOOK_MESSAGE);
+        Keyboard_Hook(KEYBOARD_HOOK_DETOURS);
 
         Sleep(500);
     }
