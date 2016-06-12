@@ -1,16 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="kbhook.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="osd.h" />
     <ClInclude Include="overlay.h" />
@@ -18,6 +27,8 @@
     <ClInclude Include="thread.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\resources\detourXS\detourxs.cpp" />
+    <ClCompile Include="kbhook.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="osd.cpp" />
     <ClCompile Include="overlay.cpp" />
@@ -34,12 +45,28 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v100</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v100</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -47,31 +74,85 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)resources\OvRender;$(SolutionDir)resources\sl;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)resources\OvRender\inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\detourXS;$(ProjectDir);$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(SolutionDir)resources\OvRender\inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\detourXS;$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>$(SolutionDir)resources\sl\lib;$(SolutionDir)resources\ddk\lib;$(SolutionDir)resources\OvRender;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)resources\sl\lib\i386;$(SolutionDir)bin;$(SolutionDir)resources\detourXS;$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\</OutDir>
-    <IntDir>$(TEMP)\overlay</IntDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <TargetName>overlay32</TargetName>
+    <LinkIncremental>
+    </LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LibraryPath>$(SolutionDir)resources\sl\lib\AMD64;$(SolutionDir)bin64;$(SolutionDir)resources\detourXS;$(DXSDK_DIR)lib\x64;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)bin64\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <TargetName>overlay64</TargetName>
+    <LinkIncremental>
+    </LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)bin\</OutDir>
-    <IntDir>$(TEMP)\$(ProjectName)\</IntDir>
-    <IncludePath>$(SolutionDir)resources\OvRender;$(SolutionDir)resources\sl;$(ProjectDir);$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)resources\sl\lib;$(SolutionDir)resources\ddk\lib;$(SolutionDir)resources\OvRender;$(LibraryPath)</LibraryPath>
-    <TargetName>$(ProjectName)</TargetName>
+    <IntDir>$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)resources\OvRender\inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\detourXS;$(ProjectDir);$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)resources\sl\lib\i386;$(SolutionDir)bin;$(SolutionDir)resources\detourXS;$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
+    <TargetName>overlay32</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)bin64\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)resources\OvRender\inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\detourXS;$(ProjectDir);$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)resources\sl\lib\AMD64;$(SolutionDir)bin64;$(SolutionDir)resources\detourXS;$(DXSDK_DIR)lib\x64;$(LibraryPath)</LibraryPath>
+    <TargetName>overlay64</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>D:\Code\Push\source\overlay[dll]\d3dsdk;$(DXSDK_DIR)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>DEBUG;MSVC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <CompileAs>Default</CompileAs>
+      <DisableSpecificWarnings>4996;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <TreatSpecificWarningsAsErrors>4013;4020;4005;4101;4142;4520;4700;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <ShowIncludes>false</ShowIncludes>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>dxgi.lib;d3d10.lib;gdiplus.lib;sl.lib;ntdll.lib;OvRender.lib;PowrProf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>msvcrtd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <ImportLibrary>$(TEMP)\overlay\overlay.lib</ImportLibrary>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <AdditionalOptions>/OPT:NOLBR %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>DEBUG;MSVC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <CompileAs>Default</CompileAs>
       <DisableSpecificWarnings>4996;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <TreatSpecificWarningsAsErrors>4013;4020;4005;4101;4142;4520;4700;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
@@ -79,12 +160,17 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>dxgi.lib;d3d10.lib;gdiplus.lib;lde64.lib;sldetours.lib;slc.lib;sl.lib;ntdll.lib;OvRender.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries>MSVCRT.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>dxgi.lib;d3d10.lib;gdiplus.lib;sl.lib;ntdll.lib;OvRender.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>msvcrtd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <ImportLibrary>$(TEMP)\overlay\overlay.lib</ImportLibrary>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -93,26 +179,65 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>D:\Code\Push\source\overlay[dll]\d3dsdk;$(DXSDK_DIR)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
       <ShowIncludes>false</ShowIncludes>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <TreatSpecificWarningsAsErrors>4013;4020;4005;4101;4142;4520;4700;4715;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
       <DisableSpecificWarnings>4996;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <CompileAs>Default</CompileAs>
+      <PreprocessorDefinitions>MSVC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <IgnoreSpecificDefaultLibraries>MSVCRT.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <ProgramDatabaseFile>$(TEMP)\$(TargetName)\$(TargetName).pdb</ProgramDatabaseFile>
       <ImportLibrary>$(TEMP)\overlay\overlay.lib</ImportLibrary>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <LinkStatus>false</LinkStatus>
-      <AdditionalDependencies>dxgi.lib;d3d10.lib;gdiplus.lib;lde64.lib;sldetours.lib;slc.lib;sl.lib;ntdll.lib;OvRender.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>dxgi.lib;d3d10.lib;gdiplus.lib;sl.lib;ntdll.lib;OvRender.lib;PowrProf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
+      <ShowIncludes>false</ShowIncludes>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <TreatSpecificWarningsAsErrors>4013;4020;4005;4101;4142;4520;4700;4715;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
+      <DisableSpecificWarnings>4996;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <CompileAs>Default</CompileAs>
+      <CallingConvention>Cdecl</CallingConvention>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ProgramDatabaseFile>$(TEMP)\$(TargetName)\$(TargetName).pdb</ProgramDatabaseFile>
+      <ImportLibrary>$(TEMP)\overlay\overlay.lib</ImportLibrary>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <LinkStatus>false</LinkStatus>
+      <AdditionalDependencies>dxgi.lib;d3d10.lib;gdiplus.lib;sl.lib;ntdll.lib;OvRender.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
