@@ -8,6 +8,7 @@ UINT16 EngineClockMaximum;
 UINT16 MemoryClockMaximum;
 UINT16 VoltageMaximum;
 UINT8 PerformanceLevels;
+BOOLEAN AdlInitialized;
 
 
 typedef VOID* (__stdcall *TYPE_ADL_Main_Memory_Alloc) ( INT32 );
@@ -64,6 +65,8 @@ VOID Adl_Initialize()
     adl = Module::Load(L"atiadlxy.dll");
 
     if (!adl) return;
+
+    AdlInitialized = TRUE;
 
     ADL_Main_Control_Create = (TYPE_ADL_Main_Control_Create) 
         Module::GetProcedureAddress(adl, "ADL_Main_Control_Create");
@@ -125,6 +128,9 @@ UINT16 Adl_GetEngineClock()
 {
     ADLPMActivity activity;
 
+    if (!AdlInitialized)
+        return 0;
+
     ADL_Overdrive5_CurrentActivity_Get(0, &activity);
 
     return activity.EngineClock / 100;
@@ -134,6 +140,9 @@ UINT16 Adl_GetEngineClock()
 UINT16 Adl_GetMemoryClock()
 {
     ADLPMActivity activity;
+
+    if (!AdlInitialized)
+        return 0;
 
     ADL_Overdrive5_CurrentActivity_Get(0, &activity);
 
