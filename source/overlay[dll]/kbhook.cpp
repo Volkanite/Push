@@ -360,9 +360,9 @@ void Keyboard_Hook( KEYBOARD_HOOK_TYPE HookType )
         {
             EnumWindows(MessageHookWindowEnum, (LPARAM)&keyboardHook);
 
-            OldWNDPROC = (WNDPROC)SetWindowLongPtr(
+            OldWNDPROC = (WNDPROC)SetWindowLongPtrW(
                 keyboardHook.WindowHandle,
-                GWL_WNDPROC,
+                GWLP_WNDPROC,
                 (LONG)KeyboardHook
                 );
         }
