@@ -40,6 +40,7 @@ ID3D11Texture2D*                        m_texturepass;
 ID3D10Texture2D*                        m_texture10;
 ID3D11VertexShader*                     D3D11Font_VertexShader = NULL;
 ID3D11PixelShader*                      D3D11Font_PixelShader = NULL;
+ID3D11RasterizerState*                  RasterizerState;
 BOOLEAN                                 Initialized;
 int                                     posX;
 int                                     posY;
@@ -275,6 +276,21 @@ BOOLEAN Dx11Font::InitD3D11Sprite( )
 
     device->CreateBlendState( &transparentDesc, &TransparentBS );
 
+    D3D11_RASTERIZER_DESC rasterizerDescription;
+
+    rasterizerDescription.FillMode = D3D11_FILL_SOLID;
+    rasterizerDescription.CullMode = D3D11_CULL_NONE;
+    rasterizerDescription.FrontCounterClockwise = false;
+    rasterizerDescription.DepthBias = 0;
+    rasterizerDescription.DepthBiasClamp = 0.f;
+    rasterizerDescription.SlopeScaledDepthBias = 0.f;
+    rasterizerDescription.DepthClipEnable = false;
+    rasterizerDescription.ScissorEnable = false;
+    rasterizerDescription.MultisampleEnable = false;
+    rasterizerDescription.AntialiasedLineEnable = false;
+
+    device->CreateRasterizerState(&rasterizerDescription, &RasterizerState);
+
     HeapHandle = GetProcessHeap();
     Sprites = (Sprite*) RtlAllocateHeap(HeapHandle, 0, sizeof(Sprite));
     Initialized = TRUE;
@@ -463,6 +479,7 @@ VOID Dx11Font::EndBatch( )
     deviceContext->IAGetVertexBuffers(0, 1, &vertexBuffer, &vertexBufferStride, &vertexBufferOffset);
 
     // Set new state
+    deviceContext->RSSetState(RasterizerState);
     deviceContext->IASetInputLayout( inputLayout );
     deviceContext->IASetIndexBuffer(IB, DXGI_FORMAT_R16_UINT, 0 );
     deviceContext->IASetVertexBuffers(0, 1, &VB, &stride, &offset );
