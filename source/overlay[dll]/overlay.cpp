@@ -12,7 +12,7 @@
 
 CHAR *pszModuleName;
 PUSH_SHARED_MEMORY   *PushSharedMemory;
-void            *hEvent = NULL;
+void* PushImageEvent;
 BOOLEAN dxgiHooked              = FALSE;
 BOOLEAN g_DXGI                  = FALSE;
 ThreadMonitor* PushThreadMonitor;
@@ -63,9 +63,9 @@ ULONG __stdcall MonitorThread(LPVOID v)
         Sleep(500);
     }
 
-    while (TRUE)
+    while (PushImageEvent)
     {
-        WaitForSingleObject(hEvent, INFINITE);
+        WaitForSingleObject(PushImageEvent, INFINITE);
 
         OutputDebugStringW(L"new image event!");
         CreateOverlay();
@@ -160,7 +160,7 @@ BOOL __stdcall DllMain(
                                     sizeof(PUSH_SHARED_MEMORY)
                                     );
 
-            hEvent = OpenEventW(
+            PushImageEvent = OpenEventW(
                 SYNCHRONIZE,
                 FALSE,
                 L"Global\\"
