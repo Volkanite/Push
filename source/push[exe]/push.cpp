@@ -1046,6 +1046,9 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     thisPID = (UINT32) NtCurrentTeb()->ClientId.UniqueProcess;
     PushHeapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
 
+    //create image event
+    CreateEventW(NULL, TRUE, FALSE, L"Global\\" PUSH_IMAGE_EVENT_NAME);
+
     // Start Driver.
 
     Driver_Extract();
