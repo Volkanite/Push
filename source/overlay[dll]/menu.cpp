@@ -37,7 +37,8 @@ extern BOOLEAN D3D9Hook_ForceReset;
 #define FUNC_FILEAUTOLOG    OSD_LAST_ITEM+7
 #define FUNC_WINDOWED       OSD_LAST_ITEM+8
 #define FUNC_KEEPACTIVE     OSD_LAST_ITEM+9
-#define FUNC_TERMINATE      OSD_LAST_ITEM+10
+#define FUNC_FRAMELIMIT     OSD_LAST_ITEM+10
+#define FUNC_TERMINATE      OSD_LAST_ITEM+11
 
 
 //Add menu items to menu
@@ -116,6 +117,7 @@ VOID AddItems()
     {
         Menu->AddItem(L"Windowed", ItemOpt, &D3DTweaks[1], FUNC_WINDOWED);
         Menu->AddItem(L"Keep active", ItemOpt, &D3DTweaks[2], FUNC_KEEPACTIVE);
+        Menu->AddItem(L"Frame Limit", ItemOpt, &D3DTweaks[3], FUNC_FRAMELIMIT);
     }
 
     Menu->AddGroup(L"Proc >", GroupOpt, &Process[0]);
@@ -216,6 +218,13 @@ VOID ProcessOptions( MenuItems* Item )
         if (*Item->Var > 0)
         {
             
+        }
+        break;
+
+    case FUNC_FRAMELIMIT:
+        if (*Item->Var > 0)
+        {
+            PushSharedMemory->FrameLimit = TRUE;
         }
         break;
 

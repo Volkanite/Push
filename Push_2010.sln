@@ -8,6 +8,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Push", "source\push[exe]\Pu
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "overlay", "source\overlay[dll]\overlay_2010.vcxproj", "{92A59583-EA15-461C-9249-64FAA431ABA5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{99E0E745-ACD1-498F-B7EB-385EE594D30C} = {99E0E745-ACD1-498F-B7EB-385EE594D30C}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "push032", "source\push0[sys]\push0_2010.vcxproj", "{76309B41-A554-B920-3148-F5A7AAE4B42E}"
 EndProject
