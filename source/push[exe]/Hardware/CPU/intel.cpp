@@ -4,7 +4,8 @@
 #include "cpu.h"
 
 
-#define IA32_THERM_STATUS_MSR 0x019C
+#define IA32_PERF_STATUS    0x0198
+#define IA32_THERM_STATUS   0x019C
 
 
 UINT8 Intel_GetTemperature()
@@ -27,9 +28,7 @@ UINT8 Intel_GetTemperature()
         
         mask = SetThreadAffinityMask(hThread, 1UL << i);
 
-        eax = CPU_ReadMsr(IA32_THERM_STATUS_MSR);
-
-        //memcpy(&eax, outBuf, 4);
+        eax = CPU_ReadMsr(IA32_THERM_STATUS);
         
         SetThreadAffinityMask(hThread, mask);
 
@@ -45,4 +44,19 @@ UINT8 Intel_GetTemperature()
     }
 
     return retTemp;
+}
+
+
+UINT16 Intel_GetSpeed()
+{
+    DWORD eax;
+    unsigned __int32 multiplier;
+    unsigned __int16 coreClock;
+
+    eax = CPU_ReadMsr(IA32_PERF_STATUS);
+
+    multiplier = (eax >> 8) & 0xff;
+    coreClock = (float)(multiplier * 100.0f);
+
+    return coreClock;
 }

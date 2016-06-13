@@ -1,0 +1,192 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{eefd9020-8333-4533-888d-df89bc15e2f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI">
+      <UniqueIdentifier>{702a59fe-87f2-4098-b48f-115dbd696749}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hardware">
+      <UniqueIdentifier>{5efd4839-3171-45d8-b957-f84047ac9473}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hardware\CPU">
+      <UniqueIdentifier>{b906b572-10b0-42f6-bd09-a17e7a5554c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hardware\GPU">
+      <UniqueIdentifier>{ed925027-83b8-45b5-805b-65c7fbe42c4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hardware\GPU\NvThermalDiode">
+      <UniqueIdentifier>{72c39318-b7be-4599-a6e8-d4b8378f0cb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OSD">
+      <UniqueIdentifier>{69b4416b-c4dd-45f8-848c-49c056479f63}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GUI\cache.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\copy.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\gui.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GUI\main.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="batch.cpp" />
+    <ClCompile Include="push.cpp" />
+    <ClCompile Include="Hardware\GPU\NvThermalDiode\NVThermalDiode.cpp">
+      <Filter>Hardware\GPU\NvThermalDiode</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\NvThermalDiode\Context.cpp">
+      <Filter>Hardware\GPU\NvThermalDiode</Filter>
+    </ClCompile>
+    <ClCompile Include="OSD\local.c">
+      <Filter>OSD</Filter>
+    </ClCompile>
+    <ClCompile Include="OSD\rtss.cpp">
+      <Filter>OSD</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\hardware.cpp">
+      <Filter>Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\disk.cpp">
+      <Filter>Hardware</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\d3dkmt.cpp">
+      <Filter>Hardware\GPU</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\CPU\intel.cpp">
+      <Filter>Hardware\CPU</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\gpu.cpp">
+      <Filter>Hardware\GPU</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\AmdGpu.cpp">
+      <Filter>Hardware\GPU</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\adl.cpp">
+      <Filter>Hardware\GPU</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\GenericGpu.cpp">
+      <Filter>Hardware\GPU</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\IntelGpu.cpp">
+      <Filter>Hardware\GPU</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\NvidiaGpu.cpp">
+      <Filter>Hardware\GPU</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\nvapi.cpp">
+      <Filter>Hardware\GPU</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\OpenNvapi.cpp">
+      <Filter>Hardware\GPU</Filter>
+    </ClCompile>
+    <ClCompile Include="ramdisk.cpp" />
+    <ClCompile Include="driver.cpp" />
+    <ClCompile Include="file.cpp" />
+    <ClCompile Include="game.cpp" />
+    <ClCompile Include="OSD\osd.cpp">
+      <Filter>OSD</Filter>
+    </ClCompile>
+    <ClCompile Include="ring0.cpp" />
+    <ClCompile Include="Hardware\CPU\amd.cpp">
+      <Filter>Hardware\CPU</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\CPU\cpu.cpp">
+      <Filter>Hardware\CPU</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GUI\cache.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\copy.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\gui.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GUI\main.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\disk.h">
+      <Filter>Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="hardware\cpu\intel.h">
+      <Filter>Hardware\CPU</Filter>
+    </ClInclude>
+    <ClInclude Include="batch.h" />
+    <ClInclude Include="ring0.h" />
+    <ClInclude Include="file.h" />
+    <ClInclude Include="push.h" />
+    <ClInclude Include="game.h" />
+    <ClInclude Include="Hardware\GPU\NvThermalDiode\Context.h">
+      <Filter>Hardware\GPU\NvThermalDiode</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\GPU\NvThermalDiode\NvThermalDiode.h">
+      <Filter>Hardware\GPU\NvThermalDiode</Filter>
+    </ClInclude>
+    <ClInclude Include="driver.h" />
+    <ClInclude Include="ramdisk.h" />
+    <ClInclude Include="Hardware\GPU\adl.h">
+      <Filter>Hardware\GPU</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\GPU\AmdGpu.h">
+      <Filter>Hardware\GPU</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\GPU\d3dkmt.h">
+      <Filter>Hardware\GPU</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\GPU\GenericGpu.h">
+      <Filter>Hardware\GPU</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\GPU\gpu.h">
+      <Filter>Hardware\GPU</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\GPU\IntelGpu.h">
+      <Filter>Hardware\GPU</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\GPU\nvapi.h">
+      <Filter>Hardware\GPU</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\GPU\NvidiaGpu.h">
+      <Filter>Hardware\GPU</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\GPU\OpenNvapi.h">
+      <Filter>Hardware\GPU</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\hardware.h">
+      <Filter>Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="OSD\osd.h">
+      <Filter>OSD</Filter>
+    </ClInclude>
+    <ClInclude Include="OSD\rtss.h">
+      <Filter>OSD</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\CPU\cpu.h">
+      <Filter>Hardware\CPU</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\vendors.h">
+      <Filter>Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\CPU\amd.h">
+      <Filter>Hardware\CPU</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="push.ico">
+      <Filter>Resources</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="push.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

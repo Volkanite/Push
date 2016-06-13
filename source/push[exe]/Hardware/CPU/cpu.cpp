@@ -153,7 +153,7 @@ UINT16 CPU_GetSpeed()
         return AMD_GetSpeed();
         break;
     default:
-        return 0;
+        return Intel_GetSpeed();
         break;
     }
 }
