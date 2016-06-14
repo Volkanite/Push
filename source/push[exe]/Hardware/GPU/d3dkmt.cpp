@@ -45,6 +45,7 @@ PETP_GPU_ADAPTER D3dkmt_GpuAdapter;
 UINT32 EtGpuTotalSegmentCount;
 UINT32 EtGpuNextNodeIndex = 0;
 UINT32 *EtGpuNodeBitMapBuffer;
+BOOLEAN D3DKMT_Initialized;
 
 
 #define BYTES_NEEDED_FOR_BITS(Bits) ((((Bits) + sizeof(UINT32) * 8 - 1) / 8) & ~(UINT32)(sizeof(UINT32) - 1)) // divide round up
@@ -56,7 +57,14 @@ UINT32 *EtGpuNodeBitMapBuffer;
     ((DltMgr)->Delta = (NewValue) - (DltMgr)->Value, \
     (DltMgr)->Value = (NewValue), (DltMgr)->Delta)
 
-
+typedef struct _OSVERSIONINFOW {
+    DWORD dwOSVersionInfoSize;
+    DWORD dwMajorVersion;
+    DWORD dwMinorVersion;
+    DWORD dwBuildNumber;
+    DWORD dwPlatformId;
+    WCHAR  szCSDVersion[128];     // Maintenance string for PSS usage
+} OSVERSIONINFOW, *POSVERSIONINFOW, *LPOSVERSIONINFOW, RTL_OSVERSIONINFOW, *PRTL_OSVERSIONINFOW;
 extern "C"
 {
 VOID __stdcall RtlInitializeBitMap(
@@ -71,18 +79,21 @@ RtlSetBits(
     ULONG StartingIndex,
     ULONG NumberToSet
     );
+
+NTSTATUS __stdcall RtlGetVersion(
+    _Out_ RTL_OSVERSIONINFOW* lpVersionInformation
+    );
 }
 
 RTL_BITMAP EtGpuNodeBitMap;
-
-
 LARGE_INTEGER EtClockTotalRunningTimeFrequency;
 PH_UINT64_DELTA EtClockTotalRunningTimeDelta;
 PH_UINT64_DELTA EtGpuTotalRunningTimeDelta;
 PH_UINT64_DELTA EtGpuSystemRunningTimeDelta;
-
 FLOAT EtGpuNodeUsage;
 UINT64 EtGpuDedicatedLimit;
+ULONG WindowsVersion;
+#define WINDOWS_8 62
 
 
 BOOLEAN
@@ -144,8 +155,7 @@ UINT8 D3DKMT_GetGpuUsage()
 }
 
 
-UINT64
-D3DKMTGetMemoryUsage()
+UINT64 D3DKMTGetMemoryUsage()
 {
     ULONG i;
     D3DKMT_QUERYSTATISTICS queryStatistics;
@@ -165,7 +175,14 @@ D3DKMTGetMemoryUsage()
         {
             UINT64 bytesCommitted;
 
-            bytesCommitted = queryStatistics.QueryResult.SegmentInformationV1.BytesCommitted;
+            if (WindowsVersion == WINDOWS_8)
+            {
+                bytesCommitted = queryStatistics.QueryResult.SegmentInformation.BytesCommitted;
+            }
+            else
+            {
+                bytesCommitted = queryStatistics.QueryResult.SegmentInformationV1.BytesCommitted;
+            }
 
             if (!RtlCheckBit(&D3dkmt_GpuAdapter->ApertureBitMap, i))
                 dedicatedUsage += bytesCommitted;
@@ -174,6 +191,7 @@ D3DKMTGetMemoryUsage()
 
     return dedicatedUsage;
 }
+
 
 D3DKMT_OPENADAPTERFROMDEVICENAME    openAdapterFromDeviceName;
 
@@ -220,8 +238,20 @@ VOID D3DKMTInitialize()
     SP_DEVICE_INTERFACE_DATA            deviceInterfaceData;
     SP_DEVICE_INTERFACE_DETAIL_DATA_W   *detailData;
     SP_DEVINFO_DATA                     deviceInfoData;
-    //D3DKMT_OPENADAPTERFROMDEVICENAME    openAdapterFromDeviceName;
     D3DKMT_QUERYSTATISTICS              queryStatistics;
+    RTL_OSVERSIONINFOW versionInfo;
+
+    if (D3DKMT_Initialized)
+    {
+        return;
+    }
+
+    RtlGetVersion(&versionInfo);
+
+    if (versionInfo.dwMajorVersion == 6 && versionInfo.dwMinorVersion == 2)
+    {
+        WindowsVersion = WINDOWS_8;
+    }
 
     gdi32 = Module::Load(L"gdi32.dll");
 
@@ -329,8 +359,16 @@ VOID D3DKMTInitialize()
                             UINT64 commitLimit;
                             UINT32 aperature;
 
-                            commitLimit = queryStatistics.QueryResult.SegmentInformationV1.CommitLimit;
-                            aperature = queryStatistics.QueryResult.SegmentInformationV1.Aperture;
+                            if (WindowsVersion == WINDOWS_8)
+                            {
+                                commitLimit = queryStatistics.QueryResult.SegmentInformation.CommitLimit;
+                                aperature = queryStatistics.QueryResult.SegmentInformation.Aperture;
+                            }
+                            else
+                            {
+                                commitLimit = queryStatistics.QueryResult.SegmentInformationV1.CommitLimit;
+                                aperature = queryStatistics.QueryResult.SegmentInformationV1.Aperture;
+                            }
 
                             if (aperature)
                                 RtlSetBits(&D3dkmt_GpuAdapter->ApertureBitMap, i, 1);
@@ -356,6 +394,8 @@ VOID D3DKMTInitialize()
     EtGpuNodesTotalRunningTimeDelta = (PPH_UINT64_DELTA) Memory::Allocate(sizeof(PH_UINT64_DELTA) * EtGpuTotalNodeCount);
 
     memset(EtGpuNodesTotalRunningTimeDelta, 0, sizeof(PH_UINT64_DELTA) * EtGpuTotalNodeCount);
+
+    D3DKMT_Initialized = TRUE;
 }
 
 
