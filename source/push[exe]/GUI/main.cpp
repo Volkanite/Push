@@ -298,15 +298,16 @@ MwCreateMainWindow()
 
     PushMainWindow->lastPos = 0;
     PushMainWindow->Handle = SlCreateWindow(
-                                0,
-                                L"RTSSPush",
-                                L"Push",
-                                200,
-                                388,
-                                MainWndProc,
-                                0,
-                                Gui_IconImageHandle
-                                );
+        0, 
+        L"RTSSPush", 
+        L"Push", 
+        WS_SYSMENU, 
+        200, 
+        388, 
+        MainWndProc,
+        0,
+        Gui_IconImageHandle
+        );
 
     // Get dimensions of parent window
     GetClientRect(PushMainWindow->Handle, &windowDimensions);
@@ -486,6 +487,7 @@ VOID OpenCacheWindow()
         0,
         L"Cache Manager",
         L"Cache Settings",
+        0,
         600,
         500,
         CacheWndProc,
@@ -493,6 +495,8 @@ VOID OpenCacheWindow()
         NULL
         );
 }
+
+
 typedef INT32 (__stdcall *TYPE_GetOpenFileNameW)( VOID* );
 TYPE_GetOpenFileNameW GetOpenFileNameW;
 INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lParam )

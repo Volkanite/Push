@@ -6,6 +6,7 @@ VOID* SlCreateWindow(
     DWORD ExStyle,
     WCHAR *className,
     WCHAR *windowName,
+    DWORD Style,
     INT32 width,
     INT32 height,
     VOID *wndProc,

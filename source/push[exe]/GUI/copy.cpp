@@ -8,15 +8,19 @@ VOID* CpwWindowHandle;
 VOID* CpwTextBoxHandle;
 
 
-
-
-
-
-
-
-INT32 __stdcall CopyProgessWndProc(VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lParam)
+INT32 __stdcall CopyProgessWndProc(
+    VOID *hWnd,
+    UINT32 uMessage, 
+    UINT32 wParam, 
+    LONG lParam
+    )
 {
-    return DefWindowProcW(hWnd, uMessage, wParam, lParam);
+    return DefWindowProcW(
+        hWnd, 
+        uMessage, 
+        wParam, 
+        lParam
+        );
 }
 
 
@@ -24,30 +28,31 @@ DWORD __stdcall CpwThread( VOID* Paramter )
 {
     //create window
     CpwWindowHandle = SlCreateWindow(
-                        WS_EX_TOPMOST,
-                        L"Copy Progress",
-                        L"Copy Progress",
-                        400,
-                        200,
-                        CopyProgessWndProc,
-                        NULL,
-                        NULL
-                        );
+        WS_EX_TOPMOST,
+        L"Copy Progress",
+        L"Copy Progress",
+        0,
+        400,
+        200,
+        CopyProgessWndProc,
+        NULL,
+        NULL
+        );
 
     CpwTextBoxHandle = CreateWindowExW(
-                        0,
-                        L"static",
-                        L"ST_U",
-                        WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE,
-                        100,
-                        100,
-                        200,
-                        13,
-                        CpwWindowHandle,
-                        NULL,
-                        NULL,
-                        NULL
-                        );
+        0,
+        L"static",
+        L"ST_U",
+        WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE,
+        100,
+        100,
+        200,
+        13,
+        CpwWindowHandle,
+        NULL,
+        NULL,
+        NULL
+        );
 
     SetForegroundWindow(CpwWindowHandle);
     SlHandleMessages();
