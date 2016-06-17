@@ -39,13 +39,19 @@
     <ClCompile Include="Hardware\GPU\IntelGpu.cpp" />
     <ClCompile Include="Hardware\GPU\nvapi.cpp" />
     <ClCompile Include="Hardware\GPU\NvidiaGpu.cpp" />
-    <ClCompile Include="Hardware\GPU\NvThermalDiode\Context.cpp" />
-    <ClCompile Include="Hardware\GPU\NvThermalDiode\NVThermalDiode.cpp" />
+    <ClCompile Include="Hardware\GPU\NvThermalDiode\Context.cpp">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\NvThermalDiode\NVThermalDiode.cpp">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsCpp</CompileAs>
+    </ClCompile>
     <ClCompile Include="Hardware\GPU\OpenNvapi.cpp" />
     <ClCompile Include="Hardware\hardware.cpp" />
     <ClCompile Include="OSD\local.c" />
     <ClCompile Include="OSD\osd.cpp" />
-    <ClCompile Include="OSD\rtss.cpp" />
+    <ClCompile Include="OSD\rtss.cpp">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
+    </ClCompile>
     <ClCompile Include="push.cpp" />
     <ClCompile Include="ramdisk.cpp" />
     <ClCompile Include="ring0.cpp" />
@@ -176,7 +182,7 @@
       <ShowIncludes>false</ShowIncludes>
       <DisableSpecificWarnings>4996;4244;4047;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <TreatSpecificWarningsAsErrors>4013;4020;4005;4101;4142;4520;4700;4715;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
-      <CompileAs>Default</CompileAs>
+      <CompileAs>CompileAsC</CompileAs>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <WholeProgramOptimization>false</WholeProgramOptimization>

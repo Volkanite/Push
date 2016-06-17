@@ -89,9 +89,9 @@ VOID CPU_Intialize()
         1UL
         );
 
-    Memory::Copy(name, &ebx, 4);
-    Memory::Copy(name + 4, &edx, 4);
-    Memory::Copy(name + 8, &ecx, 4);
+    Memory_Copy(name, &ebx, 4);
+    Memory_Copy(name + 4, &edx, 4);
+    Memory_Copy(name + 8, &ecx, 4);
 
     if (strncmp(name, "GenuineIntel", 12) == 0)
     {

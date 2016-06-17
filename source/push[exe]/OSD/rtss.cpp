@@ -7,13 +7,13 @@
 LPRTSS_SHARED_MEMORY RTSSSharedMemory;
 
 
-extern "C" HANDLE __stdcall OpenFileMappingW(
+HANDLE __stdcall OpenFileMappingW(
     _In_ DWORD   dwDesiredAccess,
     _In_ INTBOOL    bInheritHandle,
     _In_ WCHAR* lpName
     );
 
-extern "C" VOID* __stdcall MapViewOfFile(
+VOID* __stdcall MapViewOfFile(
     _In_ HANDLE hFileMappingObject,
     _In_ DWORD  dwDesiredAccess,
     _In_ DWORD  dwFileOffsetHigh,
@@ -30,7 +30,7 @@ VOID Initialize()
 }
 
 
-void RTSS_Update( OSD_ITEM* OsdItems )
+VOID RTSS_Update( OSD_ITEM* OsdItems )
 {
     UINT8 i;
     OSD_ITEM *osdItem;
@@ -46,9 +46,9 @@ void RTSS_Update( OSD_ITEM* OsdItems )
             || (osdItem->Threshold && osdItem->Value > osdItem->Threshold)) //is the item's value > it's threshold?
         {
             if (i == 0)
-                String::Copy(osdText, osdItem->Text);
+                String_Copy(osdText, osdItem->Text);
             else
-                String::Concatenate(osdText, osdItem->Text);
+                String_Concatenate(osdText, osdItem->Text);
 
             stuffToDraw = TRUE;
         }
@@ -66,7 +66,7 @@ void RTSS_Update( OSD_ITEM* OsdItems )
     {
         for (DWORD dwEntry = 0; dwEntry<RTSSSharedMemory->dwOSDArrSize; dwEntry++)
         {
-            RTSS_SHARED_MEMORY::LPRTSS_SHARED_MEMORY_OSD_ENTRY pEntry = (RTSS_SHARED_MEMORY::LPRTSS_SHARED_MEMORY_OSD_ENTRY)((BYTE*)RTSSSharedMemory + RTSSSharedMemory->dwOSDArrOffset + dwEntry * RTSSSharedMemory->dwOSDEntrySize);
+            RTSS_SHARED_MEMORY_OSD_ENTRY *pEntry = (RTSS_SHARED_MEMORY_OSD_ENTRY*)((BYTE*)RTSSSharedMemory + RTSSSharedMemory->dwOSDArrOffset + dwEntry * RTSSSharedMemory->dwOSDEntrySize);
 
             if (dwPass)
             {

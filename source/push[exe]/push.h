@@ -108,10 +108,7 @@ VOID PushGetImageInfo(
     IMAGE_CALLBACK_INFO* ImageInformation
     );
 
-class Push
-{
-public:
-    static VOID Log( WCHAR* Buffer );
-};
+VOID Push_Log(WCHAR* Buffer);
+VOID Push_FormatTime(WCHAR* Buffer);
 
 #endif //PUSH_H

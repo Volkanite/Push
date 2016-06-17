@@ -61,9 +61,7 @@ ChangeServiceConfigW(
     WCHAR*  lpDisplayName
     );
 
-INT32
-__stdcall
-StartServiceW(
+INTBOOL __stdcall StartServiceW(
     VOID*   hService,
     DWORD   dwNumServiceArgs,
     WCHAR*  lpServiceArgVectors
@@ -338,15 +336,6 @@ INT32
 __stdcall
 RemoveDirectoryW( WCHAR* lpPathName );
 
-INT32
-__stdcall
-DeleteFileW( WCHAR* lpFileName );
-
-int __stdcall FindNextFileW(
-    VOID*               hFindFile,
-    WIN32_FIND_DATA*    lpFindFileData
-    );
-
 int
 __stdcall
 FindClose( VOID *hFindFile );
@@ -359,13 +348,7 @@ CreateSymbolicLinkW(
     DWORD   dwFlags
     );
 
-DWORD
-__stdcall
-GetFileAttributesW(
-  WCHAR* lpFileName
-);
-
- INT32 __stdcall DefineDosDeviceW(
+INT32 __stdcall DefineDosDeviceW(
     DWORD       dwFlags,
     WCHAR   *lpDeviceName,
     WCHAR   *lpTargetPath
@@ -414,11 +397,7 @@ VirtualFreeEx(
     DWORD   dwFreeType
     );
 
- INT32 __stdcall NtOpenProcess(
-     VOID **ProcessHandle,
-     DWORD AccessMask,
-     OBJECT_ATTRIBUTES *ObjectAttributes,
-     CLIENT_ID *ClientId );
+
 
 INT32
 __stdcall
@@ -471,13 +450,6 @@ INTBOOL __stdcall GetSystemTimes(
     FILETIME *lpKernelTime,
     FILETIME *lpUserTime
     );
-
-VOID
-__stdcall
-Sleep(
-  DWORD dwMilliseconds
-);
-
 
 VOID*
 __stdcall
@@ -577,38 +549,13 @@ WideCharToMultiByte(
     const CHAR      *lpDefaultChar,
     INT32           *lpUsedDefaultChar);
 
-BYTE
-__stdcall
-RtlCreateUnicodeString(
-    UNICODE_STRING  *DestinationString,
-    const WCHAR     *SourceString
-    );
-
-VOID
-__stdcall
-RtlFreeUnicodeString( UNICODE_STRING *UnicodeString );
 
 
 
-typedef
-VOID
-(__stdcall *PIO_APC_ROUTINE) (
-    VOID *ApcContext,
-    IO_STATUS_BLOCK *IoStatusBlock,
-    UINT32 Reserved
-    );
- INT32 __stdcall NtDeviceIoControlFile(
-    VOID *FileHandle,
-    VOID *Event,
-    PIO_APC_ROUTINE ApcRoutine,
-    VOID *ApcContext,
-    IO_STATUS_BLOCK *IoStatusBlock,
-    UINT32 IoControlCode,
-    VOID *InputBuffer,
-    UINT32 InputBufferLength,
-    VOID *OutputBuffer,
-    UINT32 OutputBufferLength
-);
+
+
+
+
 
 DWORD
 __stdcall
@@ -675,9 +622,6 @@ INT32 __stdcall MultiByteToWideChar(
     INT32   cchWideChar
     );
 
-WORD __stdcall RegisterClassExW(
-    WNDCLASSEX *lpwcx
-    );
 
 INTBOOL __stdcall SetPropW(
     VOID*   hWnd,
@@ -687,23 +631,7 @@ INTBOOL __stdcall SetPropW(
 
 // Nt
 
-#if defined(MSVC)
-TEB* __stdcall NtCurrentTeb(
-    );
-#else
-static __inline__ struct _TEB * NtCurrentTeb(void)
-{
-    struct _TEB *ret;
 
-    __asm__ __volatile__ (
-        "mov{l} {%%fs:0x18,%0|%0,%%fs:0x18}\n"
-        : "=r" (ret)
-        : /* no inputs */
-    );
-
-    return ret;
-}
-#endif
 
 INT32 __stdcall NtOpenProcessToken(
     VOID *ProcessHandle,
@@ -741,16 +669,9 @@ INT32 __stdcall NtAdjustPrivilegesToken(
     UINT32 *RegionSize,
     UINT32 FreeType );
 
-INT32 __stdcall NtLoadDriver(
-    UNICODE_STRING *pDrvName
-    );
 
-INT32 __stdcall NtOpenThread(
-    VOID **ThreadHandle,
-    DWORD DesiredAccess,
-    OBJECT_ATTRIBUTES *ObjectAttributes,
-    CLIENT_ID *ClientId
-    );
+
+
 
 INT32 __stdcall NtWaitForSingleObject(
     VOID *Handle,
@@ -758,63 +679,15 @@ INT32 __stdcall NtWaitForSingleObject(
     LARGE_INTEGER *Timeout
     );
 
-LONG __stdcall NtQueryDirectoryFile(
-    VOID*                   FileHandle,
-    VOID*                   Event,
-    PIO_APC_ROUTINE         ApcRoutine,
-    VOID*                   ApcContext,
-    IO_STATUS_BLOCK*        IoStatusBlock,
-    VOID*                   FileInformation,
-    ULONG                   Length,
-    FILE_INFORMATION_CLASS  FileInformationClass,
-    BOOLEAN                    ReturnSingleEntry,
-    UNICODE_STRING*         FileName,
-    BOOLEAN                    RestartScan
-    );
 
-LONG __stdcall NtCreateFile(
-    VOID**              FileHandle,
-    DWORD               DesiredAccess,
-    OBJECT_ATTRIBUTES*  ObjectAttributes,
-    IO_STATUS_BLOCK*    IoStatusBlock,
-    LARGE_INTEGER*      AllocationSize,
-    ULONG               FileAttributes,
-    ULONG               ShareAccess,
-    ULONG               CreateDisposition,
-    ULONG               CreateOptions,
-    VOID*               EaBuffer,
-    ULONG               EaLength
-    );
 
-LONG __stdcall NtReadFile(
-    VOID*               FileHandle,
-    VOID*               Event,
-    PIO_APC_ROUTINE     ApcRoutine,
-    VOID*               ApcContext,
-    IO_STATUS_BLOCK*    IoStatusBlock,
-    VOID*               Buffer,
-    ULONG               Length,
-    LARGE_INTEGER*      ByteOffset,
-    ULONG*              Key
-    );
 
-LONG __stdcall NtSetInformationFile(
-    VOID*                   FileHandle,
-    IO_STATUS_BLOCK*        IoStatusBlock,
-    VOID*                   FileInformation,
-    ULONG                   Length,
-    FILE_INFORMATION_CLASS  FileInformationClass
-    );
 
-NTSTATUS
-__stdcall
-NtQueryInformationFile(
-    VOID* FileHandle,
-    IO_STATUS_BLOCK* IoStatusBlock,
-    VOID* FileInformation,
-    ULONG Length,
-    FILE_INFORMATION_CLASS FileInformationClass
-    );
+
+
+
+
+
 
 // Rtl
 
@@ -842,28 +715,10 @@ VOID* __stdcall RtlReAllocateHeap(
     UINT32  Size
     );
 
-LONG __stdcall RtlCompareUnicodeString(
-    UNICODE_STRING *String1,
-    UNICODE_STRING *String2,
-    BOOLEAN CaseInSensitive
-    );
 
-BOOLEAN __stdcall RtlDosPathNameToNtPathName_U(
-    WCHAR*                  DosFileName,
-    UNICODE_STRING*         NtFileName,
-    WCHAR**                 FilePart,
-    RTL_RELATIVE_NAME_U*    RelativeName
-    );
 
-NTSTATUS __stdcall NtCreateSection(
-    VOID** SectionHandle,
-    DWORD DesiredAccess,
-    OBJECT_ATTRIBUTES* ObjectAttributes,
-    LARGE_INTEGER* MaximumSize,
-    ULONG SectionPageProtection,
-    ULONG AllocationAttributes,
-    VOID* FileHandle
-    );
+
+
 
 
 void __stdcall OutputDebugStringW(
@@ -874,12 +729,7 @@ void __stdcall OutputDebugStringW(
     RTL_CRITICAL_SECTION* CriticalSection
     );
 
-LONG __stdcall LdrLoadDll(
-    WCHAR* SearchPath,
-    DWORD* LoadFlags,
-    UNICODE_STRING* Name,
-    VOID** BaseAddress
-    );
+
 
 #ifdef __cplusplus
 }

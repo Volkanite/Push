@@ -1,5 +1,1 @@
-class Registry
-{
-public:
-    static VOID* OpenKey( WCHAR* KeyName, DWORD DesiredAccess );
-};
+VOID* Registry_OpenKey(WCHAR* KeyName, DWORD DesiredAccess);

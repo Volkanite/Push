@@ -11,20 +11,20 @@ VOID GetBatchFile( PUSH_GAME* Game, WCHAR* Buffer )
     WCHAR *dot;
     WCHAR batchFile[260] = L"cache\\";
 
-    String::Concatenate(batchFile, Game->Name);
+    String_Concatenate(batchFile, Game->Name);
 
-    dot = String::FindLastChar(batchFile, '.');
+    dot = String_FindLastChar(batchFile, '.');
 
     if (dot)
-        String::Copy(dot, L".txt");
+        String_Copy(dot, L".txt");
     else
-        String::Concatenate(batchFile, L".txt");
+        String_Concatenate(batchFile, L".txt");
 
-    String::Copy(Buffer, batchFile);
+    String_Copy(Buffer, batchFile);
 }
 
 
-BfBatchFile::BfBatchFile( PUSH_GAME* Game )
+VOID BatchFile_Initialize( PUSH_GAME* Game )
 {
     UINT64 fileSize;
     VOID *buffer = NULL, *bufferOffset;
@@ -43,14 +43,14 @@ BfBatchFile::BfBatchFile( PUSH_GAME* Game )
     BatchFileName = (WCHAR*) RtlAllocateHeap(
         PushHeapHandle,
         0,
-        (String::GetLength(batchFile) + 1) * sizeof(WCHAR)
+        (String_GetLength(batchFile) + 1) * sizeof(WCHAR)
         );
 
     // Save new batchfile name
-    String::Copy(BatchFileName, batchFile);
+    String_Copy(BatchFileName, batchFile);
 
     // Open the batchfile and read the entire file into memory
-    buffer = File::Load(batchFile, &fileSize);
+    buffer = File_Load(batchFile, &fileSize);
 
     if (!buffer)
         return;
@@ -75,11 +75,11 @@ BfBatchFile::BfBatchFile( PUSH_GAME* Game )
         lineStart = nextLine;
 
         // Try to find new line character
-        nextLine = Memory::FindFirstChar(lineStart, '\n', end - lineStart);
+        nextLine = Memory_FindFirstChar(lineStart, '\n', end - lineStart);
 
         if (!nextLine)
             // Didn't find it? How about return?
-            nextLine = Memory::FindFirstChar(lineStart, '\r', end - lineStart);
+            nextLine = Memory_FindFirstChar(lineStart, '\r', end - lineStart);
 
         if (!nextLine)
             // Still didn't find any? Must not be one.
@@ -97,7 +97,7 @@ BfBatchFile::BfBatchFile( PUSH_GAME* Game )
 
         // Add to file list
         fileEntry.Name = line;
-        fileEntry.Bytes = File::GetSize(line);
+        fileEntry.Bytes = File_GetSize(line);
 
         PushAddToFileList(&FileList, &fileEntry);
 
@@ -113,12 +113,6 @@ BfBatchFile::BfBatchFile( PUSH_GAME* Game )
 }
 
 
-BfBatchFile::~BfBatchFile()
-{
-    //destroy file list
-}
-
-
 /**
 * Checks whether a file is included in a batchfile.
 *
@@ -127,8 +121,7 @@ BfBatchFile::~BfBatchFile()
 * structure representing the file.
 */
 
-BOOLEAN
-BfBatchFile::IsBatchedFile( FILE_LIST_ENTRY* File )
+BOOLEAN BatchFile_IsBatchedFile( FILE_LIST_ENTRY* File )
 {
     FILE_LIST_ENTRY *file;
 
@@ -137,7 +130,7 @@ BfBatchFile::IsBatchedFile( FILE_LIST_ENTRY* File )
     while (file != NULL)
     {
         if (File->Bytes == file->Bytes
-            && String::Compare(File->Name, file->Name) == 0)
+            && String_Compare(File->Name, file->Name) == 0)
             return TRUE;
 
         file = file->NextEntry;
@@ -154,8 +147,7 @@ BfBatchFile::IsBatchedFile( FILE_LIST_ENTRY* File )
 * \param BatchFile The batchfile.
 */
 
-UINT64
-BfBatchFile::GetBatchSize()
+UINT64 BatchFile_GetBatchSize()
 {
     return BatchSize;
 }
@@ -167,7 +159,7 @@ BfBatchFile::GetBatchSize()
 * \param BatchFile The batchfile.
 */
 
-VOID BfBatchFile::SaveBatchFile()
+VOID BatchFile_SaveBatchFile()
 {
     HANDLE fileHandle = NULL;
     IO_STATUS_BLOCK isb;
@@ -176,13 +168,14 @@ VOID BfBatchFile::SaveBatchFile()
     WCHAR end[] = L"\r\n";
     NTSTATUS status;
 
-    status = File::Create(
+    status = File_Create(
         &fileHandle,
         BatchFileName,
         SYNCHRONIZE | FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE,
         FILE_SHARE_READ | FILE_SHARE_WRITE,
         FILE_OVERWRITE_IF,
-        FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
+        FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
+		NULL
         );
 
     // Check if \cache folder has not been created yet.
@@ -191,25 +184,27 @@ VOID BfBatchFile::SaveBatchFile()
     {
         HANDLE directoryHandle;
 
-        File::Create(
+        File_Create(
             &directoryHandle,
             L"cache",
             FILE_LIST_DIRECTORY | SYNCHRONIZE,
             FILE_SHARE_READ | FILE_SHARE_WRITE,
             FILE_CREATE,
-            FILE_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT | FILE_OPEN_FOR_BACKUP_INTENT
+            FILE_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT | FILE_OPEN_FOR_BACKUP_INTENT,
+			NULL
             );
 
-        File::Close(directoryHandle);
+        File_Close(directoryHandle);
 
         //try again.
-        File::Create(
+        File_Create(
             &fileHandle,
             BatchFileName,
             SYNCHRONIZE | FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE,
             FILE_SHARE_READ | FILE_SHARE_WRITE,
             FILE_OVERWRITE_IF,
-            FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
+            FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
+			NULL
             );
     }
 
@@ -239,7 +234,7 @@ VOID BfBatchFile::SaveBatchFile()
             NULL,
             &isb,
             file->Name,
-            String::GetLength(file->Name) * sizeof(WCHAR),
+            String_GetLength(file->Name) * sizeof(WCHAR),
             NULL,
             NULL
             );
@@ -262,7 +257,7 @@ VOID BfBatchFile::SaveBatchFile()
 
     if (fileHandle)
     {
-        File::Close(fileHandle);
+        File_Close(fileHandle);
     }
 }
 
@@ -278,10 +273,7 @@ VOID BfBatchFile::SaveBatchFile()
 * with details of the file.
 */
 
-VOID
-BfBatchFile::AddItem(
-    FILE_LIST_ENTRY* File
-    )
+VOID BatchFile_AddItem( FILE_LIST_ENTRY* File )
 {
     FILE_LIST_ENTRY file;
 
@@ -302,8 +294,7 @@ BfBatchFile::AddItem(
 * details of the file.
 */
 
-VOID
-BfBatchFile::RemoveItem( FILE_LIST_ENTRY* File )
+VOID BatchFile_RemoveItem( FILE_LIST_ENTRY* File )
 {
     FILE_LIST_ENTRY *file, *previousEntry;
 
@@ -312,7 +303,7 @@ BfBatchFile::RemoveItem( FILE_LIST_ENTRY* File )
     while (file != 0)
     {
         if (file->Bytes == File->Bytes
-            && String::Compare(file->Name, File->Name) == 0)
+            && String_Compare(file->Name, File->Name) == 0)
         {
             if (file == FileList)
                 FileList = file->NextEntry;
@@ -335,8 +326,7 @@ BfBatchFile::RemoveItem( FILE_LIST_ENTRY* File )
 * BatchFile class.
 */
 
-FILE_LIST
-BfBatchFile::GetBatchList()
+FILE_LIST BatchFile_GetBatchList()
 {
     return FileList;
 }

@@ -1,15 +1,11 @@
-class Process
-{
-public:
-    static VOID Create( WCHAR* ImagePath, WCHAR* Args );
-    static VOID* Open( PROCESSID processID, DWORD rights );
-    static VOID Close( HANDLE ProcessHandle );
-    static UINT32 GetId( WCHAR* ProcessName );
-    static BOOLEAN ThreadExists( UINT32 ProcessId, UINT32 ThreadId );
-    static NTSTATUS GetFileName( HANDLE ProcessHandle, WCHAR* FileName );
-    static BOOLEAN GetFileName( PROCESSID processID, WCHAR* buffer );
-    static VOID WriteMemory( HANDLE ProcessHandle, VOID* BaseAddress, VOID* Buffer, SIZE_T Size );
-    static VOID Suspend( HANDLE ProcessHandle );
-    static VOID Resume( HANDLE ProcessHandle );
-    static BOOLEAN IsWow64( HANDLE ProcessHandle );
-};
+VOID Process_Create(WCHAR* ImagePath, WCHAR* Args, WCHAR* WorkingDirectory);
+VOID* Process_Open(UINT32 processID, DWORD rights);
+VOID Process_Close(HANDLE ProcessHandle);
+UINT32 Process_GetId(WCHAR* ProcessName, DWORD Ignore);
+BOOLEAN Process_ThreadExists(UINT32 ProcessId, UINT32 ThreadId);
+NTSTATUS Process_GetFileNameByHandle(HANDLE ProcessHandle, WCHAR* FileName);
+BOOLEAN Process_GetFileNameByProcessId(UINT32 processID, WCHAR* buffer);
+VOID Process_WriteMemory(HANDLE ProcessHandle, VOID* BaseAddress, VOID* Buffer, SIZE_T Size);
+VOID Process_Suspend(HANDLE ProcessHandle);
+VOID Process_Resume(HANDLE ProcessHandle);
+BOOLEAN Process_IsWow64(HANDLE ProcessHandle);

@@ -1,3 +1,6 @@
+#ifndef _NTPSAPI_H
+#define _NTPSAPI_H
+
 #define GDI_HANDLE_BUFFER_SIZE32 34
 #define GDI_HANDLE_BUFFER_SIZE64 60
 
@@ -147,7 +150,23 @@ NTSTATUS __stdcall NtQueryInformationProcess(
     ULONG ProcessInformationLength,
     ULONG* ReturnLength
     );
-
+    
+NTSTATUS __stdcall NtOpenProcess(
+     VOID **ProcessHandle,
+     DWORD AccessMask,
+     OBJECT_ATTRIBUTES *ObjectAttributes,
+     CLIENT_ID *ClientId 
+     );
+     
+NTSTATUS __stdcall NtOpenThread(
+    VOID **ThreadHandle,
+    DWORD DesiredAccess,
+    OBJECT_ATTRIBUTES *ObjectAttributes,
+    CLIENT_ID *ClientId
+    );   
+    
 #ifdef __cplusplus
 }
 #endif
+
+#endif //_NTPSAPI_H

@@ -121,26 +121,9 @@ VOID GetValues( OSD_ITEM* Item )
 }
 
 
-VOID FormatTime(
-    UINT32 Value,
-    WCHAR* Buffer
-    )
+VOID FormatTime( UINT32 Value, WCHAR* Buffer )
 {
-    time_t rawtime;
-    struct tm * timeinfo;
-
-    time(&rawtime);
-
-    timeinfo = localtime(
-        &rawtime
-        );
-
-    wcsftime(
-        Buffer,
-        20,
-        L"%H:%M:%S",
-        timeinfo
-        );
+	Push_FormatTime(Buffer);
 }
 
 

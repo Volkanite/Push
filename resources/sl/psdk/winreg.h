@@ -1,0 +1,1 @@
+#define REG_BINARY                  ( 3 )   // Free form binary

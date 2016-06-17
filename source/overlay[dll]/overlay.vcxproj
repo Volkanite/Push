@@ -132,7 +132,7 @@
       <TreatSpecificWarningsAsErrors>4013;4020;4005;4101;4142;4520;4700;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <ShowIncludes>false</ShowIncludes>
+      <ShowIncludes>true</ShowIncludes>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

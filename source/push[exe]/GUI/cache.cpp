@@ -9,17 +9,6 @@
 
 #define LISTVIEW 240
 
-typedef struct tagNMLISTVIEW {
-    NMHDR  hdr;
-    int    Item;
-    int    iSubItem;
-    UINT32   uNewState;
-    UINT32   uOldState;
-    UINT32   uChanged;
-    POINT  Point;
-    LONG lParam;
-} NMLISTVIEW, *LPNMLISTVIEW;
-
 extern WINDOW* cacheWindow;
 
 
@@ -43,13 +32,13 @@ LONG __stdcall CacheWndProc(
             RECT windowRect, treeListRect;
             PUSH_GAME game;
 
-            ListView::Create(Handle, LISTVIEW, 0, 0);
-            ListView::EnableCheckboxes();
+            ListView_Create(0, LISTVIEW, 0, 0, 0);
+            ListView_EnableCheckboxes();
 
-            ListView::AddColumn(L"File");
-            ListView::AddColumn(L"Size");
+            ListView_AddColumn(L"File");
+            ListView_AddColumn(L"Size");
 
-            Game::Initialize(GetComboBoxData(), &game);
+            Game_Initialize(GetComboBoxData(), &game);
 
             if (!FolderExists(game.InstallPath))
             {
@@ -58,9 +47,9 @@ LONG __stdcall CacheWndProc(
                 return 0;
             }
 
-            MwBatchFile = new BfBatchFile(&game);
+            //MwBatchFile = new BfBatchFile(&game);
 
-            Directory::Enum(
+            Directory_Enum(
                 ManualLoad ? ManualLoad : game.InstallPath, 
                 L"*", 
                 BuildGameFilesList
@@ -68,11 +57,11 @@ LONG __stdcall CacheWndProc(
 
             ListViewAddItems();
 
-            ListView::SortItems(ListViewCompareProc);
-            ListView::SetColumnWidth(0, LVSCW_AUTOSIZE_USEHEADER);
+            ListView_SortItems(ListViewCompareProc);
+            ListView_SetColumnWidth(0, LVSCW_AUTOSIZE_USEHEADER);
 
-            columnWidth = ListView::GetColumnWidth(0);
-            columnWidth += ListView::GetColumnWidth(1);
+            columnWidth = ListView_GetColumnWidth(0);
+            columnWidth += ListView_GetColumnWidth(1);
             columnWidth += 50;
 
             GetWindowRect(Handle, &windowRect);
@@ -89,10 +78,10 @@ LONG __stdcall CacheWndProc(
                     SWP_NOMOVE | SWP_NOZORDER| SWP_NOACTIVATE
                     );
 
-                GetWindowRect(ListView::Handle, &treeListRect);
+                GetWindowRect(ListView_Handle, &treeListRect);
 
                 SetWindowPos(
-                    ListView::Handle,
+                    ListView_Handle,
                     0,
                     0,
                     0,
@@ -106,8 +95,8 @@ LONG __stdcall CacheWndProc(
 
     case WM_CLOSE:
         {
-            if (MwBatchFile)
-                MwBatchFile->SaveBatchFile();
+            //if (MwBatchFile)
+                BatchFile_SaveBatchFile();
 
             break;
         }
@@ -123,29 +112,28 @@ LONG __stdcall CacheWndProc(
                 BOOLEAN checkbox = FALSE;
                 FILE_LIST_ENTRY file;
 
-                if (ListView::IsCheckBox(message->Point))
+                if (ListView_IsCheckBox(message->ptAction))
                     checkbox = TRUE;
 
-                ListView::GetItemText(message->Item, 0, fileName, 260);
-                ListView::GetItemText(message->Item, 1, fileSize, 260);
+                ListView_GetItemText(message->iItem, 0, fileName, 260);
+                ListView_GetItemText(message->iItem, 1, fileSize, 260);
 
                 file.Name = fileName;
-                //file.Bytes = _wtoi(fileSize);
                 file.Bytes = wcstol(fileSize, NULL, 10);
 
-                if (ListView::GetCheckState(message->Item))
+                if (ListView_GetCheckState(message->iItem))
                 {
-                    MwBatchFile->RemoveItem(&file);
+                    BatchFile_RemoveItem(&file);
 
                     if (!checkbox)
-                        ListView::SetItemState(message->Item, FALSE);
+                        ListView_SetItemState(message->iItem, FALSE);
                 }
                 else
                 {
-                    MwBatchFile->AddItem(&file);
+                    BatchFile_AddItem(&file);
 
                     if (!checkbox)
-                        ListView::SetItemState(message->Item, TRUE);
+                        ListView_SetItemState(message->iItem, TRUE);
 
                     g_bRecache = TRUE;
                 }

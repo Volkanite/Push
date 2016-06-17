@@ -2,7 +2,7 @@
 #define _WIN_H
 
 #pragma once
-#include "ntbasic.h"
+
 #define INVALID_HANDLE_VALUE    ((VOID *)(SDWORD)-1)
 #define CW_USEDEFAULT           ((SDWORD)0x80000000)
 #define MAKEINTRESOURCE(i)      ((WCHAR*)((DWORD)((WORD)(i))))
@@ -156,7 +156,6 @@
 #define LVM_FINDITEM                    (LVM_FIRST + 83)
 #define LVM_GETSTRINGWIDTH              (LVM_FIRST + 87)
 #define LVM_INSERTCOLUMN                (LVM_FIRST + 97)
-#define LVM_GETITEMTEXT                 (LVM_FIRST + 115)
 
 #define LVS_EX_CHECKBOXES               0x00000004
 
@@ -374,33 +373,24 @@ typedef struct _LVITEMW
     INT32   iImage;
     LONG    Param;
     INT32   iIndent;
-    INT32   iGroupId;
+    INT32   GroupId;
     DWORD   cColumns;
     DWORD*  puColumns;
     INT32*  piColFmt;
     INT32   iGroup;
-} LVITEM;
+} LVITEMW;
 
 
-typedef struct _NMHDR {
-  VOID  *hwndFrom;
-  DWORD idFrom;
-  DWORD code;
-} NMHDR;
+
 
 
 typedef struct _LV_DISPINFO {
   NMHDR hdr;
-  LVITEM item;
+  LVITEMW item;
 } LV_DISPINFO;
 
 
-typedef struct _GUID {
-    DWORD   Data1;
-    WORD    Data2;
-    WORD    Data3;
-    BYTE    Data4[ 8 ];
-} GUID;
+
 
 
 typedef struct _RECT
@@ -412,11 +402,7 @@ typedef struct _RECT
 } RECT;
 
 
-typedef struct _POINT
-{
-    SDWORD  x;
-    SDWORD  y;
-} POINT;
+
 
 
 typedef struct _NOTIFYICONDATAA {
@@ -527,33 +513,10 @@ typedef struct _OVERLAPPED {
 } OVERLAPPED;
 
 
-typedef union _LARGE_INTEGER {
-    struct {
-        DWORD LowPart;
-        LONG HighPart;
-    } DUMMYSTRUCTNAME;
-
-    struct {
-        DWORD LowPart;
-        LONG HighPart;
-    } u;
-
-    INT64 QuadPart;
-
-} LARGE_INTEGER;
 
 
-typedef union _ULARGE_INTEGER {
-    struct {
-        DWORD LowPart;
-        DWORD HighPart;
-    } DUMMYSTRUCTNAME;
-    struct {
-        DWORD LowPart;
-        DWORD HighPart;
-    } u;
-    QWORD QuadPart;
-} ULARGE_INTEGER;
+
+
 
 
 typedef enum _MEDIA_TYPE {
@@ -621,88 +584,9 @@ typedef struct _SP_DEVICE_INTERFACE_DETAIL_DATA_W {
 #define FILE_READ_ATTRIBUTES      ( 0x0080 )
 #define SECURITY_DYNAMIC_TRACKING   (TRUE)
 
-typedef enum _EXCEPTION_DISPOSITION
-{
-         ExceptionContinueExecution = 0,
-         ExceptionContinueSearch = 1,
-         ExceptionNestedException = 2,
-         ExceptionCollidedUnwind = 3
-} EXCEPTION_DISPOSITION;
 
 
-typedef struct _EXCEPTION_REGISTRATION_RECORD EXCEPTION_REGISTRATION_RECORD;
-typedef struct _EXCEPTION_REGISTRATION_RECORD
-{
-     EXCEPTION_REGISTRATION_RECORD *Next;
-     EXCEPTION_DISPOSITION *Handler;
-} EXCEPTION_REGISTRATION_RECORD;
 
-typedef struct _NT_TIB NT_TIB;
-typedef struct _NT_TIB
-{
-     EXCEPTION_REGISTRATION_RECORD *ExceptionList;
-     VOID *StackBase;
-     VOID *StackLimit;
-     VOID *SubSystemTib;
-     union
-     {
-          VOID *FiberData;
-          UINT32 Version;
-     };
-     VOID *ArbitraryUserPointer;
-     NT_TIB *Self;
-} NT_TIB;
-
-
-typedef struct _LIST_ENTRY {
-  struct _LIST_ENTRY  *Flink;
-  struct _LIST_ENTRY  *Blink;
-} LIST_ENTRY;
-
-
-typedef struct _RTL_DRIVE_LETTER_CURDIR {
-
-    UINT16 Flags;
-    UINT16 Length;
-    UINT32 TimeStamp;
-    UNICODE_STRING DosPath;
-
-} RTL_DRIVE_LETTER_CURDIR;
-
-
-typedef struct _RTL_USER_PROCESS_PARAMETERS {
-
-    UINT32 MaximumLength;
-    UINT32 Length;
-    UINT32 Flags;
-    UINT32 DebugFlags;
-    VOID *ConsoleHandle;
-    UINT32 ConsoleFlags;
-    VOID *StdInputHandle;
-    VOID *StdOutputHandle;
-    VOID *StdErrorHandle;
-    UNICODE_STRING CurrentDirectoryPath;
-    VOID *CurrentDirectoryHandle;
-    UNICODE_STRING DllPath;
-    UNICODE_STRING ImagePathName;
-    UNICODE_STRING CommandLine;
-    VOID *Environment;
-    UINT32 StartingPositionLeft;
-    UINT32 StartingPositionTop;
-    UINT32 Width;
-    UINT32 Height;
-    UINT32 CharWidth;
-    UINT32 CharHeight;
-    UINT32 ConsoleTextAttributes;
-    UINT32 WindowFlags;
-    UINT32 ShowWindowFlags;
-    UNICODE_STRING WindowTitle;
-    UNICODE_STRING DesktopName;
-    UNICODE_STRING ShellInfo;
-    UNICODE_STRING RuntimeData;
-    RTL_DRIVE_LETTER_CURDIR DLCurrentDirectory[0x20];
-
-} RTL_USER_PROCESS_PARAMETERS;
 
         typedef void (*PPEBLOCKROUTINE)(
     VOID *PebLock
@@ -739,16 +623,6 @@ ULARGE_INTEGER CurrentCycleCount;
 
 } THREAD_CYCLE_TIME_INFORMATION;
 
-
-typedef struct _ACL {
-    BYTE  AclRevision;
-    BYTE  Sbz1;
-    WORD   AclSize;
-    WORD   AceCount;
-    WORD   Sbz2;
-} ACL;
-
-
 typedef enum _SE_OBJECT_TYPE
 {
     SE_UNKNOWN_OBJECT_TYPE = 0,
@@ -781,27 +655,10 @@ typedef enum _FINDEX_SEARCH_OPS {
 } FINDEX_SEARCH_OPS;
 
 
-typedef struct _RTL_CRITICAL_SECTION_DEBUG
-{
-    UINT16 Type;
-    UINT16 CreatorBackTraceIndex;
-    struct _RTL_CRITICAL_SECTION *CriticalSection;
-    LIST_ENTRY ProcessLocksList;
-    ULONG EntryCount;
-    ULONG ContentionCount;
-    ULONG Spare[2];
-} RTL_CRITICAL_SECTION_DEBUG;
 
 
-typedef struct _RTL_CRITICAL_SECTION
-{
-    RTL_CRITICAL_SECTION_DEBUG* DebugInfo;
-    INT32                       LockCount;
-    INT32                       RecursionCount;
-    VOID*                       OwningThread;
-    VOID*                       LockSemaphore;
-    UINT_B                SpinCount;
-} RTL_CRITICAL_SECTION;
+
+
 
 
 #pragma pack(push,1)
@@ -861,79 +718,18 @@ typedef union _DIR_INFORMATION
     FILE_BOTH_DIR_INFORMATION*  BothDirInfo;
 } DIR_INFORMATION;
 
-typedef enum _FILE_INFORMATION_CLASS {
-    FileDirectoryInformation         = 1,
-    FileFullDirectoryInformation,
-    FileBothDirectoryInformation,
-    FileBasicInformation,
-    FileStandardInformation,
-    FileInternalInformation,
-    FileEaInformation,
-    FileAccessInformation,
-    FileNameInformation,
-    FileRenameInformation,
-    FileLinkInformation,
-    FileNamesInformation,
-    FileDispositionInformation,
-    FilePositionInformation,
-    FileFullEaInformation,
-    FileModeInformation,
-    FileAlignmentInformation,
-    FileAllInformation,
-    FileAllocationInformation,
-    FileEndOfFileInformation,
-    FileAlternateNameInformation,
-    FileStreamInformation,
-    FilePipeInformation,
-    FilePipeLocalInformation,
-    FilePipeRemoteInformation,
-    FileMailslotQueryInformation,
-    FileMailslotSetInformation,
-    FileCompressionInformation,
-    FileObjectIdInformation,
-    FileCompletionInformation,
-    FileMoveClusterInformation,
-    FileQuotaInformation,
-    FileReparsePointInformation,
-    FileNetworkOpenInformation,
-    FileAttributeTagInformation,
-    FileTrackingInformation,
-    FileIdBothDirectoryInformation,
-    FileIdFullDirectoryInformation,
-    FileValidDataLengthInformation,
-    FileShortNameInformation,
-    FileMaximumInformation
-} FILE_INFORMATION_CLASS;
-
-typedef struct _RTLP_CURDIR_REF
-{
-    LONG    RefCount;
-    VOID*   Handle;
-} RTLP_CURDIR_REF;
-
-typedef struct _RTL_RELATIVE_NAME_U
-{
-    UNICODE_STRING      RelativeName;
-    VOID*               ContainingDirectory;
-    RTLP_CURDIR_REF*    CurDirRef;
-} RTL_RELATIVE_NAME_U;
 
 
-#include "ntuser.h"
-#include "slntrtl.h"
-#include "ntkeapi.h"
-#include "ntexapi.h"
-#include "ntpsapi.h"
-#include "slntdef.h"
-#include "slntpebteb.h"
-#include "slntstatus.h"
-#include "slntnls.h"
-#include "ntbase.h"
-#include "ntioapi.h"
-#include "slcommctrl.h"
-#include "ntobapi.h"
-#include "ntrtl.h"
-#include "ntregapi.h"
+
+
+
+
+typedef struct _SYSTEM_CODEINTEGRITY_INFORMATION {
+    ULONG Length;
+    ULONG CodeIntegrityOptions;
+}SYSTEM_CODEINTEGRITY_INFORMATION;
+
+
 
 #endif // _WIN_H
 

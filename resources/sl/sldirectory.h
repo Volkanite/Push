@@ -4,9 +4,5 @@ typedef VOID(*SL_ENUM_DIRECTORY)(
     );
 
 
-class Directory
-{
-public:
-    static NTSTATUS Enum( WCHAR* Directory, WCHAR* SearchPattern, SL_ENUM_DIRECTORY Callback );
-    static VOID AppendFileName( WCHAR* FileName, WCHAR* Path, WCHAR* Buffer );
-};
+NTSTATUS Directory_Enum(WCHAR* Directory, WCHAR* SearchPattern, SL_ENUM_DIRECTORY Callback);
+VOID Directory_AppendFileName(WCHAR* FileName, WCHAR* Path, WCHAR* Buffer);

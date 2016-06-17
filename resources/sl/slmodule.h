@@ -1,6 +1,2 @@
-class Module
-{
-public:
-    static VOID* Load( WCHAR* ModuleName );
-    static VOID* GetProcedureAddress( VOID* DllHandle, CHAR* ProcedureName );
-};
+VOID* Module_Load(WCHAR* ModuleName);
+VOID* Module_GetProcedureAddress(VOID* DllHandle, CHAR* ProcedureName);

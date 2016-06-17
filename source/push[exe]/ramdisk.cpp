@@ -139,7 +139,7 @@ VOID* OpenRamDisk()
 {
     UNICODE_STRING  fileName;
 
-    UnicodeString::Init(
+    UnicodeString_Init(
         &fileName,
         PUSH_RAMDISK_DEVICE_NAME
         );
@@ -170,8 +170,8 @@ VOID FormatRamDisk()
 
     mountPoint[0] = createData.DriveLetter;
 
-    FormatEx = (PFORMATEX) Module::GetProcedureAddress(
-        Module::Load(L"fmifs.dll"), 
+    FormatEx = (PFORMATEX) Module_GetProcedureAddress(
+        Module_Load(L"fmifs.dll"), 
         "FormatEx"
         );
 

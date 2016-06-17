@@ -281,8 +281,6 @@ static GUID DiskIoGuid = { 0x3d6fa8d4, 0xfe05, 0x11d0, { 0x9d, 0xda, 0x00, 0xc0,
 static GUID FileIoGuid = { 0x90cbdc39, 0x4a3e, 0x11d1, { 0x84, 0xf4, 0x00, 0x00, 0xf8, 0x04, 0x64, 0xe3 } };
 
 
-extern "C"
-{
 ULONG __stdcall StartTraceW(
     UINT64* TraceHandle,
     WCHAR* InstanceName,
@@ -304,7 +302,6 @@ ULONG __stdcall ProcessTrace(
     FILETIME* StartTime,
     FILETIME* EndTime
     );
-}
 
 
 typedef struct _CIRCULAR_BUFFER
@@ -322,7 +319,7 @@ VOID InitializeCircularBuffer( CIRCULAR_BUFFER* Buffer, ULONG Size )
     Buffer->Count = 0;
     Buffer->Index = 0;
 
-    Buffer->Data = (UINT32*) Memory::Allocate(sizeof(ULONG) * Buffer->Size);
+    Buffer->Data = (UINT32*) Memory_Allocate(sizeof(ULONG) * Buffer->Size);
 }
 
 
@@ -533,14 +530,14 @@ VOID PhpResizeHashtable(
     // Re-allocate the buckets. Note that we don't need to keep the
     // contents.
     Hashtable->AllocatedBuckets = PhpGetNumberOfBuckets(NewCapacity);
-    Memory::Free(Hashtable->Buckets);
-    Hashtable->Buckets = (ULONG*) Memory::Allocate(sizeof(ULONG) * Hashtable->AllocatedBuckets);
+    Memory_Free(Hashtable->Buckets);
+    Hashtable->Buckets = (ULONG*) Memory_Allocate(sizeof(ULONG) * Hashtable->AllocatedBuckets);
     // Set all bucket values to -1.
     memset(Hashtable->Buckets, 0xff, sizeof(ULONG) * Hashtable->AllocatedBuckets);
 
     // Re-allocate the entries.
     Hashtable->AllocatedEntries = Hashtable->AllocatedBuckets;
-    Hashtable->Entries = Memory::ReAllocate(
+    Hashtable->Entries = Memory_ReAllocate(
         Hashtable->Entries,
         PH_HASHTABLE_ENTRY_SIZE(Hashtable->EntrySize) * Hashtable->AllocatedEntries
         );
@@ -747,7 +744,7 @@ PPH_STRING EtFileObjectToFileName(
 
     if (realPair)
     {
-        Push::Log((WCHAR*)realPair->Value);
+        Push_Log((WCHAR*)realPair->Value);
         //Debug::Print((WCHAR*)realPair->Value);
     }
 
@@ -825,7 +822,7 @@ PPH_HASHTABLE PhCreateHashtable(
 {
     PPH_HASHTABLE hashtable;
 
-    hashtable = (PH_HASHTABLE*) Memory::Allocate(sizeof(PH_HASHTABLE));
+    hashtable = (PH_HASHTABLE*) Memory_Allocate(sizeof(PH_HASHTABLE));
 
     // Initial capacity of 0 is not allowed.
     if (InitialCapacity == 0)
@@ -837,13 +834,13 @@ PPH_HASHTABLE PhCreateHashtable(
 
     // Allocate the buckets.
     hashtable->AllocatedBuckets = PhpGetNumberOfBuckets(InitialCapacity);
-    hashtable->Buckets = (ULONG*) Memory::Allocate(sizeof(ULONG) * hashtable->AllocatedBuckets);
+    hashtable->Buckets = (ULONG*) Memory_Allocate(sizeof(ULONG) * hashtable->AllocatedBuckets);
     // Set all bucket values to -1.
     memset(hashtable->Buckets, 0xff, sizeof(ULONG) * hashtable->AllocatedBuckets);
 
     // Allocate the entries.
     hashtable->AllocatedEntries = hashtable->AllocatedBuckets;
-    hashtable->Entries = Memory::Allocate(PH_HASHTABLE_ENTRY_SIZE(EntrySize) * hashtable->AllocatedEntries);
+    hashtable->Entries = Memory_Allocate(PH_HASHTABLE_ENTRY_SIZE(EntrySize) * hashtable->AllocatedEntries);
 
     hashtable->Count = 0;
     hashtable->FreeEntry = -1;
@@ -883,9 +880,9 @@ VOID __stdcall DiskEvents( EVENT_TRACE* EventTrace )
 
         if (!ProcessResponseTimes)
         {
-            ProcessResponseTimes = (PROCESS_RESPONSE_TIME*)Memory::Allocate(sizeof(PROCESS_RESPONSE_TIME));
+            ProcessResponseTimes = (PROCESS_RESPONSE_TIME*)Memory_Allocate(sizeof(PROCESS_RESPONSE_TIME));
 
-            Memory::Clear(ProcessResponseTimes, sizeof(PROCESS_RESPONSE_TIME));
+            Memory_Clear(ProcessResponseTimes, sizeof(PROCESS_RESPONSE_TIME));
             
             ResponseTimeProcessCount++;
         }
@@ -910,12 +907,12 @@ parse:
             
         if (!inArray)
         {
-            ProcessResponseTimes = (PROCESS_RESPONSE_TIME*)Memory::ReAllocate(
+            ProcessResponseTimes = (PROCESS_RESPONSE_TIME*)Memory_ReAllocate(
                 ProcessResponseTimes,
                 sizeof(PROCESS_RESPONSE_TIME) * (ResponseTimeProcessCount + 1)
                 );
 
-            Memory::Clear(ProcessResponseTimes + ResponseTimeProcessCount, sizeof(PROCESS_RESPONSE_TIME));
+            Memory_Clear(ProcessResponseTimes + ResponseTimeProcessCount, sizeof(PROCESS_RESPONSE_TIME));
 
             ResponseTimeProcessCount++;
 
@@ -945,9 +942,9 @@ VOID __stdcall FileEvents( EVENT_TRACE* EventTrace )
         data = (FileIo_Name*)EventTrace->MofData;
 
         pair.Key = (VOID*)data->FileObject;
-        pair.Value = Memory::Allocate(String::GetSize(data->FileName) + 1);
+        pair.Value = Memory_Allocate(String_GetSize(data->FileName) + 1);
 
-        String::Copy((WCHAR*)pair.Value, data->FileName);
+        String_Copy((WCHAR*)pair.Value, data->FileName);
 
         realPair = (PH_KEY_VALUE_PAIR*)PhAddEntryHashtableEx(EtFileNameHashtable, &pair, NULL);
     //}
@@ -962,7 +959,7 @@ DWORD __stdcall DiskMonitorThread( VOID* Parameter )
     UINT64 traceHandle = NULL, sessionHandle = NULL;
 
     bufferSize = sizeof(EVENT_TRACE_PROPERTIES) + sizeof(KERNEL_LOGGER_NAME);
-    traceProperties = (EVENT_TRACE_PROPERTIES*) Memory::Allocate(bufferSize);
+    traceProperties = (EVENT_TRACE_PROPERTIES*) Memory_Allocate(bufferSize);
 
     memset(traceProperties, 0, sizeof(EVENT_TRACE_PROPERTIES));
 
@@ -1017,11 +1014,11 @@ DiskGetBytesDelta()
 
 /*VOID DiskGetResponseTimes( PROCESS_RESPONSE_TIME** ResponseTimes, UINT8* ResponseTimesCount )
 {
-    PROCESS_RESPONSE_TIME *responseTimes = (PROCESS_RESPONSE_TIME*) Memory::Allocate(
+    PROCESS_RESPONSE_TIME *responseTimes = (PROCESS_RESPONSE_TIME*) Memory_Allocate(
         sizeof(PROCESS_RESPONSE_TIME) * ResponseTimeProcessCount
         );
     
-    Memory::Copy(responseTimes, ProcessResponseTimes, sizeof(PROCESS_RESPONSE_TIME) * ResponseTimeProcessCount);
+    Memory_Copy(responseTimes, ProcessResponseTimes, sizeof(PROCESS_RESPONSE_TIME) * ResponseTimeProcessCount);
 
     *ResponseTimes = responseTimes;
     *ResponseTimesCount = ResponseTimeProcessCount;

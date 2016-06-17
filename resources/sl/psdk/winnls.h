@@ -1,0 +1,1 @@
+#define WC_COMPOSITECHECK    0x0200

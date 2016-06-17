@@ -4,21 +4,15 @@
 
 #include "game.h"
 
-
-class BfBatchFile{
     FILE_LIST FileList;
     WCHAR* BatchFileName;
     UINT64 BatchSize;
-
-public:
     BfBatchFile( PUSH_GAME* Game );
-    ~BfBatchFile();
-    BOOLEAN IsBatchedFile( FILE_LIST_ENTRY* File );
-    UINT64 GetBatchSize();
-    VOID SaveBatchFile();
-    VOID AddItem( FILE_LIST_ENTRY* File );
-    VOID RemoveItem( FILE_LIST_ENTRY* File );
-    FILE_LIST GetBatchList();
-};
+	BOOLEAN BatchFile_IsBatchedFile(FILE_LIST_ENTRY* File);
+    UINT64 BatchFile_GetBatchSize();
+	VOID BatchFile_SaveBatchFile();
+	VOID BatchFile_AddItem(FILE_LIST_ENTRY* File);
+	VOID BatchFile_RemoveItem(FILE_LIST_ENTRY* File);
+	FILE_LIST BatchFile_GetBatchList();
 
 #endif //BATCH_H

@@ -9,11 +9,11 @@
 #include "ring0.h"
 
 
-#define WRITE_DAC   0x00040000L
+//#define WRITE_DAC   0x00040000L
 
 typedef VOID* PSECURITY_DESCRIPTOR;
 
-#define SECURITY_DESCRIPTOR_REVISION     (1)
+//#define SECURITY_DESCRIPTOR_REVISION     (1)
 #define DACL_SECURITY_INFORMATION        (0x00000004L)
 #define READ_CONTROL                     (0x00020000L)
 #define STANDARD_RIGHTS_WRITE            (READ_CONTROL)
@@ -34,8 +34,7 @@ typedef VOID* PSECURITY_DESCRIPTOR;
 
 #define IDYES 6
 
-extern "C"
-{
+
 NTSTATUS __stdcall RtlCreateSecurityDescriptor(
     VOID* SecurityDescriptor,
     ULONG Revision
@@ -59,7 +58,6 @@ NTSTATUS __stdcall NtSetSecurityObject(
     ULONG SecurityInformation,
     VOID* SecurityDescriptor
     );
-}
 
 
 VOID Driver_Extract()
@@ -75,9 +73,9 @@ VOID Driver_Extract()
         );
 
     if (isWow64)
-        Resource::Extract(L"DRIVER64", L"push0.sys");
+        Resource_Extract(L"DRIVER64", L"push0.sys");
     else
-        Resource::Extract(L"DRIVER32", L"push0.sys");
+        Resource_Extract(L"DRIVER32", L"push0.sys");
 }
 
 
@@ -89,7 +87,7 @@ VOID StripPermissions( WCHAR* KeyName )
     VOID* selfSecurityDescriptor;
     ULONG bufferLength = 20;
 
-    keyHandle = Registry::OpenKey(KeyName, WRITE_DAC);
+    keyHandle = Registry_OpenKey(KeyName, WRITE_DAC);
 
     RtlCreateSecurityDescriptor(psecdesc, SECURITY_DESCRIPTOR_REVISION);
     RtlSetDaclSecurityDescriptor(psecdesc, TRUE, NULL, TRUE);
@@ -126,7 +124,7 @@ VOID Driver_Load()
         {
             // Probably wrong driver. Overwrite.
 
-            DeleteFileW(L"push0.sys");
+            File_Delete(L"push0.sys");
             Driver_Extract();
 
             // Try again.
@@ -177,7 +175,7 @@ VOID Driver_Load()
                     &guidAsUnicodeString
                     );
 
-                String::CopyN(guidAsWideChar, guidAsUnicodeString.Buffer, 39);
+                String_CopyN(guidAsWideChar, guidAsUnicodeString.Buffer, 39);
 
                 guidAsWideChar[39] = L'\0';
 
@@ -193,13 +191,13 @@ VOID Driver_Load()
 
                 // Enable test-signing mode.
 
-                String::Concatenate(buffer, L"\\16000049");
+                String_Concatenate(buffer, L"\\16000049");
 
                 // Change key permissions (if it already exists) to allow us to set values.
                 StripPermissions(buffer);
 
-                UnicodeString::Init(&keyName, buffer);
-                UnicodeString::Init(&valueName, L"Element");
+                UnicodeString_Init(&keyName, buffer);
+                UnicodeString_Init(&valueName, L"Element");
 
                 objectAttributes.Length = sizeof(OBJECT_ATTRIBUTES);
                 objectAttributes.RootDirectory = NULL;

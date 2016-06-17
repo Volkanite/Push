@@ -17,8 +17,6 @@ DWORD
     VOID* lpData
     );
 
-extern "C"
-{
 UINT32 __stdcall GetDriveTypeW(
     WCHAR* lpRootPathName
     );
@@ -52,4 +50,3 @@ INTBOOL __stdcall IsWow64Process(
     HANDLE hProcess,
     INTBOOL* Wow64Process
     );
-}

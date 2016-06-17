@@ -1,4 +1,16 @@
+#ifndef NTBASIC_H
+#define NTBASIC_H
+
+
 typedef LONG KPRIORITY;
+
+typedef struct _STRING
+{
+    UINT16 Length;
+    UINT16 MaximumLength;
+    CHAR* Buffer;
+} STRING, *PSTRING, ANSI_STRING, *PANSI_STRING, OEM_STRING, *POEM_STRING;
+
 typedef struct _UNICODE_STRING
 {
     UINT16 Length;
@@ -45,3 +57,6 @@ typedef struct _CLIENT_ID64
     ULONGLONG UniqueProcess;
     ULONGLONG UniqueThread;
 } CLIENT_ID64, *PCLIENT_ID64;
+
+
+#endif //NTBASIC_H

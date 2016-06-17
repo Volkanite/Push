@@ -277,6 +277,110 @@ typedef struct RTSS_SHARED_MEMORY_V_1_3
 #define VIDEOCAPTUREFLAG_INTERNAL_RESIZE                        0x00010000
 /////////////////////////////////////////////////////////////////////////////
 
+
+//OSD slot descriptor structure
+typedef struct RTSS_SHARED_MEMORY_OSD_ENTRY
+{
+    char    szOSD[256];
+    //OSD slot text
+    char    szOSDOwner[256];
+    //OSD slot owner ID
+} RTSS_SHARED_MEMORY_OSD_ENTRY;
+
+//application descriptor structure
+typedef struct RTSS_SHARED_MEMORY_APP_ENTRY
+{
+    //application identification related fields
+
+    DWORD   dwProcessID;
+    //process ID
+    char    szName[260];
+    //process executable name
+    DWORD   dwFlags;
+    //application specific flags
+
+    //instantaneous framerate related fields
+
+    DWORD   dwTime0;
+    //start time of framerate measurement period (in milliseconds)
+
+    //Take a note that this field must contain non-zero value to calculate
+    //framerate properly!
+    DWORD   dwTime1;
+    //end time of framerate measurement period (in milliseconds)
+    DWORD   dwFrames;
+    //amount of frames rendered during (dwTime1 - dwTime0) period
+    DWORD   dwFrameTime;
+    //frame time (in microseconds)
+
+
+    //to calculate framerate use the following formulas:
+
+    //1000.0f * dwFrames / (dwTime1 - dwTime0) for framerate calculated once per second
+    //or
+    //1000000.0f / dwFrameTime for framerate calculated once per frame
+
+    //framerate statistics related fields
+
+    DWORD   dwStatFlags;
+    //bitmask containing combination of STATFLAG_... flags
+    DWORD   dwStatTime0;
+    //statistics record period start time
+    DWORD   dwStatTime1;
+    //statistics record period end time
+    DWORD   dwStatFrames;
+    //total amount of frames rendered during statistics record period
+    DWORD   dwStatCount;
+    //amount of min/avg/max measurements during statistics record period
+    DWORD   dwStatFramerateMin;
+    //minimum instantaneous framerate measured during statistics record period
+    DWORD   dwStatFramerateAvg;
+    //average instantaneous framerate measured during statistics record period
+    DWORD   dwStatFramerateMax;
+    //maximum instantaneous framerate measured during statistics record period
+
+    //OSD related fields
+
+    DWORD   dwOSDX;
+    //OSD X-coordinate (coordinate wrapping is allowed, i.e. -5 defines 5
+    //pixel offset from the right side of the screen)
+    DWORD   dwOSDY;
+    //OSD Y-coordinate (coordinate wrapping is allowed, i.e. -5 defines 5
+    //pixel offset from the bottom side of the screen)
+    DWORD   dwOSDPixel;
+    //OSD pixel zooming ratio
+    DWORD   dwOSDColor;
+    //OSD color in RGB format
+    DWORD   dwOSDFrame;
+    //application specific OSD frame ID. Don't change it directly!
+
+    DWORD   dwScreenCaptureFlags;
+    char    szScreenCapturePath[260];
+
+    //next fields are valid for v2.1 and newer shared memory format only
+
+    DWORD   dwOSDBgndColor;
+    //OSD background color in RGB format
+
+    //next fields are valid for v2.2 and newer shared memory format only
+
+    DWORD   dwVideoCaptureFlags;
+    char    szVideoCapturePath[260];
+    DWORD   dwVideoFramerate;
+    DWORD   dwVideoFramesize;
+    DWORD   dwVideoFormat;
+    DWORD   dwVideoQuality;
+    DWORD   dwVideoCaptureThreads;
+
+    DWORD   dwScreenCaptureQuality;
+    DWORD   dwScreenCaptureThreads;
+
+    //next fields are valid for v2.3 and newer shared memory format only
+
+    DWORD   dwAudioCaptureFlags;
+
+} RTSS_SHARED_MEMORY_APP_ENTRY, *LPRTSS_SHARED_MEMORY_APP_ENTRY;
+
 // v2.0 memory structure
 typedef struct RTSS_SHARED_MEMORY
 {
@@ -311,111 +415,12 @@ typedef struct RTSS_SHARED_MEMORY
         //Global OSD frame ID. Increment it to force the server to update OSD for all currently active 3D
         //applications.
 
-    //OSD slot descriptor structure
+    RTSS_SHARED_MEMORY_OSD_ENTRY OSDEntry;
+        //OSD slot descriptor structure
 
-    typedef struct RTSS_SHARED_MEMORY_OSD_ENTRY
-    {
-        char    szOSD[256];
-            //OSD slot text
-        char    szOSDOwner[256];
-            //OSD slot owner ID
-    } RTSS_SHARED_MEMORY_OSD_ENTRY, *LPRTSS_SHARED_MEMORY_OSD_ENTRY;
-
-    //application descriptor structure
-
-    typedef struct RTSS_SHARED_MEMORY_APP_ENTRY
-    {
-        //application identification related fields
-
-        DWORD   dwProcessID;
-            //process ID
-        char    szName[260];
-            //process executable name
-        DWORD   dwFlags;
-            //application specific flags
-
-        //instantaneous framerate related fields
-
-        DWORD   dwTime0;
-            //start time of framerate measurement period (in milliseconds)
-
-            //Take a note that this field must contain non-zero value to calculate
-            //framerate properly!
-        DWORD   dwTime1;
-            //end time of framerate measurement period (in milliseconds)
-        DWORD   dwFrames;
-            //amount of frames rendered during (dwTime1 - dwTime0) period
-        DWORD   dwFrameTime;
-            //frame time (in microseconds)
-
-
-            //to calculate framerate use the following formulas:
-
-            //1000.0f * dwFrames / (dwTime1 - dwTime0) for framerate calculated once per second
-            //or
-            //1000000.0f / dwFrameTime for framerate calculated once per frame
-
-        //framerate statistics related fields
-
-        DWORD   dwStatFlags;
-            //bitmask containing combination of STATFLAG_... flags
-        DWORD   dwStatTime0;
-            //statistics record period start time
-        DWORD   dwStatTime1;
-            //statistics record period end time
-        DWORD   dwStatFrames;
-            //total amount of frames rendered during statistics record period
-        DWORD   dwStatCount;
-            //amount of min/avg/max measurements during statistics record period
-        DWORD   dwStatFramerateMin;
-            //minimum instantaneous framerate measured during statistics record period
-        DWORD   dwStatFramerateAvg;
-            //average instantaneous framerate measured during statistics record period
-        DWORD   dwStatFramerateMax;
-            //maximum instantaneous framerate measured during statistics record period
-
-        //OSD related fields
-
-        DWORD   dwOSDX;
-            //OSD X-coordinate (coordinate wrapping is allowed, i.e. -5 defines 5
-            //pixel offset from the right side of the screen)
-        DWORD   dwOSDY;
-            //OSD Y-coordinate (coordinate wrapping is allowed, i.e. -5 defines 5
-            //pixel offset from the bottom side of the screen)
-        DWORD   dwOSDPixel;
-            //OSD pixel zooming ratio
-        DWORD   dwOSDColor;
-            //OSD color in RGB format
-        DWORD   dwOSDFrame;
-            //application specific OSD frame ID. Don't change it directly!
-
-        DWORD   dwScreenCaptureFlags;
-        char    szScreenCapturePath[260];
-
-        //next fields are valid for v2.1 and newer shared memory format only
-
-        DWORD   dwOSDBgndColor;
-            //OSD background color in RGB format
-
-        //next fields are valid for v2.2 and newer shared memory format only
-
-        DWORD   dwVideoCaptureFlags;
-        char    szVideoCapturePath[260];
-        DWORD   dwVideoFramerate;
-        DWORD   dwVideoFramesize;
-        DWORD   dwVideoFormat;
-        DWORD   dwVideoQuality;
-        DWORD   dwVideoCaptureThreads;
-
-        DWORD   dwScreenCaptureQuality;
-        DWORD   dwScreenCaptureThreads;
-
-        //next fields are valid for v2.3 and newer shared memory format only
-
-        DWORD   dwAudioCaptureFlags;
-
-    } RTSS_SHARED_MEMORY_APP_ENTRY, *LPRTSS_SHARED_MEMORY_APP_ENTRY;
-
+    RTSS_SHARED_MEMORY_APP_ENTRY AppEntry;
+        //application descriptor structure
+    
     RTSS_SHARED_MEMORY_OSD_ENTRY arrOSD[8];
         //array of OSD slots
     RTSS_SHARED_MEMORY_APP_ENTRY arrApp[256];

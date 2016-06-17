@@ -65,8 +65,7 @@ typedef struct _OSVERSIONINFOW {
     DWORD dwPlatformId;
     WCHAR  szCSDVersion[128];     // Maintenance string for PSS usage
 } OSVERSIONINFOW, *POSVERSIONINFOW, *LPOSVERSIONINFOW, RTL_OSVERSIONINFOW, *PRTL_OSVERSIONINFOW;
-extern "C"
-{
+
 VOID __stdcall RtlInitializeBitMap(
   RTL_BITMAP* BitMapHeader,
   UINT32 *BitMapBuffer,
@@ -83,7 +82,6 @@ RtlSetBits(
 NTSTATUS __stdcall RtlGetVersion(
     _Out_ RTL_OSVERSIONINFOW* lpVersionInformation
     );
-}
 
 RTL_BITMAP EtGpuNodeBitMap;
 LARGE_INTEGER EtClockTotalRunningTimeFrequency;
@@ -114,9 +112,9 @@ PETP_GPU_ADAPTER AllocateGpuAdapter( UINT32 NumberOfSegments )
     sizeNeeded = FIELD_OFFSET(ETP_GPU_ADAPTER, ApertureBitMapBuffer);
     sizeNeeded += BYTES_NEEDED_FOR_BITS(NumberOfSegments);
 
-    adapter = (PETP_GPU_ADAPTER) Memory::Allocate(sizeNeeded);
+    adapter = (PETP_GPU_ADAPTER) Memory_Allocate(sizeNeeded);
 
-    Memory::Clear(adapter, sizeNeeded);
+    Memory_Clear(adapter, sizeNeeded);
 
     return adapter;
 }
@@ -253,38 +251,38 @@ VOID D3DKMTInitialize()
         WindowsVersion = WINDOWS_8;
     }
 
-    gdi32 = Module::Load(L"gdi32.dll");
+    gdi32 = Module_Load(L"gdi32.dll");
 
     if (!gdi32)
     {
         return;
     }
 
-    D3DKMTOpenAdapterFromDeviceName = (TYPE_D3DKMTOpenAdapterFromDeviceName) Module::GetProcedureAddress(
+    D3DKMTOpenAdapterFromDeviceName = (TYPE_D3DKMTOpenAdapterFromDeviceName) Module_GetProcedureAddress(
                                                                                 gdi32,
                                                                                 "D3DKMTOpenAdapterFromDeviceName"
                                                                                 );
 
-    D3DKMTQueryStatistics = (TYPE_D3DKMTQueryStatistics) Module::GetProcedureAddress(gdi32, "D3DKMTQueryStatistics");
+    D3DKMTQueryStatistics = (TYPE_D3DKMTQueryStatistics) Module_GetProcedureAddress(gdi32, "D3DKMTQueryStatistics");
 
     if (!D3DKMTOpenAdapterFromDeviceName || !D3DKMTQueryStatistics)
     {
         return;
     }
 
-    setupapi = Module::Load(L"setupapi.dll");
+    setupapi = Module_Load(L"setupapi.dll");
 
     SetupDiGetClassDevsW = (TYPE_SetupDiGetClassDevsW) 
-        Module::GetProcedureAddress(setupapi, "SetupDiGetClassDevsW");
+        Module_GetProcedureAddress(setupapi, "SetupDiGetClassDevsW");
 
     SetupDiDestroyDeviceInfoList = (TYPE_SetupDiDestroyDeviceInfoList) 
-        Module::GetProcedureAddress(setupapi, "SetupDiDestroyDeviceInfoList");
+        Module_GetProcedureAddress(setupapi, "SetupDiDestroyDeviceInfoList");
 
     SetupDiEnumDeviceInterfaces = (TYPE_SetupDiEnumDeviceInterfaces) 
-        Module::GetProcedureAddress(setupapi, "SetupDiEnumDeviceInterfaces");
+        Module_GetProcedureAddress(setupapi, "SetupDiEnumDeviceInterfaces");
 
     SetupDiGetDeviceInterfaceDetailW = (TYPE_SetupDiGetDeviceInterfaceDetailW)
-        Module::GetProcedureAddress(setupapi, "SetupDiGetDeviceInterfaceDetailW");
+        Module_GetProcedureAddress(setupapi, "SetupDiGetDeviceInterfaceDetailW");
 
     deviceInfoSet = SetupDiGetClassDevsW(&GUID_DISPLAY_DEVICE_ARRIVAL_I, NULL, NULL, DIGCF_DEVICEINTERFACE | DIGCF_PRESENT);
 
@@ -299,7 +297,7 @@ VOID D3DKMTInitialize()
     while (SetupDiEnumDeviceInterfaces(deviceInfoSet, NULL, &GUID_DISPLAY_DEVICE_ARRIVAL_I, memberIndex, &deviceInterfaceData))
     {
         detailDataSize = 0x100;
-        detailData = (SP_DEVICE_INTERFACE_DETAIL_DATA_W*) Memory::Allocate(detailDataSize);
+        detailData = (SP_DEVICE_INTERFACE_DETAIL_DATA_W*) Memory_Allocate(detailDataSize);
         detailData->cbSize = 6; /*sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA_W)*/
         deviceInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
 
@@ -380,18 +378,18 @@ VOID D3DKMTInitialize()
             }
         }
 
-        Memory::Free(detailData);
+        Memory_Free(detailData);
 
         memberIndex++;
     }
 
     SetupDiDestroyDeviceInfoList(deviceInfoSet);
 
-    EtGpuNodeBitMapBuffer = (UINT32*) Memory::Allocate(BYTES_NEEDED_FOR_BITS(EtGpuTotalNodeCount));
+    EtGpuNodeBitMapBuffer = (UINT32*) Memory_Allocate(BYTES_NEEDED_FOR_BITS(EtGpuTotalNodeCount));
     
     RtlInitializeBitMap(&EtGpuNodeBitMap, EtGpuNodeBitMapBuffer, EtGpuTotalNodeCount);
 
-    EtGpuNodesTotalRunningTimeDelta = (PPH_UINT64_DELTA) Memory::Allocate(sizeof(PH_UINT64_DELTA) * EtGpuTotalNodeCount);
+    EtGpuNodesTotalRunningTimeDelta = (PPH_UINT64_DELTA) Memory_Allocate(sizeof(PH_UINT64_DELTA) * EtGpuTotalNodeCount);
 
     memset(EtGpuNodesTotalRunningTimeDelta, 0, sizeof(PH_UINT64_DELTA) * EtGpuTotalNodeCount);
 
@@ -512,7 +510,7 @@ VOID D3DKMT_GetPrivateDriverData( VOID* PrivateDriverData, UINT32 PrivateDriverD
     driverInformation.PrivateDriverDataSize = PrivateDriverDataSize;
     driverInformation.hContext = NULL;
 
-    D3DKMTEscape = (TYPE_D3DKMTEscape) Module::GetProcedureAddress(Module::Load(L"gdi32.dll"), "D3DKMTEscape");
+    D3DKMTEscape = (TYPE_D3DKMTEscape) Module_GetProcedureAddress(Module_Load(L"gdi32.dll"), "D3DKMTEscape");
     D3DKMTEscape(&driverInformation);
 }
 

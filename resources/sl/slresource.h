@@ -1,5 +1,1 @@
-class Resource
-{
-public:
-	static BOOLEAN Extract( WCHAR* ResourceName, WCHAR* OutputPath );
-};
+BOOLEAN Resource_Extract( WCHAR* ResourceName, WCHAR* OutputPath );

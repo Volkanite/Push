@@ -1,0 +1,1 @@
+WCHAR* __stdcall StrStrIW(WCHAR*, WCHAR*);

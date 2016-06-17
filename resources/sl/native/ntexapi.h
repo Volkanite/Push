@@ -1,3 +1,11 @@
+#include "ntpebteb.h"
+// Thread execution
+
+NTSTATUS __stdcall NtDelayExecution(
+    BOOLEAN Alertable,
+    LARGE_INTEGER* DelayInterval
+    );
+
 // rev
 // private
 // source:http://www.microsoft.com/whdc/system/Sysinternals/MoreThan64proc.mspx
@@ -264,7 +272,8 @@ NTSTATUS __stdcall NtQuerySystemInformation(
     ULONG SystemInformationLength,
     ULONG* ReturnLength
     );
-
+PTEB __stdcall NtCurrentTeb(
+    );
  #ifdef __cplusplus
  }
  #endif

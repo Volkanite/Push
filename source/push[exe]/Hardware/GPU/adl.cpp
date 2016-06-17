@@ -49,7 +49,7 @@ TYPE_ADL_Overdrive5_FanSpeed_Get            ADL_Overdrive5_FanSpeed_Get;
 
 VOID* __stdcall ADL_Main_Memory_Alloc( INT32 Size )
 {
-    VOID *buffer = Memory::Allocate(Size);
+    VOID *buffer = Memory_Allocate(Size);
 
     return buffer;
 }
@@ -62,32 +62,32 @@ VOID Adl_Initialize()
     ADLODPerformanceLevels *performanceLevels;
     UINT8 levels;
 
-    adl = Module::Load(L"atiadlxy.dll");
+    adl = Module_Load(L"atiadlxy.dll");
 
     if (!adl) return;
 
     AdlInitialized = TRUE;
 
     ADL_Main_Control_Create = (TYPE_ADL_Main_Control_Create) 
-        Module::GetProcedureAddress(adl, "ADL_Main_Control_Create");
+        Module_GetProcedureAddress(adl, "ADL_Main_Control_Create");
 
     ADL_Overdrive5_CurrentActivity_Get = (TYPE_ADL_Overdrive5_CurrentActivity_Get) 
-        Module::GetProcedureAddress(adl, "ADL_Overdrive5_CurrentActivity_Get");
+        Module_GetProcedureAddress(adl, "ADL_Overdrive5_CurrentActivity_Get");
 
     ADL_Overdrive5_Temperature_Get = (TYPE_ADL_Overdrive5_Temperature_Get) 
-        Module::GetProcedureAddress(adl, "ADL_Overdrive5_Temperature_Get");
+        Module_GetProcedureAddress(adl, "ADL_Overdrive5_Temperature_Get");
 
     ADL_Overdrive5_ODParameters_Get = (TYPE_ADL_Overdrive5_ODParameters_Get) 
-        Module::GetProcedureAddress(adl, "ADL_Overdrive5_ODParameters_Get");
+        Module_GetProcedureAddress(adl, "ADL_Overdrive5_ODParameters_Get");
 
     ADL_Overdrive5_ODPerformanceLevels_Get = (TYPE_ADL_Overdrive5_ODPerformanceLevels_Get) 
-        Module::GetProcedureAddress(adl, "ADL_Overdrive5_ODPerformanceLevels_Get");
+        Module_GetProcedureAddress(adl, "ADL_Overdrive5_ODPerformanceLevels_Get");
 
     ADL_Overdrive5_ODPerformanceLevels_Set = (TYPE_ADL_Overdrive5_ODPerformanceLevels_Set) 
-        Module::GetProcedureAddress(adl, "ADL_Overdrive5_ODPerformanceLevels_Set");
+        Module_GetProcedureAddress(adl, "ADL_Overdrive5_ODPerformanceLevels_Set");
 
     ADL_Overdrive5_FanSpeed_Get = (TYPE_ADL_Overdrive5_FanSpeed_Get)
-        Module::GetProcedureAddress(adl, "ADL_Overdrive5_FanSpeed_Get");
+        Module_GetProcedureAddress(adl, "ADL_Overdrive5_FanSpeed_Get");
 
     ADL_Main_Control_Create(ADL_Main_Memory_Alloc, 1);
 
@@ -98,7 +98,7 @@ VOID Adl_Initialize()
     PerformanceLevels = parameters.NumberOfPerformanceLevels;
     levels = PerformanceLevels - 1;
 
-    performanceLevels = (ADLODPerformanceLevels*) Memory::Allocate(
+    performanceLevels = (ADLODPerformanceLevels*) Memory_Allocate(
         sizeof(ADLODPerformanceLevels) + ( levels * sizeof(ADLODPerformanceLevel) ) 
         );
 
@@ -110,7 +110,7 @@ VOID Adl_Initialize()
     MemoryClockMaximum = performanceLevels->Levels[levels].MemoryClock / 100;
     VoltageMaximum = performanceLevels->Levels[levels].Vddc;
 
-    Memory::Free(performanceLevels);
+    Memory_Free(performanceLevels);
 }
 
 
@@ -170,7 +170,7 @@ VOID Adl_SetEngineClock( UINT16 EngineClock )
     clock = EngineClock * 100;
     lev = PerformanceLevels - 1;
 
-    performanceLevels = (ADLODPerformanceLevels*) Memory::Allocate(
+    performanceLevels = (ADLODPerformanceLevels*) Memory_Allocate(
         sizeof(ADLODPerformanceLevels) + (lev * sizeof(ADLODPerformanceLevel))
         );
 
@@ -186,7 +186,7 @@ VOID Adl_SetEngineClock( UINT16 EngineClock )
 
     ADL_Overdrive5_ODPerformanceLevels_Set(0, performanceLevels);
 
-    Memory::Free(performanceLevels);
+    Memory_Free(performanceLevels);
 }
 
 
@@ -198,7 +198,7 @@ VOID Adl_SetMemoryClock( UINT16 MemoryClock )
     clock = MemoryClock * 100;
     lev = PerformanceLevels - 1;
 
-    performanceLevels = (ADLODPerformanceLevels*) Memory::Allocate(
+    performanceLevels = (ADLODPerformanceLevels*) Memory_Allocate(
         sizeof(ADLODPerformanceLevels) + (lev * sizeof(ADLODPerformanceLevel))
         );
 
@@ -214,7 +214,7 @@ VOID Adl_SetMemoryClock( UINT16 MemoryClock )
 
     ADL_Overdrive5_ODPerformanceLevels_Set(0, performanceLevels);
 
-    Memory::Free(performanceLevels);
+    Memory_Free(performanceLevels);
 }
 
 
@@ -236,7 +236,7 @@ VOID Adl_SetVoltage( UINT16 Voltage )
     vddc = Voltage;
     lev = PerformanceLevels - 1;
 
-    performanceLevels = (ADLODPerformanceLevels*) Memory::Allocate(
+    performanceLevels = (ADLODPerformanceLevels*) Memory_Allocate(
         sizeof(ADLODPerformanceLevels) + (lev * sizeof(ADLODPerformanceLevel))
         );
 
@@ -252,7 +252,7 @@ VOID Adl_SetVoltage( UINT16 Voltage )
 
     ADL_Overdrive5_ODPerformanceLevels_Set(0, performanceLevels);
 
-    Memory::Free(performanceLevels);
+    Memory_Free(performanceLevels);
 }
 
 

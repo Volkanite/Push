@@ -24,11 +24,11 @@ BOOLEAN Nvapi_Initialize()
 {
     VOID *nvapi = NULL;
 
-    nvapi = Module::Load(L"nvapi.dll");
+    nvapi = Module_Load(L"nvapi.dll");
 
     if (!nvapi) return FALSE;
 
-    NvAPI_QueryInterface = (TYPE_NvAPI_QueryInterface) Module::GetProcedureAddress(
+    NvAPI_QueryInterface = (TYPE_NvAPI_QueryInterface) Module_GetProcedureAddress(
         nvapi,
         "nvapi_QueryInterface"
         );

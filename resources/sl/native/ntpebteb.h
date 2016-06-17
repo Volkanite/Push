@@ -1,3 +1,10 @@
+#ifndef _NTPEBTEB_H
+#define _NTPEBTEB_H
+
+#include "ntpsapi.h"
+#include "ntrtl.h"
+
+
 typedef struct _PEB
 {
     BOOLEAN InheritedAddressSpace;
@@ -300,3 +307,5 @@ typedef struct _TEB
     VOID* ResourceRetValue;
     VOID* ReservedForWdf;
 } TEB;
+
+#endif //_NTPEBTEB_H

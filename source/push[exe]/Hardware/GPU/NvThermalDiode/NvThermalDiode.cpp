@@ -27,9 +27,7 @@ HINSTANCE                       g_hModule                           = 0;
 //////////////////////////////////////////////////////////////////////
 // This helper function is used to get GPU fuse state by fuse number
 //////////////////////////////////////////////////////////////////////
-DWORD ReadGpuRegister(
-    DWORD dwAddr
-    );
+extern "C" DWORD ReadGpuRegister(DWORD dwAddr);
 
 LONG GetFuseStateByNumber(DWORD dwGpu, DWORD dwFuse)
 {

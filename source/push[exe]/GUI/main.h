@@ -1,4 +1,4 @@
-extern BfBatchFile* MwBatchFile;
+//extern BfBatchFile* MwBatchFile;
 extern CONTROL MwCacheControls[];
 extern WCHAR* ManualLoad;
 

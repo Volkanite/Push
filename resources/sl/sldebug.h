@@ -1,5 +1,1 @@
-class Debug
-{
-public:
- static VOID Print( WCHAR* Format, ... );
-};
+VOID Debug_Print( WCHAR* Format, ... );

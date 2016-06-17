@@ -14,7 +14,7 @@ WINDOW* PushMainWindow;
 WINDOW* cacheWindow;
 WINDOW fake;
 
-BfBatchFile* MwBatchFile;
+//BfBatchFile* MwBatchFile;
 VOID* MwControlHandles[50];
 FILE_LIST MwFileList;
 
@@ -76,40 +76,7 @@ typedef NMHDR *LPNMHDR;
 VOID* PushVisiblePage;
 VOID* PushTabPages[2];
 typedef UINT_B (__stdcall *LPOFNHOOKPROC) (VOID*, UINT32, UINT_B, UINT_B);
-typedef struct _OPENFILENAME
-{
 
-  DWORD         lStructSize;
-  VOID*         hwndOwner;
-  VOID*         hInstance;
-  WCHAR*        lpstrFilter;
-  WCHAR*        lpstrCustomFilter;
-  DWORD         nMaxCustFilter;
-  DWORD         nFilterIndex;
-  WCHAR*        lpstrFile;
-  DWORD         nMaxFile;
-  WCHAR*        lpstrFileTitle;
-  DWORD         nMaxFileTitle;
-  WCHAR*        lpstrInitialDir;
-  WCHAR*        Title;
-  DWORD         Flags;
-  WORD          nFileOffset;
-  WORD          nFileExtension;
-  WCHAR*        lpstrDefExt;
-  UINT_B  lCustData;
-  LPOFNHOOKPROC lpfnHook;
-  WCHAR*        lpTemplateName;
-  VOID*         pvReserved;
-  DWORD         dwReserved;
-  DWORD         FlagsEx;
-
-} OPENFILENAME;
-
-
-#define OFN_EXPLORER                 0x00080000     // new look commdlg
-#define OFN_FILEMUSTEXIST            0x00001000
-#define OFN_HIDEREADONLY             0x00000004
-#define OFN_NOCHANGEDIR              0x00000008
 
 BOOLEAN TabCtrl_OnSelChanged(VOID)
 {
@@ -140,9 +107,9 @@ VOID GetPathOnly( WCHAR *pszFilePath, WCHAR *pszBuffer )
     WCHAR *pszLastSlash;
 
 
-    pszLastSlash = String::FindLastChar(pszFilePath, '\\');
+    pszLastSlash = String_FindLastChar(pszFilePath, '\\');
 
-    String::CopyN(pszBuffer,
+    String_CopyN(pszBuffer,
             pszFilePath,
             (pszLastSlash - pszFilePath) + 1);
 
@@ -159,13 +126,13 @@ ListViewAddItems()
 
     while (file != NULL)
     {
-        item = ListView::AddItem(file->Name, file->Bytes);
+        item = ListView_AddItem(file->Name, file->Bytes);
 
         swprintf(text, 260, L"%u", file->Bytes);
-        ListView::SetItemText(text, item, 1);
+        ListView_SetItemText(text, item, 1);
 
         if (file->Cache)
-            ListView::SetItemState(item, TRUE);
+            ListView_SetItemState(item, TRUE);
 
         file = file->NextEntry;
     }
@@ -236,10 +203,10 @@ VOID AppendFileNameToPath(
     WCHAR* Buffer
     )
 {
-    String::Copy(Buffer, Path);
+    String_Copy(Buffer, Path);
 
-    String::Concatenate(Buffer, L"\\");
-    String::Concatenate(Buffer, FileName);
+    String_Concatenate(Buffer, L"\\");
+    String_Concatenate(Buffer, FileName);
 }
 
 
@@ -268,7 +235,7 @@ VOID BuildFileList(
         WCHAR directory[260];
 
         AppendFileNameToPath(fileName, Directory, directory);
-        Directory::Enum(directory, L"*", Callback);
+        Directory_Enum(directory, L"*", Callback);
     }
     else
     {
@@ -285,7 +252,7 @@ VOID BuildFileList(
 
         fileEntry.Bytes = Information->EndOfFile.u.LowPart;
         fileEntry.Name = filePath;
-        fileEntry.Cache = MwBatchFile->IsBatchedFile(&fileEntry);
+        fileEntry.Cache = BatchFile_IsBatchedFile(&fileEntry);
 
         PushAddToFileList(&MwFileList, &fileEntry);
         RtlFreeHeap(PushHeapHandle, 0, filePath);
@@ -475,9 +442,6 @@ TYPE_SHBrowseForFolderW     SHBrowseForFolderW;
 TYPE_SHGetPathFromIDListW   SHGetPathFromIDListW;
 
 
-extern "C"
-{
-
     DWORD __stdcall MapFileAndCheckSumW(
         WCHAR* Filename,
         DWORD* HeaderSum,
@@ -505,7 +469,6 @@ extern "C"
     void __stdcall ILFree(
         _In_ VOID* pidl
         );
-}
 
 WCHAR* ManualLoad;
 
@@ -610,7 +573,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                 break;
             case BUTTON_TRAY:
             {
-                Tray::Minimize(
+                Tray_Minimize(
                     PushMainWindow->Handle,
                     Gui_IconImageHandle,
                     L"Push",
@@ -628,14 +591,14 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
             case BUTTON_ADDGAME:
                 {
                     WCHAR filePath[260] = L"", path[260], *imageName, *slash, *games;
-                    OPENFILENAME ofn = { 0 };
+                    OPENFILENAMEW ofn = { 0 };
                     UINT8 i = 0;
                     WCHAR indexString[10];
                     PUSH_GAME game;
                     DWORD headerSum;
                     DWORD checkSum;
 
-                    ofn.lStructSize = sizeof(OPENFILENAME);
+                    ofn.lStructSize = sizeof(OPENFILENAMEW);
                     ofn.lpstrFilter = L"Executable (.EXE)\0*.exe\0";
                     ofn.lpstrFile = filePath;
                     ofn.nMaxFile = 260;
@@ -643,14 +606,14 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     ofn.lpstrDefExt = L"";
                     ofn.Title = L"Select game executable";
 
-                    GetOpenFileNameW = (TYPE_GetOpenFileNameW) Module::GetProcedureAddress(
-                        Module::Load(L"comdlg32.dll"),
+                    GetOpenFileNameW = (TYPE_GetOpenFileNameW) Module_GetProcedureAddress(
+                        Module_Load(L"comdlg32.dll"),
                         "GetOpenFileNameW"
                         );
 
                     GetOpenFileNameW( &ofn );
 
-                    imageName = String::FindLastChar(filePath, '\\') + 1;
+                    imageName = String_FindLastChar(filePath, '\\') + 1;
 
                     if (SlIniReadBoolean(L"Games", imageName, FALSE, L".\\" PUSH_SETTINGS_FILE))
                         imageName = filePath;
@@ -663,7 +626,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     {
                         // Get number of games
                         for (i = 0; games[0] != '\0'; i++)
-                            games = String::FindLastChar(games, '\0') + 1;
+                            games = String_FindLastChar(games, '\0') + 1;
                     }
 
                     // Increment counter by 1, this is the new index
@@ -673,16 +636,16 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     SlIniWriteString(L"Games", filePath, indexString, L".\\" PUSH_SETTINGS_FILE);
                     GetPathOnly(filePath, path);
 
-                    slash = String::FindLastChar(path, '\\');
+                    slash = String_FindLastChar(path, '\\');
                     *slash = '\0';
 
                     MapFileAndCheckSumW(filePath, &headerSum, &checkSum);
 
-                    Game::Initialize(filePath, &game);
-                    Game::SetName(&game, imageName);
-                    Game::SetInstallPath(&game, path);
-                    Game::SetFlags(&game, GAME_RAMDISK);
-                    Game::SetCheckSum(&game, checkSum);
+                    Game_Initialize(filePath, &game);
+                    Game_SetName(&game, imageName);
+                    Game_SetInstallPath(&game, path);
+                    Game_SetFlags(&game, GAME_RAMDISK);
+                    Game_SetCheckSum(&game, checkSum);
 
                 } break;
 
@@ -705,7 +668,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                                 {
                                     PUSH_GAME game;
 
-                                    Game::Initialize(games, &game);
+                                    Game_Initialize(games, &game);
 
                                     SendMessageW(
                                         MwControlHandles[COMBOBOX_GAMES],
@@ -721,7 +684,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                                         (LONG) games
                                         );
 
-                                    games = String::FindLastChar(games, '\0') + 1;
+                                    games = String_FindLastChar(games, '\0') + 1;
                                 }
                             }
 
@@ -744,7 +707,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     BROWSEINFOW bi;
                     HANDLE shell32;
 
-                    Memory::Clear(&bi, sizeof(bi));
+                    Memory_Clear(&bi, sizeof(bi));
 
                     bi.ulFlags = BIF_USENEWUI;
                     bi.hwndOwner = PushMainWindow->Handle;
@@ -753,14 +716,14 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     // must call this if using BIF_USENEWUI
                     OleInitialize(NULL);
 
-                    shell32 = Module::Load(L"shell32.dll");
+                    shell32 = Module_Load(L"shell32.dll");
 
-                    SHBrowseForFolderW = (TYPE_SHBrowseForFolderW) Module::GetProcedureAddress(
+                    SHBrowseForFolderW = (TYPE_SHBrowseForFolderW) Module_GetProcedureAddress(
                         shell32,
                         "SHBrowseForFolderW"
                         );
 
-                    SHGetPathFromIDListW = (TYPE_SHGetPathFromIDListW) Module::GetProcedureAddress(
+                    SHGetPathFromIDListW = (TYPE_SHGetPathFromIDListW) Module_GetProcedureAddress(
                         shell32,
                         "SHGetPathFromIDListW"
                         );
@@ -775,9 +738,9 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                         
                         if (SHGetPathFromIDListW(pIDL, buffer) != 0)
                         {
-                            ManualLoad = (WCHAR*)Memory::Allocate(String::GetSize(buffer));
+                            ManualLoad = (WCHAR*)Memory_Allocate(String_GetSize(buffer));
 
-                            String::Copy(ManualLoad, buffer);
+                            String_Copy(ManualLoad, buffer);
                         }
 
                         // free the item id list

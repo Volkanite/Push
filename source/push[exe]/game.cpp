@@ -14,27 +14,27 @@ WCHAR* HeapedString( WCHAR* String )
 {
     WCHAR *buffer;
 
-    buffer = (WCHAR*) Memory::Allocate( (String::GetLength(String) + 1) * sizeof(WCHAR) );
+    buffer = (WCHAR*) Memory_Allocate( (String_GetLength(String) + 1) * sizeof(WCHAR) );
 
-    String::Copy(buffer, String);
+    String_Copy(buffer, String);
 
     return buffer;
 }
 
 
-VOID Game::Initialize(WCHAR* Win32Name, PUSH_GAME* Game)
+VOID Game_Initialize(WCHAR* Win32Name, PUSH_GAME* Game)
 {
     WCHAR *gameId;
     WCHAR *buffer;
     WCHAR *lastSlash;
 
     Game->ExecutablePath = HeapedString(Win32Name);
-    lastSlash = String::FindLastChar(Game->ExecutablePath, '\\');
+    lastSlash = String_FindLastChar(Game->ExecutablePath, '\\');
     Game->ExecutableName = lastSlash + 1;
 
     gameId = SlIniReadString(L"Games", Game->ExecutablePath, NULL, L".\\" PUSH_SETTINGS_FILE);
 
-    String::CopyN(Game->Id, gameId, 2);
+    String_CopyN(Game->Id, gameId, 2);
 
     buffer = SlIniReadSubKey(L"Game Settings", gameId, L"Name", L".\\" PUSH_SETTINGS_FILE);
 
@@ -61,9 +61,9 @@ VOID Game::Initialize(WCHAR* Win32Name, PUSH_GAME* Game)
 
     buffer = SlIniReadSubKey(L"Game Settings", gameId, L"ForceVsync", L".\\" PUSH_SETTINGS_FILE);
 
-    if (String::Compare(buffer, L"FORCE_ON") == 0)
+    if (String_Compare(buffer, L"FORCE_ON") == 0)
         Game->Settings.VsyncOverrideMode = PUSH_VSYNC_FORCE_ON;
-    else if (String::Compare(buffer, L"FORCE_OFF") == 0)
+    else if (String_Compare(buffer, L"FORCE_OFF") == 0)
         Game->Settings.VsyncOverrideMode = PUSH_VSYNC_FORCE_OFF;
 
     if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"ForceMaxClocks", FALSE, L".\\" PUSH_SETTINGS_FILE))
@@ -73,7 +73,7 @@ VOID Game::Initialize(WCHAR* Win32Name, PUSH_GAME* Game)
 }
 
 
-VOID Game::SetName( PUSH_GAME* Game, WCHAR* Name )
+VOID Game_SetName( PUSH_GAME* Game, WCHAR* Name )
 {
     WCHAR* gameId;
 
@@ -83,7 +83,7 @@ VOID Game::SetName( PUSH_GAME* Game, WCHAR* Name )
 }
 
 
-VOID Game::SetInstallPath( PUSH_GAME *Game, WCHAR* Path )
+VOID Game_SetInstallPath( PUSH_GAME *Game, WCHAR* Path )
 {
     WCHAR* gameId;
 
@@ -93,7 +93,7 @@ VOID Game::SetInstallPath( PUSH_GAME *Game, WCHAR* Path )
 }
 
 
-VOID Game::SetFlags( PUSH_GAME *Game, DWORD Flags )
+VOID Game_SetFlags( PUSH_GAME *Game, DWORD Flags )
 {
     WCHAR* gameId;
 
@@ -104,7 +104,7 @@ VOID Game::SetFlags( PUSH_GAME *Game, DWORD Flags )
 }
 
 
-VOID Game::SetCheckSum( PUSH_GAME* Game, DWORD CheckSum )
+VOID Game_SetCheckSum( PUSH_GAME* Game, DWORD CheckSum )
 {
     WCHAR* gameId;
     WCHAR checkSum[100];
@@ -116,7 +116,7 @@ VOID Game::SetCheckSum( PUSH_GAME* Game, DWORD CheckSum )
 }
 
 
-GAME_LIST Game::GetGames()
+GAME_LIST Game_GetGames()
 {
     static GAME_LIST_ENTRY* firstEntry = NULL;
     GAME_LIST_ENTRY* gameListEntry = NULL;
@@ -135,10 +135,10 @@ GAME_LIST Game::GetGames()
             PUSH_GAME* game;
             GAME_LIST_ENTRY* newEntry;
 
-            game = (PUSH_GAME*) Memory::Allocate(sizeof(PUSH_GAME));
-            newEntry = (GAME_LIST_ENTRY*) Memory::Allocate(sizeof(GAME_LIST_ENTRY));
+            game = (PUSH_GAME*) Memory_Allocate(sizeof(PUSH_GAME));
+            newEntry = (GAME_LIST_ENTRY*) Memory_Allocate(sizeof(GAME_LIST_ENTRY));
 
-            Game::Initialize(games, game);
+            Game_Initialize(games, game);
 
             if (!gameListEntry)
             {
@@ -154,7 +154,7 @@ GAME_LIST Game::GetGames()
             gameListEntry->Game = game;
             gameListEntry->NextEntry = NULL;
 
-            games = String::FindLastChar(games, '\0') + 1;
+            games = String_FindLastChar(games, '\0') + 1;
         }
     }
 

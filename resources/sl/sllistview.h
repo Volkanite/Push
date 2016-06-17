@@ -1,36 +1,34 @@
 #ifndef _LISTVIEW_H
 #define _LISTVIEW_H
 
-class ListView
-{
-public:
-    static VOID Create(VOID* Parent, UINT8 Id, DWORD Style, UINT16 Height);
-    static VOID EnableCheckboxes();
-    static VOID EnableGridLines();
-    static VOID GetItemText(UINT16 Item, UINT8 SubItem, WCHAR* Text, UINT16 TextLength);
-    static BOOLEAN GetCheckState(UINT16 Index);
-    static INT32 HitTest(LVHITTESTINFO* HitInfo);
-    static VOID AddColumn(WCHAR* Name);
-    static UINT16 AddItem(WCHAR* Name, LONG Param);
-    static VOID DeleteItem( UINT16 Item );
-    static VOID DeleteAllItems();
-    static VOID DeleteColumn( UINT8 Column );
-    static BOOLEAN IsCheckBox(POINT Location);
-    static UINT16 GetColumnWidth(UINT8 Column);
-    static VOID SetColumnWidth(UINT8 Column, INT32 Width);
-    static VOID SetItemText(WCHAR* Name, UINT16 Item, UINT8 SubItem);
-    static VOID SetItemState(UINT16 Item, BOOLEAN State);
-    static VOID SortItems(VOID* CompareFunction);
-    static VOID GetSubItemRect( UINT16 Item, UINT8 SubItem, RECT* Area );
-    static VOID SetColumnText(WCHAR* Text);
-    static VOID GetColumnText(UINT8 Column, WCHAR* Buffer);
-    static UINT32 GetHeaderWidth( UINT8 Column );
-    static VOID GrowWindow( HANDLE WindowHandle );
+VOID ListView_Create(DWORD Style, int Y, int Height, HANDLE Parent, int Id);
+VOID ListView_EnableCheckboxes();
+VOID ListView_EnableGridLines();
+UINT8 ListView_GetItemText(UINT16 Item, UINT8 SubItem, WCHAR* Text, UINT16 TextLength);
+VOID ListView_SetItemText(WCHAR* Name, UINT16 Item, UINT8 SubItem);
+BOOLEAN ListView_GetCheckState(UINT16 Index);
+INT32 ListView_HitTest(LVHITTESTINFO* HitInfo);
+VOID ListView_AddColumn(WCHAR* Name);
+UINT16 ListView_AddItem(WCHAR* Name, LONG Param);
+VOID ListView_DeleteItem(UINT16 Item);
+VOID ListView_DeleteAllItems();
+VOID ListView_DeleteColumn(UINT8 Column);
+VOID ListView_DeleteAllColumns();
+BOOLEAN ListView_IsCheckBox(POINT Location);
+UINT16 ListView_GetColumnWidth(UINT8 Column);
+VOID ListView_SetColumnWidth(UINT8 Column, INT32 Width);
+VOID ListView_SetItemState(UINT16 Item, BOOLEAN State);
+VOID ListView_SortItems(VOID* CompareFunction);
+VOID ListView_GetSubItemRect(UINT16 Item, UINT8 SubItem, RECT* Area);
+INT32 ListView_GetColumnId(WCHAR* ColumnName);
+VOID ListView_GetColumnText(UINT8 Column, WCHAR* Buffer);
+VOID ListView_SetColumnText(WCHAR* Text);
+UINT32 ListView_GetHeaderWidth(UINT8 Column);
+VOID ListView_GrowWindow(HANDLE WindowHandle);
 
-    static HANDLE Handle;
-    static UINT8 Columns;
-    static UINT16 ItemCount;
-};
+extern HANDLE ListView_Handle;
+extern UINT8 ListView_Columns;
+extern UINT16 ListView_ItemCount;
 
 #endif
 

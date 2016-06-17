@@ -15,6 +15,19 @@ typedef struct _WNDCLASSEXW {
     VOID*   IconSm;
 } WNDCLASSEX;
 
+typedef struct _NMHDR {
+  VOID  *hwndFrom;
+  DWORD idFrom;
+  DWORD code;
+} NMHDR;
+
+typedef struct _ACL {
+    BYTE  AclRevision;
+    BYTE  Sbz1;
+    WORD   AclSize;
+    WORD   AceCount;
+    WORD   Sbz2;
+} ACL;
 // Window Field Offsets
 
 #define GWL_WNDPROC (-4)
@@ -53,6 +66,22 @@ typedef struct _WNDCLASSEXW {
 #define MF_STRING           0x00000000L
 
 
+HANDLE __stdcall GetDC(HANDLE);
+int __stdcall ReleaseDC(HANDLE, HANDLE);
+INTBOOL __stdcall SetWindowTextW(HANDLE, WCHAR*);
+int __stdcall CallWindowProcW(
+    VOID* lpPrevWndFunc,
+    HANDLE    hWnd,
+    UINT32    Msg,
+    DWORD  wParam,
+    DWORD  lParam
+    );
+
+HANDLE __stdcall GetPropW(
+    HANDLE    hWnd,
+    WCHAR* lpString
+    );
+    
 INTBOOL __stdcall AppendMenuW(
     HANDLE hMenu,
     UINT32 uFlags,
@@ -63,3 +92,15 @@ INTBOOL __stdcall AppendMenuW(
 HANDLE __stdcall CreatePopupMenu(
     VOID
     );
+    
+WORD __stdcall RegisterClassExW(
+    WNDCLASSEX *lpwcx
+    );
+
+
+#define WM_KEYDOWN                      0x0100
+#define SWP_NOZORDER    0x0004
+#define EN_SETFOCUS         0x0100
+#define EN_KILLFOCUS        0x0200
+#define WS_TABSTOP 0x00010000L
+#define SW_SHOW 5

@@ -40,16 +40,12 @@ typedef struct _GAME_LIST_ENTRY
 } GAME_LIST_ENTRY, *GAME_LIST;
 
 
-class Game{
-
-public:
-	static VOID Initialize(WCHAR* Win32Name, PUSH_GAME* Game);
-	static VOID SetCheckSum(PUSH_GAME* Game, DWORD CheckSum);
-	static VOID SetFlags(PUSH_GAME *Game, DWORD Flags);
-	static VOID SetInstallPath(PUSH_GAME *Game, WCHAR* Path);
-	static VOID SetName(PUSH_GAME* Game, WCHAR* Name);
-	static GAME_LIST GetGames();
-};
+VOID Game_Initialize(WCHAR* Win32Name, PUSH_GAME* Game);
+VOID Game_SetCheckSum(PUSH_GAME* Game, DWORD CheckSum);
+VOID Game_SetFlags(PUSH_GAME *Game, DWORD Flags);
+VOID Game_SetInstallPath(PUSH_GAME *Game, WCHAR* Path);
+VOID Game_SetName(PUSH_GAME* Game, WCHAR* Name);
+GAME_LIST Game_GetGames();
 
 
 #endif //GAMES_H

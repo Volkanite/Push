@@ -23,7 +23,7 @@ SymLinkTargetCmp( WCHAR *Name, WCHAR *dest )
 
     REPARSE_DATA_BUFFER *reparseInfo = (REPARSE_DATA_BUFFER *) reparseBuffer;
 
-    if (GetFileAttributesW(dest) & FILE_ATTRIBUTE_DIRECTORY)
+    if (File_GetAttributes(dest) & FILE_ATTRIBUTE_DIRECTORY)
     {
         bDirectory = TRUE;
     }
@@ -37,13 +37,14 @@ SymLinkTargetCmp( WCHAR *Name, WCHAR *dest )
         dwFlagsAndAttributes = FILE_FLAG_OPEN_REPARSE_POINT;
     }
 
-    status = File::Create(
+    status = File_Create(
                 &fileHandle,
                 Name,
                 FILE_READ_ATTRIBUTES | SYNCHRONIZE,
                 FILE_SHARE_READ | FILE_SHARE_WRITE,
                 FILE_OPEN,
-                FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
+                FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
+				NULL
                 );
 
     if (!NT_SUCCESS(status))
@@ -66,7 +67,7 @@ SymLinkTargetCmp( WCHAR *Name, WCHAR *dest )
 
     reparseData = (BYTE *) &reparseInfo->SymbolicLinkReparseBuffer.PathBuffer;
 
-    String::CopyN(
+    String_CopyN(
         szName,
         (WCHAR *) (reparseData + reparseInfo->SymbolicLinkReparseBuffer.SubstituteNameOffset),
         reparseInfo->SymbolicLinkReparseBuffer.SubstituteNameLength );
@@ -75,7 +76,7 @@ SymLinkTargetCmp( WCHAR *Name, WCHAR *dest )
 
     NtClose(fileHandle);
 
-    if (String::CompareN(dest, szName + 6, wcslen(dest)) != 0)
+    if (String_CompareN(dest, szName + 6, wcslen(dest)) != 0)
         return FALSE;
     else
         return TRUE;
@@ -87,7 +88,7 @@ CreateLink( WCHAR *name, WCHAR *dest )
 {
     if (!SymLinkTargetCmp( name, dest ))
     {
-        if (GetFileAttributesW(dest) & FILE_ATTRIBUTE_DIRECTORY)
+		if (File_GetAttributes(dest) & FILE_ATTRIBUTE_DIRECTORY)
         {
             RemoveDirectoryW(name);
 
@@ -95,7 +96,7 @@ CreateLink( WCHAR *name, WCHAR *dest )
         }
         else
         {
-            DeleteFileW(name);
+            File_Delete(name);
 
             CreateSymbolicLinkW(name, dest, FALSE);
         }
@@ -115,10 +116,10 @@ GetPointerToFilePath( WCHAR *Path, WCHAR *File )
                             (wcslen(Path) + wcslen(File) + 2) * 2
                             );
 
-    String::Copy(filePath, Path);
+    String_Copy(filePath, Path);
 
-    String::Concatenate(filePath, L"\\");
-    String::Concatenate(filePath, File);
+    String_Concatenate(filePath, L"\\");
+    String_Concatenate(filePath, File);
 
     return filePath;
 }
@@ -132,13 +133,13 @@ VOID MarkForCache( WCHAR *FilePath )
     WCHAR *newPath, *pszFileName;
 
 
-    pszFileName = String::FindLastChar(FilePath, '\\') + 1;
-    newPath = (WCHAR*) Memory::Allocate( (String::GetLength(FilePath) + 7) * 2 );
+    pszFileName = String_FindLastChar(FilePath, '\\') + 1;
+    newPath = (WCHAR*) Memory_Allocate( (String_GetLength(FilePath) + 7) * 2 );
 
     GetPathOnly(FilePath, newPath);
 
-    String::Concatenate(newPath, L"cache_");
-    String::Concatenate(newPath, pszFileName);
+    String_Concatenate(newPath, L"cache_");
+    String_Concatenate(newPath, pszFileName);
 
     FsRenameFile(FilePath, newPath);
 }
@@ -149,13 +150,14 @@ BOOLEAN FolderExists( WCHAR* Folder )
     NTSTATUS status;
     VOID *directoryHandle;
 
-    status = File::Create(
+    status = File_Create(
                 &directoryHandle,
                 Folder,
                 FILE_LIST_DIRECTORY | SYNCHRONIZE,
                 FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
                 FILE_OPEN,
-                FILE_DIRECTORY_FILE
+                FILE_DIRECTORY_FILE,
+				NULL
                 );
 
     if (NT_SUCCESS(status))
@@ -186,13 +188,14 @@ VOID FsRenameFile( WCHAR* FilePath, WCHAR* NewFileName )
     FILE_RENAME_INFORMATION *renameInfo;
     UNICODE_STRING newFileName;
 
-    File::Create(
+    File_Create(
         &fileHandle,
         FilePath,
         DELETE | SYNCHRONIZE,
         FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
         FILE_OPEN,
-        FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT
+        FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
+		NULL
         );
 
     RtlDosPathNameToNtPathName_U(NewFileName, &newFileName, NULL, NULL);
