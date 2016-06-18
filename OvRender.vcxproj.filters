@@ -54,20 +54,20 @@
     <ClCompile Include="source\d3d8\d3d8overlay.cpp">
       <Filter>d3d8</Filter>
     </ClCompile>
-    <ClCompile Include="source\d3d11\d3d11font.cpp">
-      <Filter>d3d11</Filter>
-    </ClCompile>
     <ClCompile Include="source\d3d11\d3d11overlay.cpp">
       <Filter>d3d11</Filter>
-    </ClCompile>
-    <ClCompile Include="source\d3d10\d3d10font.cpp">
-      <Filter>d3d10</Filter>
     </ClCompile>
     <ClCompile Include="source\d3d10\d3d10overlay.cpp">
       <Filter>d3d10</Filter>
     </ClCompile>
     <ClCompile Include="source\ddraw\ddrawoverlay.cpp">
       <Filter>ddraw</Filter>
+    </ClCompile>
+    <ClCompile Include="source\d3d10\D3D10Renderer.cpp">
+      <Filter>d3d10</Filter>
+    </ClCompile>
+    <ClCompile Include="source\d3d11\D3D11Renderer.cpp">
+      <Filter>d3d11</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

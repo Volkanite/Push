@@ -19,10 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\d3d10\d3d10font.cpp" />
     <ClCompile Include="source\d3d10\d3d10overlay.cpp" />
-    <ClCompile Include="source\d3d11\d3d11font.cpp" />
+    <ClCompile Include="source\d3d10\D3D10Renderer.cpp" />
     <ClCompile Include="source\d3d11\d3d11overlay.cpp" />
+    <ClCompile Include="source\d3d11\D3D11Renderer.cpp" />
     <ClCompile Include="source\d3d8\d3d8font.cpp" />
     <ClCompile Include="source\d3d8\d3d8hook.cpp" />
     <ClCompile Include="source\d3d8\d3d8overlay.cpp" />
