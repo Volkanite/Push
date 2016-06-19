@@ -6,34 +6,68 @@
 #include "dxgihook.h"
 
 
-typedef HRESULT (WINAPI* TYPE_IDXGISwapChain_Present) (
-    IDXGISwapChain *pSwapChain,
+typedef HRESULT (__stdcall* TYPE_IDXGISwapChain_Present) (
+    IDXGISwapChain *SwapChain,
     UINT SyncInterval,
     UINT Flags
     );
 
+typedef HRESULT(__stdcall* TYPE_IDXGISwapChain_ResizeBuffers) (
+    IDXGISwapChain *SwapChain,
+    UINT BufferCount,
+    UINT Width,
+    UINT Height,
+    DXGI_FORMAT NewFormat,
+    UINT SwapChainFlags
+    );
+
+TYPE_IDXGISwapChain_Present         HkIDXGISwapChain_Present;
+TYPE_IDXGISwapChain_ResizeBuffers   HkIDXGISwapChain_ResizeBuffers;
+
+typedef VOID (*HK_IDXGISWAPCHAIN_CALLBACK)(
+IDXGISwapChain* SwapChain
+);
+HK_IDXGISWAPCHAIN_CALLBACK HkIDXGISwapChain_PresentCallback;
+HK_IDXGISWAPCHAIN_CALLBACK HkIDXGISwapChain_ResizeBuffersCallback;
 
 
-TYPE_IDXGISwapChain_Present HkIDXGISwapChain_Present;
-HK_IDXGISWAPCHAIN_PRESENT_CALLBACK HkIDXGISwapChain_PresentCallback;
-
-
-HRESULT
-WINAPI
-IDXGISwapChain_PresentHook(
+HRESULT __stdcall IDXGISwapChain_PresentHook(
     IDXGISwapChain* SwapChain,
     UINT SyncInterval,
     UINT Flags
     )
 {
     if (HkIDXGISwapChain_PresentCallback)
-        HkIDXGISwapChain_PresentCallback( SwapChain );
+    {
+        HkIDXGISwapChain_PresentCallback(SwapChain);
+    }    
 
-    return HkIDXGISwapChain_Present(
-            SwapChain,
-            SyncInterval,
-            Flags
-            );
+    return HkIDXGISwapChain_Present(SwapChain, SyncInterval, Flags);
+}
+
+
+HRESULT __stdcall IDXGISwapChain_ResizeBuffersHook( 
+    IDXGISwapChain *SwapChain, 
+    UINT BufferCount, 
+    UINT Width, 
+    UINT Height, 
+    DXGI_FORMAT NewFormat, 
+    UINT SwapChainFlags 
+    )
+{
+    if (HkIDXGISwapChain_ResizeBuffersCallback)
+    {
+        HkIDXGISwapChain_ResizeBuffersCallback(SwapChain);
+    }
+
+    return HkIDXGISwapChain_ResizeBuffers(
+        SwapChain,
+        BufferCount,
+        Width,
+        Height,
+        NewFormat,
+        SwapChainFlags
+        );
 }
 
 
@@ -45,8 +79,7 @@ FakeWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 
-VOID 
-HookDxgi( HK_IDXGISWAPCHAIN_PRESENT_CALLBACK IDXGISwapChain_PresentCallback )
+VOID HookDxgi( IDXGISWAPCHAIN_HOOK* HookParameters )
 {
     IDXGIFactory* factory;
     IDXGIAdapter *pAdapter;
@@ -58,7 +91,8 @@ HookDxgi( HK_IDXGISWAPCHAIN_PRESENT_CALLBACK IDXGISwapChain_PresentCallback )
     HWND windowHandle;
     HRESULT hr;
 
-    HkIDXGISwapChain_PresentCallback = IDXGISwapChain_PresentCallback;
+    HkIDXGISwapChain_PresentCallback = (HK_IDXGISWAPCHAIN_CALLBACK) HookParameters->PresentCallback;
+    HkIDXGISwapChain_ResizeBuffersCallback = (HK_IDXGISWAPCHAIN_CALLBACK) HookParameters->ResizeBuffersCallback;
 
     CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
     factory->EnumAdapters(0, &pAdapter);
@@ -135,6 +169,9 @@ HookDxgi( HK_IDXGISWAPCHAIN_PRESENT_CALLBACK IDXGISwapChain_PresentCallback )
 
             detour = new DetourXS(vmt[8], IDXGISwapChain_PresentHook);
             HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present)detour->GetTrampoline();
+
+            detour = new DetourXS(vmt[13], IDXGISwapChain_ResizeBuffersHook);
+            HkIDXGISwapChain_ResizeBuffers = (TYPE_IDXGISwapChain_ResizeBuffers)detour->GetTrampoline();
         }
     }
 }

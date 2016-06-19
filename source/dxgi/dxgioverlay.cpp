@@ -25,36 +25,31 @@ typedef HRESULT (WINAPI* TYPE_IDXGIFactory_CreateSwapChain) (
                                              IDXGISwapChain **ppSwapChain);
 
 
-
 TYPE_IDXGIFactory_CreateSwapChain   DxgiOvIDXGIFactory_CreateSwapChain = 0;
-BOOLEAN DxgiOvInitialized;
+BOOLEAN DxgiOverlayInitialized;
 
 
-VOID
-DxgiOvInit( IDXGISwapChain* SwapChain )
+VOID DxgiOvInit( IDXGISwapChain* SwapChain )
 {
     ID3D11Device *device11;
     ID3D10Device *device10;
 
     if (SUCCEEDED(SwapChain->GetDevice(__uuidof(ID3D11Device), (void **) &device11)))
     {
-		DxgiOvDx11Overlay = new Dx11Overlay(device11, DXGIOverlay->UserRenderFunction);
+        DxgiOvDx11Overlay = new Dx11Overlay(device11, DXGIOverlay->UserRenderFunction);
     }
     else if (SUCCEEDED(SwapChain->GetDevice(__uuidof(ID3D10Device), (void **) &device10)))
     {
-		DxgiOvDx10Overlay = new Dx10Overlay(device10, DXGIOverlay->UserRenderFunction);
+        DxgiOvDx10Overlay = new Dx10Overlay(device10, DXGIOverlay->UserRenderFunction);
     }
 
-    DxgiOvInitialized = TRUE;
+    DxgiOverlayInitialized = TRUE;
 }
 
 
-VOID
-IDXGISwapChain_PresentCallback( 
-    IDXGISwapChain* SwapChain 
-    )
+VOID IDXGISwapChain_PresentCallback( IDXGISwapChain* SwapChain )
 {
-    if (!DxgiOvInitialized)
+    if (!DxgiOverlayInitialized)
         DxgiOvInit( SwapChain );
 
     if (DxgiOvDx11Overlay)
@@ -65,11 +60,22 @@ IDXGISwapChain_PresentCallback(
 }
 
 
+VOID IDXGISwapChain_ResizeBuffersCallback( IDXGISwapChain* SwapChain )
+{
+    DxgiOverlayInitialized = FALSE;
+}
+
+
 DxgiOverlay::DxgiOverlay( OV_RENDER RenderFunction )
 {
+    IDXGISWAPCHAIN_HOOK hookParams;
+
     UserRenderFunction = RenderFunction;
 
-    HookDxgi( IDXGISwapChain_PresentCallback );
+    hookParams.PresentCallback = IDXGISwapChain_PresentCallback;
+    hookParams.ResizeBuffersCallback = IDXGISwapChain_ResizeBuffersCallback;
+
+    HookDxgi(&hookParams);
 }
 
 
