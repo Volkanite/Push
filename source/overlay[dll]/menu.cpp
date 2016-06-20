@@ -243,6 +243,10 @@ VOID ProcessOptions( MenuItems* Item )
         {
             PushSharedMemory->FrameLimit = TRUE;
         }
+        else
+        {
+            PushSharedMemory->FrameLimit = FALSE;
+        }
         break;
 
     case FUNC_FRAMELIMIT:
