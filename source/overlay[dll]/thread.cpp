@@ -28,6 +28,8 @@ typedef struct _PROCESSOR_POWER_INFORMATION {
 THREAD_LIST_ENTRY* TmThreadList = 0;
 VOID* TmHeapHandle;
 ULONG MaxMhz;
+extern UINT64 CyclesWaited;
+
 #define ProcessorInformation 11
 extern "C" NTSTATUS __stdcall CallNtPowerInformation(
     UINT32 InformationLevel,
@@ -342,6 +344,10 @@ UINT8 ThreadMonitor::GetMaxThreadUsage()
 {
     FLOAT threadUsage = 0.0f;
 
+    //Remove waiting cycles used by frame limiter
+    MaxThreadCyclesDelta -= CyclesWaited;
+    CyclesWaited = 0;
+    
     threadUsage = ((FLOAT)MaxThreadCyclesDelta / (FLOAT)(MaxMhz * 1000000)) * 100;
 
     //clip calculated thread usage to [0-100] range to filter calculation non-ideality

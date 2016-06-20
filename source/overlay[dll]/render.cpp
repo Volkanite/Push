@@ -10,12 +10,11 @@ UINT8   PushRefreshRate = 60;
 UINT8   PushAcceptableFps = 55;
 BOOLEAN g_SetOSDRefresh = TRUE;
 BOOLEAN g_FontInited = FALSE;
-UINT64 g_cyclesWaited = 0;
 UINT16 DiskResponseTime;
 UINT32 FrameRate;
 BOOLEAN IsStableFramerate;
 UINT8 FrameLimit = 80; //80 fps
-
+UINT64 CyclesWaited;
 
 double PCFreq = 0.0;
 __int64 CounterStart = 0;
@@ -55,7 +54,6 @@ VOID RunFrameStatistics()
                   fps = 0.0, acceptableFrameTime = 0.0;
 
     static UINT32 frames = 0;
-    static UINT64 lcyclesWaited;
     static BOOLEAN inited = FALSE;
 
     if (!inited)
@@ -76,12 +74,9 @@ VOID RunFrameStatistics()
         // Every second.
 
         double dummy = delta / 1000.0f;
-
         fps         = frames / dummy;
         oldTick = newTickCount;
         frames      = 0;
-        g_cyclesWaited = lcyclesWaited;
-        lcyclesWaited = 0;
         g_SetOSDRefresh = TRUE;
 
         //if (PushSharedMemory->ThreadOptimization || PushSharedMemory->OSDFlags & OSD_MTU)
@@ -188,7 +183,7 @@ VOID RunFrameStatistics()
 
             QueryThreadCycleTime(threadHandle, &cyclesStop);
 
-            lcyclesWaited += cyclesStop - cyclesStart;
+            CyclesWaited += cyclesStop - cyclesStart;
         }
 
         lastTickCount = newTickCount;
