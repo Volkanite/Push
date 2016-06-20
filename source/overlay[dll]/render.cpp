@@ -14,6 +14,7 @@ UINT64 g_cyclesWaited = 0;
 UINT16 DiskResponseTime;
 UINT32 FrameRate;
 BOOLEAN IsStableFramerate;
+UINT8 FrameLimit = 80; //80 fps
 
 
 double PCFreq = 0.0;
@@ -163,7 +164,7 @@ VOID RunFrameStatistics()
 
     if (PushSharedMemory->FrameLimit)
     {
-        double frameTimeMin = (double)1000 / (double)80; //80 fps
+        double frameTimeMin = (double)1000 / (double)FrameLimit;
 
         if (frameTime < frameTimeMin)
         {

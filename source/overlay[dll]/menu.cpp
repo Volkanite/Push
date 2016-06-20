@@ -18,15 +18,19 @@ WCHAR* PressOpt[] = { L">>", L">>" };
 WCHAR* GpuSpeedEngineOpt[] = { L"XXX MHz", L"XXX MHz" };
 WCHAR* GpuSpeedMemoryOpt[] = { L"XXX MHz", L"XXX MHz" };
 WCHAR* GpuVoltageOpt[] = { L"XXX mV", L"XXX mV" };
+WCHAR* FrameLimitOpt[] = { L"", L"" };
+
 WCHAR GpuSpeedEngine[20];
 WCHAR GpuSpeedMemory[20];
 WCHAR GpuVoltage[20];
+WCHAR FrameLimitText[20];
 
 BOOLEAN MnuInitialized;
 HANDLE MenuProcessHeap;
 
 extern OV_WINDOW_MODE D3D9Hook_WindowMode;
 extern BOOLEAN D3D9Hook_ForceReset;
+extern UINT8 FrameLimit;
 
 #define FUNC_RESET          OSD_LAST_ITEM+1
 #define FUNC_FORCEMAX       OSD_LAST_ITEM+2
@@ -37,8 +41,9 @@ extern BOOLEAN D3D9Hook_ForceReset;
 #define FUNC_FILEAUTOLOG    OSD_LAST_ITEM+7
 #define FUNC_WINDOWED       OSD_LAST_ITEM+8
 #define FUNC_KEEPACTIVE     OSD_LAST_ITEM+9
-#define FUNC_FRAMELIMIT     OSD_LAST_ITEM+10
-#define FUNC_TERMINATE      OSD_LAST_ITEM+11
+#define FUNC_FRAMELIMITER   OSD_LAST_ITEM+10
+#define FUNC_FRAMELIMIT     OSD_LAST_ITEM+11
+#define FUNC_TERMINATE      OSD_LAST_ITEM+12
 
 
 //Add menu items to menu
@@ -59,6 +64,15 @@ VOID UpdateGpuInformation()
     swprintf(GpuVoltage, 20, L"%i mV", PushSharedMemory->HarwareInformation.DisplayDevice.Voltage);
     GpuVoltageOpt[0] = GpuVoltage;
     GpuVoltageOpt[1] = GpuVoltage;
+}
+
+
+VOID UpdateFrameLimitText()
+{
+    swprintf(FrameLimitText, 20, L"%i", FrameLimit);
+
+    FrameLimitOpt[0] = FrameLimitText;
+    FrameLimitOpt[1] = FrameLimitText;
 }
 
 
@@ -117,7 +131,10 @@ VOID AddItems()
     {
         Menu->AddItem(L"Windowed", ItemOpt, &D3DTweaks[1], FUNC_WINDOWED);
         Menu->AddItem(L"Keep active", ItemOpt, &D3DTweaks[2], FUNC_KEEPACTIVE);
-        Menu->AddItem(L"Frame Limit", ItemOpt, &D3DTweaks[3], FUNC_FRAMELIMIT);
+        Menu->AddItem(L"Frame Limiter", ItemOpt, &D3DTweaks[3], FUNC_FRAMELIMITER);
+        Menu->AddItem(L"Frame Limit", FrameLimitOpt, &D3DTweaks[4], FUNC_FRAMELIMIT);
+
+        UpdateFrameLimitText();
     }
 
     Menu->AddGroup(L"Proc >", GroupOpt, &Process[0]);
@@ -221,10 +238,25 @@ VOID ProcessOptions( MenuItems* Item )
         }
         break;
 
-    case FUNC_FRAMELIMIT:
+    case FUNC_FRAMELIMITER:
         if (*Item->Var > 0)
         {
             PushSharedMemory->FrameLimit = TRUE;
+        }
+        break;
+
+    case FUNC_FRAMELIMIT:
+        {
+            if (*Item->Var == 0)
+            {
+                FrameLimit--;
+            }
+            else if (*Item->Var == 1)
+            {
+                FrameLimit++;
+            }
+                 
+            UpdateFrameLimitText();
         }
         break;
 
