@@ -7,7 +7,7 @@
 
 
 UINT8   PushRefreshRate = 60;
-UINT8   PushAcceptableFps = 55;
+UINT8 AcceptableFps = 55;
 BOOLEAN g_SetOSDRefresh = TRUE;
 BOOLEAN g_FontInited = FALSE;
 UINT16 DiskResponseTime;
@@ -60,7 +60,7 @@ VOID RunFrameStatistics()
     {
       StartCounter();
       inited = TRUE;
-      acceptableFrameTime = (double)1000 / (double)PushAcceptableFps;
+      acceptableFrameTime = (double)1000 / (double)AcceptableFps;
     }
 
     newTickCount = GetPerformanceCounter();
@@ -91,6 +91,12 @@ VOID RunFrameStatistics()
 
         swprintf(buffer, 100, L"GetDiskResponseTime %i", GetCurrentProcessId());
         CallPipe(buffer, &DiskResponseTime);
+    }
+
+    if (PushSharedMemory->FrameLimit && FrameLimit < 60)
+    {
+        AcceptableFps = FrameLimit - 5;
+        acceptableFrameTime = (double)1000 / (double)AcceptableFps;
     }
 
     // Simple Diagnostics.

@@ -173,7 +173,7 @@ BOOL __stdcall DllMain(
             EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &devMode);
 
             PushRefreshRate = devMode.dmDisplayFrequency;
-            PushAcceptableFps = PushRefreshRate - 5;
+            AcceptableFps = PushRefreshRate - 5;
             PushProcessHeap = GetProcessHeap();
 
         } break;
