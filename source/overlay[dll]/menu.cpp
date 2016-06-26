@@ -99,6 +99,7 @@ VOID AddItems()
         Menu->AddItem(L"Disk read-write rate",    ItemOpt, &MenuOsd[i++], OSD_DISK_RWRATE);
         Menu->AddItem(L"Disk response time",      ItemOpt, &MenuOsd[i++], OSD_DISK_RESPONSE);
         Menu->AddItem(L"Frame Buffer count",      ItemOpt, &MenuOsd[i++], OSD_BUFFERS);
+        Menu->AddItem(L"Resolution",              ItemOpt, &MenuOsd[i++], OSD_RESOLUTION);
         Menu->AddItem(L"Show Time",               ItemOpt, &MenuOsd[i++], OSD_TIME);
 
         Menu->AddItem(L"Reset Overlay", PressOpt, &MenuOsd[i++], FUNC_RESET);

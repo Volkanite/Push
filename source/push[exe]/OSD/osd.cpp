@@ -25,23 +25,24 @@ typedef VOID(*OSD_DYNAMIC_FORMAT)(
 
 
 OSD_ITEM OsdItems[] = {
-    { OSD_GPU_LOAD, 90, L"GPU : %i %%"},
-    { OSD_GPU_TEMP, 75, L"GPU : %i °C"},
-    { OSD_GPU_E_CLK, 0, L"GPU : %i MHz"},
-    { OSD_GPU_M_CLK, 0, L"GPU : %i MHz"},
-    { OSD_GPU_VRAM, 90, L"VRAM : %i MB"},
-    { OSD_GPU_FAN,   0, L"GPU : %i RPM"},
-    { OSD_RAM,      90, L"RAM : %i MB"},
-    { OSD_CPU_SPEED, 0, L"CPU : %i MHz" },
-    { OSD_CPU_LOAD, 95, L"CPU : %i %%"},
-    { OSD_CPU_TEMP, 75, L"CPU : %i °C"},
-    { OSD_MCU, 0, L"CPUm : %i %%"},
-    { OSD_MTU, 0, L"MTU : %i %%"},
-    { OSD_DISK_RWRATE, 0, NULL, NULL, NULL, FormatDiskReadWriteRate },
-    { OSD_DISK_RESPONSE, 4000, L"DSK : %i ms"},
-    { OSD_TIME, 0, NULL, NULL, NULL, FormatTime },
-    { OSD_BUFFERS, 0, L"Buffers : %i"},
-    { OSD_FPS, 0, L"%i"}
+    { OSD_GPU_LOAD, 90, L"GPU : %i %%", TRUE},
+    { OSD_GPU_TEMP, 75, L"GPU : %i °C", TRUE},
+    { OSD_GPU_E_CLK, 0, L"GPU : %i MHz", TRUE},
+    { OSD_GPU_M_CLK, 0, L"GPU : %i MHz", TRUE},
+    { OSD_GPU_VRAM, 90, L"VRAM : %i MB", TRUE},
+    { OSD_GPU_FAN,   0, L"GPU : %i RPM", TRUE},
+    { OSD_RAM,      90, L"RAM : %i MB", TRUE},
+    { OSD_CPU_SPEED, 0, L"CPU : %i MHz", TRUE},
+    { OSD_CPU_LOAD, 95, L"CPU : %i %%", TRUE},
+    { OSD_CPU_TEMP, 75, L"CPU : %i °C", TRUE},
+    { OSD_MCU, 0, L"CPUm : %i %%", TRUE},
+    { OSD_MTU, 0, L"MTU : %i %%", TRUE},
+    { OSD_DISK_RWRATE, 0, NULL, TRUE, NULL, NULL, FormatDiskReadWriteRate },
+    { OSD_DISK_RESPONSE, 4000, L"DSK : %i ms", TRUE},
+    { OSD_TIME, 0, NULL, TRUE, NULL, NULL, FormatTime },
+    { OSD_BUFFERS, 0, L"Buffers : %i", TRUE},
+    { OSD_RESOLUTION },
+    { OSD_FPS }
 };
 
 
@@ -123,7 +124,7 @@ VOID GetValues( OSD_ITEM* Item )
 
 VOID FormatTime( UINT32 Value, WCHAR* Buffer )
 {
-	Push_FormatTime(Buffer);
+    Push_FormatTime(Buffer);
 }
 
 
@@ -188,7 +189,7 @@ VOID OSD_Refresh()
             {
                 OsdItems[i].DynamicFormat(OsdItems[i].ValueOverride ? OsdItems[i].ValueOverride : 0, OsdItems[i].Text);
             }
-            else
+            else if(OsdItems[i].Format)
             {
                 swprintf(
                     OsdItems[i].Text,

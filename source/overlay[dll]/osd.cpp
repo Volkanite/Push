@@ -5,6 +5,9 @@
 #include "overlay.h"
 #include <OvRender.h>
 
+extern UINT32 BackBufferWidth;
+extern UINT32 BackBufferHeight;
+
 
 /**
 * Draws all on-screen display items.
@@ -33,6 +36,9 @@ VOID Osd_Draw( OvOverlay* Overlay )
                     continue;
                 }
             }
+            break;
+        case OSD_RESOLUTION:
+            swprintf(osdItem->Text, 20, L"RES : %i x %i", BackBufferWidth, BackBufferHeight);
             break;
         case OSD_DISK_RESPONSE:
             osdItem->Value = DiskResponseTime;

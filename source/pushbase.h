@@ -147,15 +147,16 @@ typedef struct _IMDISK_SET_DEVICE_FLAGS
 #define OSD_RAM             0x00000040
 #define OSD_MCU             0x00000080
 #define OSD_MTU             0x00000100
-#define OSD_BUFFERS         0x00000200
+#define OSD_CPU_SPEED       0x00000200
 #define OSD_FPS             0x00000400
 #define OSD_DISK_RWRATE     0x00000800
 #define OSD_DISK_RESPONSE   0x00001000
 #define OSD_GPU_E_CLK       0x00002000
 #define OSD_GPU_M_CLK       0x00004000
 #define OSD_GPU_FAN         0x00008000
-#define OSD_CPU_SPEED       0x00010000
-#define OSD_LAST_ITEM       0x00010000 //Update me!
+#define OSD_BUFFERS         0x00010000
+#define OSD_RESOLUTION      0x00020000
+#define OSD_LAST_ITEM       0x00020000 //Update me!
 
 
 typedef struct _CORE_LIST CORE_LIST;
@@ -251,6 +252,7 @@ typedef struct _OSD_ITEM
     UINT32 Flag;
     OSDVALUE Threshold;
     WCHAR* DisplayFormat;
+    BOOLEAN Format;
     OSDVALUE Value;
 
     //This will be displayed instead of the first, Must be at least 32 bits or you might get garbage,

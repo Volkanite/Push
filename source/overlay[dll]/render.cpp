@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 
-UINT8   PushRefreshRate = 60;
+UINT8 PushRefreshRate = 60;
 UINT8 AcceptableFps = 55;
 BOOLEAN g_SetOSDRefresh = TRUE;
 BOOLEAN g_FontInited = FALSE;
