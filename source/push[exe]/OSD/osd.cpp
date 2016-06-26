@@ -184,25 +184,29 @@ VOID OSD_Refresh()
 
             PushSharedMemory->OSDFlags |= OsdItems[i].Flag;
 
-            // Check what type of formating user wants
-            if (OsdItems[i].DynamicFormat)
+            if (OsdItems[i].Format || OsdItems[i].DynamicFormat)
             {
-                OsdItems[i].DynamicFormat(OsdItems[i].ValueOverride ? OsdItems[i].ValueOverride : 0, OsdItems[i].Text);
-            }
-            else if(OsdItems[i].Format)
-            {
-                swprintf(
-                    OsdItems[i].Text,
-                    20,
-                    OsdItems[i].DisplayFormat,
-                    OsdItems[i].ValueOverride ? OsdItems[i].ValueOverride : OsdItems[i].Value
-                    );
-            }
+                if (OsdItems[i].DynamicFormat)
+                {
+                    OsdItems[i].DynamicFormat(OsdItems[i].ValueOverride ? OsdItems[i].ValueOverride : 0, OsdItems[i].Text);
+                }
+                else if (OsdItems[i].Format)
+                {
+                    swprintf(
+                        OsdItems[i].Text,
+                        20,
+                        OsdItems[i].DisplayFormat,
+                        OsdItems[i].ValueOverride ? OsdItems[i].ValueOverride : OsdItems[i].Value
+                        );
+                }
 
-            wcscat(OsdItems[i].Text, L"\n");
+                wcscat(OsdItems[i].Text, L"\n");
+            }
 
             if (PushSharedMemory->Overloads & OsdItems[i].Flag)
+            {
                 OsdItems[i].Color = 0xFFFF0000;
+            } 
         }
     }
 
