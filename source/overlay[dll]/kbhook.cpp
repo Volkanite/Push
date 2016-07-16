@@ -27,8 +27,7 @@ LONG WINAPI KeyboardHook(
     LPARAM lParam
     )
 {
-    OutputDebugStringW(L"Hookbook!");
-    /*switch (Message)
+    switch (Message)
     {
     case WM_KEYDOWN:
         break;
@@ -39,8 +38,9 @@ LONG WINAPI KeyboardHook(
     case WM_NCACTIVATE:
     case WM_ACTIVATE:
     case WM_KILLFOCUS:
+        return 0;
         break;
-    }*/
+    }
 
     return CallWindowProc(OldWNDPROC, Handle, Message, wParam, lParam);
 }

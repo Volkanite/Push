@@ -3,6 +3,8 @@
 #include <sloverlay.h>
 #include <overlay.h>
 
+#include "kbhook.h"
+
 
 SlOverlayMenu* Menu;
 
@@ -235,7 +237,7 @@ VOID ProcessOptions( MenuItems* Item )
     case FUNC_KEEPACTIVE:
         if (*Item->Var > 0)
         {
-            
+            Keyboard_Hook(KEYBOARD_HOOK_SUBCLASS);
         }
         break;
 
