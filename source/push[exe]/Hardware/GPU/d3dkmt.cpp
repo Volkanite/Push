@@ -175,11 +175,11 @@ UINT64 D3DKMTGetMemoryUsage()
 
             if (WindowsVersion == WINDOWS_8)
             {
-                bytesCommitted = queryStatistics.QueryResult.SegmentInformation.BytesCommitted;
+                bytesCommitted = queryStatistics.QueryResult.SegmentInformation.BytesResident;
             }
             else
             {
-                bytesCommitted = queryStatistics.QueryResult.SegmentInformationV1.BytesCommitted;
+                bytesCommitted = queryStatistics.QueryResult.SegmentInformationV1.BytesResident;
             }
 
             if (!RtlCheckBit(&D3dkmt_GpuAdapter->ApertureBitMap, i))
