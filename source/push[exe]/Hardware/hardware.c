@@ -15,63 +15,44 @@ BOOLEAN                     PushGpuLoadD3DKMT = FALSE;
 DWORD                       dwMappedMemAddr;
 PUSH_HARDWARE_INFORMATION   hardware;
 SYSTEM_BASIC_INFORMATION    HwInfoSystemBasicInformation;
-GPU_ADAPTER*                Hwinfo_GpuAdapter;
 
 
 UINT16 GetEngineClock()
 {
-    if (!Hwinfo_GpuAdapter)
-        return 0;
-
-    return Hwinfo_GpuAdapter->GetEngineClock();
+    return GPU_GetEngineClock();
 }
 
 
 UINT16 GetMemoryClock()
 {
-    if (!Hwinfo_GpuAdapter)
-        return 0;
-
-    return Hwinfo_GpuAdapter->GetMemoryClock();
+    return GPU_GetMemoryClock();
 }
 
 
 UINT16 GetVoltage()
 {
-    if (!Hwinfo_GpuAdapter || !Hwinfo_GpuAdapter->GetVoltage)
-        return 0;
-
-    return Hwinfo_GpuAdapter->GetVoltage();
+    return GPU_GetVoltage();
 }
 
 
 UINT8 GetGpuTemp()
 {
-    if (!Hwinfo_GpuAdapter)
-        return 0;
-
-    return Hwinfo_GpuAdapter->GetTemperature();
+    return GPU_GetTemperature();
 }
 
 
 UINT8 GetGpuLoad()
 {
-    if (!Hwinfo_GpuAdapter)
-        return 0;
-
     if (PushGpuLoadD3DKMT || hardware.DisplayDevice.VendorId == AMD) //AMD ADL gpu load is finicky
         return D3DKMT_GetGpuUsage();
     else
-        return Hwinfo_GpuAdapter->GetLoad(); 
+        return GPU_GetLoad(); 
 }
 
 
 UINT16 GetFanSpeed()
 {
-    if (!Hwinfo_GpuAdapter || !Hwinfo_GpuAdapter->GetFanSpeed)
-        return 0;
-
-    return Hwinfo_GpuAdapter->GetFanSpeed();
+    return GPU_GetFanSpeed();
 }
 
 
@@ -89,11 +70,8 @@ UINT32 GetVramUsed()
 {
     UINT64 total, free, used;
 
-    if (!Hwinfo_GpuAdapter)
-        return 0;
-
-    total = Hwinfo_GpuAdapter->GetTotalMemory();
-    free = Hwinfo_GpuAdapter->GetFreeMemory();
+    total = GPU_GetTotalMemory();
+    free = GPU_GetFreeMemory();
     used = total - free;
 
     return used / 1048576;
@@ -109,7 +87,7 @@ GetVramUsage()
 
 UINT32 GetFrameBufferSize()
 {
-    return Hwinfo_GpuAdapter->GetTotalMemory();
+    return GPU_GetTotalMemory();
 }
 
 
@@ -236,7 +214,7 @@ UINT16 GetDiskResponseTime( UINT32 ProcessId )
 
 VOID Hardware_ForceMaxClocks()
 {
-    Hwinfo_GpuAdapter->ForceMaximumClocks();
+    GPU_ForceMaximumClocks();
 }
 
 
@@ -503,14 +481,11 @@ VOID GetHardwareInfo()
     UINT64 pageSize;
 
     InitGpuHardware();
-    Hwinfo_GpuAdapter = CreateGpuAdapter(hardware.DisplayDevice.pciAddress);
+    GPU_Initialize(hardware.DisplayDevice.pciAddress);
 
-    if (Hwinfo_GpuAdapter)
-    {
-        hardware.DisplayDevice.FrameBuffer.Total = Hwinfo_GpuAdapter->GetTotalMemory();
-        hardware.DisplayDevice.EngineClockMax = Hwinfo_GpuAdapter->GetMaximumEngineClock();
-        hardware.DisplayDevice.MemoryClockMax = Hwinfo_GpuAdapter->GetMaximumMemoryClock();
-    }
+    hardware.DisplayDevice.FrameBuffer.Total = GPU_GetTotalMemory();
+    hardware.DisplayDevice.EngineClockMax = GPU_GetMaximumEngineClock();
+    hardware.DisplayDevice.MemoryClockMax = GPU_GetMaximumMemoryClock();
 
     if (SlIniReadBoolean(L"Settings", L"GpuUsageD3DKMT", FALSE, L".\\" PUSH_SETTINGS_FILE))
         PushGpuLoadD3DKMT = TRUE;

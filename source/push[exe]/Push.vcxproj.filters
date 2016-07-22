@@ -58,9 +58,6 @@
     <ClCompile Include="Hardware\GPU\d3dkmt.c">
       <Filter>Hardware\GPU</Filter>
     </ClCompile>
-    <ClCompile Include="Hardware\GPU\GenericGpu.c">
-      <Filter>Hardware\GPU</Filter>
-    </ClCompile>
     <ClCompile Include="Hardware\GPU\gpu.c">
       <Filter>Hardware\GPU</Filter>
     </ClCompile>
@@ -140,9 +137,6 @@
       <Filter>Hardware\GPU</Filter>
     </ClInclude>
     <ClInclude Include="Hardware\GPU\d3dkmt.h">
-      <Filter>Hardware\GPU</Filter>
-    </ClInclude>
-    <ClInclude Include="Hardware\GPU\GenericGpu.h">
       <Filter>Hardware\GPU</Filter>
     </ClInclude>
     <ClInclude Include="Hardware\GPU\gpu.h">

@@ -34,7 +34,6 @@
     <ClCompile Include="Hardware\GPU\adl.c" />
     <ClCompile Include="Hardware\GPU\AmdGpu.c" />
     <ClCompile Include="Hardware\GPU\d3dkmt.c" />
-    <ClCompile Include="Hardware\GPU\GenericGpu.c" />
     <ClCompile Include="Hardware\GPU\gpu.c" />
     <ClCompile Include="Hardware\GPU\IntelGpu.c" />
     <ClCompile Include="Hardware\GPU\nvapi.c" />
@@ -70,7 +69,6 @@
     <ClInclude Include="Hardware\GPU\adl.h" />
     <ClInclude Include="Hardware\GPU\AmdGpu.h" />
     <ClInclude Include="Hardware\GPU\d3dkmt.h" />
-    <ClInclude Include="Hardware\GPU\GenericGpu.h" />
     <ClInclude Include="Hardware\GPU\gpu.h" />
     <ClInclude Include="Hardware\GPU\IntelGpu.h" />
     <ClInclude Include="Hardware\GPU\nvapi.h" />

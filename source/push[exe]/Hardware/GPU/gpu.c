@@ -7,10 +7,6 @@
 #include "amdgpu.h"
 #include "nvidiagpu.h"
 #include "IntelGpu.h"
-#include "GenericGpu.h"
-
-
-
 
 
 typedef struct _PCI_CONFIG
@@ -19,16 +15,12 @@ typedef struct _PCI_CONFIG
     WORD DeviceId;
 }PCI_CONFIG;
 
+WORD GPU_VendorId;
 
-GPU_ADAPTER* CreateGpuAdapter( ULONG PciAddress )
+
+VOID GPU_Initialize( ULONG PciAddress )
 {
     PCI_CONFIG pciConfig;
-
-    GPU_ADAPTER *gpuAdapter = (GPU_ADAPTER*) RtlAllocateHeap(
-        PushHeapHandle, 
-        HEAP_ZERO_MEMORY,
-        sizeof(GPU_ADAPTER)
-        );
 
     R0ReadPciConfig(
         PciAddress,
@@ -37,23 +29,83 @@ GPU_ADAPTER* CreateGpuAdapter( ULONG PciAddress )
         sizeof(pciConfig)
         );
 
-    gpuAdapter->DeviceId = pciConfig.DeviceId;
-
     switch (pciConfig.VendorId)
     {
     case AMD:
-        AmdGpu_CreateAdapter(gpuAdapter);
+        GPU_VendorId = AMD;
+        AmdGpu_Initialize();
         break;
     case NVIDIA:
-        NvidiaGpu_CreateAdapter(gpuAdapter);
+        GPU_VendorId = NVIDIA;
         break;
     case INTEL:
-        IntelGpu_CreateAdapter(gpuAdapter);
+        GPU_VendorId = INTEL;
         break;
     default:
-        GenericGpu_CreateAdapter(gpuAdapter);
+        break;
+    }
+}
+
+
+UINT16 GPU_GetVoltage()
+{
+    switch (GPU_VendorId)
+    {
+    case AMD:
+        return AmdGpu_GetVoltage();
+        break;
+    case NVIDIA:
+        break;
+    default:
+        return 0;
         break;
     }
 
-    return gpuAdapter;
+    return 0;
 }
+
+
+UINT16 GPU_GetEngineClock()
+{
+    switch (GPU_VendorId)
+    {
+    case AMD:
+        return AmdGpu_GetEngineClock();
+        break;
+    case NVIDIA:
+        break;
+    default:
+        return 0;
+        break;
+    }
+
+    return 0;
+}
+
+
+UINT16 GPU_GetMemoryClock()
+{
+    switch (GPU_VendorId)
+    {
+    case AMD:
+        return AmdGpu_GetMemoryClock();
+        break;
+    case NVIDIA:
+        break;
+    default:
+        return 0;
+        break;
+    }
+
+    return 0;
+}
+
+
+UINT16 GPU_GetMaximumEngineClock(){ return 0; }
+UINT16 GPU_GetMaximumMemoryClock(){ return 0; }
+UINT16 GPU_GetFanSpeed(){ return 0; }
+UINT8 GPU_GetTemperature(){ return 0; }
+UINT8 GPU_GetLoad(){ return 0; }
+UINT64 GPU_GetTotalMemory(){ return 0; }
+UINT64 GPU_GetFreeMemory(){ return 0; }
+VOID GPU_ForceMaximumClocks(){}

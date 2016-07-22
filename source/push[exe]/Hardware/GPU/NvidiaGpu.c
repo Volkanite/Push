@@ -95,65 +95,12 @@ typedef enum _GPU_INTERFACE
 } GPU_INTERFACE;
 
 
-VOID NvidiaGpu_CreateAdapter( GPU_ADAPTER* GpuAdapter )
+VOID NvidiaGpu_Initialize()
 {
     GPU_INTERFACE gpuInterface = GPU_INTERFACE_PURE;
 
     Nvapi_Initialize();
     D3DKMTInitialize();
-
-    switch (gpuInterface)
-    {
-    case GPU_INTERFACE_NVAPI:
-        GpuAdapter->GetEngineClock          = Nvapi_GetEngineClock;
-        GpuAdapter->GetMemoryClock          = Nvapi_GetMemoryClock;
-        GpuAdapter->GetMaximumEngineClock   = Nvapi_GetMaxEngineClock;
-        GpuAdapter->GetMaximumMemoryClock   = Nvapi_GetMaxMemoryClock;
-        GpuAdapter->GetTotalMemory          = Nvapi_GetTotalMemory;
-        GpuAdapter->GetFreeMemory           = Nvapi_GetFreeMemory;
-        GpuAdapter->GetTemperature          = Nvapi_GetTemperature;
-        GpuAdapter->ForceMaximumClocks      = Nvapi_ForceMaximumClocks;
-        GpuAdapter->GetLoad                 = Nvapi_GetActivity;
-    break;
-
-    case GPU_INTERFACE_OPEN_NVAPI:
-        GpuAdapter->GetEngineClock          = OpenNvapi_GetEngineClock;
-        GpuAdapter->GetMemoryClock          = OpenNvapi_GetMemoryClock;
-        GpuAdapter->GetMaximumEngineClock   = OpenNvapi_GetMaxEngineClock;
-        GpuAdapter->GetMaximumMemoryClock   = OpenNvapi_GetMaxMemoryClock;
-        GpuAdapter->GetTotalMemory          = OpenNvapi_GetTotalMemory;
-        GpuAdapter->GetFreeMemory           = OpenNvapi_GetFreeMemory;
-        GpuAdapter->GetTemperature          = OpenNvapi_GetTemperature;
-        GpuAdapter->ForceMaximumClocks      = OpenNvapi_ForceMaximumClocks;
-        GpuAdapter->GetLoad                 = OpenNvapi_GetLoad;
-    break;
-
-    case GPU_INTERFACE_D3DKMT:
-        GpuAdapter->GetEngineClock          = D3DKMT_GetEngineClock;
-        GpuAdapter->GetMemoryClock          = D3DKMT_GetMemoryClock;
-        GpuAdapter->GetMaximumEngineClock   = D3DKMT_GetMaxEngineClock;
-        GpuAdapter->GetMaximumMemoryClock   = D3DKMT_GetMaxMemoryClock;
-        GpuAdapter->GetTotalMemory          = D3DKMT_GetTotalMemory;
-        GpuAdapter->GetFreeMemory           = D3DKMT_GetFreeMemory;
-        GpuAdapter->GetTemperature          = D3DKMT_GetTemperature;
-        GpuAdapter->ForceMaximumClocks      = D3DKMT_ForceMaximumClocks;
-        GpuAdapter->GetLoad                 = D3DKMT_GetGpuUsage;
-    break;
-
-    case GPU_INTERFACE_PURE:
-        GpuAdapter->GetEngineClock          = NvidiaGpu_GetEngineClock;
-        GpuAdapter->GetMemoryClock          = NvidiaGpu_GetMemoryClock;
-        GpuAdapter->GetMaximumEngineClock   = NvidiaGpu_GetMaxEngineClock;
-        GpuAdapter->GetMaximumMemoryClock   = NvidiaGpu_GetMaxMemoryClock;
-        GpuAdapter->GetTotalMemory          = NvidiaGpu_GetTotalMemory;
-        GpuAdapter->GetFreeMemory           = NvidiaGpu_GetFreeMemory;
-        GpuAdapter->GetTemperature          = NvidiaGpu_GetTemperature;
-        GpuAdapter->ForceMaximumClocks      = NvidiaGpu_ForceMaximumClocks;
-        GpuAdapter->GetLoad                 = NvidiaGpu_GetLoad;
-        GpuAdapter->GetVoltage              = NvidiaGpu_GetVoltage;
-        GpuAdapter->GetFanSpeed             = NvidiaGpu_GetFanSpeed;
-    break;
-    }
 }
 
 
