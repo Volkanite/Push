@@ -101,11 +101,35 @@ UINT16 GPU_GetMemoryClock()
 }
 
 
+UINT64 GPU_GetTotalMemory()
+{ 
+    switch (GPU_VendorId)
+    {
+    case AMD:
+        return AmdGpu_GetTotalMemory();
+        break;
+    }
+
+    return 0;
+}
+
+
+UINT64 GPU_GetFreeMemory()
+{ 
+    switch (GPU_VendorId)
+    {
+    case AMD:
+        return AmdGpu_GetFreeMemory();
+        break;
+    }
+
+    return 0;
+}
+
+
 UINT16 GPU_GetMaximumEngineClock(){ return 0; }
 UINT16 GPU_GetMaximumMemoryClock(){ return 0; }
 UINT16 GPU_GetFanSpeed(){ return 0; }
 UINT8 GPU_GetTemperature(){ return 0; }
 UINT8 GPU_GetLoad(){ return 0; }
-UINT64 GPU_GetTotalMemory(){ return 0; }
-UINT64 GPU_GetFreeMemory(){ return 0; }
 VOID GPU_ForceMaximumClocks(){}
