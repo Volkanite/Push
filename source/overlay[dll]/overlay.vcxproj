@@ -85,10 +85,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)resources\OvRender\inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\detourXS;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)OvRender\inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\detourXS;$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)resources\OvRender\inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\detourXS;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)OvRender\inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\detourXS;$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LibraryPath>$(SolutionDir)resources\sl\lib\i386;$(SolutionDir)bin;$(SolutionDir)resources\detourXS;$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
@@ -160,7 +160,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>dxgi.lib;d3d10.lib;gdiplus.lib;sl.lib;ntdll.lib;OvRender.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxgi.lib;d3d10.lib;gdiplus.lib;sl.lib;ntdll.lib;OvRender.lib;PowrProf.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>msvcrtd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>

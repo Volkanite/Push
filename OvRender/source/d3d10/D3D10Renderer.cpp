@@ -35,9 +35,6 @@ ID3D10PixelShader*                      D3D10Font_PixelShader = NULL;
 static BOOLEAN                        Initialized;
     #define START_CHAR 33
 
-static int posX;
-static int posY;
-
 
 extern "C" VOID* __stdcall RtlAllocateHeap(
     VOID*           HeapHandle,
@@ -195,95 +192,6 @@ Dx10Font::Dx10Font(
 
    InitDeviceObjects();
    InitD3D10Sprite();
-}
-
-
-VOID
-Dx10Font::Draw( RECT* destinationRect, RECT* sourceRect, XMCOLOR color )
-{
-    Sprite sprite;
-    sprite.SrcRect  = *sourceRect;
-    sprite.DestRect = *destinationRect;
-    sprite.Color    = color;
-    sprite.Z        = 0.0f;
-    sprite.Angle    = 0.0f;
-    sprite.Scale    = 1.0f;
-
-    AddSprite( &sprite );
-}
-
-
-VOID Dx10Font::AddString( WCHAR *text, BOOLEAN overload)
-{
-    UINT i, length = (UINT)wcslen(text);
-    int xbackup = posX;
-    XMCOLOR colorchanged;
-    int R = 255;
-    int G = 255;
-    int B = 0;
-    int A = 255;
-    XMVECTOR Vec;
-
-    if (overload)
-    {
-        G = 0;
-    }
-
-    Vec = XMVectorSet(
-            B ? (float)( B / 255.0f ) : 0.0f,
-            G ? (float)( G / 255.0f ) : 0.0f,
-            R ? (float)( R / 255.0f ) : 0.0f,
-            A ? (float)( A / 255.0f ) : 0.0f
-            );
-
-    XMStoreColor( &colorchanged, Vec );
-
-    for( i = 0; i < length; ++i )
-    {
-        WCHAR character = text[ i ];
-
-        if (character == ' ')
-            posX += m_dwSpacing;
-
-        else if( character == '\n' )
-        {
-            posX  = xbackup;
-            posY += m_dwFontHeight;
-        }
-        else
-        {
-            RECT charRect;
-
-            charRect.left = (LONG)(((m_fTexCoords[character - 32][0]) * m_dwTexWidth) + m_dwSpacing);
-            charRect.top = (LONG)((m_fTexCoords[character - 32][1]) * m_dwTexWidth);
-            charRect.right = (LONG)(((m_fTexCoords[character - 32][2]) * m_dwTexWidth) - m_dwSpacing);
-            charRect.bottom = (LONG)((m_fTexCoords[character - 32][3]) * m_dwTexWidth);
-
-            int width = charRect.right - charRect.left;
-            int height = charRect.bottom - charRect.top;
-            RECT rect = {posX, posY, posX + width, posY + height};
-
-            Draw( &rect, &charRect, colorchanged);
-
-            posX += width + 1;
-      }
-   }
-}
-
-
-VOID Dx10Font::DrawText( FLOAT sx, FLOAT sy, DWORD Color, WCHAR* Text )
-{
-    BOOLEAN warning;
-
-    if (Color == D3DCOLOR_ARGB(255, 255, 0, 0))
-        warning = TRUE;
-    else
-        warning = FALSE;
-
-    posX = (int)sx;
-    posY = (int)sy;
-
-    AddString(Text, warning);
 }
 
 

@@ -59,12 +59,17 @@ public:
     UINT  SpriteListSize;
     Sprite* Sprites;
     VOID*   HeapHandle;
+    int posX;
+    int posY;
 
     Font();
     HRESULT GetTextExtent( TCHAR* strText, SIZE* pSize );
     HRESULT InitDeviceObjects();
     VOID AddSprite( Sprite *sprite );
     VOID BuildSpriteQuad( Sprite *sprite, SpriteVertex v[ 4 ] );
+    VOID AddString(WCHAR *text, DWORD Color);
+    VOID Draw(RECT* destinationRect, RECT* sourceRect, XMCOLOR color);
+    VOID DrawText(FLOAT sx, FLOAT sy, DWORD Color, WCHAR* Text);
 
     virtual DWORD GetMaxTextureWidth() = 0;
     virtual HRESULT CreateTexture() = 0;

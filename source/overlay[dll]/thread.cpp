@@ -128,43 +128,27 @@ SYSTEM_PROCESS_INFORMATION* GetProcessInformation( UINT32* BufferSize )
     UINT32 bufferSize;
     PROCESSID processId;
     INT32 status = 0;
-    VOID*           ProcThrdInfo = 0;
+    VOID *buffer;
     SYSTEM_PROCESS_INFORMATION *processEntry;
+    HANDLE heapHandle;
 
+    heapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
     bufferSize = 0x4000;
-
-    NtAllocateVirtualMemory(
-        (VOID*)-1,
-        &ProcThrdInfo,
-        0,
-        &bufferSize,
-        MEM_COMMIT,
-        PAGE_READWRITE
-        );
-
+    buffer = RtlAllocateHeap(heapHandle, 0, bufferSize);
+    
     while (TRUE)
     {
         status = NtQuerySystemInformation(
             SystemProcessInformation,
-            ProcThrdInfo,
+            buffer,
             bufferSize,
             &bufferSize
             );
 
         if (status == STATUS_BUFFER_TOO_SMALL || status == STATUS_INFO_LENGTH_MISMATCH)
         {
-            NtFreeVirtualMemory((VOID*)-1, &ProcThrdInfo, (UINT32*)&bufferSize, MEM_RELEASE);
-
-            ProcThrdInfo = 0;
-
-            NtAllocateVirtualMemory(
-                (VOID*)-1,
-                &ProcThrdInfo,
-                0,
-                &bufferSize,
-                MEM_COMMIT,
-                PAGE_READWRITE
-                );
+            RtlFreeHeap(heapHandle, 0, buffer);
+            buffer = RtlAllocateHeap(heapHandle, 0, bufferSize);
         }
         else
         {
@@ -172,18 +156,17 @@ SYSTEM_PROCESS_INFORMATION* GetProcessInformation( UINT32* BufferSize )
         }
     }
 
-    processEntry = (SYSTEM_PROCESS_INFORMATION*)ProcThrdInfo;
+    processEntry = (SYSTEM_PROCESS_INFORMATION*)buffer;
     processId = (UINT32)NtCurrentTeb()->ClientId.UniqueProcess;
 
     do
     {
         processEntry = (SYSTEM_PROCESS_INFORMATION*)((UINT_B)processEntry + ProcOffset);
-
-        if ((UINT16)processEntry->UniqueProcessId == processId)
+    
+        if (processEntry && (UINT16)processEntry->UniqueProcessId == processId)
         {
             break;
         }
-
 
         ProcOffset = processEntry->NextEntryOffset;
 

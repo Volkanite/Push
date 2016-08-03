@@ -346,3 +346,72 @@ Font::BuildSpriteQuad( Sprite *sprite, SpriteVertex v[ 4 ] )
         v[ i ].z = xmfloat.z;
     }
 }
+
+
+VOID Font::Draw( RECT* destinationRect, RECT* sourceRect, XMCOLOR color )
+{
+    Sprite sprite;
+    sprite.SrcRect = *sourceRect;
+    sprite.DestRect = *destinationRect;
+    sprite.Color = color;
+    sprite.Z = 0.0f;
+    sprite.Angle = 0.0f;
+    sprite.Scale = 1.0f;
+
+    AddSprite(&sprite);
+}
+
+
+VOID Font::AddString( WCHAR *text, DWORD Color )
+{
+    UINT i, length = (UINT)wcslen(text);
+    int xbackup = posX;
+    XMCOLOR color;
+
+    color.c = Color;
+
+    for (i = 0; i < length; ++i)
+    {
+        WCHAR character = text[i];
+
+        if (character == ' ')
+        {
+            posX += m_dwSpacing;
+        }
+        else if (character == '\n')
+        {
+            posX = xbackup;
+            posY += m_dwFontHeight;
+        }
+        else if (character > NUMBER_OF_CHARACTERS)
+        {
+            break;
+        }
+        else
+        {
+            RECT charRect;
+
+            charRect.left = (LONG)(((m_fTexCoords[character - 32][0]) * m_dwTexWidth) + m_dwSpacing);
+            charRect.top = (LONG)((m_fTexCoords[character - 32][1]) * m_dwTexWidth);
+            charRect.right = (LONG)(((m_fTexCoords[character - 32][2]) * m_dwTexWidth) - m_dwSpacing);
+            charRect.bottom = (LONG)((m_fTexCoords[character - 32][3]) * m_dwTexWidth);
+
+            int width = charRect.right - charRect.left;
+            int height = charRect.bottom - charRect.top;
+            RECT rect = { posX, posY, posX + width, posY + height };
+
+            Draw(&rect, &charRect, color);
+
+            posX += width + 1;
+        }
+    }
+}
+
+
+VOID Font::DrawText(FLOAT sx, FLOAT sy, DWORD Color, WCHAR* Text)
+{
+    posX = (int)sx;
+    posY = (int)sy;
+
+    AddString(Text, Color);
+}
