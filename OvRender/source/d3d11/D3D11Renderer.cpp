@@ -398,6 +398,7 @@ VOID Dx11Font::EndBatch( )
     UINT indexBufferOffset;
     ID3D11InputLayout* lastInputLayout;
     D3D11_PRIMITIVE_TOPOLOGY lastTopology;
+    ID3D11RasterizerState* lastRasterizerState;
 
     deviceContext->RSGetViewports(&viewportCount, &vp);
 
@@ -408,6 +409,7 @@ VOID Dx11Font::EndBatch( )
     offset = 0;
 
     // Save device state
+    deviceContext->RSGetState(&lastRasterizerState);
     deviceContext->IAGetInputLayout(&lastInputLayout);
     deviceContext->IAGetIndexBuffer(&indexBuffer, &format, &indexBufferOffset);
     deviceContext->IAGetVertexBuffers(0, 1, &vertexBuffer, &vertexBufferStride, &vertexBufferOffset);
@@ -442,6 +444,7 @@ VOID Dx11Font::EndBatch( )
     }
 
     // Restore device state
+    deviceContext->RSSetState(lastRasterizerState);
     deviceContext->IASetInputLayout(lastInputLayout);
     deviceContext->IASetIndexBuffer(indexBuffer, format, indexBufferOffset);
     deviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &vertexBufferStride, &vertexBufferOffset);
