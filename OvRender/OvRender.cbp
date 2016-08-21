@@ -25,13 +25,18 @@
 					<Add directory="$(SolutionDir)resources/sl" />
 					<Add directory="$(SolutionDir)resources/d3dx" />
 					<Add directory="$(SolutionDir)resources/detourXS" />
-					<Add directory="K:/Code/Push/resources/OvRender/source/" />
 					<Add directory="K:/Code/Push/resources/OvRender/source/font" />
 					<Add directory="K:/Code/Push/resources/OvRender/source/hook" />
 					<Add directory="K:/Code/Push/resources/OvRender/source/overlay" />
 					<Add directory="K:/Code/Push/resources/OvRender/source/../resources/d3dx" />
 					<Add directory="K:/Code/Push/resources/OvRender/source/../inc" />
+					<Add directory="source" />
+					<Add directory="source/d3d11" />
+					<Add directory="source/d3d10" />
 				</Compiler>
+				<Linker>
+					<Add option="/DEBUG" />
+				</Linker>
 			</Target>
 			<Target title="Debug x64">
 				<Option output="../bin/OvRender" prefix_auto="1" extension_auto="1" />
@@ -132,37 +137,38 @@
 			<Add directory="../inc" />
 			<Add directory="hook" />
 		</Compiler>
-		<Unit filename="font/dx10font.cpp" />
-		<Unit filename="font/dx10font.h" />
-		<Unit filename="font/dx11font.cpp" />
-		<Unit filename="font/dx11font.h" />
-		<Unit filename="font/dx8font.cpp" />
-		<Unit filename="font/dx8font.h" />
-		<Unit filename="font/dx9font.cpp" />
-		<Unit filename="font/dx9font.h" />
-		<Unit filename="font/effects10.h" />
-		<Unit filename="font/effects11.h" />
-		<Unit filename="font/font.cpp" />
-		<Unit filename="font/font.h" />
-		<Unit filename="font/shaders.cpp" />
-		<Unit filename="font/shaders.h" />
-		<Unit filename="hook/dx8hook.cpp" />
-		<Unit filename="hook/dx8hook.h" />
-		<Unit filename="hook/dx9hook.cpp" />
-		<Unit filename="hook/dx9hook.h" />
-		<Unit filename="hook/dxgihook.cpp" />
-		<Unit filename="hook/dxgihook.h" />
-		<Unit filename="overlay/dx10overlay.cpp" />
-		<Unit filename="overlay/dx10overlay.h" />
-		<Unit filename="overlay/dx11overlay.cpp" />
-		<Unit filename="overlay/dx11overlay.h" />
-		<Unit filename="overlay/dx8overlay.cpp" />
-		<Unit filename="overlay/dx8overlay.h" />
-		<Unit filename="overlay/dx9overlay.cpp" />
-		<Unit filename="overlay/dx9overlay.h" />
-		<Unit filename="overlay/dxgioverlay.cpp" />
-		<Unit filename="overlay/dxgioverlay.h" />
-		<Unit filename="overlay/overlay.cpp" />
+		<Unit filename="source/d3d10/D3D10Renderer.cpp" />
+		<Unit filename="source/d3d10/d3d10font.h" />
+		<Unit filename="source/d3d10/d3d10overlay.cpp" />
+		<Unit filename="source/d3d10/d3d10overlay.h" />
+		<Unit filename="source/d3d11/D3D11Renderer.cpp" />
+		<Unit filename="source/d3d11/d3d11font.h" />
+		<Unit filename="source/d3d11/d3d11overlay.cpp" />
+		<Unit filename="source/d3d11/d3d11overlay.h" />
+		<Unit filename="source/d3d8/d3d8font.cpp" />
+		<Unit filename="source/d3d8/d3d8font.h" />
+		<Unit filename="source/d3d8/d3d8hook.cpp" />
+		<Unit filename="source/d3d8/d3d8hook.h" />
+		<Unit filename="source/d3d8/d3d8overlay.cpp" />
+		<Unit filename="source/d3d8/d3d8overlay.h" />
+		<Unit filename="source/d3d9/d3d9font.cpp" />
+		<Unit filename="source/d3d9/d3d9font.h" />
+		<Unit filename="source/d3d9/d3d9hook.cpp" />
+		<Unit filename="source/d3d9/d3d9hook.h" />
+		<Unit filename="source/d3d9/d3d9overlay.cpp" />
+		<Unit filename="source/d3d9/d3d9overlay.h" />
+		<Unit filename="source/ddraw/ddrawhook.cpp" />
+		<Unit filename="source/ddraw/ddrawoverlay.cpp" />
+		<Unit filename="source/ddraw/ddrawoverlay.h" />
+		<Unit filename="source/dxgi/dxgihook.cpp" />
+		<Unit filename="source/dxgi/dxgihook.h" />
+		<Unit filename="source/dxgi/dxgioverlay.cpp" />
+		<Unit filename="source/dxgi/dxgioverlay.h" />
+		<Unit filename="source/font.cpp" />
+		<Unit filename="source/font.h" />
+		<Unit filename="source/overlay.cpp" />
+		<Unit filename="source/shaders.cpp" />
+		<Unit filename="source/shaders.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

@@ -6,8 +6,8 @@
 
 #include <OvRender.h>
 #include "dxgioverlay.h"
-#include "d3d11overlay.h"
-#include "d3d10overlay.h"
+#include <d3d11overlay.h>
+#include <d3d10overlay.h>
 #include "dxgihook.h"
 
 
@@ -89,11 +89,11 @@ DxgiOverlay::DrawText( WCHAR* Text )
 VOID
 DxgiOverlay::DrawText( WCHAR* Text, DWORD Color )
 {
-    
+
 }
 
 
-VOID 
+VOID
 DxgiOverlay::DrawText( WCHAR* Text, int X, int Y, DWORD Color )
 {
 

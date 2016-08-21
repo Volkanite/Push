@@ -1,4 +1,4 @@
-
+#include <d3d9.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,5 +42,5 @@ typedef struct _DX9HOOK_PARAMS
 
 extern BOOLEAN D3D9Hook_ForceReset;
 
-VOID 
+VOID
 Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams );

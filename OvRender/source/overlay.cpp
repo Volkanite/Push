@@ -1,15 +1,16 @@
 #include <windows.h>
 #include <OvRender.h>
-#include "d3d8overlay.h"
-#include "d3d9overlay.h"
-#include "dxgioverlay.h"
+
+#include "d3d8\d3d8overlay.h"
+#include "d3d9\d3d9overlay.h"
+#include "dxgi\dxgioverlay.h"
 #include "ddraw\ddrawoverlay.h"
 
 
 Dx8Overlay*     OvDx8Overlay;
 Dx9Overlay*     D3D9Overlay;
 DxgiOverlay*    DXGIOverlay;
-DDrawOverlay*	DirectDrawOverlay;
+DDrawOverlay*   DirectDrawOverlay;
 extern CRITICAL_SECTION OvCriticalSection;
 
 
@@ -97,19 +98,19 @@ ULONG __stdcall CreateOverlay( LPVOID Param )
         overlay = D3D9Overlay;
     }
 
-	if (dxgi && DXGIOverlay == NULL)
+    if (dxgi && DXGIOverlay == NULL)
     {
         OutputDebugStringW(L"Hooking dxgi...");
-		DXGIOverlay = new DxgiOverlay(hookParams->RenderFunction);
-		overlay = DXGIOverlay;
+        DXGIOverlay = new DxgiOverlay(hookParams->RenderFunction);
+        overlay = DXGIOverlay;
     }
 
-	if (ddraw && DirectDrawOverlay == NULL)
-	{
+    if (ddraw && DirectDrawOverlay == NULL)
+    {
         OutputDebugStringW(L"Hooking ddraw...");
-		DirectDrawOverlay = new DDrawOverlay(hookParams->RenderFunction);
-		overlay = DirectDrawOverlay;
-	}
+        DirectDrawOverlay = new DDrawOverlay(hookParams->RenderFunction);
+        overlay = DirectDrawOverlay;
+    }
 
     if (overlay)
         overlay->VsyncOverrideMode = hookParams->VsyncOverrideMode;
