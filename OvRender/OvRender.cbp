@@ -33,6 +33,7 @@
 					<Add directory="source" />
 					<Add directory="source/d3d11" />
 					<Add directory="source/d3d10" />
+					<Add directory="../resources/detourXS" />
 				</Compiler>
 				<Linker>
 					<Add option="/DEBUG" />
