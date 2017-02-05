@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
+    <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
+      <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
+    <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
-      <Platform>Win32</Platform>
+      <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
@@ -47,19 +47,18 @@
     <ClInclude Include="source\shaders.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{99E0E745-ACD1-498F-B7EB-385EE594D30C}</ProjectGuid>
+    <ProjectGuid>{55697D65-C425-4A59-8170-59848E5AAD1D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>OvRender</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v120</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -69,27 +68,27 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\sl;$(ProjectDir)resources\d3dx;$(SolutionDir)resources\detourXS;$(ProjectDir)source;$(ProjectDir)source\d3d11;$(ProjectDir)source\d3d10;$(ProjectDir)source\d3d9;$(ProjectDir)source\d3d8;$(ProjectDir)source\dxgi;$(ProjectDir)..\resources\d3dx;$(ProjectDir)inc;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
-    <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x86;$(SolutionDir)resources\sl\lib;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)bin\</OutDir>
-    <IntDir>$(TEMP)\$(Configuration)\</IntDir>
+    <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x64;$(SolutionDir)resources\sl\lib\AMD64;$(SolutionDir)bin64;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)bin64\</OutDir>
+    <IntDir>C:\loldump\</IntDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\sl;$(ProjectDir)resources\d3dx;$(SolutionDir)resources\detourXS;$(ProjectDir)source;$(ProjectDir)source\d3d11;$(ProjectDir)source\d3d10;$(ProjectDir)source\d3d9;$(ProjectDir)source\d3d8;$(ProjectDir)source\dxgi;$(ProjectDir)..\resources\d3dx;$(ProjectDir)inc;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
-    <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x86;$(SolutionDir)resources\sl\lib;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)bin\</OutDir>
+    <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x64;$(SolutionDir)resources\sl\lib\AMD64;$(SolutionDir)bin64;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)bin64\</OutDir>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
@@ -99,7 +98,6 @@
       <TreatSpecificWarningsAsErrors>4013;4020;4005;4101;4133;4142;4520;4700;4715;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <ShowIncludes>false</ShowIncludes>
-      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -112,7 +110,7 @@
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Lib>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>
@@ -126,7 +124,6 @@
       </DebugInformationFormat>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -142,6 +139,7 @@
       </AdditionalDependencies>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>msvcrt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <Verbose>true</Verbose>
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
