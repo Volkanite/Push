@@ -319,6 +319,7 @@ VOID Cache( PUSH_GAME* Game )
     // Read batch file
     PushFileList = 0;
 
+    BatchFile_Initialize(Game);
     bytes = BatchFile_GetBatchSize();
     PushFileList = BatchFile_GetBatchList();
 
