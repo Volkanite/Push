@@ -69,8 +69,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(Configuration)\$(PlatformShortName)\</IntDir>
-    <LinkIncremental>
-    </LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)resources\sl;$(SolutionDir)resources\ddk</IncludePath>
     <GenerateManifest>false</GenerateManifest>
     <LibraryPath>$(SolutionDir)resources\sl\lib\i386;$(SolutionDir)resources\ddk\lib\i386</LibraryPath>
