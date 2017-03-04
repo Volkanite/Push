@@ -668,6 +668,13 @@ VOID OnImageEvent( PROCESSID ProcessId )
             Resource_Extract(L"OVERLAY32", PUSH_LIB_NAME_32);
             Inject32(processHandle);
         }
+        else
+        {
+            if (!Process_GetId(L"RTSS.exe", 0))
+            {
+                MessageBoxW(0, L"Rivatuner Statistics Server not running!", 0, 0);
+            }
+        }
     }
     else
     {
