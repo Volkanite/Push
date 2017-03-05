@@ -46,6 +46,7 @@ extern UINT8 FrameLimit;
 #define FUNC_FRAMELIMITER   OSD_LAST_ITEM+10
 #define FUNC_FRAMELIMIT     OSD_LAST_ITEM+11
 #define FUNC_TERMINATE      OSD_LAST_ITEM+12
+#define FUNC_KEEP_FPS       OSD_LAST_ITEM+13
 
 
 //Add menu items to menu
@@ -102,9 +103,9 @@ VOID AddItems()
         Menu->AddItem(L"Disk response time",      ItemOpt, &MenuOsd[i++], OSD_DISK_RESPONSE);
         Menu->AddItem(L"Frame Buffer count",      ItemOpt, &MenuOsd[i++], OSD_BUFFERS);
         Menu->AddItem(L"Resolution",              ItemOpt, &MenuOsd[i++], OSD_RESOLUTION);
-        Menu->AddItem(L"Show Time",               ItemOpt, &MenuOsd[i++], OSD_TIME);
-
-        Menu->AddItem(L"Reset Overlay", PressOpt, &MenuOsd[i++], FUNC_RESET);
+        Menu->AddItem(L"Time",                    ItemOpt, &MenuOsd[i++], OSD_TIME);
+        Menu->AddItem(L"FPS",                     ItemOpt, &MenuOsd[i++], FUNC_KEEP_FPS);
+        Menu->AddItem(L"Reset",                   PressOpt, &MenuOsd[i++], FUNC_RESET);
     }
 
     Menu->AddGroup(L"GPU >", GroupOpt, &MenuGpu[0]);
@@ -153,6 +154,13 @@ VOID ProcessOptions( MenuItems* Item )
 {
     switch (*Item->Id)
     {
+    case FUNC_KEEP_FPS:
+        if (*Item->Var > 0)
+            PushSharedMemory->KeepFps = TRUE;
+        else
+            PushSharedMemory->KeepFps = FALSE;
+        break;
+
     case FUNC_RESET:
         PushSharedMemory->Overloads = 0;
         PushSharedMemory->OSDFlags = 0;
