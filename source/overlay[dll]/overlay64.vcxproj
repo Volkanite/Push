@@ -60,9 +60,9 @@
     <IncludePath>$(SolutionDir)resources\OvRender\inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\detourXS;$(ProjectDir);D:\Code\Push\OvRender\inc;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>$(SolutionDir)resources\sl\lib\AMD64;$(SolutionDir)bin64;$(SolutionDir)resources\detourXS;$(DXSDK_DIR)lib\x64;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)bin64\</OutDir>
-    <IntDir>$(Configuration)$(PlatformArchitecture)</IntDir>
+    <LibraryPath>$(SolutionDir)resources\sl\lib\AMD64;$(SolutionDir)bin;$(SolutionDir)resources\detourXS;$(DXSDK_DIR)lib\x64;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)bin\</OutDir>
+    <IntDir>$(Configuration)$(PlatformArchitecture)\</IntDir>
     <TargetName>overlay64</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
@@ -89,7 +89,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>dxgi.lib;d3d10.lib;gdiplus.lib;sl.lib;ntdll.lib;OvRender.lib;PowrProf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxgi.lib;d3d10.lib;gdiplus.lib;sl.lib;ntdll.lib;OvRender64.lib;PowrProf.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>msvcrtd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
