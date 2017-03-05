@@ -27,7 +27,10 @@ VOID Game_Initialize(WCHAR* Win32Name, PUSH_GAME* Game)
     WCHAR *gameId;
     WCHAR *buffer;
     WCHAR *lastSlash;
+    WCHAR testing[260];
 
+    String_Format(testing, 260, L"Game_Initialize(%s)", Win32Name);
+    OutputDebugStringW(testing);
     Game->ExecutablePath = HeapedString(Win32Name);
     lastSlash = String_FindLastChar(Game->ExecutablePath, '\\');
     Game->ExecutableName = lastSlash + 1;
@@ -37,9 +40,6 @@ VOID Game_Initialize(WCHAR* Win32Name, PUSH_GAME* Game)
     String_CopyN(Game->Id, gameId, 2);
 
     buffer = SlIniReadSubKey(L"Game Settings", gameId, L"Name", L".\\" PUSH_SETTINGS_FILE);
-
-    if (!buffer) return;
-
     Game->Name = HeapedString(buffer);
 
     buffer = SlIniReadSubKey(L"Game Settings", gameId, GAME_INSTALL_PATH, L".\\" PUSH_SETTINGS_FILE);
@@ -50,14 +50,49 @@ VOID Game_Initialize(WCHAR* Win32Name, PUSH_GAME* Game)
 
     // Game Settings.
 
-    if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"UseRamDisk", FALSE, L".\\" PUSH_SETTINGS_FILE))
+    if (SlIniReadSubKeyBoolean(
+        L"Game Settings",
+        gameId,
+        L"UseRamDisk",
+        FALSE,
+        L".\\" PUSH_SETTINGS_FILE)
+        )
+    {
         Game->Settings.UseRamDisk = TRUE;
+    }
 
-    if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"DisableRepeatKeys", FALSE, L".\\" PUSH_SETTINGS_FILE))
+    if (SlIniReadSubKeyBoolean(
+        L"Game Settings",
+        gameId,
+        L"DisableRepeatKeys",
+        FALSE,
+        L".\\" PUSH_SETTINGS_FILE)
+        )
+    {
         Game->Settings.DisableRepeatKeys = TRUE;
+    }
 
-    if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"SwapWASD", FALSE, L".\\" PUSH_SETTINGS_FILE))
+    if (SlIniReadSubKeyBoolean(
+        L"Game Settings",
+        gameId,
+        L"SwapWASD",
+        FALSE,
+        L".\\" PUSH_SETTINGS_FILE)
+        )
+    {
         Game->Settings.SwapWASD = TRUE;
+    }
+
+    if (SlIniReadSubKeyBoolean(
+        L"Game Settings",
+        gameId,
+        L"ForceMaxClocks",
+        FALSE,
+        L".\\" PUSH_SETTINGS_FILE)
+        )
+    {
+        Game->Settings.ForceMaxClocks = TRUE;
+    }
 
     buffer = SlIniReadSubKey(L"Game Settings", gameId, L"ForceVsync", L".\\" PUSH_SETTINGS_FILE);
 
@@ -65,11 +100,6 @@ VOID Game_Initialize(WCHAR* Win32Name, PUSH_GAME* Game)
         Game->Settings.VsyncOverrideMode = PUSH_VSYNC_FORCE_ON;
     else if (String_Compare(buffer, L"FORCE_OFF") == 0)
         Game->Settings.VsyncOverrideMode = PUSH_VSYNC_FORCE_OFF;
-
-    if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"ForceMaxClocks", FALSE, L".\\" PUSH_SETTINGS_FILE))
-        Game->Settings.ForceMaxClocks = TRUE;
-
-
 }
 
 
