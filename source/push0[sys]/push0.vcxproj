@@ -145,10 +145,10 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>$(DDKROOT)\inc\wxp;$(DDKROOT)\inc\ddk\wxp;$(DDKROOT)\inc\ddk\wdm\wxp;$(DDKROOT)\inc\crt;$(DDKROOT)\inc\crt\gl;$(DDKROOT)\inc\crt\sys;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WIN32_WINNT=0x0601;_X86_</PreprocessorDefinitions>
-      <AssemblerListingLocation>.\Debug\</AssemblerListingLocation>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\Debug\phymem.pch</PrecompiledHeaderOutputFile>
-      <ObjectFileName>.\Debug\</ObjectFileName>
-      <ProgramDataBaseFileName>.\Debug\</ProgramDataBaseFileName>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
       <CallingConvention>StdCall</CallingConvention>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <TreatSpecificWarningsAsErrors>4020;4005;4101;4133;4142;4520;4700;4715;4800;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
