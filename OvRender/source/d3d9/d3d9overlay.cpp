@@ -15,9 +15,13 @@ UINT32 BackBufferWidth;
 UINT32 BackBufferHeight;
 
 
-VOID ChangeVsync()
+VOID ChangeVsync(BOOLEAN Setting)
 {
-	D3D9Overlay->VsyncOverrideMode = VSYNC_FORCE_ON;
+	if (Setting)
+		D3D9Overlay->VsyncOverrideMode = VSYNC_FORCE_ON;
+	else
+		D3D9Overlay->VsyncOverrideMode = VSYNC_FORCE_OFF;
+
 	D3D9Hook_ForceReset = TRUE;
 }
 

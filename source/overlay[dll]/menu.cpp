@@ -53,7 +53,7 @@ extern UINT8 FrameLimit;
 //Add menu items to menu
 #include <stdio.h>
 #include <wchar.h>
-VOID ChangeVsync();
+VOID ChangeVsync(BOOLEAN Setting);
 
 VOID UpdateGpuInformation()
 {
@@ -280,13 +280,11 @@ VOID ProcessOptions( MenuItems* Item )
 	case FUNC_VSYNC:
 		if (*Item->Var > 0)
 		{
-			ChangeVsync();
-			D3D9Hook_ForceReset = TRUE;
+			ChangeVsync(TRUE);
 		}
 		else
 		{
-			PushSharedMemory->VsyncOverrideMode = PUSH_VSYNC_FORCE_OFF;
-			D3D9Hook_ForceReset = TRUE;
+			ChangeVsync(FALSE);
 		}
 		break;
 
