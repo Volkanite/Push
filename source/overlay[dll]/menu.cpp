@@ -45,14 +45,15 @@ extern UINT8 FrameLimit;
 #define FUNC_KEEPACTIVE     OSD_LAST_ITEM+9
 #define FUNC_FRAMELIMITER   OSD_LAST_ITEM+10
 #define FUNC_FRAMELIMIT     OSD_LAST_ITEM+11
-#define FUNC_TERMINATE      OSD_LAST_ITEM+12
-#define FUNC_KEEP_FPS       OSD_LAST_ITEM+13
+#define FUNC_VSYNC			OSD_LAST_ITEM+12
+#define FUNC_TERMINATE      OSD_LAST_ITEM+13
+#define FUNC_KEEP_FPS       OSD_LAST_ITEM+14
 
 
 //Add menu items to menu
 #include <stdio.h>
 #include <wchar.h>
-
+VOID ChangeVsync();
 
 VOID UpdateGpuInformation()
 {
@@ -137,6 +138,7 @@ VOID AddItems()
         Menu->AddItem(L"Keep active", ItemOpt, &D3DTweaks[2], FUNC_KEEPACTIVE);
         Menu->AddItem(L"Frame Limiter", ItemOpt, &D3DTweaks[3], FUNC_FRAMELIMITER);
         Menu->AddItem(L"Frame Limit", FrameLimitOpt, &D3DTweaks[4], FUNC_FRAMELIMIT);
+		Menu->AddItem(L"Vsync", ItemOpt, &D3DTweaks[5], FUNC_VSYNC);
 
         UpdateFrameLimitText();
     }
@@ -274,6 +276,19 @@ VOID ProcessOptions( MenuItems* Item )
             UpdateFrameLimitText();
         }
         break;
+
+	case FUNC_VSYNC:
+		if (*Item->Var > 0)
+		{
+			ChangeVsync();
+			D3D9Hook_ForceReset = TRUE;
+		}
+		else
+		{
+			PushSharedMemory->VsyncOverrideMode = PUSH_VSYNC_FORCE_OFF;
+			D3D9Hook_ForceReset = TRUE;
+		}
+		break;
 
     case FUNC_TERMINATE:
         if (*Item->Var > 0)

@@ -15,6 +15,13 @@ UINT32 BackBufferWidth;
 UINT32 BackBufferHeight;
 
 
+VOID ChangeVsync()
+{
+	D3D9Overlay->VsyncOverrideMode = VSYNC_FORCE_ON;
+	D3D9Hook_ForceReset = TRUE;
+}
+
+
 VOID UpdatePresentationParameters( D3DPRESENT_PARAMETERS* PresentationParameters )
 {
     // Force vsync?
