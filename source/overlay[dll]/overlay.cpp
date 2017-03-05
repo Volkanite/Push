@@ -39,17 +39,27 @@ PushGetMaxThreadUsage()
 
 VOID CreateOverlay()
 {
+	OutputDebugStringW(L"[OVRENDER] CreateOverlay()");
     OV_HOOK_PARAMS hookParams = { 0 };
 
     hookParams.RenderFunction = RnRender;
 
-    if (PushSharedMemory->VsyncOverrideMode == PUSH_VSYNC_FORCE_ON)
-        hookParams.VsyncOverrideMode = VSYNC_FORCE_ON;
+	if (PushSharedMemory->VsyncOverrideMode == PUSH_VSYNC_FORCE_ON)
+	{
+		OutputDebugStringW(L"[OVRENDER] VSYNC_FORCE_ON");
+		hookParams.VsyncOverrideMode = VSYNC_FORCE_ON;
+	}
+        
     else if (PushSharedMemory->VsyncOverrideMode == PUSH_VSYNC_FORCE_OFF)
         hookParams.VsyncOverrideMode = VSYNC_FORCE_OFF;
+	else
+	{
+		OutputDebugStringW(L"[OVRENDER] VSYNC_FORCE_UNC");
+	}
 
     OvCreateOverlayEx(&hookParams);
 }
+
 
 extern HHOOK KeyboardHookHandle;
 

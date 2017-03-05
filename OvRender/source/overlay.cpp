@@ -34,10 +34,11 @@ OvOverlay::Render()
 
 ULONG __stdcall CreateOverlay( LPVOID Param )
 {
+	OutputDebugStringW(L"[OVRENDER] CreateOverlay(LPVOID Param)");
+
     EnterCriticalSection(&OvCriticalSection);
 
     OV_HOOK_PARAMS *hookParams = (OV_HOOK_PARAMS*) Param;
-    OvOverlay *overlay = NULL;
     BOOLEAN d3d8, d3d9, dxgi, ddraw;
 
     if (GetModuleHandleW(L"d3d8.dll"))
@@ -88,32 +89,26 @@ ULONG __stdcall CreateOverlay( LPVOID Param )
     {
         OutputDebugStringW(L"Hooking d3d8...");
         OvDx8Overlay = new Dx8Overlay( hookParams->RenderFunction );
-        overlay = OvDx8Overlay;
     }
 
     if (d3d9 && D3D9Overlay == NULL)
     {
         OutputDebugStringW(L"Hooking d3d9...");
         D3D9Overlay = new Dx9Overlay( hookParams->RenderFunction );
-        overlay = D3D9Overlay;
+		D3D9Overlay->VsyncOverrideMode = hookParams->VsyncOverrideMode;
     }
 
     if (dxgi && DXGIOverlay == NULL)
     {
         OutputDebugStringW(L"Hooking dxgi...");
         DXGIOverlay = new DxgiOverlay(hookParams->RenderFunction);
-        overlay = DXGIOverlay;
     }
 
     if (ddraw && DirectDrawOverlay == NULL)
     {
         OutputDebugStringW(L"Hooking ddraw...");
         DirectDrawOverlay = new DDrawOverlay(hookParams->RenderFunction);
-        overlay = DirectDrawOverlay;
-    }
-
-    if (overlay)
-        overlay->VsyncOverrideMode = hookParams->VsyncOverrideMode;
+    }   
 
     LeaveCriticalSection(&OvCriticalSection);
 
@@ -124,6 +119,7 @@ ULONG __stdcall CreateOverlay( LPVOID Param )
 VOID
 OvCreateOverlay( OV_RENDER RenderFunction )
 {
+	OutputDebugStringW(L"[OVRENDER] OvCreateOverlay()");
     OV_HOOK_PARAMS hookParams = {0};
 
     hookParams.RenderFunction = RenderFunction;
@@ -132,18 +128,23 @@ OvCreateOverlay( OV_RENDER RenderFunction )
 }
 
 
-VOID
-OvCreateOverlayEx( OV_HOOK_PARAMS* HookParameters )
+VOID OvCreateOverlayEx( OV_HOOK_PARAMS* HookParameters )
 {
     OV_HOOK_PARAMS *hookParams;
-
+	
     hookParams = (OV_HOOK_PARAMS*) HeapAlloc(
         GetProcessHeap(),
         HEAP_ZERO_MEMORY,
         sizeof(OV_HOOK_PARAMS)
         );
-
+	OutputDebugStringW(L"[OVRENDER] OvCreateOverlayEx()");
     hookParams->RenderFunction = HookParameters->RenderFunction;
+	
+	if (HookParameters->VsyncOverrideMode == VSYNC_FORCE_ON)
+		OutputDebugStringW(L"[OVRENDER] >>> VSYNC_FORCE_ON");
+	else if (HookParameters->VsyncOverrideMode == VSYNC_UNCHANGED)
+		OutputDebugStringW(L"[OVRENDER] >>> VSYNC_UNCHANGED");
+
     hookParams->VsyncOverrideMode = HookParameters->VsyncOverrideMode;
 
     CreateThread(0, 0, &CreateOverlay, hookParams, 0, 0);

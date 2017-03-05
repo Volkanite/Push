@@ -390,6 +390,7 @@ VOID OnProcessEvent( PROCESSID processID )
 
         PushSharedMemory->DisableRepeatKeys = game.Settings.DisableRepeatKeys;
         PushSharedMemory->SwapWASD = game.Settings.SwapWASD;
+		OutputDebugStringW(L"SETTING SHARED MEM!!!!!");
         PushSharedMemory->VsyncOverrideMode = game.Settings.VsyncOverrideMode;
 
         // Check if user wants maximum gpu engine and memory clocks

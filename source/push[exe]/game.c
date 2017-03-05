@@ -96,8 +96,12 @@ VOID Game_Initialize(WCHAR* Win32Name, PUSH_GAME* Game)
 
     buffer = SlIniReadSubKey(L"Game Settings", gameId, L"ForceVsync", L".\\" PUSH_SETTINGS_FILE);
 
-    if (String_Compare(buffer, L"FORCE_ON") == 0)
-        Game->Settings.VsyncOverrideMode = PUSH_VSYNC_FORCE_ON;
+	if (String_Compare(buffer, L"FORCE_ON") == 0)
+	{
+		Game->Settings.VsyncOverrideMode = PUSH_VSYNC_FORCE_ON;
+		OutputDebugStringW(L"PUSH_VSYNC_FORCE_ON.1");
+	}
+        
     else if (String_Compare(buffer, L"FORCE_OFF") == 0)
         Game->Settings.VsyncOverrideMode = PUSH_VSYNC_FORCE_OFF;
 }

@@ -18,15 +18,21 @@ UINT32 BackBufferHeight;
 VOID UpdatePresentationParameters( D3DPRESENT_PARAMETERS* PresentationParameters )
 {
     // Force vsync?
-    
+	OutputDebugStringW(L"[OVRENDER] UpdatePresentationParameters()");
     if (D3D9Overlay->VsyncOverrideMode == VSYNC_FORCE_ON)
     {
         PresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_ONE;
+		OutputDebugStringW(L"[OVRENDER] VSYNC_FORCE_ON");
     }
     else if (D3D9Overlay->VsyncOverrideMode == VSYNC_FORCE_OFF)
     {
         PresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+		OutputDebugStringW(L"[OVRENDER] VSYNC_FORCE_OFF");
     }
+	else if (D3D9Overlay->VsyncOverrideMode == VSYNC_UNCHANGED)
+	{
+		OutputDebugStringW(L"[OVRENDER] VSYNC_UNCHANGED");
+	}
 
     if (D3D9Hook_WindowMode == WINDOW_WINDOWED)
     {
