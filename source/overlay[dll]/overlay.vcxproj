@@ -63,7 +63,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LibraryPath>$(SolutionDir)resources\sl\lib\i386;$(SolutionDir)bin;$(SolutionDir)resources\detourXS;$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\</OutDir>
-    <IntDir>$(Configuration)$(PlatformArchitecture)</IntDir>
+    <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)$(PlatformArchitecture)\</IntDir>
     <TargetName>overlay32</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>

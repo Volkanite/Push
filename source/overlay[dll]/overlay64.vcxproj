@@ -62,7 +62,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LibraryPath>$(SolutionDir)resources\sl\lib\AMD64;$(SolutionDir)bin;$(SolutionDir)resources\detourXS;$(DXSDK_DIR)lib\x64;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\</OutDir>
-    <IntDir>$(Configuration)$(PlatformArchitecture)\</IntDir>
+    <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)$(PlatformArchitecture)\</IntDir>
     <TargetName>overlay64</TargetName>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>

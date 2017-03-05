@@ -142,7 +142,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LibraryPath>$(SolutionDir)resources\sl\lib\i386;$(SolutionDir)resources\ddk\lib;$(SolutionDir)resources\SlAdl;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\</OutDir>
-    <IntDir>$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)$(PlatformArchitecture)\</IntDir>
     <IncludePath>$(SolutionDir)source;$(SolutionDir)source\push[exe];$(SolutionDir)source\push[exe]\Hardware;$(SolutionDir)source\push[exe]\RAMdisk;$(SolutionDir)source\push[exe]\GUI;$(SolutionDir)source\push[exe]\OSD;$(SolutionDir)resources\sl;$(SolutionDir)resources\ADL;$(SolutionDir)resources\RTSS;$(IncludePath)</IncludePath>
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>
