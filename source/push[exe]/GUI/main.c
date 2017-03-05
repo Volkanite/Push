@@ -14,35 +14,17 @@ WINDOW* PushMainWindow;
 WINDOW* cacheWindow;
 WINDOW fake;
 
-//BfBatchFile* MwBatchFile;
+
 VOID* MwControlHandles[50];
 FILE_LIST MwFileList;
 
 
-CONTROL MwOsdControls[] = {
-    {L"Button", BS_AUTOCHECKBOX,    CHECKBOX_GPU_LOAD,      L"GPU Core utilization"},
-    {L"Button", BS_AUTOCHECKBOX,    CHECKBOX_GPU_TEMP,      L"GPU Core temperature"},
-    {L"Button", BS_AUTOCHECKBOX,    CHECKBOX_GPU_E_CLK,     L"GPU Engine Clock"},
-    {L"Button", BS_AUTOCHECKBOX,    CHECKBOX_GPU_M_CLK,     L"GPU Memory Clock"},
-    {L"Button", BS_AUTOCHECKBOX,    CHECKBOX_GPU_VRAM,      L"GPU VRAM usage"},
-    {L"Button", BS_AUTOCHECKBOX,    CHECKBOX_CPU_LOAD,      L"CPU utilization"},
-    {L"Button", BS_AUTOCHECKBOX,    CHECKBOX_CPU_TEMP,      L"CPU temperature"},
-    {L"Button", BS_AUTOCHECKBOX,    CHECKBOX_RAM,           L"RAM usage"},
-    {L"Button", BS_AUTOCHECKBOX,    CHECKBOX_MCU,           L"Max core usage"},
-    {L"Button", BS_AUTOCHECKBOX,    CHECKBOX_MTU,           L"Max thread usage"},
-    {L"Button", BS_AUTOCHECKBOX,    CHECKBOX_DISK_RWRATE,   L"Disk read-write rate"},
-    {L"Button", BS_AUTOCHECKBOX,    CHECKBOX_DISK_RESPONSE, L"Disk response time"},
-    {L"Button", BS_AUTOCHECKBOX,    CHECKBOX_BACKBUFFERS,   L"Frame Buffer count"},
-    {L"Button", BS_AUTOCHECKBOX,    CHECKBOX_TIME,          L"Show Time"},
-    {L"Button", NULL,               BUTTON_RESET_GPU,       L"Reset overloads", 285,    180},
-    {L"Button", NULL,               BUTTON_TRAY,            L"To tray..",       NULL,   180}
-};
-
-CONTROL MwCacheControls[] = {
-    {L"Button",     NULL,           BUTTON_STOPRAMDISK, L"Stop RAMDisk",    NULL, 180},
-    {L"Button",     NULL,           BUTTON_ADDGAME,     L"Add Game",        NULL, 180},
-    {L"ComboBox",   CBS_DROPDOWN,   COMBOBOX_GAMES,     NULL,               NULL, 180},
-    {L"Button",     NULL,           BUTTON_MANUALADD,   L"Manual Add",      100, 100}
+CONTROL MainControls[] = {
+    { L"Button", NULL, BUTTON_ADDGAME, L"Add Game", NULL, 180 },
+    { L"Button", NULL, BUTTON_STOPRAMDISK, L"Stop RAMDisk", NULL, 180 },
+    { L"ComboBox", CBS_DROPDOWN, COMBOBOX_GAMES, NULL, NULL, 180 },
+    { L"Button", NULL, BUTTON_MANUALADD, L"Manual Add", 80, 100 },
+    { L"Button", NULL, BUTTON_TRAY, L"To tray..", NULL, 180 },
 };
 
 
@@ -274,16 +256,9 @@ BuildGameFilesList(
 }
 
 
-VOID
-MwCreateMainWindow()
+VOID MwCreateMainWindow()
 {
     WINDOW pageWindow;
-    WINDOW cachePage;
-
-    RECT windowDimensions;
-    void* page;
-    TCITEM tabItem;
-    WNDCLASSEX wc;
     INT32 i = 0, pageTopOffset = 24;
 
     //initialize icon handle
@@ -303,104 +278,22 @@ MwCreateMainWindow()
         L"Push", 
         WS_SYSMENU, 
         200, 
-        388, 
+        160, 
         MainWndProc,
         0,
         Gui_IconImageHandle
         );
 
-    // Get dimensions of parent window
-    GetClientRect(PushMainWindow->Handle, &windowDimensions);
-
-    //Create tab control
-    tab.Handle = CreateWindowExW(
-                    NULL,
-                    L"SysTabControl32",
-                    L"",
-                    WS_CHILD | WS_CLIPSIBLINGS | WS_VISIBLE,
-                    0, 0,
-                    windowDimensions.right,
-                    windowDimensions.bottom,
-                    PushMainWindow->Handle,
-                    NULL,
-                    PushInstance,
-                    NULL
-                    );
-
-    // Insert Tabs
-    tabItem.Mask = TCIF_TEXT | TCIF_IMAGE;
-    tabItem.iImage = -1;
-    tabItem.pszText = L"OSD";
-
-    TabCtrl_InsertItem(tab.Handle, 0, &tabItem);
-
-    tabItem.pszText = L"Cache";
-    TabCtrl_InsertItem(tab.Handle, 1, &tabItem);
-    GetClientRect(tab.Handle, &windowDimensions);
-
-    wc.Size        = sizeof(WNDCLASSEX);
-    wc.Style         = 0;
-    wc.WndProc   = MainWndProc;
-    wc.ClsExtra    = 0;
-    wc.WndExtra    = 0;
-    wc.Instance     = PushInstance;
-    wc.Icon         = NULL;
-    wc.Cursor       = NULL;
-    wc.Background = NULL;
-    wc.MenuName  = NULL;
-    wc.ClassName = L"Page";
-    wc.IconSm       = NULL;
-
-    RegisterClassExW(&wc);
-
-    page = CreateWindowExW(0,L"Page", L"",
-        WS_CHILD | WS_VISIBLE,
-        windowDimensions.top,
-        windowDimensions.left + pageTopOffset,
-        windowDimensions.right,
-        windowDimensions.bottom,
-        PushMainWindow->Handle, NULL, PushInstance,
-        NULL
-        );
-
-    pageWindow.Handle = page;
+    pageWindow.Handle = PushMainWindow->Handle;
     pageWindow.lastPos = 0;
-    PushVisiblePage = page;
-    PushTabPages[0] = page;
-
-    page = CreateWindowExW(
-            0,
-            L"Page", L"",
-        WS_CHILD,
-        windowDimensions.top,
-        windowDimensions.left + pageTopOffset,
-        windowDimensions.right,
-        windowDimensions.bottom,
-        PushMainWindow->Handle,
-        NULL,
-        PushInstance,
-        NULL
-        );
-
-    PushTabPages[1] = page;
-    cachePage.lastPos = 0;
-    cachePage.Handle = page;
-
-
-    tab.lastPos = 0;
-    INT32 iControls = sizeof(MwOsdControls) / sizeof(MwOsdControls[0]);
+    
+    INT32 iControls = sizeof(MainControls) / sizeof(MainControls[0]);
     for (i = 0; i < iControls; i++)
     {
-        CreateControl( &pageWindow, &MwOsdControls[i] );
-    }
-
-    iControls = sizeof(MwCacheControls) / sizeof(MwCacheControls[0]);
-    //cache
-    for (i = 0; i < iControls; i++)
-    {
-        CreateControl( &cachePage, &MwCacheControls[i] );
+        CreateControl( &pageWindow, &MainControls[i] );
     }
 }
+
 
 typedef int (__stdcall * BFFCALLBACK)(HANDLE hwnd, UINT32 uMsg, LONG lParam, LONG lpData);
 typedef struct _SHITEMID        // mkid
@@ -476,9 +369,6 @@ WCHAR* ManualLoad;
 
 VOID OpenCacheWindow()
 {
-    static INT32 iControls = sizeof(MwCacheControls) / sizeof(MwCacheControls[0]);
-    INT32 j = 0;
-
     cacheWindow = (WINDOW *)RtlAllocateHeap(PushHeapHandle, 0, sizeof(WINDOW));
 
     cacheWindow->lastPos = 0;
