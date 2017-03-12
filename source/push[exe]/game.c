@@ -40,7 +40,7 @@ VOID Game_Initialize(WCHAR* Win32Name, PUSH_GAME* Game)
     String_CopyN(Game->Id, gameId, 2);
 
     buffer = SlIniReadSubKey(L"Game Settings", gameId, L"Name", L".\\" PUSH_SETTINGS_FILE);
-    Game->Name = HeapedString(buffer);
+    Game->Name = HeapedString(buffer ? buffer : Game->ExecutableName);
 
     buffer = SlIniReadSubKey(L"Game Settings", gameId, GAME_INSTALL_PATH, L".\\" PUSH_SETTINGS_FILE);
     Game->InstallPath = HeapedString(buffer);
@@ -96,11 +96,11 @@ VOID Game_Initialize(WCHAR* Win32Name, PUSH_GAME* Game)
 
     buffer = SlIniReadSubKey(L"Game Settings", gameId, L"ForceVsync", L".\\" PUSH_SETTINGS_FILE);
 
-	if (String_Compare(buffer, L"FORCE_ON") == 0)
-	{
-		Game->Settings.VsyncOverrideMode = PUSH_VSYNC_FORCE_ON;
-		OutputDebugStringW(L"PUSH_VSYNC_FORCE_ON.1");
-	}
+    if (String_Compare(buffer, L"FORCE_ON") == 0)
+    {
+        Game->Settings.VsyncOverrideMode = PUSH_VSYNC_FORCE_ON;
+        OutputDebugStringW(L"PUSH_VSYNC_FORCE_ON.1");
+    }
         
     else if (String_Compare(buffer, L"FORCE_OFF") == 0)
         Game->Settings.VsyncOverrideMode = PUSH_VSYNC_FORCE_OFF;

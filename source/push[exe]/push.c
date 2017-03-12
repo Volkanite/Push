@@ -301,9 +301,8 @@ VOID Cache( PUSH_GAME* Game )
 
     if (!FolderExists(Game->InstallPath))
     {
-        MessageBoxW(0, L"Folder not exist!", 0, MB_TOPMOST);
-
-        return;
+        //MessageBoxW(0, L"Folder not exist!", 0, MB_TOPMOST);
+        OutputDebugStringW(L"Folder not exist!");
     }
 
     // Check available memory
@@ -390,7 +389,7 @@ VOID OnProcessEvent( PROCESSID processID )
 
         PushSharedMemory->DisableRepeatKeys = game.Settings.DisableRepeatKeys;
         PushSharedMemory->SwapWASD = game.Settings.SwapWASD;
-		OutputDebugStringW(L"SETTING SHARED MEM!!!!!");
+        OutputDebugStringW(L"SETTING SHARED MEM!!!!!");
         PushSharedMemory->VsyncOverrideMode = game.Settings.VsyncOverrideMode;
 
         // Check if user wants maximum gpu engine and memory clocks
