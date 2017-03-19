@@ -1081,6 +1081,10 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
             {
                 PushSharedMemory->KeyboardHookType = KEYBOARD_HOOK_DETOURS;
             }
+            else if (String_Compare(buffer, L"RAW") == 0)
+            {
+                PushSharedMemory->KeyboardHookType = KEYBOARD_HOOK_RAW;
+            }
         }
         else
         {

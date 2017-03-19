@@ -69,21 +69,10 @@ VOID PushKeySwapCallback( LPMSG Message )
 
 BOOLEAN MessageHook( LPMSG Message )
 {
-    static BOOLEAN ignoreRawInput = FALSE;
-    static BOOLEAN usingRawInput = FALSE;
-
     switch (Message->message)
     {
     case WM_KEYDOWN:
     {
-        ignoreRawInput = TRUE;
-
-        if (usingRawInput)
-        {
-            usingRawInput = FALSE;
-            return TRUE;
-        }
-
         MenuKeyboardHook(Message->wParam);
 
         if (PushSharedMemory->SwapWASD)
@@ -120,48 +109,6 @@ BOOLEAN MessageHook( LPMSG Message )
                 return FALSE;
         }
 
-    } break;
-
-    case WM_INPUT:
-    {
-        UINT dwSize;
-        RAWINPUT *buffer;
-
-        if (ignoreRawInput)
-            return TRUE;
-
-        // Request size of the raw input buffer to dwSize
-        GetRawInputData(
-            (HRAWINPUT)Message->lParam,
-            RID_INPUT,
-            NULL,
-            &dwSize,
-            sizeof(RAWINPUTHEADER)
-            );
-
-        // allocate buffer for input data
-        buffer = (RAWINPUT*)HeapAlloc(ProcessHeap, 0, dwSize);
-
-        if (GetRawInputData(
-            (HRAWINPUT)Message->lParam,
-            RID_INPUT,
-            buffer,
-            &dwSize,
-            sizeof(RAWINPUTHEADER)))
-        {
-            // if this is keyboard message and WM_KEYDOWN, process
-            // the key
-            if (buffer->header.dwType == RIM_TYPEKEYBOARD
-                && buffer->data.keyboard.Message == WM_KEYDOWN)
-            {
-                usingRawInput = TRUE;
-
-                MenuKeyboardHook(buffer->data.keyboard.VKey);
-            }
-        }
-
-        // free the buffer
-        HeapFree(ProcessHeap, 0, buffer);
     } break;
     }
 
@@ -264,6 +211,15 @@ typedef BOOL(WINAPI* TYPE_PeekMessageA)(
     UINT wRemoveMsg
     );
 
+
+typedef UINT (WINAPI* TYPE_GetRawInputData)(
+    _In_      HRAWINPUT hRawInput,
+    _In_      UINT      uiCommand,
+    _Out_opt_ LPVOID    pData,
+    _Inout_   PUINT     pcbSize,
+    _In_      UINT      cbSizeHeader
+    );
+
 VOID* DetourApi(
     WCHAR* dllName, 
     CHAR* apiName, 
@@ -273,6 +229,7 @@ VOID* DetourApi(
 
 TYPE_PeekMessageW       PushPeekMessageW;
 TYPE_PeekMessageA       PushPeekMessageA;
+TYPE_GetRawInputData    OverlayGetRawInputData;
 
 
 BOOL WINAPI PeekMessageWHook(
@@ -323,6 +280,43 @@ BOOL WINAPI PeekMessageAHook(
     if (result && wRemoveMsg & PM_REMOVE)
     {
         result = MessageHook(lpMsg);
+    }
+
+    return result;
+}
+
+
+UINT WINAPI GetRawInputDataHook(
+    _In_      HRAWINPUT hRawInput,
+    _In_      UINT      uiCommand,
+    _Out_opt_ LPVOID    pData,
+    _Inout_   PUINT     pcbSize,
+    _In_      UINT      cbSizeHeader
+    )
+{
+    UINT result;
+
+    result = OverlayGetRawInputData(
+        hRawInput,
+        uiCommand,
+        pData,
+        pcbSize,
+        cbSizeHeader
+        );
+
+    if (pData)
+    {
+        RAWINPUT *data;
+
+        data = (RAWINPUT*) pData;
+
+        // if this is keyboard message and WM_KEYDOWN, process
+        // the key
+        if (data->header.dwType == RIM_TYPEKEYBOARD
+            && data->data.keyboard.Message == WM_KEYDOWN)
+        {
+            MenuKeyboardHook(data->data.keyboard.VKey);
+        }
     }
 
     return result;
@@ -424,6 +418,19 @@ void Keyboard_Hook( PUSH_KEYBOARD_HOOK_TYPE HookType )
     case KEYBOARD_HOOK_DETOURS:
         InitializeDetourHook();
         KeyboardHookHandle = (HHOOK) 0xffffffff; //LOL
+        break;
+
+    case KEYBOARD_HOOK_RAW:
+        if (!OverlayGetRawInputData)
+        {
+            OverlayGetRawInputData = (TYPE_GetRawInputData)DetourApi(
+                L"user32.dll",
+                "GetRawInputData",
+                (BYTE*)GetRawInputDataHook
+                );
+
+            KeyboardHookHandle = (HHOOK)0xffffffff; //LOL
+        }
         break;
     default:
         break;
