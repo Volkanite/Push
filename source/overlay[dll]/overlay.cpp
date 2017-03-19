@@ -20,6 +20,21 @@ HANDLE PushProcessHeap;
 CRITICAL_SECTION OvCriticalSection;
 
 
+VOID Log(const wchar_t* Format, ...)
+{
+    wchar_t buffer[260];
+    wchar_t output[260] = L"[OVRENDER] ";
+    va_list _Arglist;
+
+    _crt_va_start(_Arglist, Format);
+    _vswprintf_c_l(buffer, 260, Format, NULL, _Arglist);
+    _crt_va_end(_Arglist);
+
+    wcsncat(output, buffer, 260);
+    OutputDebugStringW(output);
+}
+
+
 VOID
 PushRefreshThreadMonitor()
 {
@@ -68,8 +83,21 @@ ULONG __stdcall MonitorThread( LPVOID Params )
 {
     while (!KeyboardHookHandle)
     {
-        Keyboard_Hook(PushSharedMemory->KeyboardHookType);
+        if (PushSharedMemory->KeyboardHookType == KEYBOARD_HOOK_AUTO)
+        {
+            Keyboard_Hook(KEYBOARD_HOOK_MESSAGE);
 
+            if (GetModuleHandleW(L"dinput8.dll"))
+            {
+                Keyboard_Hook(KEYBOARD_HOOK_RAW);
+                Log(L"using KEYBOARD_HOOK_RAW");
+            }
+        }
+        else
+        {
+            Keyboard_Hook(PushSharedMemory->KeyboardHookType);
+        }
+        
         Sleep(500);
     }
 

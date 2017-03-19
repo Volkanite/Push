@@ -184,11 +184,14 @@ BOOL CALLBACK MessageHookWindowEnum( HWND hwnd, LPARAM lParam )
 
     if (processId == ((KEYBOARD_HOOK_PARAMS*)lParam)->ProcessId)
     {
-        ((KEYBOARD_HOOK_PARAMS*)lParam)->ThreadId = threadId;
-        ((KEYBOARD_HOOK_PARAMS*)lParam)->WindowHandle = hwnd;
+        if (IsWindowVisible(hwnd))
+        {
+            ((KEYBOARD_HOOK_PARAMS*)lParam)->ThreadId = threadId;
+            ((KEYBOARD_HOOK_PARAMS*)lParam)->WindowHandle = hwnd;
 
-        //found, prevent further processing by setting ProcessId to 0;
-        ((KEYBOARD_HOOK_PARAMS*)lParam)->ProcessId = 0;
+            //found, prevent further processing by setting ProcessId to 0;
+            ((KEYBOARD_HOOK_PARAMS*)lParam)->ProcessId = 0;
+        }
     }
 
     return TRUE;
@@ -368,7 +371,6 @@ void Keyboard_Hook( PUSH_KEYBOARD_HOOK_TYPE HookType )
 
         if (!KeyboardHookHandle)
         {
-            wchar_t output[260];
             int hookId;
             HOOKPROC hookProcedure;
 
@@ -395,22 +397,12 @@ void Keyboard_Hook( PUSH_KEYBOARD_HOOK_TYPE HookType )
             
             if (KeyboardHookHandle)
             {
-                swprintf(
-                    output,
-                    L"Message hook success on thread %i",
-                    keyboardHook.ThreadId
-                    );
+                Log(L"Message hook success on thread %i", keyboardHook.ThreadId);
             }
             else
             {
-                swprintf(
-                    output,
-                    L"Message hook failure on thread %i",
-                    keyboardHook.ThreadId
-                    );
+                Log(L"Message hook failure on thread %i", keyboardHook.ThreadId);
             }
-                
-            OutputDebugStringW(output);
         }
 
         break;
