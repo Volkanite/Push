@@ -1063,7 +1063,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
             else if (String_Compare(buffer, L"RTSS") == 0)
                 PushOverlayInterface = OVERLAY_INTERFACE_RTSS;
 
-            buffer = SlIniReadString(L"Settings", L"KeyboardHookType", L"DETOURS", L".\\" PUSH_SETTINGS_FILE);
+            buffer = SlIniReadString(L"Settings", L"KeyboardHookType", L"MESSAGE", L".\\" PUSH_SETTINGS_FILE);
 
             if (String_Compare(buffer, L"SUBCLASS") == 0)
             {
