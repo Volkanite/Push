@@ -30,6 +30,7 @@ LONG WINAPI KeyboardHook(
     switch (Message)
     {
     case WM_KEYDOWN:
+        MenuKeyboardHook(wParam);
         break;
 
     case WM_CHAR:
