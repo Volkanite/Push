@@ -344,7 +344,7 @@ void InitializeDetourHook()
 }
 
 
-void Keyboard_Hook( KEYBOARD_HOOK_TYPE HookType )
+void Keyboard_Hook( PUSH_KEYBOARD_HOOK_TYPE HookType )
 {
     KEYBOARD_HOOK_PARAMS keyboardHook;
 

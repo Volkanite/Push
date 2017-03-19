@@ -239,6 +239,14 @@ typedef enum _PUSH_VSYNC_OVERRIDE_MODE
 
 } PUSH_VSYNC_OVERRIDE_MODE;
 
+typedef enum _KEYBOARD_HOOK_TYPE
+{
+    KEYBOARD_HOOK_SUBCLASS,
+    KEYBOARD_HOOK_MESSAGE,
+    KEYBOARD_HOOK_KEYBOARD,
+    KEYBOARD_HOOK_DETOURS
+
+} PUSH_KEYBOARD_HOOK_TYPE;
 
 typedef VOID(*OSD_DYNAMIC_FORMAT)(
     UINT32 Value,
@@ -288,6 +296,7 @@ typedef struct _PUSH_SHARED_MEMORY
     UINT8   FrameBufferCount;
 
     PUSH_VSYNC_OVERRIDE_MODE    VsyncOverrideMode;
+    PUSH_KEYBOARD_HOOK_TYPE     KeyboardHookType;
     UCHAR                       DisableRepeatKeys;
     UCHAR                       SwapWASD;
     UCHAR                       KeepFps;
