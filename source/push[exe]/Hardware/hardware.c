@@ -13,7 +13,7 @@
 UINT64                      g_hNVPMContext;
 BOOLEAN                     PushGpuLoadD3DKMT = FALSE;
 DWORD                       dwMappedMemAddr;
-PUSH_HARDWARE_INFORMATION   hardware;
+//PUSH_HARDWARE_INFORMATION   hardware;
 SYSTEM_BASIC_INFORMATION    HwInfoSystemBasicInformation;
 
 
@@ -43,7 +43,7 @@ UINT8 GetGpuTemp()
 
 UINT8 GetGpuLoad()
 {
-    if (PushGpuLoadD3DKMT || hardware.DisplayDevice.VendorId == AMD) //AMD ADL gpu load is finicky
+    if (PushGpuLoadD3DKMT || PushSharedMemory->HarwareInformation.DisplayDevice.VendorId == AMD) //AMD ADL gpu load is finicky
         return D3DKMT_GetGpuUsage();
     else
         return GPU_GetLoad(); 
@@ -81,7 +81,7 @@ UINT32 GetVramUsed()
 UINT8
 GetVramUsage()
 {
-    return 100 * ( (float) hardware.DisplayDevice.FrameBuffer.Used / (float) hardware.DisplayDevice.FrameBuffer.Total );
+    return 100 * ((float)PushSharedMemory->HarwareInformation.DisplayDevice.FrameBuffer.Used / (float)PushSharedMemory->HarwareInformation.DisplayDevice.FrameBuffer.Total);
 }
 
 
@@ -113,7 +113,7 @@ UINT32 GetRamUsed()
 //percentage (non-float)
 UINT8 GetRamUsage()
 {
-    return 100 * ( (float) hardware.Memory.Used / (float) hardware.Memory.Total);
+    return 100 * ((float)PushSharedMemory->HarwareInformation.Memory.Used / (float)PushSharedMemory->HarwareInformation.Memory.Total);
 }
 
 
@@ -185,7 +185,7 @@ GetMaxCoreLoad()
     FLOAT maxUsage = 0.0f;
     UINT8 i = 0;
 
-    for (i = 0; i < hardware.Processor.NumberOfCores; i++)
+    for (i = 0; i < PushSharedMemory->HarwareInformation.Processor.NumberOfCores; i++)
     {
         usage = GetCpuUsage(i);
 
@@ -414,7 +414,7 @@ GetBarAddress( DWORD Bar )
     DWORD barAddress;
 
     R0ReadPciConfig(
-        hardware.DisplayDevice.pciAddress,
+        PushSharedMemory->HarwareInformation.DisplayDevice.pciAddress,
         Bar,
         (BYTE *)&barAddress,
         sizeof(barAddress)
@@ -446,27 +446,27 @@ VOID InitGpuHardware()
 {
     DWORD bar;
 
-    hardware.DisplayDevice.pciAddress = FindPciDeviceByClass(0x03, 0x00, 0x00, 0);
+    PushSharedMemory->HarwareInformation.DisplayDevice.pciAddress = FindPciDeviceByClass(0x03, 0x00, 0x00, 0);
 
     R0ReadPciConfig(
-        hardware.DisplayDevice.pciAddress,
+        PushSharedMemory->HarwareInformation.DisplayDevice.pciAddress,
         REGISTER_VENDORID,
-        (BYTE *) &hardware.DisplayDevice.VendorId,
-        sizeof(hardware.DisplayDevice.VendorId)
+        (BYTE *)&PushSharedMemory->HarwareInformation.DisplayDevice.VendorId,
+        sizeof(PushSharedMemory->HarwareInformation.DisplayDevice.VendorId)
         );
 
-    if (hardware.DisplayDevice.VendorId == NVIDIA)
+    if (PushSharedMemory->HarwareInformation.DisplayDevice.VendorId == NVIDIA)
         bar = REGISTER_BAR0;
-    else if (hardware.DisplayDevice.VendorId == AMD)
+    else if (PushSharedMemory->HarwareInformation.DisplayDevice.VendorId == AMD)
         bar = REGISTER_BAR2;
     else
         return;
 
-    hardware.DisplayDevice.BarAddress = GetBarAddress(bar);
+    PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress = GetBarAddress(bar);
 
     HwMmio = R0MapPhysicalMemory(
-                hardware.DisplayDevice.BarAddress,
-                GetBarSize(hardware.DisplayDevice.BarAddress)
+        PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress,
+        GetBarSize(PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress)
                 );
 }
 
@@ -481,11 +481,11 @@ VOID GetHardwareInfo()
     UINT64 pageSize;
 
     InitGpuHardware();
-    GPU_Initialize(hardware.DisplayDevice.pciAddress);
+    GPU_Initialize(PushSharedMemory->HarwareInformation.DisplayDevice.pciAddress);
 
-    hardware.DisplayDevice.FrameBuffer.Total = GPU_GetTotalMemory();
-    hardware.DisplayDevice.EngineClockMax = GPU_GetMaximumEngineClock();
-    hardware.DisplayDevice.MemoryClockMax = GPU_GetMaximumMemoryClock();
+    PushSharedMemory->HarwareInformation.DisplayDevice.FrameBuffer.Total = GPU_GetTotalMemory();
+    PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax = GPU_GetMaximumEngineClock();
+    PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax = GPU_GetMaximumMemoryClock();
 
     if (SlIniReadBoolean(L"Settings", L"GpuUsageD3DKMT", FALSE, L".\\" PUSH_SETTINGS_FILE))
         PushGpuLoadD3DKMT = TRUE;
@@ -493,17 +493,17 @@ VOID GetHardwareInfo()
     // Get the number of processors in the system
     NtQuerySystemInformation(SystemBasicInformation, &HwInfoSystemBasicInformation, sizeof(SYSTEM_BASIC_INFORMATION), 0);
 
-    hardware.Processor.NumberOfCores = HwInfoSystemBasicInformation.NumberOfProcessors;
+    PushSharedMemory->HarwareInformation.Processor.NumberOfCores = HwInfoSystemBasicInformation.NumberOfProcessors;
     
     physicalPages = HwInfoSystemBasicInformation.NumberOfPhysicalPages;
     pageSize = HwInfoSystemBasicInformation.PageSize;
 
     //byte => megabytes
-    hardware.Memory.Total = (physicalPages * pageSize) / 1048576;
+    PushSharedMemory->HarwareInformation.Memory.Total = (physicalPages * pageSize) / 1048576;
     
-    coreListEntry = &hardware.Processor.coreList;
+    coreListEntry = &PushSharedMemory->HarwareInformation.Processor.coreList;
 
-    for (i = 0; i < hardware.Processor.NumberOfCores; i++)
+    for (i = 0; i < PushSharedMemory->HarwareInformation.Processor.NumberOfCores; i++)
     {
         coreListEntry->nextEntry = (CORE_LIST*)RtlAllocateHeap(
                                     PushHeapHandle,
@@ -532,23 +532,23 @@ VOID RefreshHardwareInfo()
 {
     PhpUpdateCpuInformation();
 
-    hardware.Processor.Speed                = CPU_GetSpeed();
-    hardware.Processor.Load                 = GetCpuLoad();
-    hardware.Processor.MaxCoreUsage         = GetMaxCoreLoad();
-    hardware.Processor.Temperature          = GetCpuTemp();
-    hardware.DisplayDevice.Load             = GetGpuLoad();
-    hardware.DisplayDevice.EngineClock      = GetEngineClock();
-    hardware.DisplayDevice.MemoryClock      = GetMemoryClock();
-    hardware.DisplayDevice.Voltage          = GetVoltage();
-    hardware.DisplayDevice.Temperature      = GetGpuTemp();
-    hardware.DisplayDevice.FrameBuffer.Used = GetVramUsed();
-    hardware.DisplayDevice.FrameBuffer.Load = GetVramUsage();
-    hardware.DisplayDevice.FanSpeed         = GetFanSpeed();
-    hardware.Memory.Used                    = GetRamUsed();
-    hardware.Memory.Load                    = GetRamUsage();
-    hardware.Disk.ReadWriteRate             = GetDiskReadWriteRate();
+    PushSharedMemory->HarwareInformation.Processor.Speed                = CPU_GetSpeed();
+    PushSharedMemory->HarwareInformation.Processor.Load                 = GetCpuLoad();
+    PushSharedMemory->HarwareInformation.Processor.MaxCoreUsage         = GetMaxCoreLoad();
+    PushSharedMemory->HarwareInformation.Processor.Temperature          = GetCpuTemp();
+    PushSharedMemory->HarwareInformation.DisplayDevice.Load             = GetGpuLoad();
+    PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock      = GetEngineClock();
+    PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock      = GetMemoryClock();
+    PushSharedMemory->HarwareInformation.DisplayDevice.Voltage          = GetVoltage();
+    PushSharedMemory->HarwareInformation.DisplayDevice.Temperature      = GetGpuTemp();
+    PushSharedMemory->HarwareInformation.DisplayDevice.FrameBuffer.Used = GetVramUsed();
+    PushSharedMemory->HarwareInformation.DisplayDevice.FrameBuffer.Load = GetVramUsage();
+    PushSharedMemory->HarwareInformation.DisplayDevice.FanSpeed         = GetFanSpeed();
+    PushSharedMemory->HarwareInformation.Memory.Used                    = GetRamUsed();
+    PushSharedMemory->HarwareInformation.Memory.Load                    = GetRamUsage();
+    PushSharedMemory->HarwareInformation.Disk.ReadWriteRate             = GetDiskReadWriteRate();
     //hardware.Disk.ResponseTime              = GetDiskResponseTime();
 
     // We actually get some information from other sources
-    hardware.Processor.MaxThreadUsage = PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage;
+    //hardware.Processor.MaxThreadUsage = PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage;
 }

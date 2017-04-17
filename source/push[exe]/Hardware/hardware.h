@@ -1,8 +1,8 @@
-#ifdef __cplusplus
+/*#ifdef __cplusplus
 extern "C" PUSH_HARDWARE_INFORMATION hardware;
 #else
 extern PUSH_HARDWARE_INFORMATION hardware;
-#endif
+#endif*/
 
 #define REGISTER_VENDORID   0x00
 #define REGISTER_CLASSCODE  0x08

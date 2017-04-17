@@ -165,7 +165,7 @@ UINT16 Adl_GetMemoryClockMax()
 VOID Adl_SetEngineClock( UINT16 EngineClock )
 {
     ADLODPerformanceLevels *performanceLevels;
-    UINT32 i, lev, clock;
+    UINT32 lev, clock;
 
     clock = EngineClock * 100;
     lev = PerformanceLevels - 1;
@@ -177,10 +177,6 @@ VOID Adl_SetEngineClock( UINT16 EngineClock )
     performanceLevels->Size = sizeof(ADLODPerformanceLevels) + sizeof(ADLODPerformanceLevel) * lev;
 
     ADL_Overdrive5_ODPerformanceLevels_Get(0, 0, performanceLevels);
-
-    for (i = 0; i < lev; i++){
-        performanceLevels->Levels[i].EngineClock = clock;
-    }
 
     performanceLevels->Levels[lev].EngineClock = clock;
 

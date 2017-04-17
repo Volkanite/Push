@@ -51,56 +51,56 @@ VOID GetValues( OSD_ITEM* Item )
     switch (Item->Flag)
     {
     case OSD_GPU_LOAD: 
-        Item->Value = hardware.DisplayDevice.Load;
+        Item->Value = PushSharedMemory->HarwareInformation.DisplayDevice.Load;
         Item->ValueOverride = NULL;
         break;
     case OSD_GPU_TEMP: 
-        Item->Value = hardware.DisplayDevice.Temperature;
+        Item->Value = PushSharedMemory->HarwareInformation.DisplayDevice.Temperature;
         Item->ValueOverride = NULL;
         break;
     case OSD_GPU_E_CLK:
         Item->Value = NULL;
-        Item->ValueOverride = hardware.DisplayDevice.EngineClock;
+        Item->ValueOverride = PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock;
         break;
     case OSD_GPU_M_CLK: 
         Item->Value = NULL;
-        Item->ValueOverride = hardware.DisplayDevice.MemoryClock;
+        Item->ValueOverride = PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock;
         break;
     case OSD_GPU_VRAM: 
-        Item->Value = hardware.DisplayDevice.FrameBuffer.Load;
-        Item->ValueOverride = hardware.DisplayDevice.FrameBuffer.Used;
+        Item->Value = PushSharedMemory->HarwareInformation.DisplayDevice.FrameBuffer.Load;
+        Item->ValueOverride = PushSharedMemory->HarwareInformation.DisplayDevice.FrameBuffer.Used;
         break;
     case OSD_GPU_FAN:
-        Item->Value = hardware.DisplayDevice.FanSpeed;
+        Item->Value = PushSharedMemory->HarwareInformation.DisplayDevice.FanSpeed;
         Item->ValueOverride = NULL;
         break;
     case OSD_RAM: 
-        Item->Value = hardware.Memory.Load;
-        Item->ValueOverride = hardware.Memory.Used;
+        Item->Value = PushSharedMemory->HarwareInformation.Memory.Load;
+        Item->ValueOverride = PushSharedMemory->HarwareInformation.Memory.Used;
         break;
     case OSD_CPU_SPEED:
-        Item->Value = hardware.Processor.Speed;
+        Item->Value = PushSharedMemory->HarwareInformation.Processor.Speed;
         Item->ValueOverride = NULL;
         break;
     case OSD_CPU_LOAD: 
-        Item->Value = hardware.Processor.Load;
+        Item->Value = PushSharedMemory->HarwareInformation.Processor.Load;
         Item->ValueOverride = NULL;
         break;
     case OSD_CPU_TEMP: 
-        Item->Value = hardware.Processor.Temperature;
+        Item->Value = PushSharedMemory->HarwareInformation.Processor.Temperature;
         Item->ValueOverride = NULL;
         break;
     case OSD_MCU: 
-        Item->Value = hardware.Processor.MaxCoreUsage;
+        Item->Value = PushSharedMemory->HarwareInformation.Processor.MaxCoreUsage;
         Item->ValueOverride = NULL;
         break;
     case OSD_MTU: 
-        Item->Value = hardware.Processor.MaxThreadUsage;
+        Item->Value = PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage;
         Item->ValueOverride = NULL;
         break;
     case OSD_DISK_RWRATE: 
         Item->Value = NULL;
-        Item->ValueOverride = hardware.Disk.ReadWriteRate;
+        Item->ValueOverride = PushSharedMemory->HarwareInformation.Disk.ReadWriteRate;
         break;
     case OSD_DISK_RESPONSE: 
         //Item->Value = hardware.Disk.ResponseTime;

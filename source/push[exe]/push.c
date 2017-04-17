@@ -940,25 +940,26 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                             switch (buffer[12])
                             {
                             case 'i':
-                                Adl_SetEngineClock(hardware.DisplayDevice.EngineClock + 1);
+                                Adl_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock + 1);
                                 break;
                             case 'd':
-                                Adl_SetEngineClock(hardware.DisplayDevice.EngineClock - 1);
+                                Adl_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock - 1);
                                 break;
                             }
                         }
                         break;
                     case 'm':
-                        Adl_SetMemoryClock(hardware.DisplayDevice.MemoryClock + 1);
+                        Adl_SetMemoryClock(PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock + 1);
                         break;
                     case 'v':
-                        Adl_SetVoltage(hardware.DisplayDevice.Voltage + 1);
+                        Adl_SetVoltage(PushSharedMemory->HarwareInformation.DisplayDevice.Voltage + 1);
                         break;
                     }
                 }
                 else if (String_Compare(buffer, L"UpdateClocks") == 0)
                 {
-                    Adl_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock);
+                    Adl_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax);
+                    Adl_SetVoltage(PushSharedMemory->HarwareInformation.DisplayDevice.Voltage);
                 }
                 else if (String_CompareN(buffer, L"GetDiskResponseTime", 19) == 0)
                 {
@@ -1148,28 +1149,17 @@ WCHAR* GetDirectoryFile( WCHAR *pszFileName )
 }
 
 
-VOID
+/*VOID
 UpdateSharedMemory()
 {
-    /*PushSharedMemory->CpuLoad               = hardware.processor.load;
-    PushSharedMemory->CpuTemp               = hardware.processor.temperature;
-    PushSharedMemory->GpuLoad               = hardware.videoCard.load;
-    PushSharedMemory->GpuTemp               = hardware.videoCard.temperature;
-    PushSharedMemory->VramLoad              = hardware.videoCard.vram.usage;
-    PushSharedMemory->VramMegabytesUsed     = hardware.videoCard.vram.megabytes_used;
-    PushSharedMemory->MemoryLoad            = hardware.memory.usage;
-    PushSharedMemory->MemoryMegabytesUsed   = hardware.memory.megabytes_used;
-    PushSharedMemory->MaxThreadUsage        = hardware.processor.MaxThreadUsage;
-    PushSharedMemory->MaxCoreUsage          = hardware.processor.MaxCoreUsage;*/
-
     PushSharedMemory->HarwareInformation = hardware;
-}
+}*/
 
 
 VOID PushOnTimer()
 {
     RefreshHardwareInfo();
-    UpdateSharedMemory();
+    //UpdateSharedMemory();
     OSD_Refresh();
 }
 

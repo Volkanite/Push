@@ -57,7 +57,7 @@ VOID ChangeVsync(BOOLEAN Setting);
 
 VOID UpdateGpuInformation()
 {
-    swprintf(GpuSpeedEngine, 20, L"%i MHz", PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock);
+    swprintf(GpuSpeedEngine, 20, L"%i MHz", PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax);
     GpuSpeedEngineOpt[0] = GpuSpeedEngine;
     GpuSpeedEngineOpt[1] = GpuSpeedEngine;
 
@@ -154,7 +154,7 @@ VOID AddItems()
 
 VOID Overclock()
 {
-    PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock++;
+    PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax++;
     PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
 
     UpdateGpuInformation();
@@ -221,8 +221,26 @@ VOID ProcessOptions( MenuItems* Item )
         break;
 
     case FUNC_VOLTAGE:
-        CallPipe(L"Overclock v", NULL);
+    {
+        switch (*Item->Var)
+        {
+        case 0:
+        {
+            PushSharedMemory->HarwareInformation.DisplayDevice.Voltage--;
+
+            UpdateGpuInformation();
+            CallPipe(L"UpdateClocks", NULL);
+        }
         break;
+
+        case 1:
+        {
+            CallPipe(L"Overclock v", NULL);
+        }
+        break;
+        }
+    }
+    break;
 
     case FUNC_FILELOGGING:
         if (*Item->Var > 0)
