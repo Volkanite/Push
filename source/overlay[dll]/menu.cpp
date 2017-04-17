@@ -45,7 +45,7 @@ extern UINT8 FrameLimit;
 #define FUNC_KEEPACTIVE     OSD_LAST_ITEM+9
 #define FUNC_FRAMELIMITER   OSD_LAST_ITEM+10
 #define FUNC_FRAMELIMIT     OSD_LAST_ITEM+11
-#define FUNC_VSYNC			OSD_LAST_ITEM+12
+#define FUNC_VSYNC          OSD_LAST_ITEM+12
 #define FUNC_TERMINATE      OSD_LAST_ITEM+13
 #define FUNC_KEEP_FPS       OSD_LAST_ITEM+14
 
@@ -138,7 +138,7 @@ VOID AddItems()
         Menu->AddItem(L"Keep active", ItemOpt, &D3DTweaks[2], FUNC_KEEPACTIVE);
         Menu->AddItem(L"Frame Limiter", ItemOpt, &D3DTweaks[3], FUNC_FRAMELIMITER);
         Menu->AddItem(L"Frame Limit", FrameLimitOpt, &D3DTweaks[4], FUNC_FRAMELIMIT);
-		Menu->AddItem(L"Vsync", ItemOpt, &D3DTweaks[5], FUNC_VSYNC);
+        Menu->AddItem(L"Vsync", ItemOpt, &D3DTweaks[5], FUNC_VSYNC);
 
         UpdateFrameLimitText();
     }
@@ -149,6 +149,16 @@ VOID AddItems()
     {
         Menu->AddItem(L"Terminate", ItemOpt, &Process[1], FUNC_TERMINATE);
     }
+}
+
+
+VOID Overclock()
+{
+    PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock++;
+    PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
+
+    UpdateGpuInformation();
+    CallPipe(L"UpdateClocks", NULL);
 }
 
 
@@ -193,10 +203,7 @@ VOID ProcessOptions( MenuItems* Item )
 
             case 1:
             {
-                PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock++;
-
-                UpdateGpuInformation();
-                CallPipe(L"UpdateClocks", NULL);
+                Overclock();
             }
             break;
             }
@@ -277,16 +284,16 @@ VOID ProcessOptions( MenuItems* Item )
         }
         break;
 
-	case FUNC_VSYNC:
-		if (*Item->Var > 0)
-		{
-			ChangeVsync(TRUE);
-		}
-		else
-		{
-			ChangeVsync(FALSE);
-		}
-		break;
+    case FUNC_VSYNC:
+        if (*Item->Var > 0)
+        {
+            ChangeVsync(TRUE);
+        }
+        else
+        {
+            ChangeVsync(FALSE);
+        }
+        break;
 
     case FUNC_TERMINATE:
         if (*Item->Var > 0)

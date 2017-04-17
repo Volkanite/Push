@@ -18,7 +18,7 @@ UINT64 CyclesWaited;
 
 double PCFreq = 0.0;
 __int64 CounterStart = 0;
-
+VOID Overclock();
 
 VOID
 StartCounter()
@@ -43,6 +43,19 @@ GetPerformanceCounter()
     QueryPerformanceCounter(&li);
 
     return (double) (li.QuadPart - CounterStart) /PCFreq;
+}
+
+
+BOOLEAN IsGpuLag()
+{
+    if (PushSharedMemory->HarwareInformation.DisplayDevice.Load > 95
+        && PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock >= PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax
+        && PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock >= PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax)
+    {
+        return TRUE;
+    }
+    
+    return FALSE;
 }
 
 
@@ -91,6 +104,9 @@ VOID RunFrameStatistics()
 
         swprintf(buffer, 100, L"GetDiskResponseTime %i", GetCurrentProcessId());
         CallPipe(buffer, &DiskResponseTime);
+
+        if (IsGpuLag()) 
+            Overclock();
     }
 
     if (PushSharedMemory->FrameLimit && FrameLimit < 60)
@@ -109,13 +125,10 @@ VOID RunFrameStatistics()
         if (PushSharedMemory->HarwareInformation.Processor.MaxCoreUsage > 95)
             PushSharedMemory->Overloads |= OSD_MCU;
 
-        if (PushSharedMemory->HarwareInformation.DisplayDevice.Load > 95
-            && PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock >= PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax
-            && PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock >= PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax)
-            PushSharedMemory->Overloads |= OSD_GPU_LOAD;
-
         if (PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage > 95)
             PushSharedMemory->Overloads |= OSD_MTU;
+
+        if (IsGpuLag()) PushSharedMemory->Overloads |= OSD_GPU_LOAD;
 
         if ((PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock < PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax
             || PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock < PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax)
