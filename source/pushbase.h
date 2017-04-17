@@ -182,6 +182,7 @@ typedef struct _PUSH_HARDWARE_INFORMATION
         UINT32  MemoryClock;
         UINT32  EngineClockMax;
         UINT32  MemoryClockMax;
+        UINT32  Overclock;
         UINT32  Voltage;
         UINT32  FanSpeed;
 
@@ -241,7 +242,7 @@ typedef enum _PUSH_VSYNC_OVERRIDE_MODE
 
 typedef enum _KEYBOARD_HOOK_TYPE
 {
-	KEYBOARD_HOOK_AUTO,
+    KEYBOARD_HOOK_AUTO,
     KEYBOARD_HOOK_SUBCLASS,
     KEYBOARD_HOOK_MESSAGE,
     KEYBOARD_HOOK_KEYBOARD,

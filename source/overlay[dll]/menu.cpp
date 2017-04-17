@@ -157,8 +157,11 @@ VOID Overclock()
     PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax++;
     PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
 
+    Log(L"Overclock(%i) >>", PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax);
+
     UpdateGpuInformation();
     CallPipe(L"UpdateClocks", NULL);
+    Log(L"<< Overclock(%i)", PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax);
 }
 
 

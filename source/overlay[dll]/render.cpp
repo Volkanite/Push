@@ -49,8 +49,7 @@ GetPerformanceCounter()
 BOOLEAN IsGpuLag()
 {
     if (PushSharedMemory->HarwareInformation.DisplayDevice.Load > 95
-        && PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock >= PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax
-        && PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock >= PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax)
+        && PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock >= PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax)
     {
         return TRUE;
     }
@@ -105,8 +104,17 @@ VOID RunFrameStatistics()
         swprintf(buffer, 100, L"GetDiskResponseTime %i", GetCurrentProcessId());
         CallPipe(buffer, &DiskResponseTime);
 
-        if (IsGpuLag()) 
+        if (IsGpuLag()
+            && PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax < PushSharedMemory->HarwareInformation.DisplayDevice.Overclock)
+        {
             Overclock();
+        }   
+
+        /*Log(L"EngineClock %i, EngineClockMax %i, Overclock %i",
+            PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock,
+            PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax,
+            PushSharedMemory->HarwareInformation.DisplayDevice.Overclock
+            );*/
     }
 
     if (PushSharedMemory->FrameLimit && FrameLimit < 60)

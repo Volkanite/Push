@@ -856,7 +856,19 @@ INTBOOL __stdcall ConnectNamedPipe(
 
 #include "Hardware\GPU\adl.h"
 #define PIPE_ACCEPT_REMOTE_CLIENTS 0x00000000
+    VOID Log(const wchar_t* Format, ...)
+    {
+        wchar_t buffer[260];
+        wchar_t output[260] = L"[PUSH] ";
+        va_list _Arglist;
 
+        _crt_va_start(_Arglist, Format);
+        _vswprintf_c_l(buffer, 260, Format, NULL, _Arglist);
+        _crt_va_end(_Arglist);
+
+        wcsncat(output, buffer, 260);
+        OutputDebugStringW(output);
+    }
 
 DWORD __stdcall PipeThread( VOID* Parameter )
 {
@@ -960,6 +972,9 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                 {
                     Adl_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax);
                     Adl_SetVoltage(PushSharedMemory->HarwareInformation.DisplayDevice.Voltage);
+
+                    PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax = Adl_GetEngineClockMax();
+                    Log(L"%i", Adl_GetEngineClockMax());
                 }
                 else if (String_CompareN(buffer, L"GetDiskResponseTime", 19) == 0)
                 {
@@ -1094,6 +1109,10 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
             {
                 PushSharedMemory->KeyboardHookType = KEYBOARD_HOOK_AUTO;
             }
+
+            buffer = SlIniReadString(L"Settings", L"ClockMax", NULL, L".\\" PUSH_SETTINGS_FILE);
+
+            PushSharedMemory->HarwareInformation.DisplayDevice.Overclock = _wtoi(buffer);
         }
         else
         {

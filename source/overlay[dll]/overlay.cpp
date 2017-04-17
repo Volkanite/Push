@@ -136,17 +136,20 @@ VOID* DetourApi( WCHAR* dllName, CHAR* apiName, BYTE* NewFunction )
 
 VOID CallPipe( WCHAR* Command, UINT16* Output )
 {
-    HANDLE pipeHandle;
+    static HANDLE pipeHandle = INVALID_HANDLE_VALUE;
     DWORD dwWritten;
 
-    pipeHandle = CreateFile(TEXT("\\\\.\\pipe\\Push"),
-        GENERIC_READ | GENERIC_WRITE,
-        0,
-        NULL,
-        OPEN_EXISTING,
-        0,
-        NULL);
-
+    if (pipeHandle == INVALID_HANDLE_VALUE)
+    {
+        pipeHandle = CreateFile(TEXT("\\\\.\\pipe\\Push"),
+            GENERIC_READ | GENERIC_WRITE,
+            0,
+            NULL,
+            OPEN_EXISTING,
+            0,
+            NULL);
+    }
+    
     if (pipeHandle != INVALID_HANDLE_VALUE)
     {
         DWORD bytesRead;
@@ -166,7 +169,11 @@ VOID CallPipe( WCHAR* Command, UINT16* Output )
         }
 
 
-        CloseHandle(pipeHandle);
+        //CloseHandle(pipeHandle);
+    }
+    else
+    {
+        Log(L"CallPipe failed!");
     }
 }
 
