@@ -49,6 +49,7 @@ extern UINT8 FrameLimit;
 #define FUNC_VSYNC          OSD_LAST_ITEM+12
 #define FUNC_TERMINATE      OSD_LAST_ITEM+13
 #define FUNC_KEEP_FPS       OSD_LAST_ITEM+14
+#define FUNC_OC             OSD_LAST_ITEM+15
 
 
 //Add menu items to menu
@@ -62,7 +63,7 @@ VOID UpdateGpuInformation()
     GpuSpeedEngineOpt[0] = GpuSpeedEngine;
     GpuSpeedEngineOpt[1] = GpuSpeedEngine;
 
-    swprintf(GpuSpeedMemory, 20, L"%i MHz", PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock);
+    swprintf(GpuSpeedMemory, 20, L"%i MHz", PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax);
     GpuSpeedMemoryOpt[0] = GpuSpeedMemory;
     GpuSpeedMemoryOpt[1] = GpuSpeedMemory;
 
@@ -115,9 +116,10 @@ VOID AddItems()
     if (MenuGpu[0].Var)
     {
         Menu->AddItem(L"Force Max Clocks", ItemOpt, &MenuGpu[1], FUNC_FORCEMAX);
-        Menu->AddItem(L"Engine Clock", GpuSpeedEngineOpt, &MenuGpu[2], FUNC_ECLOCK);
-        Menu->AddItem(L"Memory Clock", GpuSpeedMemoryOpt, &MenuGpu[3], FUNC_MCLOCK);
-        Menu->AddItem(L"Voltage", GpuVoltageOpt, &MenuGpu[4], FUNC_VOLTAGE);
+        Menu->AddItem(L"Auto-Overclock", ItemOpt, &MenuGpu[2], FUNC_OC);
+        Menu->AddItem(L"Engine Clock", GpuSpeedEngineOpt, &MenuGpu[3], FUNC_ECLOCK);
+        Menu->AddItem(L"Memory Clock", GpuSpeedMemoryOpt, &MenuGpu[4], FUNC_MCLOCK);
+        Menu->AddItem(L"Voltage", GpuVoltageOpt, &MenuGpu[5], FUNC_VOLTAGE);
 
         //Init gpu information
         UpdateGpuInformation();
@@ -151,18 +153,32 @@ VOID AddItems()
         Menu->AddItem(L"Terminate", ItemOpt, &Process[1], FUNC_TERMINATE);
     }
 }
-
-
-VOID Overclock()
+typedef enum _OVERCLOCK_UNIT
 {
-    PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax++;
-    PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
+    OC_ENGINE,
+    OC_MEMORY
 
-    Log(L"Overclock(%i) >>", PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax);
+}OVERCLOCK_UNIT;
+
+
+VOID Overclock( OVERCLOCK_UNIT Unit )
+{
+    switch (Unit)
+    {
+    case OC_ENGINE:
+        PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax++;
+        PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
+
+        CallPipe(L"UpdateClocks", NULL);
+        break;
+    case OC_MEMORY:
+        CallPipe(L"Overclock m", NULL);
+        break;
+    default:
+        break;
+    }
 
     UpdateGpuInformation();
-    CallPipe(L"UpdateClocks", NULL);
-    Log(L"<< Overclock(%i)", PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax);
 }
 
 
@@ -209,7 +225,7 @@ VOID ProcessOptions( MenuItems* Item )
 
             case 1:
             {
-                Overclock();
+                Overclock(OC_ENGINE);
             }
             break;
             }
@@ -220,8 +236,7 @@ VOID ProcessOptions( MenuItems* Item )
         {
             if (*Item->Var > 0)
             {
-                CallPipe(L"Overclock m", NULL);
-                UpdateGpuInformation();
+                Overclock(OC_MEMORY);
             }
         }
         break;
@@ -250,6 +265,13 @@ VOID ProcessOptions( MenuItems* Item )
         }
     }
     break;
+
+    case FUNC_OC:
+        if (*Item->Var > 0)
+            DisableAutoOverclock = FALSE;
+        else
+            DisableAutoOverclock = TRUE;
+        break;
 
     case FUNC_FILELOGGING:
         if (*Item->Var > 0)

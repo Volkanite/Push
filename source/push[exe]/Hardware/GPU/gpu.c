@@ -133,7 +133,12 @@ UINT16 GPU_GetMaximumEngineClock()
 }
 
 
-UINT16 GPU_GetMaximumMemoryClock(){ return 0; }
+UINT16 GPU_GetMaximumMemoryClock()
+{ 
+    return AmdGpu_GetMemoryClockMax();
+}
+
+
 UINT16 GPU_GetFanSpeed(){ return 0; }
 UINT8 GPU_GetTemperature(){ return 0; }
 UINT8 GPU_GetLoad(){ return 0; }

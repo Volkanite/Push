@@ -19,7 +19,13 @@ UINT64 CyclesWaited;
 
 double PCFreq = 0.0;
 __int64 CounterStart = 0;
-VOID Overclock();
+typedef enum _OVERCLOCK_UNIT
+{
+    OC_ENGINE,
+    OC_MEMORY
+
+}OVERCLOCK_UNIT;
+VOID Overclock(OVERCLOCK_UNIT Unit);
 
 VOID
 StartCounter()
@@ -105,11 +111,12 @@ VOID RunFrameStatistics()
         swprintf(buffer, 100, L"GetDiskResponseTime %i", GetCurrentProcessId());
         CallPipe(buffer, &DiskResponseTime);
 
-        if (!DisableAutoOverclock
-            && IsGpuLag()
-            && PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax < PushSharedMemory->HarwareInformation.DisplayDevice.Overclock)
+        if (!DisableAutoOverclock && IsGpuLag())
         {
-            Overclock();
+            if (PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax < PushSharedMemory->HarwareInformation.DisplayDevice.Overclock)
+                Overclock(OC_ENGINE);
+
+            Overclock(OC_MEMORY);
         }
     }
 
