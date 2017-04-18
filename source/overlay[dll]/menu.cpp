@@ -241,7 +241,10 @@ VOID ProcessOptions( MenuItems* Item )
 
         case 1:
         {
-            CallPipe(L"Overclock v", NULL);
+            PushSharedMemory->HarwareInformation.DisplayDevice.Voltage++;
+
+            UpdateGpuInformation();
+            CallPipe(L"UpdateClocks", NULL);
         }
         break;
         }
