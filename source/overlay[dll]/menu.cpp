@@ -32,6 +32,7 @@ HANDLE MenuProcessHeap;
 
 extern OV_WINDOW_MODE D3D9Hook_WindowMode;
 extern BOOLEAN D3D9Hook_ForceReset;
+extern BOOLEAN DisableAutoOverclock;
 extern UINT8 FrameLimit;
 
 #define FUNC_RESET          OSD_LAST_ITEM+1
@@ -193,11 +194,13 @@ VOID ProcessOptions( MenuItems* Item )
 
     case FUNC_ECLOCK:
         {
+            DisableAutoOverclock = TRUE;
+
             switch (*Item->Var)
             {
             case 0:
             {
-                PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock--;
+                PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax--;
 
                 UpdateGpuInformation();
                 CallPipe(L"UpdateClocks", NULL);

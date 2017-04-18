@@ -10,9 +10,10 @@ UINT8 PushRefreshRate = 60;
 UINT8 AcceptableFps = 55;
 BOOLEAN g_SetOSDRefresh = TRUE;
 BOOLEAN g_FontInited = FALSE;
+BOOLEAN IsStableFramerate;
+BOOLEAN DisableAutoOverclock;
 UINT16 DiskResponseTime;
 UINT32 FrameRate;
-BOOLEAN IsStableFramerate;
 UINT8 FrameLimit = 80; //80 fps
 UINT64 CyclesWaited;
 
@@ -104,17 +105,12 @@ VOID RunFrameStatistics()
         swprintf(buffer, 100, L"GetDiskResponseTime %i", GetCurrentProcessId());
         CallPipe(buffer, &DiskResponseTime);
 
-        if (IsGpuLag()
+        if (!DisableAutoOverclock
+            && IsGpuLag()
             && PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax < PushSharedMemory->HarwareInformation.DisplayDevice.Overclock)
         {
             Overclock();
-        }   
-
-        /*Log(L"EngineClock %i, EngineClockMax %i, Overclock %i",
-            PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock,
-            PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax,
-            PushSharedMemory->HarwareInformation.DisplayDevice.Overclock
-            );*/
+        }
     }
 
     if (PushSharedMemory->FrameLimit && FrameLimit < 60)
