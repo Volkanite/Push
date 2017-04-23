@@ -179,6 +179,7 @@ VOID Overclock( OVERCLOCK_UNIT Unit )
         break;
     case OC_VOLTAGE:
         PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax++;
+        PushSharedMemory->OSDFlags |= OSD_GPU_VOLTAGE;
     default:
         break;
     }

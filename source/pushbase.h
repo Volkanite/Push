@@ -156,7 +156,8 @@ typedef struct _IMDISK_SET_DEVICE_FLAGS
 #define OSD_GPU_FAN         0x00008000
 #define OSD_BUFFERS         0x00010000
 #define OSD_RESOLUTION      0x00020000
-#define OSD_LAST_ITEM       0x00020000 //Update me!
+#define OSD_GPU_VOLTAGE     0x00040000
+#define OSD_LAST_ITEM       0x00040000 //Update me!
 
 
 typedef struct _CORE_LIST CORE_LIST;
@@ -266,12 +267,12 @@ typedef struct _OSD_ITEM
     UINT32 Flag;
     OSDVALUE Threshold;
     WCHAR* DisplayFormat;
-    BOOLEAN Format;
-    OSDVALUE Value;
-
-    //This will be displayed instead of the first, Must be at least 32 bits or you might get garbage,
-    //More than 32 bits and you will get incorrect readings.
-    UINT32 ValueOverride;
+    BOOLEAN Format; //?
+    VOID* ValueSource;
+    UINT8 ValueSize;
+    UINT32 Value;
+    UINT32* ValueSource2;
+    UINT32 Value2;
 
     //For when formatting must happen at runtime
     OSD_DYNAMIC_FORMAT DynamicFormat;
@@ -313,8 +314,7 @@ typedef struct _PUSH_SHARED_MEMORY
     BOOLEAN                     LogFileIo;
     BOOLEAN                     AutoLogFileIo;
 
-    OSD_ITEM OsdItems[1];
-
+    //OSD_ITEM OsdItems[1];
 
 } PUSH_SHARED_MEMORY;
 

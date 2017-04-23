@@ -24,102 +24,8 @@ typedef VOID(*OSD_DYNAMIC_FORMAT)(
     );
 
 
-OSD_ITEM OsdItems[] = {
-    { OSD_GPU_LOAD, 90, L"GPU : %i %%", TRUE},
-    { OSD_GPU_TEMP, 75, L"GPU : %i °C", TRUE},
-    { OSD_GPU_E_CLK, 0, L"GPU : %i MHz", TRUE},
-    { OSD_GPU_M_CLK, 0, L"GPU : %i MHz", TRUE},
-    { OSD_GPU_VRAM, 90, L"VRAM : %i MB", TRUE},
-    { OSD_GPU_FAN,   0, L"GPU : %i RPM", TRUE},
-    { OSD_RAM,      90, L"RAM : %i MB", TRUE},
-    { OSD_CPU_SPEED, 0, L"CPU : %i MHz", TRUE},
-    { OSD_CPU_LOAD, 95, L"CPU : %i %%", TRUE},
-    { OSD_CPU_TEMP, 75, L"CPU : %i °C", TRUE},
-    { OSD_MCU, 0, L"CPUm : %i %%", TRUE},
-    { OSD_MTU, 0, L"MTU : %i %%", TRUE},
-    { OSD_DISK_RWRATE, 0, NULL, TRUE, NULL, NULL, FormatDiskReadWriteRate },
-    { OSD_DISK_RESPONSE, 4000, L"DSK : %i ms", TRUE},
-    { OSD_TIME, 0, NULL, TRUE, NULL, NULL, FormatTime },
-    { OSD_BUFFERS, 0, L"Buffers : %i", TRUE},
-    { OSD_RESOLUTION },
-    { OSD_FPS }
-};
-
-
-VOID GetValues( OSD_ITEM* Item )
-{
-    switch (Item->Flag)
-    {
-    case OSD_GPU_LOAD: 
-        Item->Value = PushSharedMemory->HarwareInformation.DisplayDevice.Load;
-        Item->ValueOverride = NULL;
-        break;
-    case OSD_GPU_TEMP: 
-        Item->Value = PushSharedMemory->HarwareInformation.DisplayDevice.Temperature;
-        Item->ValueOverride = NULL;
-        break;
-    case OSD_GPU_E_CLK:
-        Item->Value = NULL;
-        Item->ValueOverride = PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock;
-        break;
-    case OSD_GPU_M_CLK: 
-        Item->Value = NULL;
-        Item->ValueOverride = PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock;
-        break;
-    case OSD_GPU_VRAM: 
-        Item->Value = PushSharedMemory->HarwareInformation.DisplayDevice.FrameBuffer.Load;
-        Item->ValueOverride = PushSharedMemory->HarwareInformation.DisplayDevice.FrameBuffer.Used;
-        break;
-    case OSD_GPU_FAN:
-        Item->Value = PushSharedMemory->HarwareInformation.DisplayDevice.FanSpeed;
-        Item->ValueOverride = NULL;
-        break;
-    case OSD_RAM: 
-        Item->Value = PushSharedMemory->HarwareInformation.Memory.Load;
-        Item->ValueOverride = PushSharedMemory->HarwareInformation.Memory.Used;
-        break;
-    case OSD_CPU_SPEED:
-        Item->Value = PushSharedMemory->HarwareInformation.Processor.Speed;
-        Item->ValueOverride = NULL;
-        break;
-    case OSD_CPU_LOAD: 
-        Item->Value = PushSharedMemory->HarwareInformation.Processor.Load;
-        Item->ValueOverride = NULL;
-        break;
-    case OSD_CPU_TEMP: 
-        Item->Value = PushSharedMemory->HarwareInformation.Processor.Temperature;
-        Item->ValueOverride = NULL;
-        break;
-    case OSD_MCU: 
-        Item->Value = PushSharedMemory->HarwareInformation.Processor.MaxCoreUsage;
-        Item->ValueOverride = NULL;
-        break;
-    case OSD_MTU: 
-        Item->Value = PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage;
-        Item->ValueOverride = NULL;
-        break;
-    case OSD_DISK_RWRATE: 
-        Item->Value = NULL;
-        Item->ValueOverride = PushSharedMemory->HarwareInformation.Disk.ReadWriteRate;
-        break;
-    case OSD_DISK_RESPONSE: 
-        //Item->Value = hardware.Disk.ResponseTime;
-        Item->ValueOverride = NULL;
-        break;
-    case OSD_TIME: 
-        Item->Value = NULL;
-        Item->ValueOverride = NULL;
-        break;
-    case OSD_BUFFERS: 
-        Item->Value = PushSharedMemory->FrameBufferCount;
-        Item->ValueOverride = NULL;
-        break;
-    case OSD_FPS:
-        Item->Value = NULL;
-        Item->ValueOverride = NULL;
-        break;
-    }
-}
+OSD_ITEM* OsdItems;
+OSD_ITEM* SharedMemory;
 
 
 VOID FormatTime( UINT32 Value, WCHAR* Buffer )
@@ -163,10 +69,9 @@ VOID FormatDiskReadWriteRate(
 /**
 * Refreshes all on-screen display items.
 */
-
+int items;
 VOID OSD_Refresh()
 {
-    UINT8 items = sizeof(OsdItems) / sizeof(OsdItems[0]);
     UINT8 i;
 
     PushSharedMemory->NumberOfOsdItems = items;
@@ -174,7 +79,23 @@ VOID OSD_Refresh()
     // Loop and draw all on screen display items
     for (i = 0; i < items; i++)
     {
-        GetValues(&OsdItems[i]);
+        //GetValues(&OsdItems[i]);
+
+        switch (OsdItems[i].ValueSize)
+        {
+        case sizeof(UINT8) :
+            OsdItems[i].Value = OsdItems[i].ValueSource ? *(UINT8*)OsdItems[i].ValueSource : 0;
+            break;
+        case sizeof(UINT16) :
+            OsdItems[i].Value = OsdItems[i].ValueSource ? *(UINT16*)OsdItems[i].ValueSource : 0;
+            break;
+        case sizeof(UINT32) :
+            OsdItems[i].Value = OsdItems[i].ValueSource ? *(UINT32*)OsdItems[i].ValueSource : 0;
+            break;
+        }
+
+        //OsdItems[i].Value = OsdItems[i].ValueSource ? *(UINT32*)OsdItems[i].ValueSource : 0;
+        OsdItems[i].Value2 = OsdItems[i].Value2 ? *(UINT32*)OsdItems[i].ValueSource2 : 0;
 
         if (!OsdItems[i].Flag //draw if no flag, could be somebody just wants to display stuff on-screen
             || PushSharedMemory->OSDFlags & OsdItems[i].Flag //if it has a flag, is it set?
@@ -188,7 +109,7 @@ VOID OSD_Refresh()
             {
                 if (OsdItems[i].DynamicFormat)
                 {
-                    OsdItems[i].DynamicFormat(OsdItems[i].ValueOverride ? OsdItems[i].ValueOverride : 0, OsdItems[i].Text);
+                    OsdItems[i].DynamicFormat(OsdItems[i].Value2 ? OsdItems[i].Value2 : 0, OsdItems[i].Text);
                 }
                 else if (OsdItems[i].Format)
                 {
@@ -196,7 +117,7 @@ VOID OSD_Refresh()
                         OsdItems[i].Text,
                         20,
                         OsdItems[i].DisplayFormat,
-                        OsdItems[i].ValueOverride ? OsdItems[i].ValueOverride : OsdItems[i].Value
+                        OsdItems[i].Value2 ? OsdItems[i].Value2 : OsdItems[i].Value
                         );
                 }
 
@@ -211,7 +132,74 @@ VOID OSD_Refresh()
     }
 
     if (PushOverlayInterface == OVERLAY_INTERFACE_PURE)
-        memcpy(PushSharedMemory->OsdItems, OsdItems, sizeof(OsdItems));
+        memcpy(SharedMemory, OsdItems, sizeof(OSD_ITEM) * items);
     else if (PushOverlayInterface == OVERLAY_INTERFACE_RTSS)
         RTSS_Update(OsdItems);
+}
+
+
+VOID OSD_AddItem(
+    DWORD Flag,
+    WCHAR* DisplayFormat,
+    VOID* ValueSource,
+    UINT8 ValueSize,
+    UINT32* ValueSource2,
+    UINT16 Threshold,
+    OSD_DYNAMIC_FORMAT DynamicFormat,
+    BOOLEAN Format
+    )
+{
+    if (!OsdItems)
+        OsdItems = RtlAllocateHeap(PushHeapHandle, HEAP_ZERO_MEMORY, sizeof(OSD_ITEM) * 19);
+
+    OsdItems[items].Flag = Flag;
+    OsdItems[items].DisplayFormat = DisplayFormat;
+    OsdItems[items].ValueSource = ValueSource;
+    OsdItems[items].ValueSize = ValueSize;
+    OsdItems[items].ValueSource2 = ValueSource2;
+    OsdItems[items].Threshold = Threshold;
+    OsdItems[items].DynamicFormat = DynamicFormat;
+    OsdItems[items].Format = Format;
+
+    items++;
+}
+
+
+VOID OSD_Initialize()
+{
+    PUSH_HARDWARE_INFORMATION* hardware = &PushSharedMemory->HarwareInformation;
+
+    OSD_AddItem(OSD_GPU_LOAD, L"GPU : %i %%", &hardware->DisplayDevice.Load, sizeof(UINT8), NULL, 90, NULL, TRUE);
+    OSD_AddItem(OSD_GPU_TEMP, L"GPU : %i °C", &hardware->DisplayDevice.Temperature, sizeof(UINT8), NULL, 75, NULL, TRUE);
+    OSD_AddItem(OSD_GPU_E_CLK, L"GPU : %i MHz", &hardware->DisplayDevice.EngineClock, sizeof(UINT32), NULL, 0, NULL, TRUE);
+    OSD_AddItem(OSD_GPU_M_CLK, L"GPU : %i MHz", &hardware->DisplayDevice.MemoryClock, sizeof(UINT32), NULL, 0, NULL, TRUE);
+    OSD_AddItem(OSD_GPU_VOLTAGE, L"GPU : %i mV", &hardware->DisplayDevice.Voltage, sizeof(UINT32), NULL, 0, NULL, TRUE);
+    OSD_AddItem(OSD_GPU_FAN, L"GPU : %i RPM", &hardware->DisplayDevice.FanSpeed, sizeof(UINT32), NULL, 0, NULL, TRUE);
+    
+    OSD_AddItem(
+        OSD_GPU_VRAM,
+        L"VRAM : %i MB",
+        &hardware->DisplayDevice.FrameBuffer.Load,
+        sizeof(UINT8),
+        &hardware->DisplayDevice.FrameBuffer.Used,
+        90,
+        NULL,
+        TRUE
+        );
+    
+    OSD_AddItem(OSD_RAM, L"RAM : %i MB", &hardware->Memory.Load, sizeof(UINT8), &hardware->Memory.Used, 90, NULL, TRUE);
+    OSD_AddItem(OSD_CPU_SPEED, L"CPU : %i MHz", &hardware->Processor.Speed, sizeof(UINT16), NULL, 0, NULL, TRUE);
+    OSD_AddItem(OSD_CPU_LOAD, L"CPU : %i %%", &hardware->Processor.Load, sizeof(UINT8), NULL, 95, NULL, TRUE);
+    OSD_AddItem(OSD_CPU_TEMP, L"CPU : %i °C", &hardware->Processor.Temperature, sizeof(UINT8), NULL, 75, NULL, TRUE);
+    OSD_AddItem(OSD_MCU, L"CPUm : %i %%", &hardware->Processor.MaxCoreUsage, sizeof(UINT8), NULL, 0, NULL, TRUE);
+    OSD_AddItem(OSD_MTU, L"MTU : %i %%", &hardware->Processor.MaxThreadUsage, sizeof(UINT8), NULL, 0, NULL, TRUE);
+    OSD_AddItem(OSD_DISK_RWRATE, NULL, NULL, sizeof(UINT8), NULL, 0, FormatDiskReadWriteRate, TRUE);
+    OSD_AddItem(OSD_DISK_RESPONSE, L"DSK : %i ms", NULL, sizeof(UINT8), NULL, 4000, NULL, TRUE);
+    OSD_AddItem(OSD_TIME, NULL, NULL, sizeof(UINT8), NULL, 0, FormatTime, TRUE);
+    OSD_AddItem(OSD_BUFFERS, L"Buffers : %i", &PushSharedMemory->FrameBufferCount, sizeof(UINT8), NULL, 0, NULL, TRUE);
+    OSD_AddItem(OSD_RESOLUTION, 0, 0, sizeof(UINT8), 0, 0, NULL, TRUE);
+    OSD_AddItem(OSD_FPS, 0, 0, sizeof(UINT8), 0, 0, 0, FALSE);
+
+    // Create file mapping for OSD items
+    SharedMemory = (OSD_ITEM*)Memory_CreateFileMapping(L"PushOSDMemory", sizeof(OSD_ITEM) * items);
 }

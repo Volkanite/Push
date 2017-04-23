@@ -1002,7 +1002,6 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     MSG messages;
     BOOLEAN bAlreadyRunning;
     OBJECT_ATTRIBUTES objAttrib = {0};
-    UINT32 sharedMemorySize;
 
     // Check if already running
     hMutex = CreateMutexW(0, FALSE, L"PushOneInstance");
@@ -1034,10 +1033,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     MwCreateMainWindow();
 
     // Create file mapping.
-
-    PushSharedMemory = NULL;
-    sharedMemorySize = sizeof(PUSH_SHARED_MEMORY) + sizeof(OsdItems);
-    PushSharedMemory = (PUSH_SHARED_MEMORY*) Memory_CreateFileMapping(PUSH_SECTION_NAME, sharedMemorySize);
+    PushSharedMemory = (PUSH_SHARED_MEMORY*)Memory_CreateFileMapping(PUSH_SECTION_NAME, sizeof(PUSH_SHARED_MEMORY));
 
     if (!PushSharedMemory)
     {
@@ -1046,7 +1042,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     }
 
     //zero struct
-    memset(PushSharedMemory, 0, sharedMemorySize);
+    memset(PushSharedMemory, 0, sizeof(PUSH_SHARED_MEMORY));
 
     //initialize window handle used by overlay
     PushSharedMemory->WindowHandle = PushMainWindow->Handle;
@@ -1130,6 +1126,9 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 
     //initialize HWInfo
     GetHardwareInfo();
+
+    //initialize OSD items
+    OSD_Initialize();
 
     //start timer
     SetTimer(PushMainWindow->Handle, 0, 1000, 0);

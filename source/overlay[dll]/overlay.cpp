@@ -178,6 +178,26 @@ VOID CallPipe( WCHAR* Command, UINT16* Output )
 }
 
 
+VOID* OpenSection( WCHAR* SectionName, SIZE_T SectionSize )
+{
+    void *sectionHandle;
+
+    sectionHandle = OpenFileMappingW(
+        FILE_MAP_ALL_ACCESS,
+        FALSE,
+        SectionName
+        );
+
+    return MapViewOfFile(
+        sectionHandle,
+        FILE_MAP_ALL_ACCESS,
+        NULL,
+        NULL,
+        SectionSize
+        );
+}
+
+
 BOOL __stdcall DllMain(
     _In_ HINSTANCE Instance,
     _In_ ULONG fdwReason,
@@ -188,22 +208,13 @@ BOOL __stdcall DllMain(
     {
     case DLL_PROCESS_ATTACH:
         {
-            void *sectionHandle;
+            
             DEVMODE devMode;
 
-            sectionHandle = OpenFileMappingW(
-                FILE_MAP_ALL_ACCESS,
-                FALSE,
-                PUSH_SECTION_NAME
+            PushSharedMemory = (PUSH_SHARED_MEMORY *)OpenSection(
+                PUSH_SECTION_NAME, 
+                sizeof(PUSH_SHARED_MEMORY)
                 );
-
-            PushSharedMemory = (PUSH_SHARED_MEMORY *) MapViewOfFile(
-                                    sectionHandle,
-                                    FILE_MAP_ALL_ACCESS,
-                                    NULL,
-                                    NULL,
-                                    sizeof(PUSH_SHARED_MEMORY)
-                                    );
 
             PushImageEvent = OpenEventW(
                 SYNCHRONIZE,
