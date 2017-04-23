@@ -240,7 +240,7 @@ UINT16 Adl_GetVoltage()
 VOID Adl_SetVoltage( UINT16 Voltage )
 {
     ADLODPerformanceLevels *performanceLevels;
-    int i, lev, vddc;
+    int lev, vddc;
 
     vddc = Voltage;
     lev = PerformanceLevels - 1;
@@ -252,10 +252,6 @@ VOID Adl_SetVoltage( UINT16 Voltage )
     performanceLevels->Size = sizeof(ADLODPerformanceLevels) + sizeof(ADLODPerformanceLevel) * lev;
 
     ADL_Overdrive5_ODPerformanceLevels_Get(0, 0, performanceLevels);
-
-    for (i = 0; i < lev; i++){
-        performanceLevels->Levels[i].Vddc = vddc;
-    }
 
     performanceLevels->Levels[lev].Vddc = vddc;
 
