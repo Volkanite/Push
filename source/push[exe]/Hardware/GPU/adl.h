@@ -3,9 +3,10 @@ VOID Adl_Initialize();
 UINT8 Adl_GetActivity();
 UINT16 Adl_GetEngineClock();
 UINT16 Adl_GetMemoryClock();
+UINT16 Adl_GetVoltage();
 UINT16 Adl_GetEngineClockMax();
 UINT16 Adl_GetMemoryClockMax();
-UINT16 Adl_GetVoltage();
+UINT16 Adl_GetVoltageMax();
 UINT8 Adl_GetTemperature();
 UINT32 Adl_GetFanSpeed();
 

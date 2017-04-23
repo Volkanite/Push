@@ -972,7 +972,7 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                 {
                     Adl_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax);
                     Adl_SetMemoryClock(PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax);
-                    Adl_SetVoltage(PushSharedMemory->HarwareInformation.DisplayDevice.Voltage);
+                    Adl_SetVoltage(PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax);
 
                     PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax = Adl_GetEngineClockMax();
                 }

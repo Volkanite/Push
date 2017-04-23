@@ -58,6 +58,12 @@ UINT16 AmdGpu_GetMemoryClockMax()
 }
 
 
+UINT16 AmdGpu_GetVoltageMax()
+{
+    return Adl_GetVoltageMax();
+}
+
+
 UINT64 AmdGpu_GetTotalMemory()
 {
     UINT16 megabytes;

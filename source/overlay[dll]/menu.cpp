@@ -57,6 +57,7 @@ extern UINT8 FrameLimit;
 #include <wchar.h>
 VOID ChangeVsync(BOOLEAN Setting);
 
+
 VOID UpdateGpuInformation()
 {
     swprintf(GpuSpeedEngine, 20, L"%i MHz", PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax);
@@ -67,7 +68,7 @@ VOID UpdateGpuInformation()
     GpuSpeedMemoryOpt[0] = GpuSpeedMemory;
     GpuSpeedMemoryOpt[1] = GpuSpeedMemory;
 
-    swprintf(GpuVoltage, 20, L"%i mV", PushSharedMemory->HarwareInformation.DisplayDevice.Voltage);
+    swprintf(GpuVoltage, 20, L"%i mV", PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax);
     GpuVoltageOpt[0] = GpuVoltage;
     GpuVoltageOpt[1] = GpuVoltage;
 }
@@ -153,10 +154,13 @@ VOID AddItems()
         Menu->AddItem(L"Terminate", ItemOpt, &Process[1], FUNC_TERMINATE);
     }
 }
+
+
 typedef enum _OVERCLOCK_UNIT
 {
     OC_ENGINE,
-    OC_MEMORY
+    OC_MEMORY,
+    OC_VOLTAGE
 
 }OVERCLOCK_UNIT;
 
@@ -173,6 +177,8 @@ VOID Overclock( OVERCLOCK_UNIT Unit )
         PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax++;
         PushSharedMemory->OSDFlags |= OSD_GPU_M_CLK;
         break;
+    case OC_VOLTAGE:
+        PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax++;
     default:
         break;
     }
@@ -256,10 +262,7 @@ VOID ProcessOptions( MenuItems* Item )
 
         case 1:
         {
-            PushSharedMemory->HarwareInformation.DisplayDevice.Voltage++;
-
-            UpdateGpuInformation();
-            CallPipe(L"UpdateClocks", NULL);
+            Overclock(OC_VOLTAGE);
         }
         break;
         }

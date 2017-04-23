@@ -237,6 +237,12 @@ UINT16 Adl_GetVoltage()
 }
 
 
+UINT16 Adl_GetVoltageMax()
+{
+    return VoltageMaximum;
+}
+
+
 VOID Adl_SetVoltage( UINT16 Voltage )
 {
     ADLODPerformanceLevels *performanceLevels;
