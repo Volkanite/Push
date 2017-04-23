@@ -971,10 +971,10 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                 else if (String_Compare(buffer, L"UpdateClocks") == 0)
                 {
                     Adl_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax);
+                    Adl_SetMemoryClock(PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax);
                     Adl_SetVoltage(PushSharedMemory->HarwareInformation.DisplayDevice.Voltage);
 
                     PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax = Adl_GetEngineClockMax();
-                    Log(L"%i", Adl_GetEngineClockMax());
                 }
                 else if (String_CompareN(buffer, L"GetDiskResponseTime", 19) == 0)
                 {
@@ -1110,9 +1110,11 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
                 PushSharedMemory->KeyboardHookType = KEYBOARD_HOOK_AUTO;
             }
 
-            buffer = SlIniReadString(L"Settings", L"ClockMax", NULL, L".\\" PUSH_SETTINGS_FILE);
+            buffer = SlIniReadString(L"Settings", L"EngineClockMax", NULL, L".\\" PUSH_SETTINGS_FILE);
+            PushSharedMemory->HarwareInformation.DisplayDevice.EngineOverclock = _wtoi(buffer);
 
-            PushSharedMemory->HarwareInformation.DisplayDevice.Overclock = _wtoi(buffer);
+            buffer = SlIniReadString(L"Settings", L"MemoryClockMax", NULL, L".\\" PUSH_SETTINGS_FILE);
+            PushSharedMemory->HarwareInformation.DisplayDevice.MemoryOverclock = _wtoi(buffer);
         }
         else
         {

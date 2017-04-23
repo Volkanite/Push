@@ -113,10 +113,20 @@ VOID RunFrameStatistics()
 
         if (!DisableAutoOverclock && IsGpuLag())
         {
-            if (PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax < PushSharedMemory->HarwareInformation.DisplayDevice.Overclock)
+            if (PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax < PushSharedMemory->HarwareInformation.DisplayDevice.EngineOverclock)
                 Overclock(OC_ENGINE);
 
-            Overclock(OC_MEMORY);
+            if (PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax < PushSharedMemory->HarwareInformation.DisplayDevice.MemoryOverclock)
+                Overclock(OC_MEMORY);
+
+            Log(L"E-Clk %i, E-ClkMax %i, E-OC %i, M-Clk %i, M-ClkMax %i, M-OC %i",
+                PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock,
+                PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax,
+                PushSharedMemory->HarwareInformation.DisplayDevice.EngineOverclock,
+                PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock,
+                PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax,
+                PushSharedMemory->HarwareInformation.DisplayDevice.MemoryOverclock
+                );
         }
     }
 

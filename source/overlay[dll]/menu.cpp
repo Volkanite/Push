@@ -168,16 +168,16 @@ VOID Overclock( OVERCLOCK_UNIT Unit )
     case OC_ENGINE:
         PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax++;
         PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
-
-        CallPipe(L"UpdateClocks", NULL);
         break;
     case OC_MEMORY:
-        CallPipe(L"Overclock m", NULL);
+        PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax++;
+        PushSharedMemory->OSDFlags |= OSD_GPU_M_CLK;
         break;
     default:
         break;
     }
 
+    CallPipe(L"UpdateClocks", NULL);
     UpdateGpuInformation();
 }
 
