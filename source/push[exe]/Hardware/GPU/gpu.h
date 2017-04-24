@@ -6,7 +6,11 @@ typedef struct _GPU_INFO
     int EngineClock;
     int MemoryClock;
     int Voltage;
-    int ActivityPercent;
+    int Load;
+    int Temperature;
+    int FanSpeed;
+    int MemoryUsed;
+    int MemoryUsage;
 
 }GPU_INFO;
 

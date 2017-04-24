@@ -3,7 +3,6 @@
 #include <push.h>
 #include <ring0.h>
 
-#include "GPU\d3dkmt.h"
 #include "CPU\cpu.h"
 #include "disk.h"
 #include "hardware.h"
@@ -17,27 +16,6 @@ DWORD                       dwMappedMemAddr;
 SYSTEM_BASIC_INFORMATION    HwInfoSystemBasicInformation;
 
 
-UINT8 GetGpuTemp()
-{
-    return GPU_GetTemperature();
-}
-
-
-UINT8 GetGpuLoad()
-{
-    if (PushGpuLoadD3DKMT || PushSharedMemory->HarwareInformation.DisplayDevice.VendorId == AMD) //AMD ADL gpu load is finicky
-        return D3DKMT_GetGpuUsage();
-    else
-        return GPU_GetLoad(); 
-}
-
-
-UINT16 GetFanSpeed()
-{
-    return GPU_GetFanSpeed();
-}
-
-
 UINT8 GetCpuTemp()
 {
     return CPU_GetTemperature();
@@ -46,25 +24,6 @@ UINT8 GetCpuTemp()
 
 UINT64
 D3DKMTGetMemoryUsage();
-
-
-UINT32 GetVramUsed()
-{
-    UINT64 total, free, used;
-
-    total = GPU_GetTotalMemory();
-    free = GPU_GetFreeMemory();
-    used = total - free;
-
-    return used / 1048576;
-}
-
-
-UINT8
-GetVramUsage()
-{
-    return 100 * ((float)PushSharedMemory->HarwareInformation.DisplayDevice.FrameBuffer.Used / (float)PushSharedMemory->HarwareInformation.DisplayDevice.FrameBuffer.Total);
-}
 
 
 UINT32 GetFrameBufferSize()
@@ -509,8 +468,6 @@ VOID GetHardwareInfo()
 }
 
 
-#include "GPU\adl.h"
-
 VOID RefreshHardwareInfo()
 {
     GPU_INFO gpuInfo;
@@ -523,14 +480,14 @@ VOID RefreshHardwareInfo()
     PushSharedMemory->HarwareInformation.Processor.Load                 = GetCpuLoad();
     PushSharedMemory->HarwareInformation.Processor.MaxCoreUsage         = GetMaxCoreLoad();
     PushSharedMemory->HarwareInformation.Processor.Temperature          = GetCpuTemp();
-    PushSharedMemory->HarwareInformation.DisplayDevice.Load             = GetGpuLoad();
+    PushSharedMemory->HarwareInformation.DisplayDevice.Load             = gpuInfo.Load;
     PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock      = gpuInfo.EngineClock;
     PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock      = gpuInfo.MemoryClock;
     PushSharedMemory->HarwareInformation.DisplayDevice.Voltage          = gpuInfo.Voltage;
-    PushSharedMemory->HarwareInformation.DisplayDevice.Temperature      = GetGpuTemp();
-    PushSharedMemory->HarwareInformation.DisplayDevice.FrameBuffer.Used = GetVramUsed();
-    PushSharedMemory->HarwareInformation.DisplayDevice.FrameBuffer.Load = GetVramUsage();
-    PushSharedMemory->HarwareInformation.DisplayDevice.FanSpeed         = GetFanSpeed();
+    PushSharedMemory->HarwareInformation.DisplayDevice.Temperature      = gpuInfo.Temperature;
+    PushSharedMemory->HarwareInformation.DisplayDevice.FrameBuffer.Used = gpuInfo.MemoryUsed;
+    PushSharedMemory->HarwareInformation.DisplayDevice.FrameBuffer.Load = gpuInfo.MemoryUsage;
+    PushSharedMemory->HarwareInformation.DisplayDevice.FanSpeed         = gpuInfo.FanSpeed;
     PushSharedMemory->HarwareInformation.Memory.Used                    = GetRamUsed();
     PushSharedMemory->HarwareInformation.Memory.Load                    = GetRamUsage();
     PushSharedMemory->HarwareInformation.Disk.ReadWriteRate             = GetDiskReadWriteRate();

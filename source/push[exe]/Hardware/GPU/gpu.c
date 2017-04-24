@@ -7,6 +7,7 @@
 #include "amdgpu.h"
 #include "nvidiagpu.h"
 #include "IntelGpu.h"
+#include "GPU\d3dkmt.h"
 
 
 typedef struct _PCI_CONFIG
@@ -53,6 +54,18 @@ VOID GPU_GetInfo( GPU_INFO* Info )
     {
     case AMD:
         AmdGpu_GetInfo(Info);
+
+        //AMD ADL gpu load is finicky
+        Info->Load = D3DKMT_GetGpuUsage();
+
+        UINT64 total, free, used;
+
+        total = GPU_GetTotalMemory();
+        free = GPU_GetFreeMemory();
+        used = total - free;
+
+        Info->MemoryUsed = used / 1048576;
+        Info->MemoryUsage = 100 * ((float)used / (float)total);
         break;
     case NVIDIA:
         break;

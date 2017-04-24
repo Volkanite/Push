@@ -114,16 +114,28 @@ VOID Adl_Initialize()
 }
 
 
-VOID Adl_GetActivity( GPU_INFO* Information )
+VOID Adl_GetInfo( GPU_INFO* Information )
 {
-    ADLPMActivity activity; 
+    ADLPMActivity activity;
+    ADLTemperature temperature;
+    ADLFanSpeedValue fanSpeed;
 
     ADL_Overdrive5_CurrentActivity_Get(0, &activity);
 
-    Information->ActivityPercent = activity.ActivityPercent;
+    Information->Load = activity.ActivityPercent;
     Information->EngineClock = activity.EngineClock / 100;
     Information->MemoryClock = activity.MemoryClock / 100;
     Information->Voltage = activity.iVddc;
+
+    ADL_Overdrive5_Temperature_Get(0, 0, &temperature);
+
+    Information->Temperature = temperature.Temperature / 1000;
+
+    fanSpeed.iSpeedType = ADL_DL_FANCTRL_SPEED_TYPE_RPM;
+
+    ADL_Overdrive5_FanSpeed_Get(0, 0, &fanSpeed);
+
+    Information->FanSpeed = fanSpeed.iFanSpeed;
 }
 
 
@@ -239,26 +251,4 @@ VOID Adl_SetMaxClocks()
     Adl_SetVoltage( VoltageMaximum );
     Adl_SetEngineClock( EngineClockMaximum );
     Adl_SetMemoryClock( MemoryClockMaximum );
-}
-
-
-UINT8 Adl_GetTemperature()
-{
-    ADLTemperature temperature;
-
-    ADL_Overdrive5_Temperature_Get(0, 0, &temperature);
-
-    return temperature.Temperature / 1000;
-}
-
-
-UINT32 Adl_GetFanSpeed()
-{
-    ADLFanSpeedValue fanSpeed;
-
-    fanSpeed.iSpeedType = ADL_DL_FANCTRL_SPEED_TYPE_RPM;
-
-    ADL_Overdrive5_FanSpeed_Get(0, 0, &fanSpeed);
-
-    return fanSpeed.iFanSpeed;
 }

@@ -94,8 +94,7 @@ VOID OSD_Refresh()
             break;
         }
 
-        //OsdItems[i].Value = OsdItems[i].ValueSource ? *(UINT32*)OsdItems[i].ValueSource : 0;
-        OsdItems[i].Value2 = OsdItems[i].Value2 ? *(UINT32*)OsdItems[i].ValueSource2 : 0;
+        OsdItems[i].Value2 = OsdItems[i].ValueSource2 ? *(UINT32*)OsdItems[i].ValueSource2 : 0;
 
         if (!OsdItems[i].Flag //draw if no flag, could be somebody just wants to display stuff on-screen
             || PushSharedMemory->OSDFlags & OsdItems[i].Flag //if it has a flag, is it set?

@@ -34,9 +34,9 @@ VOID RdnSetMaxClocks()
 }
 
 
-VOID AmdGpu_GetInfo(GPU_INFO* Information)
+VOID AmdGpu_GetInfo( GPU_INFO* Information )
 {
-    Adl_GetActivity(Information);
+    Adl_GetInfo(Information);
 }
 
 
@@ -93,9 +93,9 @@ UINT8 AmdGpu_GetLoad()
     {
         GPU_INFO activity;
 
-        Adl_GetActivity(&activity);
+        Adl_GetInfo(&activity);
 
-        return activity.ActivityPercent;
+        return activity.Load;
     }
     else
     {
