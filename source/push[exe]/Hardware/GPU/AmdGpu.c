@@ -34,15 +34,9 @@ VOID RdnSetMaxClocks()
 }
 
 
-UINT16 AmdGpu_GetEngineClock()
+VOID AmdGpu_GetInfo(GPU_INFO* Information)
 {
-    return Adl_GetEngineClock();
-}
-
-
-UINT16 AmdGpu_GetMemoryClock()
-{
-    return Adl_GetMemoryClock();
+    Adl_GetActivity(Information);
 }
 
 
@@ -97,7 +91,11 @@ UINT8 AmdGpu_GetLoad()
 {
     if (DeviceId == 0x9832)
     {
-        return Adl_GetActivity();
+        GPU_INFO activity;
+
+        Adl_GetActivity(&activity);
+
+        return activity.ActivityPercent;
     }
     else
     {
@@ -132,12 +130,6 @@ UINT16 AmdGpu_GetMaxEngineClock()
 UINT16 AmdGpu_GetMaxMemoryClock()
 {
     return Adl_GetMemoryClockMax();
-}
-
-
-UINT16 AmdGpu_GetVoltage()
-{
-    return Adl_GetVoltage();
 }
 
 

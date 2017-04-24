@@ -114,39 +114,16 @@ VOID Adl_Initialize()
 }
 
 
-UINT8 Adl_GetActivity()
+VOID Adl_GetActivity( GPU_INFO* Information )
 {
-    ADLPMActivity activity;
+    ADLPMActivity activity; 
 
     ADL_Overdrive5_CurrentActivity_Get(0, &activity);
 
-    return activity.ActivityPercent;
-}
-
-
-UINT16 Adl_GetEngineClock()
-{
-    ADLPMActivity activity;
-
-    if (!AdlInitialized)
-        return 0;
-
-    ADL_Overdrive5_CurrentActivity_Get(0, &activity);
-
-    return activity.EngineClock / 100;
-}
-
-
-UINT16 Adl_GetMemoryClock()
-{
-    ADLPMActivity activity;
-
-    if (!AdlInitialized)
-        return 0;
-
-    ADL_Overdrive5_CurrentActivity_Get(0, &activity);
-
-    return activity.MemoryClock / 100;
+    Information->ActivityPercent = activity.ActivityPercent;
+    Information->EngineClock = activity.EngineClock / 100;
+    Information->MemoryClock = activity.MemoryClock / 100;
+    Information->Voltage = activity.iVddc;
 }
 
 
@@ -224,16 +201,6 @@ VOID Adl_SetMemoryClock( UINT16 MemoryClock )
     ADL_Overdrive5_ODPerformanceLevels_Set(0, performanceLevels);
 
     Memory_Free(performanceLevels);
-}
-
-
-UINT16 Adl_GetVoltage()
-{
-    ADLPMActivity activity;
-
-    ADL_Overdrive5_CurrentActivity_Get(0, &activity);
-
-    return activity.iVddc;
 }
 
 

@@ -47,57 +47,19 @@ VOID GPU_Initialize( ULONG PciAddress )
 }
 
 
-UINT16 GPU_GetVoltage()
+VOID GPU_GetInfo( GPU_INFO* Info )
 {
     switch (GPU_VendorId)
     {
     case AMD:
-        return AmdGpu_GetVoltage();
+        AmdGpu_GetInfo(Info);
         break;
     case NVIDIA:
         break;
     default:
-        return 0;
+        return;
         break;
     }
-
-    return 0;
-}
-
-
-UINT16 GPU_GetEngineClock()
-{
-    switch (GPU_VendorId)
-    {
-    case AMD:
-        return AmdGpu_GetEngineClock();
-        break;
-    case NVIDIA:
-        break;
-    default:
-        return 0;
-        break;
-    }
-
-    return 0;
-}
-
-
-UINT16 GPU_GetMemoryClock()
-{
-    switch (GPU_VendorId)
-    {
-    case AMD:
-        return AmdGpu_GetMemoryClock();
-        break;
-    case NVIDIA:
-        break;
-    default:
-        return 0;
-        break;
-    }
-
-    return 0;
 }
 
 

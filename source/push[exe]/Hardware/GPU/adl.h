@@ -1,9 +1,8 @@
-VOID Adl_Initialize();
+#include "AmdGpu.h"
 
-UINT8 Adl_GetActivity();
-UINT16 Adl_GetEngineClock();
-UINT16 Adl_GetMemoryClock();
-UINT16 Adl_GetVoltage();
+VOID Adl_Initialize();
+VOID Adl_GetActivity(GPU_INFO* Activity);
+
 UINT16 Adl_GetEngineClockMax();
 UINT16 Adl_GetMemoryClockMax();
 UINT16 Adl_GetVoltageMax();

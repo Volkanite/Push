@@ -17,24 +17,6 @@ DWORD                       dwMappedMemAddr;
 SYSTEM_BASIC_INFORMATION    HwInfoSystemBasicInformation;
 
 
-UINT16 GetEngineClock()
-{
-    return GPU_GetEngineClock();
-}
-
-
-UINT16 GetMemoryClock()
-{
-    return GPU_GetMemoryClock();
-}
-
-
-UINT16 GetVoltage()
-{
-    return GPU_GetVoltage();
-}
-
-
 UINT8 GetGpuTemp()
 {
     return GPU_GetTemperature();
@@ -531,16 +513,20 @@ VOID GetHardwareInfo()
 
 VOID RefreshHardwareInfo()
 {
+    GPU_INFO gpuInfo;
+
     PhpUpdateCpuInformation();
+
+    GPU_GetInfo(&gpuInfo);
 
     PushSharedMemory->HarwareInformation.Processor.Speed                = CPU_GetSpeed();
     PushSharedMemory->HarwareInformation.Processor.Load                 = GetCpuLoad();
     PushSharedMemory->HarwareInformation.Processor.MaxCoreUsage         = GetMaxCoreLoad();
     PushSharedMemory->HarwareInformation.Processor.Temperature          = GetCpuTemp();
     PushSharedMemory->HarwareInformation.DisplayDevice.Load             = GetGpuLoad();
-    PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock      = GetEngineClock();
-    PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock      = GetMemoryClock();
-    PushSharedMemory->HarwareInformation.DisplayDevice.Voltage          = GetVoltage();
+    PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock      = gpuInfo.EngineClock;
+    PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock      = gpuInfo.MemoryClock;
+    PushSharedMemory->HarwareInformation.DisplayDevice.Voltage          = gpuInfo.Voltage;
     PushSharedMemory->HarwareInformation.DisplayDevice.Temperature      = GetGpuTemp();
     PushSharedMemory->HarwareInformation.DisplayDevice.FrameBuffer.Used = GetVramUsed();
     PushSharedMemory->HarwareInformation.DisplayDevice.FrameBuffer.Load = GetVramUsage();
