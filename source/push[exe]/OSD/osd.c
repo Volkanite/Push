@@ -149,7 +149,7 @@ VOID OSD_AddItem(
     )
 {
     if (!OsdItems)
-        OsdItems = RtlAllocateHeap(PushHeapHandle, HEAP_ZERO_MEMORY, sizeof(OSD_ITEM) * 19);
+        OsdItems = RtlAllocateHeap(PushHeapHandle, HEAP_ZERO_MEMORY, sizeof(OSD_ITEM) * 20);
 
     OsdItems[items].Flag = Flag;
     OsdItems[items].DisplayFormat = DisplayFormat;
@@ -173,7 +173,8 @@ VOID OSD_Initialize()
     OSD_AddItem(OSD_GPU_E_CLK, L"GPU : %i MHz", &hardware->DisplayDevice.EngineClock, sizeof(UINT32), NULL, 0, NULL, TRUE);
     OSD_AddItem(OSD_GPU_M_CLK, L"GPU : %i MHz", &hardware->DisplayDevice.MemoryClock, sizeof(UINT32), NULL, 0, NULL, TRUE);
     OSD_AddItem(OSD_GPU_VOLTAGE, L"GPU : %i mV", &hardware->DisplayDevice.Voltage, sizeof(UINT32), NULL, 0, NULL, TRUE);
-    OSD_AddItem(OSD_GPU_FAN, L"GPU : %i RPM", &hardware->DisplayDevice.FanSpeed, sizeof(UINT32), NULL, 0, NULL, TRUE);
+    OSD_AddItem(OSD_GPU_FAN_RPM, L"GPU : %i RPM", &hardware->DisplayDevice.FanSpeed, sizeof(UINT32), NULL, 0, NULL, TRUE);
+    OSD_AddItem(OSD_GPU_FAN_DC, L"GPU : %i %%", &hardware->DisplayDevice.FanDutyCycle, sizeof(UINT8), NULL, 90, NULL, TRUE);
     
     OSD_AddItem(
         OSD_GPU_VRAM,

@@ -153,11 +153,12 @@ typedef struct _IMDISK_SET_DEVICE_FLAGS
 #define OSD_DISK_RESPONSE   0x00001000
 #define OSD_GPU_E_CLK       0x00002000
 #define OSD_GPU_M_CLK       0x00004000
-#define OSD_GPU_FAN         0x00008000
+#define OSD_GPU_FAN_RPM     0x00008000
 #define OSD_BUFFERS         0x00010000
 #define OSD_RESOLUTION      0x00020000
 #define OSD_GPU_VOLTAGE     0x00040000
-#define OSD_LAST_ITEM       0x00040000 //Update me!
+#define OSD_GPU_FAN_DC      0x00080000
+#define OSD_LAST_ITEM       0x00080000 //Update me!
 
 
 typedef struct _CORE_LIST CORE_LIST;
@@ -188,6 +189,7 @@ typedef struct _PUSH_HARDWARE_INFORMATION
         UINT32  Voltage;
         UINT32  VoltageMax;
         UINT32  FanSpeed;
+        UINT8   FanDutyCycle;
 
         ULONG   pciAddress;
         ULONG   BarAddress;
