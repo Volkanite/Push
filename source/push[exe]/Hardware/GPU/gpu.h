@@ -9,6 +9,7 @@ typedef struct _GPU_INFO
     int Load;
     int Temperature;
     int FanSpeed;
+    int FanDutyCycle;
     int MemoryUsed;
     int MemoryUsage;
 

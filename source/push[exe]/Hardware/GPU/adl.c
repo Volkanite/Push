@@ -2,6 +2,7 @@
 
 #include "adl.h"
 #include "adl_structures.h"
+#include "adl_functions.h"
 
 
 UINT16 EngineClockMaximum;
@@ -9,42 +10,17 @@ UINT16 MemoryClockMaximum;
 UINT16 VoltageMaximum;
 UINT8 PerformanceLevels;
 BOOLEAN AdlInitialized;
+int FanFlags;
 
 
-typedef VOID* (__stdcall *TYPE_ADL_Main_Memory_Alloc) ( INT32 );
-typedef INT32 (*TYPE_ADL_Main_Control_Create)( TYPE_ADL_Main_Memory_Alloc, INT32 );
-typedef INT32 (*TYPE_ADL_Overdrive5_CurrentActivity_Get) ( INT32, ADLPMActivity* );
-typedef INT32 (*TYPE_ADL_Overdrive5_Temperature_Get)( INT32, INT32, ADLTemperature* );
-
-typedef INT32 (*TYPE_ADL_Overdrive5_ODParameters_Get)(
-    INT32 iAdapterIndex,
-    ADLODParameters *lpOdParameters
-    );
-
-typedef INT32 (*TYPE_ADL_Overdrive5_ODPerformanceLevels_Get)(
-    INT32 iAdapterIndex, INT32 iDefault,
-    ADLODPerformanceLevels *lpOdPerformanceLevels
-    );
-
-typedef INT32 (*TYPE_ADL_Overdrive5_ODPerformanceLevels_Set )(
-    INT32 iAdapterIndex,
-    ADLODPerformanceLevels *lpOdPerformanceLevels
-    );
-
-typedef INT32 (*TYPE_ADL_Overdrive5_FanSpeed_Get)(
-    INT32 iAdapterIndex, 
-    INT32 iThermalControllerIndex, 
-    ADLFanSpeedValue *lpFanSpeedValue
-    );
-
-
-TYPE_ADL_Main_Control_Create                ADL_Main_Control_Create;
-TYPE_ADL_Overdrive5_CurrentActivity_Get     ADL_Overdrive5_CurrentActivity_Get;
-TYPE_ADL_Overdrive5_Temperature_Get         ADL_Overdrive5_Temperature_Get;
-TYPE_ADL_Overdrive5_ODParameters_Get        ADL_Overdrive5_ODParameters_Get;
-TYPE_ADL_Overdrive5_ODPerformanceLevels_Get ADL_Overdrive5_ODPerformanceLevels_Get;
-TYPE_ADL_Overdrive5_ODPerformanceLevels_Set ADL_Overdrive5_ODPerformanceLevels_Set;
-TYPE_ADL_Overdrive5_FanSpeed_Get            ADL_Overdrive5_FanSpeed_Get;
+ADL_MAIN_CONTROL_CREATE                 ADL_Main_Control_Create;
+ADL_OVERDRIVE5_CURRENTACTIVITY_GET      ADL_Overdrive5_CurrentActivity_Get;
+ADL_OVERDRIVE5_TEMPERATURE_GET          ADL_Overdrive5_Temperature_Get;
+ADL_OVERDRIVE5_ODPARAMETERS_GET         ADL_Overdrive5_ODParameters_Get;
+ADL_OVERDRIVE5_ODPERFORMANCELEVELS_GET  ADL_Overdrive5_ODPerformanceLevels_Get;
+ADL_OVERDRIVE5_ODPERFORMANCELEVELS_SET  ADL_Overdrive5_ODPerformanceLevels_Set;
+ADL_OVERDRIVE5_FANSPEED_GET             ADL_Overdrive5_FanSpeed_Get;
+ADL_OVERDRIVE5_FANSPEEDINFO_GET         ADL_Overdrive5_FanSpeedInfo_Get;
 
 
 VOID* __stdcall ADL_Main_Memory_Alloc( INT32 Size )
@@ -60,6 +36,7 @@ VOID Adl_Initialize()
     VOID *adl = NULL;
     ADLODParameters parameters;
     ADLODPerformanceLevels *performanceLevels;
+    ADLFanSpeedInfo fanSpeedInfo;
     UINT8 levels;
 
     adl = Module_Load(L"atiadlxy.dll");
@@ -68,26 +45,29 @@ VOID Adl_Initialize()
 
     AdlInitialized = TRUE;
 
-    ADL_Main_Control_Create = (TYPE_ADL_Main_Control_Create) 
+    ADL_Main_Control_Create = (ADL_MAIN_CONTROL_CREATE)
         Module_GetProcedureAddress(adl, "ADL_Main_Control_Create");
 
-    ADL_Overdrive5_CurrentActivity_Get = (TYPE_ADL_Overdrive5_CurrentActivity_Get) 
+    ADL_Overdrive5_CurrentActivity_Get = (ADL_OVERDRIVE5_CURRENTACTIVITY_GET)
         Module_GetProcedureAddress(adl, "ADL_Overdrive5_CurrentActivity_Get");
 
-    ADL_Overdrive5_Temperature_Get = (TYPE_ADL_Overdrive5_Temperature_Get) 
+    ADL_Overdrive5_Temperature_Get = (ADL_OVERDRIVE5_TEMPERATURE_GET)
         Module_GetProcedureAddress(adl, "ADL_Overdrive5_Temperature_Get");
 
-    ADL_Overdrive5_ODParameters_Get = (TYPE_ADL_Overdrive5_ODParameters_Get) 
+    ADL_Overdrive5_ODParameters_Get = (ADL_OVERDRIVE5_ODPARAMETERS_GET)
         Module_GetProcedureAddress(adl, "ADL_Overdrive5_ODParameters_Get");
 
-    ADL_Overdrive5_ODPerformanceLevels_Get = (TYPE_ADL_Overdrive5_ODPerformanceLevels_Get) 
+    ADL_Overdrive5_ODPerformanceLevels_Get = (ADL_OVERDRIVE5_ODPERFORMANCELEVELS_GET)
         Module_GetProcedureAddress(adl, "ADL_Overdrive5_ODPerformanceLevels_Get");
 
-    ADL_Overdrive5_ODPerformanceLevels_Set = (TYPE_ADL_Overdrive5_ODPerformanceLevels_Set) 
+    ADL_Overdrive5_ODPerformanceLevels_Set = (ADL_OVERDRIVE5_ODPERFORMANCELEVELS_SET)
         Module_GetProcedureAddress(adl, "ADL_Overdrive5_ODPerformanceLevels_Set");
 
-    ADL_Overdrive5_FanSpeed_Get = (TYPE_ADL_Overdrive5_FanSpeed_Get)
+    ADL_Overdrive5_FanSpeed_Get = (ADL_OVERDRIVE5_FANSPEED_GET)
         Module_GetProcedureAddress(adl, "ADL_Overdrive5_FanSpeed_Get");
+
+    ADL_Overdrive5_FanSpeedInfo_Get = (ADL_OVERDRIVE5_FANSPEEDINFO_GET)
+        Module_GetProcedureAddress(adl, "ADL_Overdrive5_FanSpeedInfo_Get");
 
     ADL_Main_Control_Create(ADL_Main_Memory_Alloc, 1);
 
@@ -111,6 +91,10 @@ VOID Adl_Initialize()
     VoltageMaximum = performanceLevels->Levels[levels].Vddc;
 
     Memory_Free(performanceLevels);
+
+    ADL_Overdrive5_FanSpeedInfo_Get(0, 0, &fanSpeedInfo);
+
+    FanFlags = fanSpeedInfo.iFlags;
 }
 
 
@@ -131,11 +115,31 @@ VOID Adl_GetInfo( GPU_INFO* Information )
 
     Information->Temperature = temperature.Temperature / 1000;
 
-    fanSpeed.iSpeedType = ADL_DL_FANCTRL_SPEED_TYPE_RPM;
+    if (FanFlags & ADL_DL_FANCTRL_SUPPORTS_RPM_READ)
+    {
+        fanSpeed.iSpeedType = ADL_DL_FANCTRL_SPEED_TYPE_RPM;
 
-    ADL_Overdrive5_FanSpeed_Get(0, 0, &fanSpeed);
+        int status = ADL_Overdrive5_FanSpeed_Get(0, 0, &fanSpeed);
 
-    Information->FanSpeed = fanSpeed.iFanSpeed;
+        Information->FanSpeed = fanSpeed.iFanSpeed;
+    }
+    else
+    {
+        Information->FanSpeed = 0;
+    }
+
+    if (FanFlags & ADL_DL_FANCTRL_SUPPORTS_PERCENT_READ)
+    {
+        fanSpeed.iSpeedType = ADL_DL_FANCTRL_SPEED_TYPE_PERCENT;
+
+        int status = ADL_Overdrive5_FanSpeed_Get(0, 0, &fanSpeed);
+
+        Information->FanDutyCycle = fanSpeed.iFanSpeed;
+    }
+    else
+    {
+        Information->FanDutyCycle = 0;
+    }
 }
 
 

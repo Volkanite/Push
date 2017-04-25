@@ -97,3 +97,17 @@ enum {
     ADL_DL_FANCTRL_SPEED_TYPE_PERCENT = 1,
     ADL_DL_FANCTRL_SPEED_TYPE_RPM = 2,
 };
+
+
+typedef struct ADLFanSpeedInfo {
+    int iSize;
+    int iFlags;
+    int iMinPercent;
+    int iMaxPercent;
+    int iMinRPM;
+    int iMaxRPM;
+} ADLFanSpeedInfo;
+
+
+#define ADL_DL_FANCTRL_SUPPORTS_PERCENT_READ     1
+#define ADL_DL_FANCTRL_SUPPORTS_RPM_READ         4
