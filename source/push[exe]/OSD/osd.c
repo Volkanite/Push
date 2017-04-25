@@ -189,10 +189,10 @@ VOID OSD_Initialize()
     
     OSD_AddItem(OSD_RAM, L"RAM : %i MB", &hardware->Memory.Load, sizeof(UINT8), &hardware->Memory.Used, 90, NULL, TRUE);
     OSD_AddItem(OSD_CPU_SPEED, L"CPU : %i MHz", &hardware->Processor.Speed, sizeof(UINT16), NULL, 0, NULL, TRUE);
-    OSD_AddItem(OSD_CPU_LOAD, L"CPU : %i %%", &hardware->Processor.Load, sizeof(UINT8), NULL, 95, NULL, TRUE);
+    //OSD_AddItem(OSD_CPU_LOAD, L"CPU : %i %%", &hardware->Processor.Load, sizeof(UINT8), NULL, 95, NULL, TRUE);
     OSD_AddItem(OSD_CPU_TEMP, L"CPU : %i °C", &hardware->Processor.Temperature, sizeof(UINT8), NULL, 75, NULL, TRUE);
-    OSD_AddItem(OSD_MCU, L"CPUm : %i %%", &hardware->Processor.MaxCoreUsage, sizeof(UINT8), NULL, 0, NULL, TRUE);
-    OSD_AddItem(OSD_MTU, L"MTU : %i %%", &hardware->Processor.MaxThreadUsage, sizeof(UINT8), NULL, 0, NULL, TRUE);
+    //OSD_AddItem(OSD_MCU, L"CPUm : %i %%", &hardware->Processor.MaxCoreUsage, sizeof(UINT8), NULL, 0, NULL, TRUE);
+    OSD_AddItem(OSD_MTU, L"CPU : %i %%", &hardware->Processor.MaxThreadUsage, sizeof(UINT8), NULL, 0, NULL, TRUE);
     OSD_AddItem(OSD_DISK_RWRATE, NULL, NULL, sizeof(UINT8), NULL, 0, FormatDiskReadWriteRate, TRUE);
     OSD_AddItem(OSD_DISK_RESPONSE, L"DSK : %i ms", NULL, sizeof(UINT8), NULL, 4000, NULL, TRUE);
     OSD_AddItem(OSD_TIME, NULL, NULL, sizeof(UINT8), NULL, 0, FormatTime, TRUE);
