@@ -19,13 +19,13 @@ VOID* MwControlHandles[50];
 FILE_LIST MwFileList;
 
 
-CONTROL MainControls[] = {
+/*CONTROL MainControls[] = {
     { L"Button", NULL, BUTTON_ADDGAME, L"Add Game", NULL, 180 },
     { L"Button", NULL, BUTTON_STOPRAMDISK, L"Stop RAMDisk", NULL, 180 },
     { L"ComboBox", CBS_DROPDOWN, COMBOBOX_GAMES, NULL, NULL, 180 },
     { L"Button", NULL, BUTTON_MANUALADD, L"Manual Add", 80, 100 },
     { L"Button", NULL, BUTTON_TRAY, L"To tray..", NULL, 180 },
-};
+};*/
 
 
 typedef struct _TCITEM
@@ -286,12 +286,15 @@ VOID MwCreateMainWindow()
 
     pageWindow.Handle = PushMainWindow->Handle;
     pageWindow.lastPos = 0;
-    
-    INT32 iControls = sizeof(MainControls) / sizeof(MainControls[0]);
-    for (i = 0; i < iControls; i++)
-    {
-        CreateControl( &pageWindow, &MainControls[i] );
-    }
+
+    Tray_Minimize(
+        PushMainWindow->Handle,
+        Gui_IconImageHandle,
+        L"Push",
+        IDM_RESTORE,
+        &Gui_InvisibleWindowHandle,
+        &Gui_TrayIconHandle
+        );
 }
 
 
@@ -419,49 +422,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                 DestroyWindow(hWnd);
             }
             break;
-                // OSD
-            case CHECKBOX_TIME:
-                PushSharedMemory->OSDFlags |= OSD_TIME;
-                break;
-            case CHECKBOX_GPU_LOAD:
-                PushSharedMemory->OSDFlags |= OSD_GPU_LOAD;
-                break;
-            case CHECKBOX_GPU_TEMP:
-                PushSharedMemory->OSDFlags |= OSD_GPU_TEMP;
-                break;
-            case CHECKBOX_GPU_E_CLK:
-                PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
-                break;
-            case CHECKBOX_GPU_M_CLK:
-                PushSharedMemory->OSDFlags |= OSD_GPU_M_CLK;
-                break;
-            case CHECKBOX_GPU_VRAM:
-                PushSharedMemory->OSDFlags |= OSD_GPU_VRAM;
-                break;
-            case CHECKBOX_CPU_LOAD:
-                PushSharedMemory->OSDFlags |= OSD_CPU_LOAD;
-                break;
-            case CHECKBOX_CPU_TEMP:
-                PushSharedMemory->OSDFlags |= OSD_CPU_TEMP;
-                break;
-            case CHECKBOX_RAM:
-                PushSharedMemory->OSDFlags |= OSD_RAM;
-                break;
-            case CHECKBOX_MCU:
-                PushSharedMemory->OSDFlags |= OSD_MCU;
-                break;
-            case CHECKBOX_MTU:
-                PushSharedMemory->OSDFlags |= OSD_MTU;
-                break;
-            case CHECKBOX_DISK_RWRATE:
-                PushSharedMemory->OSDFlags |= OSD_DISK_RWRATE;
-                break;
-            case CHECKBOX_DISK_RESPONSE:
-                PushSharedMemory->OSDFlags |= OSD_DISK_RESPONSE;
-                break;
-            case CHECKBOX_BACKBUFFERS:
-                PushSharedMemory->OSDFlags |= OSD_BUFFERS;
-                break;
+
             case BUTTON_RESET_GPU:
                 PushSharedMemory->Overloads = 0;
                 break;
