@@ -1,9 +1,3 @@
-/*#ifdef __cplusplus
-extern "C" PUSH_HARDWARE_INFORMATION hardware;
-#else
-extern PUSH_HARDWARE_INFORMATION hardware;
-#endif*/
-
 #define REGISTER_VENDORID   0x00
 #define REGISTER_CLASSCODE  0x08
 #define REGISTER_BAR0       0x10
@@ -37,3 +31,6 @@ VOID RemoveThreadEntry(
     );
 
 UINT16 GetDiskResponseTime(UINT32 ProcessId);
+VOID GetDisplayAdapterDevicePath(WCHAR* Buffer);
+
+

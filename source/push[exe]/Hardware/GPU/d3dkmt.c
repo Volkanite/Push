@@ -2,10 +2,8 @@
 #include <sld3dkmt.h>
 #include <string.h>
 #include <push.h>
+#include <hardware.h>
 #include "gpu.h"
-
-
-GUID GUID_DISPLAY_DEVICE_ARRIVAL_I  = { 0x1ca05180, 0xa699, 0x450a, { 0x9a, 0x0c, 0xde, 0x4f, 0xbe, 0x3d, 0xdd, 0x89 } };
 
 
 typedef struct _PH_UINT64_DELTA
@@ -49,8 +47,8 @@ BOOLEAN D3DKMT_Initialized;
 
 
 #define BYTES_NEEDED_FOR_BITS(Bits) ((((Bits) + sizeof(UINT32) * 8 - 1) / 8) & ~(UINT32)(sizeof(UINT32) - 1)) // divide round up
-#define DIGCF_PRESENT           0x00000002
-#define DIGCF_DEVICEINTERFACE   0x00000010
+
+
 #define FIELD_OFFSET(type, field)    ((INT32)(INT32)&(((type *)0)->field))
 
 #define PhUpdateDelta(DltMgr, NewValue) \
@@ -193,49 +191,10 @@ UINT64 D3DKMTGetMemoryUsage()
 
 D3DKMT_OPENADAPTERFROMDEVICENAME    openAdapterFromDeviceName;
 
-typedef INT32(__stdcall *TYPE_SetupDiDestroyDeviceInfoList)( VOID *DeviceInfoSet );
-
-typedef VOID*(__stdcall *TYPE_SetupDiGetClassDevsW)( 
-    const GUID* ClassGuid, 
-    const WCHAR* Enumerator, 
-    VOID* hwndParent,
-    DWORD Flags
-    );
-
-typedef INT32(__stdcall *TYPE_SetupDiEnumDeviceInterfaces)(
-    VOID                        *DeviceInfoSet,
-    SP_DEVINFO_DATA             *DeviceInfoData,
-    const GUID                  *InterfaceClassGuid,
-    DWORD                       MemberIndex,
-    SP_DEVICE_INTERFACE_DATA    *DeviceInterfaceData
-    );
-
-typedef INT32(__stdcall *TYPE_SetupDiGetDeviceInterfaceDetailW)(
-    VOID                                *DeviceInfoSet,
-    SP_DEVICE_INTERFACE_DATA            *DeviceInterfaceData,
-    SP_DEVICE_INTERFACE_DETAIL_DATA_W   *DeviceInterfaceDetailData,
-    DWORD                               DeviceInterfaceDetailDataSize,
-    DWORD                               *RequiredSize,
-    SP_DEVINFO_DATA                     *DeviceInfoData
-    );
-
-TYPE_SetupDiDestroyDeviceInfoList       SetupDiDestroyDeviceInfoList;
-TYPE_SetupDiGetClassDevsW               SetupDiGetClassDevsW;
-TYPE_SetupDiEnumDeviceInterfaces        SetupDiEnumDeviceInterfaces;
-TYPE_SetupDiGetDeviceInterfaceDetailW   SetupDiGetDeviceInterfaceDetailW;
-
 
 VOID D3DKMTInitialize()
 {
     HANDLE gdi32 = NULL;
-    HANDLE setupapi = NULL;
-    VOID *deviceInfoSet;
-    UINT32 result;
-    UINT32 memberIndex;
-    UINT32 detailDataSize;
-    SP_DEVICE_INTERFACE_DATA            deviceInterfaceData;
-    SP_DEVICE_INTERFACE_DETAIL_DATA_W   *detailData;
-    SP_DEVINFO_DATA                     deviceInfoData;
     D3DKMT_QUERYSTATISTICS              queryStatistics;
     RTL_OSVERSIONINFOW versionInfo;
 
@@ -270,49 +229,11 @@ VOID D3DKMTInitialize()
         return;
     }
 
-    setupapi = Module_Load(L"setupapi.dll");
+    wchar_t devicePath[260];
 
-    SetupDiGetClassDevsW = (TYPE_SetupDiGetClassDevsW) 
-        Module_GetProcedureAddress(setupapi, "SetupDiGetClassDevsW");
+    GetDisplayAdapterDevicePath(devicePath);
 
-    SetupDiDestroyDeviceInfoList = (TYPE_SetupDiDestroyDeviceInfoList) 
-        Module_GetProcedureAddress(setupapi, "SetupDiDestroyDeviceInfoList");
-
-    SetupDiEnumDeviceInterfaces = (TYPE_SetupDiEnumDeviceInterfaces) 
-        Module_GetProcedureAddress(setupapi, "SetupDiEnumDeviceInterfaces");
-
-    SetupDiGetDeviceInterfaceDetailW = (TYPE_SetupDiGetDeviceInterfaceDetailW)
-        Module_GetProcedureAddress(setupapi, "SetupDiGetDeviceInterfaceDetailW");
-
-    deviceInfoSet = SetupDiGetClassDevsW(&GUID_DISPLAY_DEVICE_ARRIVAL_I, NULL, NULL, DIGCF_DEVICEINTERFACE | DIGCF_PRESENT);
-
-    if (!deviceInfoSet)
-    {
-        return;
-    }
-
-    memberIndex = 0;
-    deviceInterfaceData.cbSize = sizeof(SP_DEVICE_INTERFACE_DATA);
-
-    while (SetupDiEnumDeviceInterfaces(deviceInfoSet, NULL, &GUID_DISPLAY_DEVICE_ARRIVAL_I, memberIndex, &deviceInterfaceData))
-    {
-        detailDataSize = 0x100;
-        detailData = (SP_DEVICE_INTERFACE_DETAIL_DATA_W*) Memory_Allocate(detailDataSize);
-        detailData->cbSize = 6; /*sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA_W)*/
-        deviceInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
-
-        result = SetupDiGetDeviceInterfaceDetailW(
-                    deviceInfoSet,
-                    &deviceInterfaceData,
-                    detailData,
-                    detailDataSize,
-                    &detailDataSize,
-                    &deviceInfoData
-                    );
-
-        if (result)
-        {
-            openAdapterFromDeviceName.pDeviceName = detailData->DevicePath;
+    openAdapterFromDeviceName.pDeviceName = devicePath;
 
             if (NT_SUCCESS(D3DKMTOpenAdapterFromDeviceName(&openAdapterFromDeviceName)))
             {
@@ -376,14 +297,6 @@ VOID D3DKMTInitialize()
                     }
                 }
             }
-        }
-
-        Memory_Free(detailData);
-
-        memberIndex++;
-    }
-
-    SetupDiDestroyDeviceInfoList(deviceInfoSet);
 
     EtGpuNodeBitMapBuffer = (UINT32*) Memory_Allocate(BYTES_NEEDED_FOR_BITS(EtGpuTotalNodeCount));
     

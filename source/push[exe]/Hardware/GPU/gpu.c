@@ -18,19 +18,33 @@ typedef struct _PCI_CONFIG
 
 WORD GPU_VendorId;
 
+#include <wchar.h>
+
 
 VOID GPU_Initialize( ULONG PciAddress )
 {
     PCI_CONFIG pciConfig;
+    BOOLEAN result;
+    DWORD vendorID;
 
-    R0ReadPciConfig(
-        PciAddress,
+    result = R0ReadPciConfig(
+        PciAddress, 
         REGISTER_VENDORID,
         (BYTE *)&pciConfig,
         sizeof(pciConfig)
         );
 
-    switch (pciConfig.VendorId)
+    vendorID = pciConfig.VendorId;
+
+    if (!result)
+    {
+        wchar_t devicePath[260];
+
+        GetDisplayAdapterDevicePath(devicePath);
+        swscanf(devicePath, L"\\\\?\\pci#ven_%04x", &vendorID);
+    }
+
+    switch (vendorID)
     {
     case AMD:
         GPU_VendorId = AMD;

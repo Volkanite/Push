@@ -181,12 +181,15 @@ DWORD FindPciDeviceByClass( BYTE baseClass, BYTE subClass, BYTE programIf, BYTE 
 
 
 VOID* HwMmio;
-DWORD
-ReadGpuRegister( DWORD Address )
+
+
+DWORD ReadGpuRegister( DWORD Address )
 {
     DWORD* val=0;
     DWORD address;
     DWORD ret;
+
+    if (!HwMmio) return 0;
 
     address = ((DWORD)HwMmio) + Address;
 
@@ -341,4 +344,107 @@ VOID RefreshHardwareInfo()
 
     // We actually get some information from other sources
     //hardware.Processor.MaxThreadUsage = PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage;
+}
+
+#define DIGCF_DEVICEINTERFACE   0x00000010
+#define DIGCF_PRESENT           0x00000002
+
+typedef INT32(__stdcall *TYPE_SetupDiDestroyDeviceInfoList)(VOID *DeviceInfoSet);
+
+typedef VOID*(__stdcall *TYPE_SetupDiGetClassDevsW)(
+    const GUID* ClassGuid,
+    const WCHAR* Enumerator,
+    VOID* hwndParent,
+    DWORD Flags
+    );
+
+typedef INT32(__stdcall *TYPE_SetupDiEnumDeviceInterfaces)(
+    VOID                        *DeviceInfoSet,
+    SP_DEVINFO_DATA             *DeviceInfoData,
+    const GUID                  *InterfaceClassGuid,
+    DWORD                       MemberIndex,
+    SP_DEVICE_INTERFACE_DATA    *DeviceInterfaceData
+    );
+
+typedef INT32(__stdcall *TYPE_SetupDiGetDeviceInterfaceDetailW)(
+    VOID                                *DeviceInfoSet,
+    SP_DEVICE_INTERFACE_DATA            *DeviceInterfaceData,
+    SP_DEVICE_INTERFACE_DETAIL_DATA_W   *DeviceInterfaceDetailData,
+    DWORD                               DeviceInterfaceDetailDataSize,
+    DWORD                               *RequiredSize,
+    SP_DEVINFO_DATA                     *DeviceInfoData
+    );
+
+
+TYPE_SetupDiDestroyDeviceInfoList       SetupDiDestroyDeviceInfoList;
+TYPE_SetupDiGetClassDevsW               SetupDiGetClassDevsW;
+TYPE_SetupDiEnumDeviceInterfaces        SetupDiEnumDeviceInterfaces;
+TYPE_SetupDiGetDeviceInterfaceDetailW   SetupDiGetDeviceInterfaceDetailW;
+
+GUID GUID_DISPLAY_DEVICE_ARRIVAL_I = { 0x1ca05180, 0xa699, 0x450a, { 0x9a, 0x0c, 0xde, 0x4f, 0xbe, 0x3d, 0xdd, 0x89 } };
+
+
+VOID GetDisplayAdapterDevicePath(WCHAR* Buffer)
+{
+    VOID *deviceInfoSet;
+    UINT32 memberIndex;
+    UINT32 detailDataSize;
+    SP_DEVICE_INTERFACE_DATA deviceInterfaceData;
+    SP_DEVICE_INTERFACE_DETAIL_DATA_W *detailData;
+    SP_DEVINFO_DATA deviceInfoData;
+    UINT32 result;
+
+    HANDLE setupapi = NULL;
+
+    setupapi = Module_Load(L"setupapi.dll");
+
+    SetupDiGetClassDevsW = (TYPE_SetupDiGetClassDevsW)
+        Module_GetProcedureAddress(setupapi, "SetupDiGetClassDevsW");
+
+    SetupDiDestroyDeviceInfoList = (TYPE_SetupDiDestroyDeviceInfoList)
+        Module_GetProcedureAddress(setupapi, "SetupDiDestroyDeviceInfoList");
+
+    SetupDiEnumDeviceInterfaces = (TYPE_SetupDiEnumDeviceInterfaces)
+        Module_GetProcedureAddress(setupapi, "SetupDiEnumDeviceInterfaces");
+
+    SetupDiGetDeviceInterfaceDetailW = (TYPE_SetupDiGetDeviceInterfaceDetailW)
+        Module_GetProcedureAddress(setupapi, "SetupDiGetDeviceInterfaceDetailW");
+
+    deviceInfoSet = SetupDiGetClassDevsW(&GUID_DISPLAY_DEVICE_ARRIVAL_I, NULL, NULL, DIGCF_DEVICEINTERFACE | DIGCF_PRESENT);
+
+    if (!deviceInfoSet)
+    {
+        return;
+    }
+
+    memberIndex = 0;
+    deviceInterfaceData.cbSize = sizeof(SP_DEVICE_INTERFACE_DATA);
+
+    while (SetupDiEnumDeviceInterfaces(deviceInfoSet, NULL, &GUID_DISPLAY_DEVICE_ARRIVAL_I, memberIndex, &deviceInterfaceData))
+    {
+        detailDataSize = 0x100;
+        detailData = (SP_DEVICE_INTERFACE_DETAIL_DATA_W*)Memory_Allocate(detailDataSize);
+        detailData->cbSize = 6; /*sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA_W)*/
+        deviceInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
+
+        result = SetupDiGetDeviceInterfaceDetailW(
+            deviceInfoSet,
+            &deviceInterfaceData,
+            detailData,
+            detailDataSize,
+            &detailDataSize,
+            &deviceInfoData
+            );
+
+        if (result)
+        {
+            String_Copy(Buffer, detailData->DevicePath);
+        }
+
+        Memory_Free(detailData);
+
+        memberIndex++;
+    }
+
+    SetupDiDestroyDeviceInfoList(deviceInfoSet);
 }
