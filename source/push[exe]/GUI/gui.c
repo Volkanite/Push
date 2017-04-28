@@ -36,7 +36,7 @@ VOID* __stdcall LoadImageW(
 #define LR_SHARED           0x00008000
 #define WM_ICON_NOTIFY WM_APP+10
 DWORD           Tray_MenuFlags;
-#define IDM_RESTORE 104
+//#define IDM_RESTORE 104
 #define IDM_EXIT    105
 typedef INT32(__stdcall *TYPE_Shell_NotifyIconW)(
     DWORD dwMessage,
@@ -61,10 +61,6 @@ SlTrayGetMenuHandles(VOID** Menu, VOID** hSubMenu)
     subMenu = CreatePopupMenu();
 
     AppendMenuW(*Menu, MF_POPUP, (UINT_B)subMenu, L"Menu");
-
-    if (Tray_MenuFlags & IDM_RESTORE)
-        AppendMenuW(subMenu, MF_STRING, IDM_RESTORE, L"Restore");
-
     AppendMenuW(subMenu, MF_STRING, IDM_EXIT, L"Exit");
     AppendMenuW(subMenu, MF_STRING, BUTTON_ADDGAME, L"Add Game");
     AppendMenuW(subMenu, MF_STRING, BUTTON_STOPRAMDISK, L"Stop RAMDisk");
@@ -114,27 +110,6 @@ LONG __stdcall TrayIconProc(
                 );
 
             DestroyMenu(hMenu);
-        }
-        else if (LOWORD(lParam) == WM_LBUTTONDBLCLK)
-        {
-            // double click received, the default action is to execute default menu item
-
-            UINT32  iItem;
-            VOID    *hMenu;
-            VOID    *hSubMenu;
-
-            SlTrayGetMenuHandles(&hMenu, &hSubMenu);
-
-            iItem = GetMenuItemID(hSubMenu, 0);
-
-            DestroyMenu(hMenu);
-
-            PostMessageW(
-                Tray_ParentWindowHandle ? Tray_ParentWindowHandle : Tray_TrayIconHandle,
-                WM_COMMAND,
-                iItem,
-                0
-                );
         }
 
         return -1;
