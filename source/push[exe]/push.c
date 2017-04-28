@@ -952,16 +952,16 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                             switch (buffer[12])
                             {
                             case 'i':
-                                Adl_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock + 1);
+                                Adl_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock + 1, 2);
                                 break;
                             case 'd':
-                                Adl_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock - 1);
+                                Adl_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock - 1, 2);
                                 break;
                             }
                         }
                         break;
                     case 'm':
-                        Adl_SetMemoryClock(PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock + 1);
+                        Adl_SetMemoryClock(PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock + 1, 2);
                         break;
                     case 'v':
                         Adl_SetVoltage(PushSharedMemory->HarwareInformation.DisplayDevice.Voltage + 1);
@@ -970,8 +970,8 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                 }
                 else if (String_Compare(buffer, L"UpdateClocks") == 0)
                 {
-                    Adl_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax);
-                    Adl_SetMemoryClock(PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax);
+                    Adl_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax, 2);
+                    Adl_SetMemoryClock(PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax, 2);
                     Adl_SetVoltage(PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax);
 
                     PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax = Adl_GetEngineClockMax();

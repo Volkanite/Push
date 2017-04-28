@@ -9,8 +9,8 @@ UINT16 Adl_GetVoltageMax();
 UINT8 Adl_GetTemperature();
 UINT32 Adl_GetFanSpeed();
 
-VOID Adl_SetEngineClock(UINT16 EngineClock);
-VOID Adl_SetMemoryClock(UINT16 MemoryClock);
+VOID Adl_SetEngineClock(UINT16 EngineClock, UINT8 PerformanceLevel);
+VOID Adl_SetMemoryClock(UINT16 MemoryClock, UINT8 PerformanceLevel);
 VOID Adl_SetVoltage(UINT16 Voltage);
 VOID Adl_SetMaxClocks();
 
