@@ -780,7 +780,7 @@ DWORD __stdcall RetrieveImageEvent( VOID* Parameter )
 }
 
 
-DWORD __stdcall MonitorThread( VOID* Parameter )
+DWORD __stdcall MonitorThread(VOID* Parameter)
 {
     VOID *processEvent, *d3dImageEvent;
     VOID *handles[2];
@@ -791,19 +791,19 @@ DWORD __stdcall MonitorThread( VOID* Parameter )
     handles[0] = processEvent;
     handles[1] = d3dImageEvent;
 
-    while (TRUE)
+    while (processEvent)
     {
         DWORD result = 0;
 
         result = WaitForMultipleObjectsEx(
-            sizeof(handles)/sizeof(handles[0]),
+            sizeof(handles) / sizeof(handles[0]),
             &handles[0],
             FALSE,
             INFINITE,
             FALSE
             );
 
-        if (handles[result - WAIT_OBJECT_0] == processEvent)
+        if (processEvent && handles[result - WAIT_OBJECT_0] == processEvent)
         {
             CreateRemoteThread(NtCurrentProcess(), 0, 0, &RetrieveProcessEvent, NULL, 0, NULL);
         }
