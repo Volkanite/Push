@@ -49,6 +49,7 @@
     <ClCompile Include="OSD\local.c" />
     <ClCompile Include="OSD\osd.c" />
     <ClCompile Include="OSD\rtss.c" />
+    <ClCompile Include="overclock.c" />
     <ClCompile Include="push.c" />
     <ClCompile Include="ramdisk.c" />
     <ClCompile Include="ring0.c" />

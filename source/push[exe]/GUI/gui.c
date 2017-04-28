@@ -69,6 +69,7 @@ SlTrayGetMenuHandles(VOID** Menu, VOID** hSubMenu)
     AppendMenuW(subMenu, MF_STRING, BUTTON_ADDGAME, L"Add Game");
     AppendMenuW(subMenu, MF_STRING, BUTTON_STOPRAMDISK, L"Stop RAMDisk");
     AppendMenuW(subMenu, MF_STRING, BUTTON_MANUALADD, L"Manual Add");
+	AppendMenuW(subMenu, MF_STRING, OVERCLOCK, L"Overclock");
 
     *hSubMenu = GetSubMenu(*Menu, 0);
 }

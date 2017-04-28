@@ -18,7 +18,7 @@ WINDOW fake;
 VOID* MwControlHandles[50];
 FILE_LIST MwFileList;
 
-
+VOID Overclock();
 /*CONTROL MainControls[] = {
     { L"Button", NULL, BUTTON_ADDGAME, L"Add Game", NULL, 180 },
     { L"Button", NULL, BUTTON_STOPRAMDISK, L"Stop RAMDisk", NULL, 180 },
@@ -392,6 +392,7 @@ VOID OpenCacheWindow()
 
 typedef INT32 (__stdcall *TYPE_GetOpenFileNameW)( VOID* );
 TYPE_GetOpenFileNameW GetOpenFileNameW;
+VOID Overclock();
 INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lParam )
 {
     switch (uMessage)
@@ -423,6 +424,9 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
             }
             break;
 
+			case OVERCLOCK:
+				Overclock();
+				break;
             case BUTTON_RESET_GPU:
                 PushSharedMemory->Overloads = 0;
                 break;

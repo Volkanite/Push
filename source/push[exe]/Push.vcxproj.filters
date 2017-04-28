@@ -97,6 +97,9 @@
     <ClCompile Include="Hardware\GPU\NvThermalDiode\Context.c">
       <Filter>Hardware\GPU\NvThermalDiode</Filter>
     </ClCompile>
+    <ClCompile Include="overclock.c">
+      <Filter>GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\cache.h">

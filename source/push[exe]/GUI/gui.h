@@ -19,6 +19,7 @@ enum CONTROLS
 #define IDM_EXIT                        105
 #define IDI_MAIN_ICON                 107
 #define IDR_POPUP_MENU                  130
+#define OVERCLOCK 131
 
 
 
