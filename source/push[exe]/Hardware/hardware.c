@@ -318,6 +318,79 @@ VOID GetHardwareInfo()
 }
 
 
+typedef struct tagRECT
+{
+    LONG    left;
+    LONG    top;
+    LONG    right;
+    LONG    bottom;
+} *LPRECT;
+INTBOOL __stdcall GetNumberOfPhysicalMonitorsFromHMONITOR
+(
+HANDLE hMonitor,
+_Out_ DWORD* pdwNumberOfPhysicalMonitors
+);
+#define PHYSICAL_MONITOR_DESCRIPTION_SIZE                   128
+typedef struct _PHYSICAL_MONITOR
+{
+    HANDLE hPhysicalMonitor;
+    WCHAR szPhysicalMonitorDescription[PHYSICAL_MONITOR_DESCRIPTION_SIZE];
+} PHYSICAL_MONITOR, *LPPHYSICAL_MONITOR;
+PHYSICAL_MONITOR* MonitorHandles;
+INTBOOL __stdcall GetPhysicalMonitorsFromHMONITOR
+(
+_In_ HANDLE hMonitor,
+_In_ DWORD dwPhysicalMonitorArraySize,
+_Out_writes_(dwPhysicalMonitorArraySize) LPPHYSICAL_MONITOR pPhysicalMonitorArray
+);
+INTBOOL __stdcall MonitorEnumProc(
+    HANDLE hMonitor,
+    HANDLE hdcMonitor,
+    LPRECT lprcMonitor,
+    DWORD dwData
+    )
+{
+    DWORD nMonitorCount;
+
+    GetNumberOfPhysicalMonitorsFromHMONITOR(
+        hMonitor,
+        &nMonitorCount
+        );
+
+    MonitorHandles = (PHYSICAL_MONITOR*)RtlAllocateHeap(
+        PushHeapHandle,
+        0,
+        sizeof(PHYSICAL_MONITOR) * nMonitorCount
+        );
+
+    GetPhysicalMonitorsFromHMONITOR(
+        hMonitor,
+        nMonitorCount,
+        MonitorHandles
+        );
+
+    return TRUE;
+}
+typedef struct _MC_TIMING_REPORT
+{
+    DWORD dwHorizontalFrequencyInHZ;
+    DWORD dwVerticalFrequencyInHZ;
+    BYTE bTimingStatusByte;
+
+} MC_TIMING_REPORT, *LPMC_TIMING_REPORT;
+INTBOOL __stdcall GetTimingReport(
+    _In_   HANDLE hMonitor,
+    _Out_  LPMC_TIMING_REPORT pmtrMonitorTimingReport
+    );
+
+typedef INTBOOL(__stdcall* MONITORENUMPROC)(HMONITOR, HDC, LPRECT, LPARAM);
+INTBOOL __stdcall EnumDisplayMonitors(
+_In_opt_ HANDLE hdc,
+_In_opt_ LPRECT lprcClip,
+_In_ MONITORENUMPROC lpfnEnum,
+_In_ DWORD dwData);
+
+
 VOID RefreshHardwareInfo()
 {
     GPU_INFO gpuInfo;
@@ -337,15 +410,30 @@ VOID RefreshHardwareInfo()
     PushSharedMemory->HarwareInformation.DisplayDevice.FrameBuffer.Load = gpuInfo.MemoryUsage;
     PushSharedMemory->HarwareInformation.DisplayDevice.FanSpeed         = gpuInfo.FanSpeed;
     PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle     = gpuInfo.FanDutyCycle;
-    PushSharedMemory->HarwareInformation.Display.RefreshRate            = gpuInfo.RefreshRate;
     PushSharedMemory->HarwareInformation.Memory.Used                    = GetRamUsed();
     PushSharedMemory->HarwareInformation.Memory.Load                    = GetRamUsage();
     PushSharedMemory->HarwareInformation.Disk.ReadWriteRate             = GetDiskReadWriteRate();
-    //hardware.Disk.ResponseTime              = GetDiskResponseTime();
 
-    // We actually get some information from other sources
-    //hardware.Processor.MaxThreadUsage = PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage;
+    static int onerun = FALSE;
+
+    if (!onerun)
+    {
+        EnumDisplayMonitors(
+            NULL,
+            NULL,
+            MonitorEnumProc,
+            NULL
+            );
+
+        onerun = TRUE;
+    }
+    MC_TIMING_REPORT timingReport;
+
+    GetTimingReport(MonitorHandles[0].hPhysicalMonitor, &timingReport);
+
+    PushSharedMemory->HarwareInformation.Display.RefreshRate = timingReport.dwVerticalFrequencyInHZ / 100;
 }
+
 
 #define DIGCF_DEVICEINTERFACE   0x00000010
 #define DIGCF_PRESENT           0x00000002
