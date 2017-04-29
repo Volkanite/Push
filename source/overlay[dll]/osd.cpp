@@ -33,7 +33,7 @@ VOID Osd_Draw( OvOverlay* Overlay )
         {
         case OSD_FPS:
             {
-                if (!IsStableFramerate)
+                if (!IsStableFramerate || PushSharedMemory->KeepFps)
                 {
                     osdItem->Value = FrameRate;
                     swprintf(osdItem->Text, 20, L"%i", osdItem->Value);
