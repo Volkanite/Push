@@ -276,7 +276,6 @@ typedef struct _OSD_ITEM
     UINT32 Flag;
     OSDVALUE Threshold;
     WCHAR* DisplayFormat;
-    BOOLEAN Format; //?
     VOID* ValueSource;
     UINT8 ValueSize;
     UINT32 Value;

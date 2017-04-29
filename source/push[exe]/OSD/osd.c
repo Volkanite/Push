@@ -104,13 +104,13 @@ VOID OSD_Refresh()
 
             PushSharedMemory->OSDFlags |= OsdItems[i].Flag;
 
-            if (OsdItems[i].Format || OsdItems[i].DynamicFormat)
+            if (OsdItems[i].DisplayFormat || OsdItems[i].DynamicFormat)
             {
                 if (OsdItems[i].DynamicFormat)
                 {
                     OsdItems[i].DynamicFormat(OsdItems[i].Value2 ? OsdItems[i].Value2 : 0, OsdItems[i].Text);
                 }
-                else if (OsdItems[i].Format)
+                else if (OsdItems[i].DisplayFormat)
                 {
                     swprintf(
                         OsdItems[i].Text,
@@ -144,8 +144,7 @@ VOID OSD_AddItem(
     UINT8 ValueSize,
     UINT32* ValueSource2,
     UINT16 Threshold,
-    OSD_DYNAMIC_FORMAT DynamicFormat,
-    BOOLEAN Format
+    OSD_DYNAMIC_FORMAT DynamicFormat
     )
 {
     if (!OsdItems)
@@ -158,7 +157,6 @@ VOID OSD_AddItem(
     OsdItems[items].ValueSource2 = ValueSource2;
     OsdItems[items].Threshold = Threshold;
     OsdItems[items].DynamicFormat = DynamicFormat;
-    OsdItems[items].Format = Format;
 
     items++;
 }
@@ -168,13 +166,13 @@ VOID OSD_Initialize()
 {
     PUSH_HARDWARE_INFORMATION* hardware = &PushSharedMemory->HarwareInformation;
 
-    OSD_AddItem(OSD_GPU_LOAD, L"GPU : %i %%", &hardware->DisplayDevice.Load, sizeof(UINT8), NULL, 90, NULL, TRUE);
-    OSD_AddItem(OSD_GPU_TEMP, L"GPU : %i °C", &hardware->DisplayDevice.Temperature, sizeof(UINT8), NULL, 75, NULL, TRUE);
-    OSD_AddItem(OSD_GPU_E_CLK, L"GPU : %i MHz", &hardware->DisplayDevice.EngineClock, sizeof(UINT32), NULL, 0, NULL, TRUE);
-    OSD_AddItem(OSD_GPU_M_CLK, L"GPU : %i MHz", &hardware->DisplayDevice.MemoryClock, sizeof(UINT32), NULL, 0, NULL, TRUE);
-    OSD_AddItem(OSD_GPU_VOLTAGE, L"GPU : %i mV", &hardware->DisplayDevice.Voltage, sizeof(UINT32), NULL, 0, NULL, TRUE);
-    OSD_AddItem(OSD_GPU_FAN_RPM, L"GPU : %i RPM", &hardware->DisplayDevice.FanSpeed, sizeof(UINT32), NULL, 0, NULL, TRUE);
-    OSD_AddItem(OSD_GPU_FAN_DC, L"GPU : %i %%", &hardware->DisplayDevice.FanDutyCycle, sizeof(UINT8), NULL, 90, NULL, TRUE);
+    OSD_AddItem(OSD_GPU_LOAD, L"GPU : %i %%", &hardware->DisplayDevice.Load, sizeof(UINT8), NULL, 90, NULL);
+    OSD_AddItem(OSD_GPU_TEMP, L"GPU : %i °C", &hardware->DisplayDevice.Temperature, sizeof(UINT8), NULL, 75, NULL);
+    OSD_AddItem(OSD_GPU_E_CLK, L"GPU : %i MHz", &hardware->DisplayDevice.EngineClock, sizeof(UINT32), NULL, 0, NULL);
+    OSD_AddItem(OSD_GPU_M_CLK, L"GPU : %i MHz", &hardware->DisplayDevice.MemoryClock, sizeof(UINT32), NULL, 0, NULL);
+    OSD_AddItem(OSD_GPU_VOLTAGE, L"GPU : %i mV", &hardware->DisplayDevice.Voltage, sizeof(UINT32), NULL, 0, NULL);
+    OSD_AddItem(OSD_GPU_FAN_RPM, L"GPU : %i RPM", &hardware->DisplayDevice.FanSpeed, sizeof(UINT32), NULL, 0, NULL);
+    OSD_AddItem(OSD_GPU_FAN_DC, L"GPU : %i %%", &hardware->DisplayDevice.FanDutyCycle, sizeof(UINT8), NULL, 90, NULL);
     
     OSD_AddItem(
         OSD_GPU_VRAM,
@@ -183,34 +181,22 @@ VOID OSD_Initialize()
         sizeof(UINT8),
         &hardware->DisplayDevice.FrameBuffer.Used,
         90,
-        NULL,
-        TRUE
+        NULL
         );
     
-    OSD_AddItem(OSD_RAM, L"RAM : %i MB", &hardware->Memory.Load, sizeof(UINT8), &hardware->Memory.Used, 90, NULL, TRUE);
-    OSD_AddItem(OSD_CPU_SPEED, L"CPU : %i MHz", &hardware->Processor.Speed, sizeof(UINT16), NULL, 0, NULL, TRUE);
+    OSD_AddItem(OSD_RAM, L"RAM : %i MB", &hardware->Memory.Load, sizeof(UINT8), &hardware->Memory.Used, 90, NULL);
+    OSD_AddItem(OSD_CPU_SPEED, L"CPU : %i MHz", &hardware->Processor.Speed, sizeof(UINT16), NULL, 0, NULL);
     //OSD_AddItem(OSD_CPU_LOAD, L"CPU : %i %%", &hardware->Processor.Load, sizeof(UINT8), NULL, 95, NULL, TRUE);
-    OSD_AddItem(OSD_CPU_TEMP, L"CPU : %i °C", &hardware->Processor.Temperature, sizeof(UINT8), NULL, 75, NULL, TRUE);
+    OSD_AddItem(OSD_CPU_TEMP, L"CPU : %i °C", &hardware->Processor.Temperature, sizeof(UINT8), NULL, 75, NULL);
     //OSD_AddItem(OSD_MCU, L"CPUm : %i %%", &hardware->Processor.MaxCoreUsage, sizeof(UINT8), NULL, 0, NULL, TRUE);
-    OSD_AddItem(OSD_MTU, L"CPU : %i %%", &hardware->Processor.MaxThreadUsage, sizeof(UINT8), NULL, 0, NULL, TRUE);
-    OSD_AddItem(OSD_DISK_RWRATE, NULL, NULL, sizeof(UINT8), NULL, 0, FormatDiskReadWriteRate, TRUE);
-    OSD_AddItem(OSD_DISK_RESPONSE, L"DSK : %i ms", NULL, sizeof(UINT8), NULL, 4000, NULL, TRUE);
-    OSD_AddItem(OSD_TIME, NULL, NULL, sizeof(UINT8), NULL, 0, FormatTime, TRUE);
-    OSD_AddItem(OSD_BUFFERS, L"Buffers : %i", &PushSharedMemory->FrameBufferCount, sizeof(UINT8), NULL, 0, NULL, TRUE);
-    OSD_AddItem(OSD_RESOLUTION, 0, 0, sizeof(UINT8), 0, 0, NULL, TRUE);
-    
-    OSD_AddItem(
-        OSD_REFRESH_RATE, 
-        L"RefreshRate : %i Hz", 
-        &hardware->Display.RefreshRate, 
-        sizeof(UINT8), 
-        NULL, 
-        0, 
-        NULL, 
-        TRUE
-        );
-    
-    OSD_AddItem(OSD_FPS, 0, 0, sizeof(UINT8), 0, 0, 0, FALSE);
+    OSD_AddItem(OSD_MTU, L"CPU : %i %%", &hardware->Processor.MaxThreadUsage, sizeof(UINT8), NULL, 0, NULL);
+    OSD_AddItem(OSD_DISK_RWRATE, NULL, NULL, sizeof(UINT8), NULL, 0, FormatDiskReadWriteRate);
+    OSD_AddItem(OSD_DISK_RESPONSE, L"DSK : %i ms", NULL, sizeof(UINT8), NULL, 4000, NULL);
+    OSD_AddItem(OSD_TIME, NULL, NULL, sizeof(UINT8), NULL, 0, FormatTime);
+    OSD_AddItem(OSD_BUFFERS, L"Buffers : %i", &PushSharedMemory->FrameBufferCount, sizeof(UINT8), NULL, 0, NULL);
+    OSD_AddItem(OSD_RESOLUTION, 0, 0, sizeof(UINT8), 0, 0, NULL);
+    OSD_AddItem(OSD_REFRESH_RATE, L"RefreshRate : %i Hz", &hardware->Display.RefreshRate, sizeof(UINT8), NULL, 0, NULL);
+    OSD_AddItem(OSD_FPS, 0, 0, sizeof(UINT8), 0, 0, 0);
 
     // Create file mapping for OSD items
     SharedMemory = (OSD_ITEM*)Memory_CreateFileMapping(L"PushOSDMemory", sizeof(OSD_ITEM) * items);
