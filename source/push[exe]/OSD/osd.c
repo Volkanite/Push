@@ -149,7 +149,7 @@ VOID OSD_AddItem(
     )
 {
     if (!OsdItems)
-        OsdItems = RtlAllocateHeap(PushHeapHandle, HEAP_ZERO_MEMORY, sizeof(OSD_ITEM) * 20);
+        OsdItems = RtlAllocateHeap(PushHeapHandle, HEAP_ZERO_MEMORY, sizeof(OSD_ITEM) * 21);
 
     OsdItems[items].Flag = Flag;
     OsdItems[items].DisplayFormat = DisplayFormat;
@@ -198,6 +198,18 @@ VOID OSD_Initialize()
     OSD_AddItem(OSD_TIME, NULL, NULL, sizeof(UINT8), NULL, 0, FormatTime, TRUE);
     OSD_AddItem(OSD_BUFFERS, L"Buffers : %i", &PushSharedMemory->FrameBufferCount, sizeof(UINT8), NULL, 0, NULL, TRUE);
     OSD_AddItem(OSD_RESOLUTION, 0, 0, sizeof(UINT8), 0, 0, NULL, TRUE);
+    
+    OSD_AddItem(
+        OSD_REFRESH_RATE, 
+        L"RefreshRate : %i Hz", 
+        &hardware->Display.RefreshRate, 
+        sizeof(UINT8), 
+        NULL, 
+        0, 
+        NULL, 
+        TRUE
+        );
+    
     OSD_AddItem(OSD_FPS, 0, 0, sizeof(UINT8), 0, 0, 0, FALSE);
 
     // Create file mapping for OSD items

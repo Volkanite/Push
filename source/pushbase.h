@@ -158,7 +158,8 @@ typedef struct _IMDISK_SET_DEVICE_FLAGS
 #define OSD_RESOLUTION      0x00020000
 #define OSD_GPU_VOLTAGE     0x00040000
 #define OSD_GPU_FAN_DC      0x00080000
-#define OSD_LAST_ITEM       0x00080000 //Update me!
+#define OSD_REFRESH_RATE    0x00100000
+#define OSD_LAST_ITEM       0x00100000 //Update me!
 
 
 typedef struct _CORE_LIST CORE_LIST;
@@ -205,6 +206,12 @@ typedef struct _PUSH_HARDWARE_INFORMATION
         }FrameBuffer;
 
     }DisplayDevice;
+
+    struct
+    {
+        UINT8 RefreshRate;
+
+    }Display;
 
     struct
     {

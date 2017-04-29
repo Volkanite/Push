@@ -8,7 +8,7 @@
 
 SlOverlayMenu* Menu;
 
-MenuVars MenuOsd[20];
+MenuVars MenuOsd[30];
 MenuVars MenuGpu[10];
 MenuVars Diagnostics[5];
 MenuVars D3DTweaks[5];
@@ -108,6 +108,7 @@ VOID AddItems()
         Menu->AddItem(L"Disk response time",      ItemOpt, &MenuOsd[i++], OSD_DISK_RESPONSE);
         Menu->AddItem(L"Frame Buffer count",      ItemOpt, &MenuOsd[i++], OSD_BUFFERS);
         Menu->AddItem(L"Resolution",              ItemOpt, &MenuOsd[i++], OSD_RESOLUTION);
+        Menu->AddItem(L"Resfresh Rate",           ItemOpt, &MenuOsd[i++], OSD_REFRESH_RATE);
         Menu->AddItem(L"Time",                    ItemOpt, &MenuOsd[i++], OSD_TIME);
         Menu->AddItem(L"FPS",                     ItemOpt, &MenuOsd[i++], FUNC_KEEP_FPS);
         Menu->AddItem(L"Reset",                   PressOpt, &MenuOsd[i++], FUNC_RESET);

@@ -12,6 +12,7 @@ typedef struct _GPU_INFO
     int FanDutyCycle;
     int MemoryUsed;
     int MemoryUsage;
+    int RefreshRate;
 
 }GPU_INFO;
 

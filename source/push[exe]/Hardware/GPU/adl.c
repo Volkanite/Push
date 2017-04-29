@@ -11,7 +11,22 @@ UINT16 VoltageMaximum;
 UINT8 PerformanceLevels;
 BOOLEAN AdlInitialized;
 int FanFlags;
-
+#define ADL_MAX_DISPLAY_NAME  256
+typedef struct ADLDDCInfo {
+    int ulSize;
+    int ulSupportsDDC;
+    int ulManufacturerID;
+    int ulProductID;
+    char cDisplayName[ADL_MAX_DISPLAY_NAME];
+    int ulMaxHResolution;
+    int ulMaxVResolution;
+    int ulMaxRefresh;
+    int ulPTMCx;
+    int ulPTMCy;
+    int ulPTMRefreshRate;
+    int ulDDCInfoFlag;
+} ADLDDCInfo, *LPADLDDCInfo;
+typedef int(*ADL_DISPLAY_DDCINFO_GET) (int iAdapterIndex, int iDisplayIndex, ADLDDCInfo *lpInfo);
 
 ADL_MAIN_CONTROL_CREATE                 ADL_Main_Control_Create;
 ADL_OVERDRIVE5_CURRENTACTIVITY_GET      ADL_Overdrive5_CurrentActivity_Get;
@@ -21,6 +36,7 @@ ADL_OVERDRIVE5_ODPERFORMANCELEVELS_GET  ADL_Overdrive5_ODPerformanceLevels_Get;
 ADL_OVERDRIVE5_ODPERFORMANCELEVELS_SET  ADL_Overdrive5_ODPerformanceLevels_Set;
 ADL_OVERDRIVE5_FANSPEED_GET             ADL_Overdrive5_FanSpeed_Get;
 ADL_OVERDRIVE5_FANSPEEDINFO_GET         ADL_Overdrive5_FanSpeedInfo_Get;
+ADL_DISPLAY_DDCINFO_GET                 ADL_Display_DDCInfo_Get;
 
 
 VOID* __stdcall ADL_Main_Memory_Alloc( INT32 Size )
@@ -69,6 +85,9 @@ VOID Adl_Initialize()
     ADL_Overdrive5_FanSpeedInfo_Get = (ADL_OVERDRIVE5_FANSPEEDINFO_GET)
         Module_GetProcedureAddress(adl, "ADL_Overdrive5_FanSpeedInfo_Get");
 
+    ADL_Display_DDCInfo_Get = (ADL_DISPLAY_DDCINFO_GET)
+        Module_GetProcedureAddress(adl, "ADL_Display_DDCInfo_Get");
+
     ADL_Main_Control_Create(ADL_Main_Memory_Alloc, 1);
 
     parameters.Size = sizeof(ADLODParameters);
@@ -103,6 +122,7 @@ VOID Adl_GetInfo( GPU_INFO* Information )
     ADLPMActivity activity;
     ADLTemperature temperature;
     ADLFanSpeedValue fanSpeed;
+    ADLDDCInfo ddcInfo;
 
     ADL_Overdrive5_CurrentActivity_Get(0, &activity);
 
@@ -140,6 +160,10 @@ VOID Adl_GetInfo( GPU_INFO* Information )
     {
         Information->FanDutyCycle = 0;
     }
+
+    ADL_Display_DDCInfo_Get(0, 0, &ddcInfo);
+
+    Information->RefreshRate = ddcInfo.ulPTMRefreshRate;
 }
 
 
