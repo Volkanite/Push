@@ -378,9 +378,9 @@ typedef struct _MC_TIMING_REPORT
     BYTE bTimingStatusByte;
 
 } MC_TIMING_REPORT, *LPMC_TIMING_REPORT;
-INTBOOL __stdcall GetTimingReport(
+typedef NTSTATUS(__stdcall* TYPE_DDCCIGetTimingReport)(
     _In_   HANDLE hMonitor,
-    _Out_  LPMC_TIMING_REPORT pmtrMonitorTimingReport
+    _Out_  LPMC_TIMING_REPORT pmtr
     );
 
 typedef INTBOOL(__stdcall* MONITORENUMPROC)(HMONITOR, HDC, LPRECT, LPARAM);
@@ -390,7 +390,7 @@ _In_opt_ LPRECT lprcClip,
 _In_ MONITORENUMPROC lpfnEnum,
 _In_ DWORD dwData);
 
-
+TYPE_DDCCIGetTimingReport DDCCIGetTimingReport;
 VOID RefreshHardwareInfo()
 {
     GPU_INFO gpuInfo;
@@ -418,6 +418,12 @@ VOID RefreshHardwareInfo()
 
     if (!onerun)
     {
+        HANDLE gdi32;
+        
+        gdi32 = Module_Load(L"gdi32.dll");
+
+        DDCCIGetTimingReport = Module_GetProcedureAddress(gdi32, "DDCCIGetTimingReport");
+
         EnumDisplayMonitors(
             NULL,
             NULL,
@@ -427,9 +433,10 @@ VOID RefreshHardwareInfo()
 
         onerun = TRUE;
     }
+
     MC_TIMING_REPORT timingReport;
 
-    GetTimingReport(MonitorHandles[0].hPhysicalMonitor, &timingReport);
+    DDCCIGetTimingReport(MonitorHandles[0].hPhysicalMonitor, &timingReport);
 
     PushSharedMemory->HarwareInformation.Display.RefreshRate = timingReport.dwVerticalFrequencyInHZ / 100;
 }
