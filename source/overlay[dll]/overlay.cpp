@@ -62,16 +62,10 @@ VOID CreateOverlay()
 
     if (PushSharedMemory->VsyncOverrideMode == PUSH_VSYNC_FORCE_ON)
     {
-        Log(L"VSYNC_FORCE_ON");
         hookParams.VsyncOverrideMode = VSYNC_FORCE_ON;
     }
-        
     else if (PushSharedMemory->VsyncOverrideMode == PUSH_VSYNC_FORCE_OFF)
         hookParams.VsyncOverrideMode = VSYNC_FORCE_OFF;
-    else
-    {
-        Log(L"VSYNC_FORCE_UNC");
-    }
 
     OvCreateOverlayEx(&hookParams);
 }

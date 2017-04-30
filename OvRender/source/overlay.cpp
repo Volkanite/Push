@@ -122,14 +122,10 @@ VOID OvCreateOverlayEx( OV_HOOK_PARAMS* HookParameters )
         HEAP_ZERO_MEMORY,
         sizeof(OV_HOOK_PARAMS)
         );
-    Log(L"OvCreateOverlayEx()");
-    hookParams->RenderFunction = HookParameters->RenderFunction;
     
-    if (HookParameters->VsyncOverrideMode == VSYNC_FORCE_ON)
-        Log(L" >>> VSYNC_FORCE_ON");
-    else if (HookParameters->VsyncOverrideMode == VSYNC_UNCHANGED)
-        Log(L" >>> VSYNC_UNCHANGED");
-
+    Log(L"OvCreateOverlayEx()");
+    
+    hookParams->RenderFunction = HookParameters->RenderFunction;
     hookParams->VsyncOverrideMode = HookParameters->VsyncOverrideMode;
 
     CreateThread(0, 0, &CreateOverlay, hookParams, 0, 0);

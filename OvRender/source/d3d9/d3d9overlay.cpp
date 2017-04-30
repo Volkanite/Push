@@ -13,37 +13,53 @@ IDirect3DDevice9* Dx9OvDevice;
 OV_WINDOW_MODE D3D9Hook_WindowMode;
 UINT32 BackBufferWidth;
 UINT32 BackBufferHeight;
+VOID Log(const wchar_t* Format, ...);
 
 
 VOID ChangeVsync(BOOLEAN Setting)
 {
-	if (Setting)
-		D3D9Overlay->VsyncOverrideMode = VSYNC_FORCE_ON;
-	else
-		D3D9Overlay->VsyncOverrideMode = VSYNC_FORCE_OFF;
+    if (Setting)
+        D3D9Overlay->VsyncOverrideMode = VSYNC_FORCE_ON;
+    else
+        D3D9Overlay->VsyncOverrideMode = VSYNC_FORCE_OFF;
 
-	D3D9Hook_ForceReset = TRUE;
+    D3D9Hook_ForceReset = TRUE;
+}
+
+
+WCHAR* GetVsyncChar( OV_VSYNC_OVERRIDE_MODE Mode )
+{
+    switch (Mode)
+    {
+    case VSYNC_UNCHANGED:
+        return L"VSYNC_UNCHANGED";
+        break;
+    case VSYNC_FORCE_ON:
+        return L"VSYNC_FORCE_ON";
+        break;
+    case VSYNC_FORCE_OFF:
+        return L"VSYNC_FORCE_OFF";
+        break;
+    default:
+        return L"VYSNC_UNKNOWN";
+        break;
+    }
 }
 
 
 VOID UpdatePresentationParameters( D3DPRESENT_PARAMETERS* PresentationParameters )
 {
     // Force vsync?
-	OutputDebugStringW(L"[OVRENDER] UpdatePresentationParameters()");
+    Log(L"UpdatePresentationParameters(%s)", GetVsyncChar(D3D9Overlay->VsyncOverrideMode));
+
     if (D3D9Overlay->VsyncOverrideMode == VSYNC_FORCE_ON)
     {
         PresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_ONE;
-		OutputDebugStringW(L"[OVRENDER] VSYNC_FORCE_ON");
     }
     else if (D3D9Overlay->VsyncOverrideMode == VSYNC_FORCE_OFF)
     {
         PresentationParameters->PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
-		OutputDebugStringW(L"[OVRENDER] VSYNC_FORCE_OFF");
     }
-	else if (D3D9Overlay->VsyncOverrideMode == VSYNC_UNCHANGED)
-	{
-		OutputDebugStringW(L"[OVRENDER] VSYNC_UNCHANGED");
-	}
 
     if (D3D9Hook_WindowMode == WINDOW_WINDOWED)
     {
