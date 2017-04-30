@@ -44,48 +44,30 @@ ULONG __stdcall CreateOverlay( LPVOID Param )
     OV_HOOK_PARAMS *hookParams = (OV_HOOK_PARAMS*) Param;
     BOOLEAN d3d8, d3d9, dxgi, ddraw;
 
+    d3d8 = d3d9 = dxgi = ddraw = FALSE;
+
     if (GetModuleHandleW(L"d3d8.dll"))
     {
-        Log(L"GetModuleHandle(\"d3d8.dll\") returned TRUE");
+        Log(L"Found d3d8.dll");
         d3d8 = TRUE;
-    }
-    else
-    {
-        Log(L"GetModuleHandle(\"d3d8.dll\") returned FALSE");
-        d3d8 = FALSE;
     }
 
     if (GetModuleHandleW(L"d3d9.dll"))
     {
-        Log(L"GetModuleHandle(\"d3d9.dll\") returned TRUE");
+        Log(L"Found d3d9.dll");
         d3d9 = TRUE;
-    }
-    else
-    {
-        Log(L"GetModuleHandle(\"d3d9.dll\") returned FALSE");
-        d3d9 = FALSE;
     }
 
     if (GetModuleHandleW(L"dxgi.dll"))
     {
-        Log(L"GetModuleHandle(\"dxgi.dll\") returned TRUE");
+        Log(L"Found dxgi.dll");
         dxgi = TRUE;
-    }
-    else
-    {
-        Log(L"GetModuleHandle(\"dxgi.dll\") returned FALSE");
-        dxgi = FALSE;
     }
 
     if (GetModuleHandleW(L"ddraw.dll"))
     {
-        Log(L"GetModuleHandle(\"ddraw.dll\") returned TRUE");
+        Log(L"Found ddraw.dll");
         ddraw = TRUE;
-    }
-    else
-    {
-        Log(L"GetModuleHandle(\"ddraw.dll\") returned FALSE");
-        ddraw = FALSE;
     }
 
     if (d3d8 && OvDx8Overlay == NULL)
