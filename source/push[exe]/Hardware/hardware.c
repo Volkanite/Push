@@ -261,7 +261,115 @@ VOID InitGpuHardware()
                 );
 }
 
+typedef struct _MC_TIMING_REPORT
+{
+    DWORD dwHorizontalFrequencyInHZ;
+    DWORD dwVerticalFrequencyInHZ;
+    BYTE bTimingStatusByte;
 
+} MC_TIMING_REPORT, *LPMC_TIMING_REPORT;
+
+typedef enum _MC_VCP_CODE_TYPE {
+    MC_MOMENTARY,
+    MC_SET_PARAMETER
+} MC_VCP_CODE_TYPE, *LPMC_VCP_CODE_TYPE;
+
+
+typedef NTSTATUS(__stdcall* TYPE_GetNumberOfPhysicalMonitors)(
+    _In_   UNICODE_STRING *pstrDeviceName,
+    _Out_  DWORD* pdwNumberOfPhysicalMonitors
+    );
+
+typedef NTSTATUS(__stdcall* TYPE_GetPhysicalMonitors)(
+    _In_   UNICODE_STRING *pstrDeviceName,
+    _In_   DWORD dwPhysicalMonitorArraySize,
+    _Out_  DWORD *pdwNumPhysicalMonitorHandlesInArray,
+    _Out_  HANDLE *phPhysicalMonitorArray
+    );
+
+typedef NTSTATUS(__stdcall* TYPE_DDCCIGetTimingReport)(
+    _In_   HANDLE hMonitor,
+    _Out_  LPMC_TIMING_REPORT pmtr
+    );
+
+typedef NTSTATUS(__stdcall* TYPE_DDCCIGetVCPFeature)(
+    _In_       HANDLE hMonitor,
+    _In_       DWORD dwVCPCode,
+    _Out_opt_  LPMC_VCP_CODE_TYPE pvct,
+    _Out_      DWORD *pdwCurrentValue,
+    _Out_opt_  DWORD *pdwMaximumValue
+    );
+
+typedef NTSTATUS (__stdcall* TYPE_DDCCISetVCPFeature)(
+    _In_  HANDLE hMonitor,
+    _In_  DWORD dwVCPCode,
+    _In_  DWORD dwNewValue
+    );
+
+
+TYPE_GetNumberOfPhysicalMonitors    GetNumberOfPhysicalMonitors;
+TYPE_GetPhysicalMonitors            GetPhysicalMonitors;
+TYPE_DDCCIGetTimingReport           DDCCIGetTimingReport;
+TYPE_DDCCIGetVCPFeature             DDCCIGetVCPFeature;
+TYPE_DDCCISetVCPFeature             DDCCISetVCPFeature;
+
+
+HANDLE* MonitorHandles;
+
+
+#define CCHDEVICENAME 32
+typedef struct tagMONITORINFOEXW {
+    DWORD cbSize;
+    RECT  rcMonitor;
+    RECT  rcWork;
+    DWORD dwFlags;
+    WCHAR szDevice[CCHDEVICENAME];
+} MONITORINFOEXW, *LPMONITORINFOEXW;
+INTBOOL __stdcall GetMonitorInfoW(
+    _In_  HANDLE      hMonitor,
+    _Out_ MONITORINFOEXW* lpmi
+    );
+
+typedef INTBOOL(__stdcall* MONITORENUMPROC)(HMONITOR, HDC, LPRECT, LPARAM);
+
+INTBOOL __stdcall EnumDisplayMonitors(
+    _In_opt_ HANDLE hdc,
+    _In_opt_ RECT* lprcClip,
+    _In_ MONITORENUMPROC lpfnEnum,
+    _In_ DWORD dwData
+    );
+
+
+INTBOOL __stdcall MonitorEnumProc( HANDLE hMonitor, HANDLE hdcMonitor, RECT* lprcMonitor, DWORD dwData )
+{
+    DWORD monitorCount;
+    MONITORINFOEXW monitorInformation;
+    UNICODE_STRING deviceName;
+    DWORD numPhysicalMonitorHandlesInArray;
+
+    static int monEnums = 0;
+
+    monitorInformation.cbSize = sizeof(MONITORINFOEXW);
+
+    GetMonitorInfoW(hMonitor, &monitorInformation);
+
+    deviceName.Buffer = monitorInformation.szDevice;
+    deviceName.Length = 24;
+    deviceName.MaximumLength = 26;
+
+    GetNumberOfPhysicalMonitors(&deviceName, &monitorCount);
+
+    numPhysicalMonitorHandlesInArray = 0;
+
+    GetPhysicalMonitors(&deviceName, monitorCount, &numPhysicalMonitorHandlesInArray, &MonitorHandles[monEnums++]);
+
+    return TRUE;
+}
+
+int __stdcall GetSystemMetrics(
+    _In_ int nIndex
+    );
+#define SM_CMONITORS            80
 VOID GetHardwareInfo()
 {
     int i = 0;
@@ -315,91 +423,32 @@ VOID GetHardwareInfo()
     DiskStartMonitoring();
 
     CPU_Intialize();
+
+    HANDLE gdi32;
+
+    gdi32 = Module_Load(L"gdi32.dll");
+
+    GetNumberOfPhysicalMonitors = Module_GetProcedureAddress(gdi32, "GetNumberOfPhysicalMonitors");
+    GetPhysicalMonitors = Module_GetProcedureAddress(gdi32, "GetPhysicalMonitors");
+    DDCCIGetTimingReport = Module_GetProcedureAddress(gdi32, "DDCCIGetTimingReport");
+    DDCCIGetVCPFeature = Module_GetProcedureAddress(gdi32, "DDCCIGetVCPFeature");
+    DDCCISetVCPFeature = Module_GetProcedureAddress(gdi32, "DDCCISetVCPFeature");
+
+    int monitorCount = GetSystemMetrics(SM_CMONITORS);
+
+    MonitorHandles = RtlAllocateHeap(PushHeapHandle, 0, sizeof(HANDLE) * monitorCount);
+
+    EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, NULL);
 }
 
 
-typedef struct _MC_TIMING_REPORT
-{
-    DWORD dwHorizontalFrequencyInHZ;
-    DWORD dwVerticalFrequencyInHZ;
-    BYTE bTimingStatusByte;
+#define STATUS_GRAPHICS_DDCCI_VCP_NOT_SUPPORTED ((NTSTATUS)0xC01E0584L)    
 
-} MC_TIMING_REPORT, *LPMC_TIMING_REPORT;
-
-
-typedef NTSTATUS(__stdcall* TYPE_GetNumberOfPhysicalMonitors)(
-    _In_   UNICODE_STRING *pstrDeviceName,
-    _Out_  DWORD* pdwNumberOfPhysicalMonitors
-    );
-
-typedef NTSTATUS(__stdcall* TYPE_GetPhysicalMonitors)(
-    _In_   UNICODE_STRING *pstrDeviceName,
-    _In_   DWORD dwPhysicalMonitorArraySize,
-    _Out_  DWORD *pdwNumPhysicalMonitorHandlesInArray,
-    _Out_  HANDLE *phPhysicalMonitorArray
-    );
-
-typedef NTSTATUS(__stdcall* TYPE_DDCCIGetTimingReport)(
-    _In_   HANDLE hMonitor,
-    _Out_  LPMC_TIMING_REPORT pmtr
-    );
-
-
-TYPE_GetNumberOfPhysicalMonitors    GetNumberOfPhysicalMonitors;
-TYPE_GetPhysicalMonitors            GetPhysicalMonitors;
-TYPE_DDCCIGetTimingReport DDCCIGetTimingReport;
-
-
-HANDLE* MonitorHandles;
-
-
-#define CCHDEVICENAME 32
-typedef struct tagMONITORINFOEXW {
-    DWORD cbSize;
-    RECT  rcMonitor;
-    RECT  rcWork;
-    DWORD dwFlags;
-    WCHAR szDevice[CCHDEVICENAME];
-} MONITORINFOEXW, *LPMONITORINFOEXW;
-INTBOOL __stdcall GetMonitorInfoW(
-    _In_  HANDLE      hMonitor,
-    _Out_ MONITORINFOEXW* lpmi
-    );
-
-typedef INTBOOL(__stdcall* MONITORENUMPROC)(HMONITOR, HDC, LPRECT, LPARAM);
-
-INTBOOL __stdcall EnumDisplayMonitors(
-    _In_opt_ HANDLE hdc,
-    _In_opt_ RECT* lprcClip,
-    _In_ MONITORENUMPROC lpfnEnum,
-    _In_ DWORD dwData
-    );
-
-
-INTBOOL __stdcall MonitorEnumProc( HANDLE hMonitor, HANDLE hdcMonitor, RECT* lprcMonitor, DWORD dwData )
-{
-    DWORD monitorCount;
-    MONITORINFOEXW monitorInformation;
-    UNICODE_STRING deviceName;
-    DWORD numPhysicalMonitorHandlesInArray;
-
-    monitorInformation.cbSize = sizeof(MONITORINFOEXW);
-
-    GetMonitorInfoW(hMonitor, &monitorInformation);
-
-    deviceName.Buffer = monitorInformation.szDevice;
-    deviceName.Length = 24;
-    deviceName.MaximumLength = 26;
-
-    GetNumberOfPhysicalMonitors(&deviceName, &monitorCount);
-
-    numPhysicalMonitorHandlesInArray = 0;
-    MonitorHandles = (HANDLE*)RtlAllocateHeap(PushHeapHandle, 0, sizeof(HANDLE) * monitorCount);
-
-    GetPhysicalMonitors(&deviceName, monitorCount, &numPhysicalMonitorHandlesInArray, MonitorHandles);
-
-    return TRUE;
-}
+#define VCP_BRIGHTNESS              0x10
+#define VCP_HORIZONTAL_FREQUENCY    0xAC
+#define VCP_VERTICAL_FREQUENCY      0xAE
+#define VCP_VERSION                 0xDF
+#define VCP_POWER_MODE              0xD6
 
 
 VOID RefreshHardwareInfo()
@@ -425,31 +474,9 @@ VOID RefreshHardwareInfo()
     PushSharedMemory->HarwareInformation.Memory.Load                    = GetRamUsage();
     PushSharedMemory->HarwareInformation.Disk.ReadWriteRate             = GetDiskReadWriteRate();
 
-    static int onerun = FALSE;
-
-    if (!onerun)
-    {
-        HANDLE gdi32;
-        
-        gdi32 = Module_Load(L"gdi32.dll");
-        
-        GetNumberOfPhysicalMonitors = Module_GetProcedureAddress(gdi32, "GetNumberOfPhysicalMonitors");
-        GetPhysicalMonitors = Module_GetProcedureAddress(gdi32, "GetPhysicalMonitors");
-        DDCCIGetTimingReport = Module_GetProcedureAddress(gdi32, "DDCCIGetTimingReport");
-        
-        EnumDisplayMonitors(
-            NULL,
-            NULL,
-            MonitorEnumProc,
-            NULL
-            );
-
-        onerun = TRUE;
-    }
-
     MC_TIMING_REPORT timingReport;
 
-    DDCCIGetTimingReport(MonitorHandles[0], &timingReport);
+    DDCCIGetTimingReport(MonitorHandles[1], &timingReport);
 
     PushSharedMemory->HarwareInformation.Display.RefreshRate = timingReport.dwVerticalFrequencyInHZ / 100;
 }
