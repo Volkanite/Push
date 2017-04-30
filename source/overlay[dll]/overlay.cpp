@@ -103,6 +103,9 @@ ULONG __stdcall MonitorThread( LPVOID Params )
         Keyboard_Hook(PushSharedMemory->KeyboardHookType);
     }
 
+    // Thread can't end or keyboard hook won't work.
+    Sleep(INFINITE);
+
     return NULL;
 }
 
