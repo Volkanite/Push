@@ -421,7 +421,7 @@ void Keyboard_Hook( PUSH_KEYBOARD_HOOK_TYPE HookType )
                 (BYTE*)GetRawInputDataHook
                 );
 
-            KeyboardHookHandle = (HHOOK)0xffffffff; //LOL
+            Log(L"using KEYBOARD_HOOK_RAW");
         }
         break;
     default:

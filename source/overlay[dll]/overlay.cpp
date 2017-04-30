@@ -90,7 +90,6 @@ ULONG __stdcall MonitorThread( LPVOID Params )
             if (GetModuleHandleW(L"dinput8.dll"))
             {
                 Keyboard_Hook(KEYBOARD_HOOK_RAW);
-                Log(L"using KEYBOARD_HOOK_RAW");
             }
         }
         else
