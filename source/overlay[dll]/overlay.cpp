@@ -18,6 +18,7 @@ BOOLEAN g_DXGI                  = FALSE;
 ThreadMonitor* PushThreadMonitor;
 HANDLE PushProcessHeap;
 CRITICAL_SECTION OvCriticalSection;
+extern HANDLE RenderThreadHandle;
 
 
 VOID Log(const wchar_t* Format, ...)
@@ -81,23 +82,25 @@ extern HHOOK KeyboardHookHandle;
 
 ULONG __stdcall MonitorThread( LPVOID Params )
 {
-    while (!KeyboardHookHandle)
+    while (!RenderThreadHandle)
     {
-        if (PushSharedMemory->KeyboardHookType == KEYBOARD_HOOK_AUTO)
-        {
-            Keyboard_Hook(KEYBOARD_HOOK_MESSAGE);
-
-            if (GetModuleHandleW(L"dinput8.dll"))
-            {
-                Keyboard_Hook(KEYBOARD_HOOK_RAW);
-            }
-        }
-        else
-        {
-            Keyboard_Hook(PushSharedMemory->KeyboardHookType);
-        }
-        
         Sleep(500);
+    }
+
+    Log(L"RenderThreadId %i", GetThreadId(RenderThreadHandle));
+
+    if (PushSharedMemory->KeyboardHookType == KEYBOARD_HOOK_AUTO)
+    {
+        Keyboard_Hook(KEYBOARD_HOOK_MESSAGE);
+
+        if (GetModuleHandleW(L"dinput8.dll"))
+        {
+            Keyboard_Hook(KEYBOARD_HOOK_RAW);
+        }
+    }
+    else
+    {
+        Keyboard_Hook(PushSharedMemory->KeyboardHookType);
     }
 
     while (PushImageEvent)

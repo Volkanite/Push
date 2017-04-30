@@ -16,6 +16,8 @@ UINT16 DiskResponseTime;
 UINT32 FrameRate;
 UINT8 FrameLimit = 80; //80 fps
 UINT64 CyclesWaited;
+HANDLE RenderThreadHandle;
+
 
 double PCFreq = 0.0;
 __int64 CounterStart = 0;
@@ -128,6 +130,8 @@ VOID RunFrameStatistics()
                 PushSharedMemory->HarwareInformation.DisplayDevice.MemoryOverclock
                 );
         }
+
+        RenderThreadHandle = GetCurrentThread();
     }
 
     if (PushSharedMemory->FrameLimit && FrameLimit < 60)
@@ -203,12 +207,11 @@ VOID RunFrameStatistics()
 
         if (frameTime < frameTimeMin)
         {
-            HANDLE threadHandle;
             UINT64 cyclesStart, cyclesStop;
 
-            threadHandle = GetCurrentThread();
+            RenderThreadHandle = GetCurrentThread();
 
-            QueryThreadCycleTime(threadHandle, &cyclesStart);
+            QueryThreadCycleTime(RenderThreadHandle, &cyclesStart);
 
             lastTickCount = newTickCount;
 
@@ -221,7 +224,7 @@ VOID RunFrameStatistics()
                 lastTickCount = newTickCount;
             }
 
-            QueryThreadCycleTime(threadHandle, &cyclesStop);
+            QueryThreadCycleTime(RenderThreadHandle, &cyclesStop);
 
             CyclesWaited += cyclesStop - cyclesStart;
         }
