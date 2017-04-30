@@ -53,6 +53,17 @@ VOID Game_Initialize(WCHAR* Win32Name, PUSH_GAME* Game)
     if (SlIniReadSubKeyBoolean(
         L"Game Settings",
         gameId,
+        L"DisableOverlay",
+        FALSE,
+        L".\\" PUSH_SETTINGS_FILE)
+        )
+    {
+        Game->Settings.DisableOverlay = TRUE;
+    }
+
+    if (SlIniReadSubKeyBoolean(
+        L"Game Settings",
+        gameId,
         L"UseRamDisk",
         FALSE,
         L".\\" PUSH_SETTINGS_FILE)

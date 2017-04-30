@@ -108,7 +108,7 @@ VOID PushGetImageInfo(
     IMAGE_CALLBACK_INFO* ImageInformation
     );
 
-VOID Push_Log(WCHAR* Buffer);
+VOID Log(const wchar_t* Format, ...);
 VOID Push_FormatTime(WCHAR* Buffer);
 
 #endif //PUSH_H

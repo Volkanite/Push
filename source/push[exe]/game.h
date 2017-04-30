@@ -11,6 +11,7 @@
 
 typedef struct _PUSH_GAME_SETTINGS
 {
+    BOOLEAN                     DisableOverlay;
     BOOLEAN                     UseRamDisk;
     BOOLEAN                     DisableRepeatKeys;
     BOOLEAN                     SwapWASD;

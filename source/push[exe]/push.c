@@ -47,8 +47,6 @@ DWORD __stdcall MapFileAndCheckSumW(
     );
 
 
-
-
 BOOLEAN IsGame( WCHAR* ExecutablePath )
 {
     WCHAR *ps;
@@ -501,43 +499,12 @@ DWORD __stdcall SetFilePointer(
 VOID Inject64(UINT32 ProcessId, WCHAR* Path);
 
 
-VOID Push_Log( WCHAR* Buffer )
-{
-    HANDLE fileHandle;
-    wchar_t marker = 0xFEFF;
-    wchar_t *buffer;
-    UINT16 bufferSize;
-
-    File_Create(
-        &fileHandle,
-        L"debug.log",
-        SYNCHRONIZE | FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE,
-        FILE_SHARE_READ | FILE_SHARE_WRITE,
-        FILE_OPEN_IF,
-        FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
-        NULL
-        );
-
-    bufferSize = String_GetSize(Buffer);
-    bufferSize += String_GetSize(L"XX:XX:XX \r\n ");
-    buffer = (WCHAR*)Memory_Allocate(bufferSize);
-
-    Push_FormatTime(buffer);
-
-    String_Concatenate(buffer, L" ");
-    String_Concatenate(buffer, Buffer);
-    String_Concatenate(buffer, L"\r\n");
-
-    File_Write(fileHandle, &marker, sizeof(marker)); // UTF-16LE
-    File_SetPointer(fileHandle, 0, FILE_END);
-    File_Write(fileHandle, buffer, bufferSize - sizeof(WCHAR));
-    File_Close(fileHandle);
-}
-
-
 VOID OnImageEvent( PROCESSID ProcessId )
 {
     VOID *processHandle = 0;
+    wchar_t filePath[260];
+    wchar_t *executableName;
+    NTSTATUS status;
 
     processHandle = Process_Open(
         ProcessId,
@@ -634,30 +601,30 @@ VOID OnImageEvent( PROCESSID ProcessId )
     {
         return;
     }
-
-#if DEBUG
-    wchar_t filePath[260];
-    wchar_t *buffer;
-    wchar_t *executableName;
-    UINT16 bufferSize;
-    NTSTATUS status;
-
+    
     status = Process_GetFileNameByHandle(processHandle, filePath);
+
+    if (IsGame(filePath))
+    {
+        PUSH_GAME game = { 0 };
+
+        Game_Initialize(filePath, &game);
+
+        if (game.Settings.DisableOverlay)
+        {
+            Log(L"Skipping injection on %s", game.ExecutableName);
+
+            return;
+        }
+    }
 
     if (NT_SUCCESS(status))
     {
         executableName = String_FindLastChar(filePath, '\\');
         executableName++;
-        bufferSize = 54 + (String_GetLength(executableName) * sizeof(WCHAR));
-        buffer = (WCHAR*)Memory_Allocate(bufferSize);
 
-        String_Copy(buffer, L"injecting into ");
-        String_Concatenate(buffer, executableName);
-
-        Push_Log(buffer);
-        Debug_Print(buffer);
+        Log(L"Injecting into %s", executableName);
     }
-#endif
 
     GameProcessId = ProcessId;
 
@@ -755,12 +722,12 @@ DWORD __stdcall RetrieveImageEvent( VOID* Parameter )
 
     // Get the process info
     PushGetImageInfo(&imageInfo);
-#if DEBUG
+
     WCHAR buffer[260];
 
     String_Format(buffer, 260, L"%i loaded D3D module", imageInfo.processID);
-    Push_Log(buffer);
-#endif
+    Log(buffer);
+
 
     //
     // Wait here for the event handle to be set, indicating
@@ -809,9 +776,8 @@ DWORD __stdcall MonitorThread(VOID* Parameter)
         }
         else if (handles[result - WAIT_OBJECT_0] == d3dImageEvent)
         {
-#if DEBUG
-            Push_Log(L"Creating image thread...");
-#endif
+            Log(L"Creating image thread...");
+
             CreateRemoteThread(NtCurrentProcess(), 0, 0, &RetrieveImageEvent, NULL, 0, NULL);
         }
     }
