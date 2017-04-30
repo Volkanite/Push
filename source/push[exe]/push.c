@@ -723,10 +723,7 @@ DWORD __stdcall RetrieveImageEvent( VOID* Parameter )
     // Get the process info
     PushGetImageInfo(&imageInfo);
 
-    WCHAR buffer[260];
-
-    String_Format(buffer, 260, L"%i loaded D3D module", imageInfo.processID);
-    Log(buffer);
+    Log(L"%i loaded D3D module", imageInfo.processID);
 
 
     //
@@ -776,8 +773,6 @@ DWORD __stdcall MonitorThread(VOID* Parameter)
         }
         else if (handles[result - WAIT_OBJECT_0] == d3dImageEvent)
         {
-            Log(L"Creating image thread...");
-
             CreateRemoteThread(NtCurrentProcess(), 0, 0, &RetrieveImageEvent, NULL, 0, NULL);
         }
     }
