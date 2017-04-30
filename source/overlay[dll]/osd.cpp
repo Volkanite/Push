@@ -45,7 +45,7 @@ VOID Osd_Draw( OvOverlay* Overlay )
             }
             break;
         case OSD_RESOLUTION:
-            swprintf(osdItem->Text, 20, L"RES : %i x %i", BackBufferWidth, BackBufferHeight);
+            swprintf(osdItem->Text, 20, L"MON : %i x %i", BackBufferWidth, BackBufferHeight);
             break;
         case OSD_DISK_RESPONSE:
             osdItem->Value = DiskResponseTime;
