@@ -55,14 +55,14 @@ PushGetMaxThreadUsage()
 
 VOID CreateOverlay()
 {
-    OutputDebugStringW(L"[OVRENDER] CreateOverlay()");
+    Log(L"CreateOverlay()");
     OV_HOOK_PARAMS hookParams = { 0 };
 
     hookParams.RenderFunction = RnRender;
 
     if (PushSharedMemory->VsyncOverrideMode == PUSH_VSYNC_FORCE_ON)
     {
-        OutputDebugStringW(L"[OVRENDER] VSYNC_FORCE_ON");
+        Log(L"VSYNC_FORCE_ON");
         hookParams.VsyncOverrideMode = VSYNC_FORCE_ON;
     }
         
@@ -70,7 +70,7 @@ VOID CreateOverlay()
         hookParams.VsyncOverrideMode = VSYNC_FORCE_OFF;
     else
     {
-        OutputDebugStringW(L"[OVRENDER] VSYNC_FORCE_UNC");
+        Log(L"VSYNC_FORCE_UNC");
     }
 
     OvCreateOverlayEx(&hookParams);
@@ -103,11 +103,17 @@ ULONG __stdcall MonitorThread( LPVOID Params )
         Keyboard_Hook(PushSharedMemory->KeyboardHookType);
     }
 
+    return NULL;
+}
+
+
+ULONG __stdcall ImageMonitorThread(LPVOID Params)
+{
     while (PushImageEvent)
     {
         WaitForSingleObject(PushImageEvent, INFINITE);
 
-        OutputDebugStringW(L"new image event!");
+        Log(L"new image event!");
         CreateOverlay();
     }
 
@@ -227,7 +233,10 @@ BOOL __stdcall DllMain(
 
             InitializeCriticalSection(&OvCriticalSection);
             CreateOverlay();
+
             CreateThread(0, 0, &MonitorThread, 0, 0, 0);
+            CreateThread(0, 0, &ImageMonitorThread, 0, 0, 0);
+
             EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &devMode);
 
             PushRefreshRate = devMode.dmDisplayFrequency;

@@ -505,6 +505,12 @@ VOID OnImageEvent( PROCESSID ProcessId )
     wchar_t filePath[260];
     wchar_t *executableName;
     NTSTATUS status;
+    static int lastProcessId = 0;
+
+    if (lastProcessId == ProcessId)
+        return;
+
+    lastProcessId = ProcessId;
 
     processHandle = Process_Open(
         ProcessId,
