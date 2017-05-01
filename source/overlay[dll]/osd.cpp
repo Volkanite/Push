@@ -7,7 +7,10 @@
 
 extern UINT32 BackBufferWidth;
 extern UINT32 BackBufferHeight;
+extern UINT32 BackBufferCount;
+
 VOID* OpenSection(WCHAR* SectionName, SIZE_T SectionSize);
+
 
 /**
 * Draws all on-screen display items.
@@ -46,6 +49,9 @@ VOID Osd_Draw( OvOverlay* Overlay )
             break;
         case OSD_RESOLUTION:
             swprintf(osdItem->Text, 20, L"MON : %i x %i", BackBufferWidth, BackBufferHeight);
+            break;
+        case OSD_BUFFERS:
+            swprintf(osdItem->Text, 20, L"Buffers : %i", BackBufferCount);
             break;
         case OSD_DISK_RESPONSE:
             osdItem->Value = DiskResponseTime;

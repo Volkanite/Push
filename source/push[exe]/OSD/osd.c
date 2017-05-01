@@ -193,8 +193,8 @@ VOID OSD_Initialize()
     OSD_AddItem(OSD_DISK_RWRATE, NULL, NULL, sizeof(UINT8), NULL, 0, FormatDiskReadWriteRate);
     OSD_AddItem(OSD_DISK_RESPONSE, L"DSK : %i ms", NULL, sizeof(UINT8), NULL, 4000, NULL);
     OSD_AddItem(OSD_TIME, NULL, NULL, sizeof(UINT8), NULL, 0, FormatTime);
-    OSD_AddItem(OSD_BUFFERS, L"Buffers : %i", &PushSharedMemory->FrameBufferCount, sizeof(UINT8), NULL, 0, NULL);
-    OSD_AddItem(OSD_RESOLUTION, 0, 0, sizeof(UINT8), 0, 0, NULL);
+    OSD_AddItem(OSD_BUFFERS, NULL, NULL, sizeof(UINT8), NULL, 0, NULL);
+    OSD_AddItem(OSD_RESOLUTION, NULL, NULL, sizeof(UINT8), 0, 0, NULL);
     OSD_AddItem(OSD_REFRESH_RATE, L"MON : %i Hz", &hardware->Display.RefreshRate, sizeof(UINT8), NULL, 0, NULL);
     OSD_AddItem(OSD_FPS, 0, 0, sizeof(UINT8), 0, 0, 0);
 

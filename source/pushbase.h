@@ -308,7 +308,6 @@ typedef struct _PUSH_SHARED_MEMORY
     PUSH_HARDWARE_INFORMATION HarwareInformation;
 
     UCHAR   FrameLimit;
-    UINT8   FrameBufferCount;
 
     PUSH_VSYNC_OVERRIDE_MODE    VsyncOverrideMode;
     PUSH_KEYBOARD_HOOK_TYPE     KeyboardHookType;

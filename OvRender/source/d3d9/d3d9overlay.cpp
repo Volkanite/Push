@@ -13,6 +13,8 @@ IDirect3DDevice9* Dx9OvDevice;
 OV_WINDOW_MODE D3D9Hook_WindowMode;
 UINT32 BackBufferWidth;
 UINT32 BackBufferHeight;
+UINT32 BackBufferCount;
+
 VOID Log(const wchar_t* Format, ...);
 
 
@@ -94,6 +96,7 @@ VOID UpdatePresentationParameters( D3DPRESENT_PARAMETERS* PresentationParameters
 
     BackBufferHeight = PresentationParameters->BackBufferHeight;
     BackBufferWidth = PresentationParameters->BackBufferWidth;
+    BackBufferCount = PresentationParameters->BackBufferCount;
 }
 
 
