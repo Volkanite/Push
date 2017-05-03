@@ -141,6 +141,8 @@ VOID* Memory_Allocate( UINT_B Size )
 {
 	BytesAllocated += Size;
 
+	//Log(L"BytesAllocated: %i", BytesAllocated);
+
 	return RtlAllocateHeap(PushHeapHandle, 0, Size);
 }
 

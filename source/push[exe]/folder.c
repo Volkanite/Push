@@ -74,7 +74,7 @@ NTSTATUS Directory_Enum(
 
             if (status == STATUS_BUFFER_OVERFLOW || status == STATUS_INFO_LENGTH_MISMATCH)
             {
-                RtlFreeHeap(heapHandle, 0, buffer);
+				Memory_Free(buffer);
 
                 bufferSize *= 2;
                 buffer = Memory_Allocate(bufferSize);
@@ -118,7 +118,7 @@ NTSTATUS Directory_Enum(
         firstTime = FALSE;
     }
 
-    RtlFreeHeap(heapHandle, 0, buffer);
+	Memory_Free(buffer);
 
     NtClose(directoryHandle);
 

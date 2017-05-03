@@ -202,7 +202,7 @@ PROFILE_Save( VOID* FileHandle, PROFILESECTION* Section )
             NULL
             );
 
-        RtlFreeHeap(NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap, 0, buffer);
+        Memory_Free(buffer);
     }
 }
 
@@ -298,12 +298,12 @@ PROFILE_Free( PROFILESECTION *Section )
         {
             next_key = key->next;
 
-            RtlFreeHeap(NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap, 0, key->Value);
-            RtlFreeHeap(NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap, 0, key);
+            Memory_Free(key->Value);
+            Memory_Free(key);
         }
         next_section = Section->next;
 
-        RtlFreeHeap(NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap, 0, Section);
+        Memory_Free(Section);
     }
 }
 
@@ -375,7 +375,7 @@ PROFILE_Load( VOID* FileHandle )
 
     if (!NT_SUCCESS(status))
     {
-        RtlFreeHeap(NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap, 0, bufferBase);
+        Memory_Free(bufferBase);
 
         return NULL;
     }
@@ -393,9 +393,9 @@ PROFILE_Load( VOID* FileHandle )
     if(firstSection == NULL)
     {
         if (file != pBuffer)
-            RtlFreeHeap(NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap, 0, file);
+            Memory_Free(file);
 
-        RtlFreeHeap(NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap, 0, bufferBase);
+        Memory_Free(bufferBase);
 
         return NULL;
     }
@@ -509,9 +509,9 @@ PROFILE_Load( VOID* FileHandle )
     }
 
     if (file != pBuffer)
-        RtlFreeHeap(NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap, 0, file);
+        Memory_Free(file);
 
-    RtlFreeHeap(NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap, 0, bufferBase);
+    Memory_Free(bufferBase);
 
     return firstSection;
 }
@@ -529,7 +529,7 @@ PROFILE_ReleaseFile(void)
 
     PROFILE_Free( CurrentProfile->section );
 
-    RtlFreeHeap(NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap, 0, CurrentProfile->FileName);
+    Memory_Free(CurrentProfile->FileName);
 
     CurrentProfile->changed = FALSE;
     CurrentProfile->section = NULL;
@@ -734,8 +734,8 @@ PROFILE_DeleteKey( PROFILESECTION **Section, WCHAR* SectionName, WCHAR* KeyName 
                     PROFILEKEY *to_del = *key;
                     *key = to_del->next;
 
-                    RtlFreeHeap(NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap, 0, to_del->Value);
-                    RtlFreeHeap(NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap, 0, to_del);
+                    Memory_Free(to_del->Value);
+                    Memory_Free(to_del);
 
                     return TRUE;
                 }
@@ -848,7 +848,7 @@ static PROFILEKEY *PROFILE_Find(
         0,*/
         sizeof(PROFILEKEY) + String_GetLength(KeyName) * sizeof(WCHAR) )))
     {
-        RtlFreeHeap(NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap, 0, *Section);
+        Memory_Free(*Section);
 
         return NULL;
     }
@@ -911,7 +911,7 @@ PROFILE_SetString(
                 return TRUE;  /* No change needed */
             }
 
-            RtlFreeHeap(NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap, 0, key->Value );
+            Memory_Free(key->Value );
         }
 
 		key->Value = (WCHAR*)Memory_Allocate((String_GetLength(Value) + 1) * sizeof(WCHAR));
@@ -1284,7 +1284,7 @@ GetString(
     }
 
     RtlLeaveCriticalSection( &PROFILE_CritSect );
-    RtlFreeHeap(NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap, 0, defval_tmp);
+    Memory_Free(defval_tmp);
 
     return ret;
 }
@@ -1348,7 +1348,7 @@ SlIniReadString( WCHAR* Section, WCHAR* Key, WCHAR* DefaultValue, WCHAR* File )
 
       if (!returnValue)
       {
-          RtlFreeHeap(NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap, 0, buffer);
+          Memory_Free(buffer);
 
           return NULL;
       }

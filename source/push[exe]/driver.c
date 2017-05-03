@@ -531,7 +531,7 @@ NTSTATUS SlLoadDriver(
                 );
         }
 
-        RtlFreeHeap(heapHandle, 0, lpServiceConfig);
+        Memory_Free(lpServiceConfig);
     }
 
     QueryServiceStatus(serviceHandle, &ServiceStatus);

@@ -213,8 +213,8 @@ VOID FsRenameFile( WCHAR* FilePath, WCHAR* NewFileName )
         FileRenameInformation
         );
 
-    RtlFreeHeap(heapHandle, 0, newFileName.Buffer);
-    RtlFreeHeap(heapHandle, 0, renameInfo);
+	Memory_Free(newFileName.Buffer);
+	Memory_Free(renameInfo);
 
     NtClose(fileHandle);
 }
@@ -317,9 +317,9 @@ NTSTATUS File_Create(
         0
         );
 
-    RtlFreeHeap(
-        NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap,
-        0,
+	Memory_Free(
+        /*NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap,
+        0,*/
         fileName.Buffer
         );
 

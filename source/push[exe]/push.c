@@ -56,7 +56,7 @@ BOOLEAN IsGame( WCHAR* ExecutablePath )
     if (ps != 0)
     {
         //is game
-        RtlFreeHeap(PushHeapHandle, 0, ps);
+		Memory_Free(ps);
 
         return TRUE;
     }

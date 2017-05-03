@@ -237,7 +237,7 @@ VOID BuildFileList(
         fileEntry.Cache = BatchFile_IsBatchedFile(&fileEntry);
 
         PushAddToFileList(&MwFileList, &fileEntry);
-        RtlFreeHeap(PushHeapHandle, 0, filePath);
+		Memory_Free(filePath);
     }
 }
 

@@ -104,7 +104,7 @@ VOID BatchFile_Initialize( PUSH_GAME* Game )
     }
 
     // Be a nice guy and give back what was given to you
-    RtlFreeHeap(PushHeapHandle, 0, buffer);
+    Memory_Free(buffer);
 
     // Update batch size;
     BatchSize = fileSize;
