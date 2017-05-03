@@ -234,9 +234,9 @@ PushAddToFileList( FILE_LIST* FileList, FILE_LIST_ENTRY *FileEntry )
     FILE_LIST_ENTRY *fileListEntry;
     WCHAR *name;
 
-    name = (WCHAR*) RtlAllocateHeap(
-            PushHeapHandle,
-            0,
+	name = (WCHAR*)Memory_Allocate(
+            /*PushHeapHandle,
+            0,*/
             (String_GetLength(FileEntry->Name) + 1) * sizeof(WCHAR)
             );
 
@@ -246,9 +246,9 @@ PushAddToFileList( FILE_LIST* FileList, FILE_LIST_ENTRY *FileEntry )
     {
         FILE_LIST_ENTRY *fileList;
 
-        *FileList = (FILE_LIST) RtlAllocateHeap(
-            PushHeapHandle,
-            0,
+		*FileList = (FILE_LIST)Memory_Allocate(
+            /*PushHeapHandle,
+            0,*/
             sizeof(FILE_LIST_ENTRY)
             );
 
@@ -269,9 +269,9 @@ PushAddToFileList( FILE_LIST* FileList, FILE_LIST_ENTRY *FileEntry )
         fileListEntry = fileListEntry->NextEntry;
     }
 
-    fileListEntry->NextEntry = (FILE_LIST_ENTRY *) RtlAllocateHeap(
-        PushHeapHandle,
-        0,
+	fileListEntry->NextEntry = (FILE_LIST_ENTRY *)Memory_Allocate(
+        /*PushHeapHandle,
+        0,*/
         sizeof(FILE_LIST_ENTRY)
         );
 
@@ -530,7 +530,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
         SECURITY_DESCRIPTOR* securityDescriptor;
 
         bufferSize = 0x100;
-        securityDescriptor = (SECURITY_DESCRIPTOR*)RtlAllocateHeap(PushHeapHandle, 0, bufferSize);
+		securityDescriptor = (SECURITY_DESCRIPTOR*)Memory_Allocate(bufferSize);
 
         // Get the DACL of this process since we know we have all rights in it.
         status = NtQuerySecurityObject(
@@ -544,7 +544,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
         if (status == STATUS_BUFFER_TOO_SMALL)
         {
             Memory_Free(securityDescriptor);
-            securityDescriptor = (SECURITY_DESCRIPTOR*)RtlAllocateHeap(PushHeapHandle, 0, bufferSize);
+			securityDescriptor = (SECURITY_DESCRIPTOR*)Memory_Allocate(bufferSize);
 
             status = NtQuerySecurityObject(
                 NtCurrentProcess(),

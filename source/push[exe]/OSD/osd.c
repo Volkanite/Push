@@ -148,7 +148,7 @@ VOID OSD_AddItem(
     )
 {
     if (!OsdItems)
-        OsdItems = RtlAllocateHeap(PushHeapHandle, HEAP_ZERO_MEMORY, sizeof(OSD_ITEM) * 21);
+		OsdItems = Memory_AllocateEx(sizeof(OSD_ITEM) * 21, HEAP_ZERO_MEMORY);
 
     OsdItems[items].Flag = Flag;
     OsdItems[items].DisplayFormat = DisplayFormat;

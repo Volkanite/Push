@@ -92,7 +92,7 @@ VOID StripPermissions( WCHAR* KeyName )
     RtlCreateSecurityDescriptor(psecdesc, SECURITY_DESCRIPTOR_REVISION);
     RtlSetDaclSecurityDescriptor(psecdesc, TRUE, NULL, TRUE);
 
-    selfSecurityDescriptor = RtlAllocateHeap(PushHeapHandle, 0, 20);
+	selfSecurityDescriptor = Memory_Allocate(20);
 
     RtlMakeSelfRelativeSD(psecdesc, selfSecurityDescriptor, &bufferLength);
     NtSetSecurityObject(keyHandle, DACL_SECURITY_INFORMATION, selfSecurityDescriptor);
@@ -507,10 +507,9 @@ NTSTATUS SlLoadDriver(
 
         heapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
 
-        lpServiceConfig = (QUERY_SERVICE_CONFIG *)RtlAllocateHeap(
-            heapHandle,
-            HEAP_ZERO_MEMORY,
-            dwSize
+		lpServiceConfig = (QUERY_SERVICE_CONFIG *)Memory_AllocateEx(
+			dwSize,
+            HEAP_ZERO_MEMORY
             );
 
         QueryServiceConfigW(serviceHandle, lpServiceConfig, dwSize, &dwSize);

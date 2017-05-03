@@ -39,7 +39,7 @@ NTSTATUS Directory_Enum(
         return status;
 
     heapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
-    buffer = RtlAllocateHeap(heapHandle, 0, bufferSize);
+    buffer = Memory_Allocate(bufferSize);
 
     UnicodeString_Init(&pattern, SearchPattern);
 
@@ -77,7 +77,7 @@ NTSTATUS Directory_Enum(
                 RtlFreeHeap(heapHandle, 0, buffer);
 
                 bufferSize *= 2;
-                buffer = RtlAllocateHeap(heapHandle, 0, bufferSize);
+                buffer = Memory_Allocate(bufferSize);
             }
             else
             {

@@ -244,6 +244,8 @@ BOOLEAN Process_ThreadExists( UINT32 ProcessId, UINT32 ThreadId )
 
 
 #include <string.h>
+
+
 NTSTATUS Process_GetFileNameByHandle( HANDLE ProcessHandle, WCHAR* FileName )
 {
     UINT16 bufferSize;
@@ -251,7 +253,7 @@ NTSTATUS Process_GetFileNameByHandle( HANDLE ProcessHandle, WCHAR* FileName )
     NTSTATUS status;
 
     bufferSize = sizeof(UNICODE_STRING) + (260 * sizeof(WCHAR));
-    imageFileName = (UNICODE_STRING*)RtlAllocateHeap(NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap, 0, bufferSize);
+    imageFileName = (UNICODE_STRING*)Memory_Allocate(bufferSize);
     status = NtQueryInformationProcess(ProcessHandle, ProcessImageFileNameWin32, imageFileName, bufferSize, NULL);
 
     memcpy(FileName, imageFileName->Buffer, imageFileName->Length);

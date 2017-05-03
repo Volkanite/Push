@@ -1,9 +1,11 @@
 #include <sl.h>
 #include <stdio.h>
+#include "push.h"
 
 
 VOID* BaseNamedObjectDirectory = NULL;
-HANDLE ProcessHeap;
+UINT32 BytesAllocated;
+
 
 typedef enum _SECTION_INHERIT
 {
@@ -137,28 +139,29 @@ VOID* Memory_CreateFileMapping( WCHAR* FileName, DWORD Size )
 
 VOID* Memory_Allocate( UINT_B Size )
 {
-    if(!ProcessHeap)
-        ProcessHeap = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
+	BytesAllocated += Size;
 
-    return RtlAllocateHeap(ProcessHeap, 0, Size);
+	return RtlAllocateHeap(PushHeapHandle, 0, Size);
+}
+
+
+VOID* Memory_AllocateEx( UINT_B Size, DWORD Flags )
+{
+	BytesAllocated += Size;
+
+	return RtlAllocateHeap(PushHeapHandle, Flags, Size);
 }
 
 
 VOID* Memory_ReAllocate( VOID* Memory, SIZE_T Size )
 {
-    if(!ProcessHeap)
-        ProcessHeap = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
-
-    return RtlReAllocateHeap(ProcessHeap, HEAP_GENERATE_EXCEPTIONS, Memory, Size);
+	return RtlReAllocateHeap(PushHeapHandle, HEAP_GENERATE_EXCEPTIONS, Memory, Size);
 }
 
 
 VOID Memory_Free( VOID* Heap )
 {
-    if(!ProcessHeap)
-        ProcessHeap = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
-
-    RtlFreeHeap(ProcessHeap, 0, Heap);
+	RtlFreeHeap(PushHeapHandle, 0, Heap);
 }
 
 #include <string.h>

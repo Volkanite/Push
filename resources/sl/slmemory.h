@@ -1,4 +1,5 @@
 VOID* Memory_Allocate(UINT_B Size);
+VOID* Memory_AllocateEx(UINT_B Size, DWORD Flags);
 VOID* Memory_ReAllocate(VOID* Memory, SIZE_T Size);
 VOID Memory_Free(VOID* Base);
 VOID Memory_Copy(VOID* Destination, VOID* Source, UINT32 Length);

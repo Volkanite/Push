@@ -224,9 +224,9 @@ VOID BuildFileList(
         FILE_LIST_ENTRY fileEntry;
         WCHAR *filePath, slash[] = L"\\";
 
-        filePath = (WCHAR*) RtlAllocateHeap(
-            PushHeapHandle,
-            0,
+		filePath = (WCHAR*)Memory_Allocate(
+            /*PushHeapHandle,
+            0,*/
             (wcslen(Directory) * sizeof(WCHAR)) + sizeof(slash) + Information->FileNameLength
             );
 
@@ -265,9 +265,9 @@ VOID MwCreateMainWindow()
     Gui_IconImageHandle = LoadIconW(PushInstance, L"PUSH_ICON");
 
     // Create Window
-    PushMainWindow = (WINDOW*) RtlAllocateHeap(
-                                PushHeapHandle,
-                                0,
+	PushMainWindow = (WINDOW*)Memory_Allocate(
+                                /*PushHeapHandle,
+                                0,*/
                                 sizeof(WINDOW)
                                 );
 
@@ -372,7 +372,7 @@ WCHAR* ManualLoad;
 
 VOID OpenCacheWindow()
 {
-    cacheWindow = (WINDOW *)RtlAllocateHeap(PushHeapHandle, 0, sizeof(WINDOW));
+	cacheWindow = (WINDOW *)Memory_Allocate(sizeof(WINDOW));
 
     cacheWindow->lastPos = 0;
 

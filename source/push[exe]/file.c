@@ -104,17 +104,11 @@ CreateLink( WCHAR *name, WCHAR *dest )
 }
 
 
-WCHAR*
-GetPointerToFilePath( WCHAR *Path, WCHAR *File )
+WCHAR* GetPointerToFilePath( WCHAR *Path, WCHAR *File )
 {
     WCHAR *filePath;
 
-    //pszFilePath = (WCHAR*) SlAllocate((wcslen(pszPath) + wcslen(pszFile) + 2) * 2);
-    filePath = (WCHAR *) RtlAllocateHeap(
-                            PushHeapHandle,
-                            0,
-                            (wcslen(Path) + wcslen(File) + 2) * 2
-                            );
+    filePath = (WCHAR *) Memory_Allocate((wcslen(Path) + wcslen(File) + 2) * 2);
 
     String_Copy(filePath, Path);
 
@@ -204,12 +198,7 @@ VOID FsRenameFile( WCHAR* FilePath, WCHAR* NewFileName )
 
     heapHandle = PushHeapHandle;
 
-    renameInfo = (FILE_RENAME_INFORMATION*) RtlAllocateHeap(
-                                                heapHandle,
-                                                0,
-                                                renameInfoSize
-                                                );
-
+    renameInfo = (FILE_RENAME_INFORMATION*) Memory_Allocate(renameInfoSize);
     renameInfo->ReplaceIfExists = FALSE;
     renameInfo->RootDirectory = NULL;
     renameInfo->FileNameLength = (ULONG)newFileName.Length;
@@ -788,11 +777,7 @@ VOID* File_Load( WCHAR* FileName, UINT64* FileSize )
         *FileSize = fileSize;
 
     // Allocate some memory
-    buffer = RtlAllocateHeap(
-        NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap,
-        0,
-        fileSize
-        );
+	buffer = Memory_Allocate(fileSize);
 
     // Read the entire file into memory
     status = NtReadFile(

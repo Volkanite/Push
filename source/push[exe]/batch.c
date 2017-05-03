@@ -40,11 +40,9 @@ VOID BatchFile_Initialize( PUSH_GAME* Game )
     GetBatchFile(Game, batchFile);
 
     // Allocate some memory for the batchfile name
-    BatchFileName = (WCHAR*) RtlAllocateHeap(
-        PushHeapHandle,
-        0,
-        (String_GetLength(batchFile) + 1) * sizeof(WCHAR)
-        );
+    BatchFileName = (WCHAR*) Memory_Allocate(
+		(String_GetLength(batchFile) + 1) * sizeof(WCHAR)
+		);
 
     // Save new batchfile name
     String_Copy(BatchFileName, batchFile);

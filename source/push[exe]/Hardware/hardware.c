@@ -405,9 +405,9 @@ VOID GetHardwareInfo()
 
     for (i = 0; i < PushSharedMemory->HarwareInformation.Processor.NumberOfCores; i++)
     {
-        coreListEntry->nextEntry = (CORE_LIST*)RtlAllocateHeap(
-                                    PushHeapHandle,
-                                    0,
+		coreListEntry->nextEntry = (CORE_LIST*)Memory_Allocate(
+                                    /*PushHeapHandle,
+                                    0,*/
                                     sizeof(CORE_LIST)
                                     );
 
@@ -436,7 +436,7 @@ VOID GetHardwareInfo()
 
     int monitorCount = GetSystemMetrics(SM_CMONITORS);
 
-    MonitorHandles = RtlAllocateHeap(PushHeapHandle, 0, sizeof(HANDLE) * monitorCount);
+	MonitorHandles = Memory_Allocate(sizeof(HANDLE) * monitorCount);
 
     EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, NULL);
 }
