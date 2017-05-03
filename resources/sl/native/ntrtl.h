@@ -112,6 +112,14 @@ NTSTATUS __stdcall RtlMakeSelfRelativeSD(
     VOID* SelfRelativeSecurityDescriptor,
     ULONG* BufferLength
     );
+	
+NTSTATUS __stdcall RtlUTF8ToUnicodeN(
+    WCHAR* UnicodeStringDestination,
+	ULONG UnicodeStringMaxByteCount,
+	ULONG* UnicodeStringActualByteCount,
+    CHAR* UTF8StringSource,
+    ULONG UTF8StringByteCount
+    );
     
 #ifdef __cplusplus
 }

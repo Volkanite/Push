@@ -231,3 +231,389 @@ VOID Driver_Load()
         }
     }
 }
+
+
+#define HKEY_LOCAL_MACHINE (( VOID* ) (UINT_B)((LONG)0x80000002) )
+#define STANDARD_RIGHTS_ALL              (0x001F0000L)
+#define KEY_QUERY_VALUE         (0x0001)
+#define KEY_ENUMERATE_SUB_KEYS  (0x0008)
+#define KEY_NOTIFY              (0x0010)
+#define KEY_CREATE_LINK         (0x0020)
+#define KEY_ALL_ACCESS          ((STANDARD_RIGHTS_ALL        |\
+                                  KEY_QUERY_VALUE            |\
+                                  KEY_SET_VALUE              |\
+                                  KEY_CREATE_SUB_KEY         |\
+                                  KEY_ENUMERATE_SUB_KEYS     |\
+                                  KEY_NOTIFY                 |\
+                                  KEY_CREATE_LINK)            \
+                                  &                           \
+                                 (~SYNCHRONIZE))
+#define REG_SZ                      ( 1 )   // Unicode nul terminated string
+#define REG_DWORD                   ( 4 )   // 32-bit number
+#define INSTANCE_NAME L"ProtectorInstance"
+#define INSTANCE_ALTITUDE L"265000"
+#define INSTANCE_FLAGS  0
+typedef DWORD REGSAM;
+#define SE_PRIVILEGE_ENABLED            (0x00000002L)
+#define SE_LOAD_DRIVER_PRIVILEGE            (10L)
+
+LONG __stdcall RegCloseKey(
+  VOID* hKey
+);
+LONG __stdcall RegSetValueW(
+  VOID* hKey,
+  WCHAR* lpSubKey,
+  DWORD dwType,
+  WCHAR* lpData,
+  DWORD cbData
+);
+LONG __stdcall RegSetValueExW(
+  VOID* hKey,
+  WCHAR* lpValueName,
+  DWORD Reserved,
+  DWORD dwType,
+  const BYTE *lpData,
+  DWORD cbData
+);
+
+LONG __stdcall RegCreateKeyExW(
+  VOID* hKey,
+  WCHAR* lpSubKey,
+  DWORD Reserved,
+  WCHAR* lpClass,
+  DWORD dwOptions,
+  REGSAM samDesired,
+    SECURITY_ATTRIBUTES* lpSecurityAttributes,
+  VOID** phkResult,
+  DWORD* lpdwDisposition
+);
+LONG __stdcall RegOpenKeyExW(
+  VOID* hKey,
+  WCHAR* lpSubKey,
+  DWORD ulOptions,
+  REGSAM samDesired,
+  VOID** phkResult
+);
+
+BOOLEAN RegisterInstance( WCHAR* ServiceName )
+{
+    VOID *hKeyService=NULL, *hKeyInstances=NULL, *hKeyInstance=NULL;
+    BOOLEAN result = FALSE;
+
+    do
+    {
+        DWORD dwDisposition;
+        DWORD dwFlags=INSTANCE_FLAGS;
+        WCHAR buffer[260] = L"System\\CurrentControlSet\\Services\\";
+
+        wcscat(buffer, ServiceName);
+
+        if (RegOpenKeyExW(
+            HKEY_LOCAL_MACHINE,
+            buffer,
+            0,
+            KEY_CREATE_SUB_KEY,&hKeyService)!=ERROR_SUCCESS)
+            break;
+
+        RegCreateKeyExW(
+            hKeyService,
+            L"Instances",
+            0,
+            NULL,
+            0,
+            KEY_ALL_ACCESS,
+            NULL,
+            &hKeyInstances,
+            &dwDisposition
+            );
+
+        if(!hKeyInstances)
+            break;
+
+        if (RegSetValueExW(
+            hKeyInstances,
+            L"DefaultInstance",
+            0,
+            REG_SZ,
+            (const BYTE*)INSTANCE_NAME,
+            (wcslen(INSTANCE_NAME)+1)*sizeof(wchar_t))!=ERROR_SUCCESS)
+            break;
+
+        RegCreateKeyExW(
+            hKeyInstances,
+            INSTANCE_NAME,
+            0,
+            NULL,
+            0,
+            KEY_ALL_ACCESS,
+            NULL,
+            &hKeyInstance,
+            &dwDisposition
+            );
+
+        if(!hKeyInstance)
+            break;
+        if(RegSetValueExW(
+            hKeyInstance,
+            L"Altitude",
+            0,
+            REG_SZ,
+            (const BYTE*)INSTANCE_ALTITUDE,
+            (wcslen(INSTANCE_ALTITUDE)+1)*sizeof(wchar_t))!=ERROR_SUCCESS)
+            break;
+
+        if(RegSetValueExW(
+            hKeyInstance,
+            L"Flags",
+            0,
+            REG_DWORD,
+            (const BYTE*)&dwFlags,
+            sizeof(DWORD))!=ERROR_SUCCESS)
+            break;
+        result=TRUE;
+    }while(0);
+    if(hKeyInstance)
+        RegCloseKey(hKeyInstance);
+    if(hKeyInstances)
+        RegCloseKey(hKeyInstances);
+    if(hKeyService)
+        RegCloseKey(hKeyService);
+    return result;
+}
+
+
+void StartServiceAvi (WCHAR *pszServiceName)
+{
+    void *hSCManager;
+    void *hService;
+    INTBOOL result;
+
+    hSCManager = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+    hService = OpenServiceW(hSCManager, pszServiceName, SERVICE_ALL_ACCESS);
+    result = StartServiceW(hService, 0, NULL);
+
+    if (!result)
+    {
+        DWORD error = GetLastError();
+        error = error;
+    }
+
+    CloseServiceHandle(hSCManager);
+    CloseServiceHandle(hService);
+}
+
+
+NTSTATUS SlLoadDriver(
+    WCHAR* ServiceName,
+    WCHAR* DriverBinaryName,
+    WCHAR* DisplayName,
+    WCHAR* DeviceName,
+    BOOLEAN Filter,
+    HANDLE* DriverHandle
+    )
+{
+    VOID *serviceHandle, *scmHandle, *heapHandle, *fileHandle = NULL;
+    WCHAR registyPath[260] = L"\\Registry\\Machine\\System\\CurrentControlSet\\Services\\";
+    DWORD dwSize;
+    QUERY_SERVICE_CONFIG *lpServiceConfig;
+    SERVICE_STATUS ServiceStatus;
+    NTSTATUS status;
+    WCHAR driverPath[260];
+    WCHAR root[4];
+    WCHAR dir[260];
+    WCHAR *ptr;
+
+    if (!DriverBinaryName)
+    {
+        StartServiceAvi(L"PUSH");
+
+        status = File_Create(
+            &fileHandle,
+            DeviceName,
+            FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE,
+            NULL,
+            FILE_OPEN,
+            FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
+            NULL
+            );
+
+        if (NT_SUCCESS(status))
+        {
+            *DriverHandle = fileHandle;
+
+            return STATUS_SUCCESS;
+        }
+    }
+
+    GetModuleFileNameW(NULL, dir, 260);
+
+    if((ptr = String_FindLastChar(dir, '\\')) != NULL)
+    {
+        *ptr = '\0';
+    }
+
+    swprintf(driverPath, 260, L"%s\\%s", dir, DriverBinaryName);
+
+    root[0] = driverPath[0];
+    root[1] = ':';
+    root[2] = '\\';
+    root[3] = '\0';
+
+    if(root[0] == '\\' || GetDriveTypeW((WCHAR*)root) == DRIVE_REMOTE)
+    {
+        WCHAR tempPath[260];
+
+        GetTempPathW(260, tempPath);
+        wcscat(tempPath, DriverBinaryName);
+        File_Copy(driverPath, tempPath, NULL);
+        String_Copy(driverPath, tempPath);
+    }
+
+    scmHandle = OpenSCManagerW(0, 0, SC_MANAGER_ALL_ACCESS);
+
+    serviceHandle = OpenServiceW(
+        scmHandle,
+        ServiceName,
+        SERVICE_QUERY_CONFIG | SERVICE_CHANGE_CONFIG | SERVICE_QUERY_STATUS | SERVICE_START
+        );
+
+    if (serviceHandle == NULL)
+    {
+        serviceHandle = CreateServiceW(
+            scmHandle,
+            ServiceName,
+            DisplayName,
+            SERVICE_ALL_ACCESS,
+            SERVICE_KERNEL_DRIVER,
+            SERVICE_DEMAND_START,
+            SERVICE_ERROR_NORMAL,
+            driverPath,
+            NULL,
+            NULL,
+            NULL,
+            NULL,
+            NULL
+            );
+    }
+
+    if (serviceHandle == NULL)
+    {
+        return STATUS_OBJECT_NAME_NOT_FOUND;
+    }
+
+    if (DriverBinaryName)
+    {
+        QueryServiceConfigW(serviceHandle, 0, 0, &dwSize);
+
+        heapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
+
+        lpServiceConfig = (QUERY_SERVICE_CONFIG *)RtlAllocateHeap(
+            heapHandle,
+            HEAP_ZERO_MEMORY,
+            dwSize
+            );
+
+        QueryServiceConfigW(serviceHandle, lpServiceConfig, dwSize, &dwSize);
+
+        if (String_Compare(driverPath, lpServiceConfig->lpBinaryPathName + 4) != 0)
+        {
+            ChangeServiceConfigW(
+                serviceHandle,
+                SERVICE_NO_CHANGE,
+                SERVICE_NO_CHANGE,
+                SERVICE_NO_CHANGE,
+                driverPath,
+                NULL,
+                NULL,
+                NULL,
+                NULL,
+                NULL,
+                NULL
+                );
+        }
+
+        RtlFreeHeap(heapHandle, 0, lpServiceConfig);
+    }
+
+    QueryServiceStatus(serviceHandle, &ServiceStatus);
+
+    if (ServiceStatus.dwCurrentState == SERVICE_STOPPED)
+    {
+        UNICODE_STRING u_str;
+        VOID *tokenHandle;
+        VOID *processHandle = 0;
+        TOKEN_PRIVILEGES NewState;
+        OBJECT_ATTRIBUTES objectAttributes = {0};
+        CLIENT_ID clientId = {0};
+        NTSTATUS status;
+
+        objectAttributes.Length = sizeof(OBJECT_ATTRIBUTES);
+
+        clientId.UniqueProcess = NtCurrentTeb()->ClientId.UniqueProcess;
+
+        NtOpenProcess(
+            &processHandle,
+            PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
+            &objectAttributes,
+            &clientId
+            );
+
+        NtOpenProcessToken(processHandle,
+            0x20 | 0x0008, // TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY
+            &tokenHandle);
+
+        NewState.PrivilegeCount = 1;
+
+        NewState.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+        NewState.Privileges[0].Luid.HighPart = 0;
+        NewState.Privileges[0].Luid.LowPart = SE_LOAD_DRIVER_PRIVILEGE;
+
+        NtAdjustPrivilegesToken(tokenHandle,
+            FALSE,
+            &NewState,
+            sizeof(TOKEN_PRIVILEGES),
+            NULL,
+            NULL);
+
+        NtClose(tokenHandle);
+
+        wcscat(registyPath, ServiceName);
+
+        UnicodeString_Init(&u_str, registyPath);
+
+        if (Filter)
+        {
+            RegisterInstance(ServiceName);
+        }
+
+       status = NtLoadDriver(&u_str);
+       StartServiceW(serviceHandle, 0, NULL);
+
+       if (!NT_SUCCESS(status))
+       {
+           return status;
+       }
+    }
+
+    CloseServiceHandle(scmHandle);
+    CloseServiceHandle(serviceHandle);
+
+    status = File_Create(
+        &fileHandle,
+        DeviceName,
+        FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE,
+        NULL,
+        FILE_OPEN,
+        FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
+        NULL
+        );
+
+    if (!NT_SUCCESS(status))
+    {
+        return STATUS_OBJECT_NAME_NOT_FOUND;
+    }
+
+    *DriverHandle = fileHandle;
+
+    return STATUS_SUCCESS;
+}

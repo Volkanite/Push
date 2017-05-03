@@ -22,6 +22,7 @@
     <ClCompile Include="batch.c" />
     <ClCompile Include="driver.c" />
     <ClCompile Include="file.c" />
+    <ClCompile Include="folder.c" />
     <ClCompile Include="game.c" />
     <ClCompile Include="GUI\cache.c" />
     <ClCompile Include="GUI\copy.c" />
@@ -46,13 +47,22 @@
     </ClCompile>
     <ClCompile Include="Hardware\GPU\OpenNvapi.c" />
     <ClCompile Include="Hardware\hardware.c" />
+    <ClCompile Include="ini.c" />
+    <ClCompile Include="listview.c" />
+    <ClCompile Include="memory.c" />
+    <ClCompile Include="module.c" />
     <ClCompile Include="OSD\local.c" />
     <ClCompile Include="OSD\osd.c" />
     <ClCompile Include="OSD\rtss.c" />
     <ClCompile Include="overclock.c" />
+    <ClCompile Include="process.c" />
     <ClCompile Include="push.c" />
     <ClCompile Include="ramdisk.c" />
+    <ClCompile Include="registry.c" />
+    <ClCompile Include="resource.c" />
     <ClCompile Include="ring0.c" />
+    <ClCompile Include="slgui.c" />
+    <ClCompile Include="string.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="batch.h" />
@@ -189,7 +199,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;sl.lib;inject64.lib;Imagehlp.lib;gdi32.lib;ole32.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;inject64.lib;Imagehlp.lib;gdi32.lib;ole32.lib</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
       <AdditionalOptions>/OPT:NOLBR %(AdditionalOptions)</AdditionalOptions>

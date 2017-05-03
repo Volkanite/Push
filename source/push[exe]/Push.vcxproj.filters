@@ -100,6 +100,16 @@
     <ClCompile Include="overclock.c">
       <Filter>GUI</Filter>
     </ClCompile>
+    <ClCompile Include="string.c" />
+    <ClCompile Include="memory.c" />
+    <ClCompile Include="registry.c" />
+    <ClCompile Include="resource.c" />
+    <ClCompile Include="ini.c" />
+    <ClCompile Include="listview.c" />
+    <ClCompile Include="folder.c" />
+    <ClCompile Include="slgui.c" />
+    <ClCompile Include="module.c" />
+    <ClCompile Include="process.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\cache.h">
