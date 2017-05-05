@@ -51,17 +51,22 @@ DWORD __stdcall MapFileAndCheckSumW(
 
 BOOLEAN IsGame( WCHAR* ExecutablePath )
 {
-    WCHAR *ps;
+    wchar_t buffer[260];
+    DWORD result;
 
-    ps = SlIniReadString(L"Games", ExecutablePath, 0, L".\\" PUSH_SETTINGS_FILE);
-
-    if (ps != 0)
+    result = Ini_GetString(L"Games", ExecutablePath, 0, buffer, 260, L".\\" PUSH_SETTINGS_FILE);
+    
+    if (result == 260 - 1 || result == 260 - 2)
     {
         //is game
-        Memory_Free(ps);
-
         return TRUE;
     }
+   /* if (ps != 0)
+    {
+        //is game
+
+        return TRUE;
+    }*/
     else
     {
         // Try searching for names that match. If a match is found, compare the executable's checksum.
@@ -1028,15 +1033,21 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 
     if (File_Exists(PUSH_SETTINGS_FILE))
     {
-        WCHAR *buffer;
+        wchar_t *buffer;
+        wchar_t marker;
 
         // Check if file is UTF-16LE.
         buffer = (WCHAR*) File_Load(PUSH_SETTINGS_FILE, NULL);
+        marker = buffer[0];
+        
+        Memory_Free(buffer);
 
-        if (buffer[0] == 0xFEFF)
+        if (marker == 0xFEFF)
             //is UTF-LE.
         {
             // Init settings from ini file.
+
+            buffer = Memory_Allocate(260 * sizeof(WCHAR));
 
             if (SlIniReadBoolean(L"Settings", L"FrameLimit", FALSE, L".\\" PUSH_SETTINGS_FILE))
                 PushSharedMemory->FrameLimit = TRUE;
@@ -1047,14 +1058,14 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
             if (SlIniReadBoolean(L"Settings", L"KeepFps", FALSE, L".\\" PUSH_SETTINGS_FILE))
                 PushSharedMemory->KeepFps = TRUE;
 
-            buffer = SlIniReadString(L"Settings", L"OverlayInterface", NULL, L".\\" PUSH_SETTINGS_FILE);
+            Ini_GetString(L"Settings", L"OverlayInterface", NULL, buffer, 5, L".\\" PUSH_SETTINGS_FILE);
 
             if (String_Compare(buffer, L"PURE") == 0)
                 PushOverlayInterface = OVERLAY_INTERFACE_PURE;
             else if (String_Compare(buffer, L"RTSS") == 0)
                 PushOverlayInterface = OVERLAY_INTERFACE_RTSS;
 
-            buffer = SlIniReadString(L"Settings", L"KeyboardHookType", L"AUTO", L".\\" PUSH_SETTINGS_FILE);
+            Ini_GetString(L"Settings", L"KeyboardHookType", L"AUTO", buffer, 20, L".\\" PUSH_SETTINGS_FILE);
 
             if (String_Compare(buffer, L"AUTO") == 0)
             {
@@ -1085,10 +1096,10 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
                 PushSharedMemory->KeyboardHookType = KEYBOARD_HOOK_AUTO;
             }
 
-            buffer = SlIniReadString(L"Settings", L"EngineClockMax", NULL, L".\\" PUSH_SETTINGS_FILE);
+            Ini_GetString(L"Settings", L"EngineClockMax", NULL, buffer, 5, L".\\" PUSH_SETTINGS_FILE);
             PushSharedMemory->HarwareInformation.DisplayDevice.EngineOverclock = _wtoi(buffer);
 
-            buffer = SlIniReadString(L"Settings", L"MemoryClockMax", NULL, L".\\" PUSH_SETTINGS_FILE);
+            Ini_GetString(L"Settings", L"MemoryClockMax", NULL, buffer, 5, L".\\" PUSH_SETTINGS_FILE);
             PushSharedMemory->HarwareInformation.DisplayDevice.MemoryOverclock = _wtoi(buffer);
         }
         else

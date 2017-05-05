@@ -1211,21 +1211,10 @@ BOOLEAN SlIniWriteString( WCHAR* section, WCHAR* entry, WCHAR* string, WCHAR* fi
 }
 
 
-DWORD
-GetString(
-    WCHAR* section,
-    WCHAR* entry,
-    WCHAR* def_val,
-    WCHAR* Buffer,
-    DWORD Length,
-    WCHAR* filename
-    )
+DWORD Ini_GetString( wchar_t* section, wchar_t* entry, wchar_t* def_val, wchar_t* Buffer, DWORD Length, wchar_t* filename )
 {
     int     ret;
     WCHAR*  defval_tmp = NULL;
-
-    /*TRACE("%s,%s,%s,%p,%u,%s\n", debugstr_w(section), debugstr_w(entry),
-          debugstr_w(def_val), buffer, len, debugstr_w(filename));*/
 
     /* strip any trailing ' ' of def_val. */
     if (def_val)
@@ -1311,7 +1300,7 @@ SlIniReadBoolean(WCHAR* Section, WCHAR* Key, BOOLEAN DefaultValue, WCHAR* File)
     BOOLEAN bResult;
 
     swprintf(defaultValue, 255, L"%ls", DefaultValue? L"True" : L"False");
-    GetString(Section, Key, defaultValue, result, 255, File);
+    Ini_GetString(Section, Key, defaultValue, result, 255, File);
 
     bResult =  (wcscmp(result, L"True") == 0 ||
         wcscmp(result, L"true") == 0) ? TRUE : FALSE;
@@ -1320,51 +1309,27 @@ SlIniReadBoolean(WCHAR* Section, WCHAR* Key, BOOLEAN DefaultValue, WCHAR* File)
 }
 
 
-WCHAR* SlIniReadString( WCHAR* Section, WCHAR* Key, WCHAR* DefaultValue, WCHAR* File )
-{
-    INT32 bufferSize = 1000;
-    INT32 count = 0;
-    DWORD returnValue;
-    WCHAR* buffer = (WCHAR*)Memory_Allocate(4);
-
-    do
-    {
-        count++;
-
-        buffer = (WCHAR*)Memory_ReAllocate(buffer, bufferSize * 2 * count);
-
-        returnValue = GetString(Section, Key, DefaultValue, buffer, bufferSize * count, File);
-
-      if (!returnValue)
-      {
-          Memory_Free(buffer);
-
-          return NULL;
-      }
-
-    } while( (returnValue == ((bufferSize * count) - 1))
-            || (returnValue == ((bufferSize * count) - 2)) );
-
-    return buffer;
-}
-
-
 WCHAR* SlIniReadSubKey( WCHAR *section, WCHAR* MasterKey, WCHAR *subKey, WCHAR* File )
 {
-    WCHAR szKey[260];
+    WCHAR key[260];
+    WCHAR *buffer;
 
     if (!MasterKey)
     {
         return NULL;
     }
 
-    String_Copy(szKey, L"(");
+    String_Copy(key, L"(");
 
-    String_Concatenate(szKey, MasterKey);
-    String_Concatenate(szKey, L").");
-    String_Concatenate(szKey, subKey);
+    String_Concatenate(key, MasterKey);
+    String_Concatenate(key, L").");
+    String_Concatenate(key, subKey);
 
-    return SlIniReadString(section, szKey, 0, File);
+    buffer = Memory_Allocate(260 * sizeof(WCHAR));
+
+    Ini_GetString(section, key, 0, buffer, 260, File);
+    
+    return buffer;
 }
 
 
@@ -1384,7 +1349,7 @@ BOOLEAN SlIniReadSubKeyBoolean( WCHAR* Section, WCHAR* MasterKey, WCHAR* subKey,
     String_Concatenate(key, subKey);
 
     swprintf(defaultValue, 255, L"%ls", DefaultValue? L"True" : L"False");
-    GetString(Section, key, defaultValue, result, 255, File);
+    Ini_GetString(Section, key, defaultValue, result, 255, File);
 
     bResult =  (wcscmp(result, L"True") == 0 ||
         wcscmp(result, L"true") == 0) ? TRUE : FALSE;

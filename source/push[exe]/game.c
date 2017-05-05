@@ -24,18 +24,18 @@ WCHAR* HeapedString( WCHAR* String )
 
 VOID Game_Initialize(WCHAR* Win32Name, PUSH_GAME* Game)
 {
-    WCHAR *gameId;
+    WCHAR gameId[260];
     WCHAR *buffer;
     WCHAR *lastSlash;
     WCHAR testing[260];
 
     String_Format(testing, 260, L"Game_Initialize(%s)", Win32Name);
-    OutputDebugStringW(testing);
+    Log(testing);
     Game->ExecutablePath = HeapedString(Win32Name);
     lastSlash = String_FindLastChar(Game->ExecutablePath, '\\');
     Game->ExecutableName = lastSlash + 1;
 
-    gameId = SlIniReadString(L"Games", Game->ExecutablePath, NULL, L".\\" PUSH_SETTINGS_FILE);
+    Ini_GetString(L"Games", Game->ExecutablePath, NULL, gameId, 260, L".\\" PUSH_SETTINGS_FILE);
 
     String_CopyN(Game->Id, gameId, 2);
 
@@ -120,9 +120,9 @@ VOID Game_Initialize(WCHAR* Win32Name, PUSH_GAME* Game)
 
 VOID Game_SetName( PUSH_GAME* Game, WCHAR* Name )
 {
-    WCHAR* gameId;
+    WCHAR gameId[260];
 
-    gameId = SlIniReadString(L"Games", Game->ExecutablePath, NULL, L".\\" PUSH_SETTINGS_FILE);
+    Ini_GetString(L"Games", Game->ExecutablePath, NULL, gameId, 260, L".\\" PUSH_SETTINGS_FILE);
 
     SlIniWriteSubKey(L"Game Settings", gameId, L"Name", Name, L".\\" PUSH_SETTINGS_FILE);
 }
@@ -130,9 +130,9 @@ VOID Game_SetName( PUSH_GAME* Game, WCHAR* Name )
 
 VOID Game_SetInstallPath( PUSH_GAME *Game, WCHAR* Path )
 {
-    WCHAR* gameId;
+    WCHAR gameId[260];
 
-    gameId = SlIniReadString(L"Games", Game->ExecutablePath, NULL, L".\\" PUSH_SETTINGS_FILE);
+    Ini_GetString(L"Games", Game->ExecutablePath, NULL, gameId, 260, L".\\" PUSH_SETTINGS_FILE);
 
     SlIniWriteSubKey(L"Game Settings", gameId, GAME_INSTALL_PATH, Path, L".\\" PUSH_SETTINGS_FILE);
 }
@@ -140,9 +140,9 @@ VOID Game_SetInstallPath( PUSH_GAME *Game, WCHAR* Path )
 
 VOID Game_SetFlags( PUSH_GAME *Game, DWORD Flags )
 {
-    WCHAR* gameId;
+    WCHAR gameId[260];
 
-    gameId = SlIniReadString(L"Games", Game->ExecutablePath, NULL, L".\\" PUSH_SETTINGS_FILE);
+    Ini_GetString(L"Games", Game->ExecutablePath, NULL, gameId, 260, L".\\" PUSH_SETTINGS_FILE);
 
     if (Flags & GAME_RAMDISK)
         SlIniWriteSubKey(L"Game Settings", gameId, L"UseRamDisk", L"True", L".\\" PUSH_SETTINGS_FILE);
@@ -151,10 +151,10 @@ VOID Game_SetFlags( PUSH_GAME *Game, DWORD Flags )
 
 VOID Game_SetCheckSum( PUSH_GAME* Game, DWORD CheckSum )
 {
-    WCHAR* gameId;
+    WCHAR gameId[260];
     WCHAR checkSum[100];
 
-    gameId = SlIniReadString(L"Games", Game->ExecutablePath, NULL, L".\\" PUSH_SETTINGS_FILE);
+    Ini_GetString(L"Games", Game->ExecutablePath, NULL, gameId, 260, L".\\" PUSH_SETTINGS_FILE);
 
     swprintf(checkSum, 100, L"0x%X", CheckSum);
     SlIniWriteSubKey(L"Game Settings", gameId, L"CheckSum", checkSum, L".\\" PUSH_SETTINGS_FILE);
@@ -165,13 +165,15 @@ GAME_LIST Game_GetGames()
 {
     static GAME_LIST_ENTRY* firstEntry = NULL;
     GAME_LIST_ENTRY* gameListEntry = NULL;
-    WCHAR* games;
+    WCHAR *games;
     INT32 i;
 
     if (firstEntry)
         return firstEntry;
 
-    games = SlIniReadString(L"Games", NULL, NULL, L".\\" PUSH_SETTINGS_FILE);
+    games = Memory_Allocate(512 * sizeof(WCHAR));
+
+    Ini_GetString(L"Games", NULL, NULL, games, 512, L".\\" PUSH_SETTINGS_FILE);
 
     if (games)
     {

@@ -28,11 +28,13 @@ BOOLEAN SlIniReadBoolean(
     WCHAR* File
     );
 
-WCHAR* SlIniReadString(
-    WCHAR* section,
-    WCHAR* key,
-    WCHAR* defaultValue,
-    WCHAR* File
+DWORD Ini_GetString(
+    wchar_t* section, 
+    wchar_t* entry, 
+    wchar_t* def_val, 
+    wchar_t* Buffer, 
+    DWORD Length, 
+    wchar_t* filename
     );
 
 WCHAR* SlIniReadSubKey(

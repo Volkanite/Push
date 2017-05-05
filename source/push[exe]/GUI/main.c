@@ -224,7 +224,7 @@ VOID BuildFileList(
         FILE_LIST_ENTRY fileEntry;
         WCHAR *filePath, slash[] = L"\\";
 
-		filePath = (WCHAR*)Memory_Allocate(
+        filePath = (WCHAR*)Memory_Allocate(
             /*PushHeapHandle,
             0,*/
             (wcslen(Directory) * sizeof(WCHAR)) + sizeof(slash) + Information->FileNameLength
@@ -237,7 +237,7 @@ VOID BuildFileList(
         fileEntry.Cache = BatchFile_IsBatchedFile(&fileEntry);
 
         PushAddToFileList(&MwFileList, &fileEntry);
-		Memory_Free(filePath);
+        Memory_Free(filePath);
     }
 }
 
@@ -265,7 +265,7 @@ VOID MwCreateMainWindow()
     Gui_IconImageHandle = LoadIconW(PushInstance, L"PUSH_ICON");
 
     // Create Window
-	PushMainWindow = (WINDOW*)Memory_Allocate(
+    PushMainWindow = (WINDOW*)Memory_Allocate(
                                 /*PushHeapHandle,
                                 0,*/
                                 sizeof(WINDOW)
@@ -372,7 +372,7 @@ WCHAR* ManualLoad;
 
 VOID OpenCacheWindow()
 {
-	cacheWindow = (WINDOW *)Memory_Allocate(sizeof(WINDOW));
+    cacheWindow = (WINDOW *)Memory_Allocate(sizeof(WINDOW));
 
     cacheWindow->lastPos = 0;
 
@@ -424,9 +424,9 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
             }
             break;
 
-			case OVERCLOCK:
-				Overclock();
-				break;
+            case OVERCLOCK:
+                Overclock();
+                break;
             case BUTTON_RESET_GPU:
                 PushSharedMemory->Overloads = 0;
                 break;
@@ -479,7 +479,9 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
 
                     // Get free index.
 
-                    games = SlIniReadString(L"Games", NULL, NULL, L".\\" PUSH_SETTINGS_FILE);
+                    games = Memory_Allocate(512 * sizeof(WCHAR));
+
+                    Ini_GetString(L"Games", NULL, NULL, games, 512, L".\\" PUSH_SETTINGS_FILE);
 
                     if (games)
                     {
@@ -519,7 +521,9 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                             WCHAR *games;
                             INT32   i;
 
-                            games = SlIniReadString(L"Games", 0, 0, L".\\" PUSH_SETTINGS_FILE);
+                            games = Memory_Allocate(512 * sizeof(WCHAR));
+
+                            Ini_GetString(L"Games", 0, 0, games, 512, L".\\" PUSH_SETTINGS_FILE);
 
                             if (games)
                             {
