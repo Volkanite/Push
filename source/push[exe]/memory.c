@@ -145,9 +145,11 @@ VOID* Memory_CreateFileMapping( WCHAR* FileName, DWORD Size )
 
 VOID* Memory_Allocate( UINT_B Size )
 {
+#if DEBUG
     BytesAllocated += Size;
 
-    //Log(L"BytesAllocated: %i", BytesAllocated);
+    Log(L"Allocating %i bytes, BytesAllocated: %i", Size, BytesAllocated);
+#endif
 
     return RtlAllocateHeap(PushHeapHandle, 0, Size);
 }
@@ -169,8 +171,6 @@ VOID* Memory_ReAllocate( VOID* Memory, SIZE_T Size )
 
 VOID Memory_Free( VOID* Heap )
 {
-    //SIZE_T size;
-
     if (!Heap)
     {
         Log(L"Why are you trying to free memory that doesn't exist!?");
@@ -178,11 +178,15 @@ VOID Memory_Free( VOID* Heap )
         return;
     }
 
-    //size = RtlSizeHeap(PushHeapHandle, 0, Heap);
+#if DEBUG
+    SIZE_T size;
 
-    //Log(L"Freeing %i bytes of memory", size);
+    size = RtlSizeHeap(PushHeapHandle, 0, Heap);
 
-    //BytesAllocated -= size;
+    Log(L"Freeing %i bytes of memory", size);
+
+    BytesAllocated -= size;
+#endif
 
     RtlFreeHeap(PushHeapHandle, 0, Heap);
 }
