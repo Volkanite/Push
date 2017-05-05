@@ -24,8 +24,7 @@ extern "C" {
 BOOLEAN SlIniReadBoolean(
     WCHAR* section,
     WCHAR* key,
-    BOOLEAN defaultValue,
-    WCHAR* File
+    BOOLEAN defaultValue
     );
 
 DWORD Ini_GetString(
@@ -33,23 +32,20 @@ DWORD Ini_GetString(
     wchar_t* entry, 
     wchar_t* def_val, 
     wchar_t* Buffer, 
-    DWORD Length, 
-    wchar_t* filename
+    DWORD Length
     );
 
 WCHAR* SlIniReadSubKey(
     WCHAR *section,
     WCHAR *masterKey,
-    WCHAR *subKey,
-    WCHAR* File
+    WCHAR *subKey
     );
 
 BOOLEAN SlIniReadSubKeyBoolean(
     WCHAR *section,
     WCHAR *masterKey,
     WCHAR *subKey,
-    BOOLEAN defaultValue,
-    WCHAR* File
+    BOOLEAN defaultValue
     );
 
 VOID SlIniWriteInteger(
@@ -66,23 +62,20 @@ VOID SlIniWriteFloat(
 VOID SlIniWriteBoolean(
     WCHAR* szSection,
     WCHAR* szKey,
-    BOOLEAN bolValue,
-    WCHAR* File
+    BOOLEAN bolValue
     );
 
 VOID SlIniWriteSubKey(
     WCHAR *pszSection,
     WCHAR *pszMasterKey,
     WCHAR *pszSubKey,
-    WCHAR *pszValue,
-    WCHAR* File
+    WCHAR *pszValue
     );
 
 BOOLEAN SlIniWriteString( 
     WCHAR* section, 
     WCHAR* entry, 
-    WCHAR* string, 
-    WCHAR* filename 
+    WCHAR* string 
     );
 
 #ifdef __cplusplus

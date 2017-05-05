@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <wchar.h>
+#include <pushbase.h>
 
 
 static const char bom_utf8[] = {0xEF,0xBB,0xBF};
@@ -1182,7 +1183,7 @@ PROFILE_GetString(
 * \param FileName The ini filename. Like lpFileName.
 */
 
-BOOLEAN SlIniWriteString( WCHAR* section, WCHAR* entry, WCHAR* string, WCHAR* filename )
+BOOLEAN SlIniWriteString( WCHAR* section, WCHAR* entry, WCHAR* string )
 {
   BOOLEAN ret = FALSE;
 
@@ -1190,12 +1191,12 @@ BOOLEAN SlIniWriteString( WCHAR* section, WCHAR* entry, WCHAR* string, WCHAR* fi
 
   if (!section && !entry && !string) /* documented "file flush" case */
   {
-      if (!filename || PROFILE_Open( filename, TRUE ))
+      if (PROFILE_Open(L".\\" PUSH_SETTINGS_FILE, TRUE))
       {
           if (CurrentProfile) PROFILE_ReleaseFile();  /* always return FALSE in this case */
       }
   }
-  else if (PROFILE_Open( filename, TRUE ))
+  else if (PROFILE_Open(L".\\" PUSH_SETTINGS_FILE, TRUE))
   {
       if (!section) {
           SetLastError(ERROR_FILE_NOT_FOUND);
@@ -1211,7 +1212,7 @@ BOOLEAN SlIniWriteString( WCHAR* section, WCHAR* entry, WCHAR* string, WCHAR* fi
 }
 
 
-DWORD Ini_GetString( wchar_t* section, wchar_t* entry, wchar_t* def_val, wchar_t* Buffer, DWORD Length, wchar_t* filename )
+DWORD Ini_GetString( wchar_t* section, wchar_t* entry, wchar_t* def_val, wchar_t* Buffer, DWORD Length )
 {
     int     ret;
     WCHAR*  defval_tmp = NULL;
@@ -1239,7 +1240,7 @@ DWORD Ini_GetString( wchar_t* section, wchar_t* entry, wchar_t* def_val, wchar_t
 
     RtlEnterCriticalSection( &PROFILE_CritSect );
 
-    if (PROFILE_Open( filename, FALSE ))
+    if (PROFILE_Open(L".\\" PUSH_SETTINGS_FILE, FALSE))
     {
         if (section == NULL)
             ret = PROFILE_GetSectionNames(Buffer, Length);
@@ -1269,17 +1270,16 @@ DWORD Ini_GetString( wchar_t* section, wchar_t* entry, wchar_t* def_val, wchar_t
 }
 
 
-VOID
-SlIniWriteBoolean( WCHAR* Section, WCHAR* Key, BOOLEAN bolValue, WCHAR* File )
+VOID SlIniWriteBoolean( WCHAR* Section, WCHAR* Key, BOOLEAN bolValue )
 {
     WCHAR value[255];
 
     swprintf(value, 255, L"%ls", bolValue ? L"True" : L"False");
-    SlIniWriteString(Section, Key, value, File);
+    SlIniWriteString(Section, Key, value);
 }
 
 
-VOID SlIniWriteSubKey( WCHAR *Section, WCHAR *pszMasterKey, WCHAR *pszSubKey, WCHAR *Value, WCHAR* File )
+VOID SlIniWriteSubKey( WCHAR *Section, WCHAR *pszMasterKey, WCHAR *pszSubKey, WCHAR *Value )
 {
     WCHAR key[260];
 
@@ -1289,18 +1289,17 @@ VOID SlIniWriteSubKey( WCHAR *Section, WCHAR *pszMasterKey, WCHAR *pszSubKey, WC
     String_Concatenate(key, L").");
     String_Concatenate(key, pszSubKey);
 
-    SlIniWriteString(Section, key, Value, File);
+    SlIniWriteString(Section, key, Value);
 }
 
 
-BOOLEAN
-SlIniReadBoolean(WCHAR* Section, WCHAR* Key, BOOLEAN DefaultValue, WCHAR* File)
+BOOLEAN SlIniReadBoolean(WCHAR* Section, WCHAR* Key, BOOLEAN DefaultValue)
 {
     WCHAR result[255], defaultValue[255];
     BOOLEAN bResult;
 
     swprintf(defaultValue, 255, L"%ls", DefaultValue? L"True" : L"False");
-    Ini_GetString(Section, Key, defaultValue, result, 255, File);
+    Ini_GetString(Section, Key, defaultValue, result, 255);
 
     bResult =  (wcscmp(result, L"True") == 0 ||
         wcscmp(result, L"true") == 0) ? TRUE : FALSE;
@@ -1309,7 +1308,7 @@ SlIniReadBoolean(WCHAR* Section, WCHAR* Key, BOOLEAN DefaultValue, WCHAR* File)
 }
 
 
-WCHAR* SlIniReadSubKey( WCHAR *section, WCHAR* MasterKey, WCHAR *subKey, WCHAR* File )
+WCHAR* SlIniReadSubKey( WCHAR *section, WCHAR* MasterKey, WCHAR *subKey )
 {
     WCHAR key[260];
     WCHAR *buffer;
@@ -1327,13 +1326,13 @@ WCHAR* SlIniReadSubKey( WCHAR *section, WCHAR* MasterKey, WCHAR *subKey, WCHAR* 
 
     buffer = Memory_Allocate(260 * sizeof(WCHAR));
 
-    Ini_GetString(section, key, 0, buffer, 260, File);
+    Ini_GetString(section, key, 0, buffer, 260);
     
     return buffer;
 }
 
 
-BOOLEAN SlIniReadSubKeyBoolean( WCHAR* Section, WCHAR* MasterKey, WCHAR* subKey, BOOLEAN DefaultValue, WCHAR* File )
+BOOLEAN SlIniReadSubKeyBoolean( WCHAR* Section, WCHAR* MasterKey, WCHAR* subKey, BOOLEAN DefaultValue )
 {
     WCHAR result[255], defaultValue[255];
     WCHAR key[260];
@@ -1349,7 +1348,7 @@ BOOLEAN SlIniReadSubKeyBoolean( WCHAR* Section, WCHAR* MasterKey, WCHAR* subKey,
     String_Concatenate(key, subKey);
 
     swprintf(defaultValue, 255, L"%ls", DefaultValue? L"True" : L"False");
-    Ini_GetString(Section, key, defaultValue, result, 255, File);
+    Ini_GetString(Section, key, defaultValue, result, 255);
 
     bResult =  (wcscmp(result, L"True") == 0 ||
         wcscmp(result, L"true") == 0) ? TRUE : FALSE;

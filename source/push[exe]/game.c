@@ -22,7 +22,7 @@ WCHAR* HeapedString( WCHAR* String )
 }
 
 
-VOID Game_Initialize(WCHAR* Win32Name, PUSH_GAME* Game)
+VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
 {
     WCHAR gameId[260];
     WCHAR *buffer;
@@ -35,77 +35,47 @@ VOID Game_Initialize(WCHAR* Win32Name, PUSH_GAME* Game)
     lastSlash = String_FindLastChar(Game->ExecutablePath, '\\');
     Game->ExecutableName = lastSlash + 1;
 
-    Ini_GetString(L"Games", Game->ExecutablePath, NULL, gameId, 260, L".\\" PUSH_SETTINGS_FILE);
+    Ini_GetString(L"Games", Game->ExecutablePath, NULL, gameId, 260);
 
     String_CopyN(Game->Id, gameId, 2);
 
-    buffer = SlIniReadSubKey(L"Game Settings", gameId, L"Name", L".\\" PUSH_SETTINGS_FILE);
+    buffer = SlIniReadSubKey(L"Game Settings", gameId, L"Name");
     Game->Name = HeapedString(buffer ? buffer : Game->ExecutableName);
 
-    buffer = SlIniReadSubKey(L"Game Settings", gameId, GAME_INSTALL_PATH, L".\\" PUSH_SETTINGS_FILE);
+    buffer = SlIniReadSubKey(L"Game Settings", gameId, GAME_INSTALL_PATH);
     Game->InstallPath = HeapedString(buffer);
 
-    buffer = SlIniReadSubKey(L"Game Settings", gameId, L"CheckSum", L".\\" PUSH_SETTINGS_FILE);
+    buffer = SlIniReadSubKey(L"Game Settings", gameId, L"CheckSum");
     if (buffer) Game->CheckSum = wcstol(buffer, NULL, 16);
 
     // Game Settings.
 
-    if (SlIniReadSubKeyBoolean(
-        L"Game Settings",
-        gameId,
-        L"DisableOverlay",
-        FALSE,
-        L".\\" PUSH_SETTINGS_FILE)
-        )
+    if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"DisableOverlay", FALSE))
     {
         Game->Settings.DisableOverlay = TRUE;
     }
 
-    if (SlIniReadSubKeyBoolean(
-        L"Game Settings",
-        gameId,
-        L"UseRamDisk",
-        FALSE,
-        L".\\" PUSH_SETTINGS_FILE)
-        )
+    if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"UseRamDisk", FALSE))
     {
         Game->Settings.UseRamDisk = TRUE;
     }
 
-    if (SlIniReadSubKeyBoolean(
-        L"Game Settings",
-        gameId,
-        L"DisableRepeatKeys",
-        FALSE,
-        L".\\" PUSH_SETTINGS_FILE)
-        )
+    if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"DisableRepeatKeys", FALSE))
     {
         Game->Settings.DisableRepeatKeys = TRUE;
     }
 
-    if (SlIniReadSubKeyBoolean(
-        L"Game Settings",
-        gameId,
-        L"SwapWASD",
-        FALSE,
-        L".\\" PUSH_SETTINGS_FILE)
-        )
+    if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"SwapWASD", FALSE))
     {
         Game->Settings.SwapWASD = TRUE;
     }
 
-    if (SlIniReadSubKeyBoolean(
-        L"Game Settings",
-        gameId,
-        L"ForceMaxClocks",
-        FALSE,
-        L".\\" PUSH_SETTINGS_FILE)
-        )
+    if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"ForceMaxClocks",FALSE))
     {
         Game->Settings.ForceMaxClocks = TRUE;
     }
 
-    buffer = SlIniReadSubKey(L"Game Settings", gameId, L"ForceVsync", L".\\" PUSH_SETTINGS_FILE);
+    buffer = SlIniReadSubKey(L"Game Settings", gameId, L"ForceVsync");
 
     if (String_Compare(buffer, L"FORCE_ON") == 0)
     {
@@ -122,9 +92,9 @@ VOID Game_SetName( PUSH_GAME* Game, WCHAR* Name )
 {
     WCHAR gameId[260];
 
-    Ini_GetString(L"Games", Game->ExecutablePath, NULL, gameId, 260, L".\\" PUSH_SETTINGS_FILE);
+    Ini_GetString(L"Games", Game->ExecutablePath, NULL, gameId, 260);
 
-    SlIniWriteSubKey(L"Game Settings", gameId, L"Name", Name, L".\\" PUSH_SETTINGS_FILE);
+    SlIniWriteSubKey(L"Game Settings", gameId, L"Name", Name);
 }
 
 
@@ -132,9 +102,9 @@ VOID Game_SetInstallPath( PUSH_GAME *Game, WCHAR* Path )
 {
     WCHAR gameId[260];
 
-    Ini_GetString(L"Games", Game->ExecutablePath, NULL, gameId, 260, L".\\" PUSH_SETTINGS_FILE);
+    Ini_GetString(L"Games", Game->ExecutablePath, NULL, gameId, 260);
 
-    SlIniWriteSubKey(L"Game Settings", gameId, GAME_INSTALL_PATH, Path, L".\\" PUSH_SETTINGS_FILE);
+    SlIniWriteSubKey(L"Game Settings", gameId, GAME_INSTALL_PATH, Path);
 }
 
 
@@ -142,10 +112,10 @@ VOID Game_SetFlags( PUSH_GAME *Game, DWORD Flags )
 {
     WCHAR gameId[260];
 
-    Ini_GetString(L"Games", Game->ExecutablePath, NULL, gameId, 260, L".\\" PUSH_SETTINGS_FILE);
+    Ini_GetString(L"Games", Game->ExecutablePath, NULL, gameId, 260);
 
     if (Flags & GAME_RAMDISK)
-        SlIniWriteSubKey(L"Game Settings", gameId, L"UseRamDisk", L"True", L".\\" PUSH_SETTINGS_FILE);
+        SlIniWriteSubKey(L"Game Settings", gameId, L"UseRamDisk", L"True");
 }
 
 
@@ -154,10 +124,10 @@ VOID Game_SetCheckSum( PUSH_GAME* Game, DWORD CheckSum )
     WCHAR gameId[260];
     WCHAR checkSum[100];
 
-    Ini_GetString(L"Games", Game->ExecutablePath, NULL, gameId, 260, L".\\" PUSH_SETTINGS_FILE);
+    Ini_GetString(L"Games", Game->ExecutablePath, NULL, gameId, 260);
 
     swprintf(checkSum, 100, L"0x%X", CheckSum);
-    SlIniWriteSubKey(L"Game Settings", gameId, L"CheckSum", checkSum, L".\\" PUSH_SETTINGS_FILE);
+    SlIniWriteSubKey(L"Game Settings", gameId, L"CheckSum", checkSum);
 }
 
 
@@ -173,7 +143,7 @@ GAME_LIST Game_GetGames()
 
     games = Memory_Allocate(512 * sizeof(WCHAR));
 
-    Ini_GetString(L"Games", NULL, NULL, games, 512, L".\\" PUSH_SETTINGS_FILE);
+    Ini_GetString(L"Games", NULL, NULL, games, 512);
 
     if (games)
     {
