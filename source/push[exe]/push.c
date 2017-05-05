@@ -1047,7 +1047,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
         {
             // Init settings from ini file.
 
-            buffer = Memory_Allocate(260 * sizeof(WCHAR));
+            buffer = Memory_Allocate(10 * sizeof(WCHAR));
 
             if (SlIniReadBoolean(L"Settings", L"FrameLimit", FALSE, L".\\" PUSH_SETTINGS_FILE))
                 PushSharedMemory->FrameLimit = TRUE;
@@ -1065,7 +1065,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
             else if (String_Compare(buffer, L"RTSS") == 0)
                 PushOverlayInterface = OVERLAY_INTERFACE_RTSS;
 
-            Ini_GetString(L"Settings", L"KeyboardHookType", L"AUTO", buffer, 20, L".\\" PUSH_SETTINGS_FILE);
+            Ini_GetString(L"Settings", L"KeyboardHookType", L"AUTO", buffer, 10, L".\\" PUSH_SETTINGS_FILE);
 
             if (String_Compare(buffer, L"AUTO") == 0)
             {
@@ -1101,6 +1101,8 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 
             Ini_GetString(L"Settings", L"MemoryClockMax", NULL, buffer, 5, L".\\" PUSH_SETTINGS_FILE);
             PushSharedMemory->HarwareInformation.DisplayDevice.MemoryOverclock = _wtoi(buffer);
+
+            Memory_Free(buffer);
         }
         else
         {
