@@ -44,7 +44,7 @@ SymLinkTargetCmp( WCHAR *Name, WCHAR *dest )
                 FILE_SHARE_READ | FILE_SHARE_WRITE,
                 FILE_OPEN,
                 FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
-				NULL
+                NULL
                 );
 
     if (!NT_SUCCESS(status))
@@ -88,7 +88,7 @@ CreateLink( WCHAR *name, WCHAR *dest )
 {
     if (!SymLinkTargetCmp( name, dest ))
     {
-		if (File_GetAttributes(dest) & FILE_ATTRIBUTE_DIRECTORY)
+        if (File_GetAttributes(dest) & FILE_ATTRIBUTE_DIRECTORY)
         {
             RemoveDirectoryW(name);
 
@@ -151,7 +151,7 @@ BOOLEAN FolderExists( WCHAR* Folder )
                 FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
                 FILE_OPEN,
                 FILE_DIRECTORY_FILE,
-				NULL
+                NULL
                 );
 
     if (NT_SUCCESS(status))
@@ -189,7 +189,7 @@ VOID FsRenameFile( WCHAR* FilePath, WCHAR* NewFileName )
         FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
         FILE_OPEN,
         FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
-		NULL
+        NULL
         );
 
     RtlDosPathNameToNtPathName_U(NewFileName, &newFileName, NULL, NULL);
@@ -213,8 +213,8 @@ VOID FsRenameFile( WCHAR* FilePath, WCHAR* NewFileName )
         FileRenameInformation
         );
 
-	Memory_Free(newFileName.Buffer);
-	Memory_Free(renameInfo);
+    Memory_Free(newFileName.Buffer);
+    Memory_Free(renameInfo);
 
     NtClose(fileHandle);
 }
@@ -317,11 +317,7 @@ NTSTATUS File_Create(
         0
         );
 
-	Memory_Free(
-        /*NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap,
-        0,*/
-        fileName.Buffer
-        );
+    Memory_Free(fileName.Buffer);
 
     if (NT_SUCCESS(status))
     {
@@ -777,7 +773,7 @@ VOID* File_Load( WCHAR* FileName, UINT64* FileSize )
         *FileSize = fileSize;
 
     // Allocate some memory
-	buffer = Memory_Allocate(fileSize);
+    buffer = Memory_Allocate(fileSize);
 
     // Read the entire file into memory
     status = NtReadFile(

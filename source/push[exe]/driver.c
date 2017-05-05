@@ -412,7 +412,7 @@ NTSTATUS SlLoadDriver(
     HANDLE* DriverHandle
     )
 {
-    VOID *serviceHandle, *scmHandle, *heapHandle, *fileHandle = NULL;
+    VOID *serviceHandle, *scmHandle, *fileHandle = NULL;
     WCHAR registyPath[260] = L"\\Registry\\Machine\\System\\CurrentControlSet\\Services\\";
     DWORD dwSize;
     QUERY_SERVICE_CONFIG *lpServiceConfig;
@@ -504,8 +504,6 @@ NTSTATUS SlLoadDriver(
     if (DriverBinaryName)
     {
         QueryServiceConfigW(serviceHandle, 0, 0, &dwSize);
-
-        heapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
 
 		lpServiceConfig = (QUERY_SERVICE_CONFIG *)Memory_AllocateEx(
 			dwSize,

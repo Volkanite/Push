@@ -660,11 +660,7 @@ PROFILE_Open( WCHAR* Filename, BOOLEAN WriteAccess )
     if(CurrentProfile->FileName) PROFILE_ReleaseFile();
 
     /* OK, now that CurProfile is definitely free we assign it our new file */
-    CurrentProfile->FileName = (WCHAR*)Memory_Allocate(
-        /*NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap,
-        0,*/
-        (String_GetLength(buffer)+1) * sizeof(WCHAR)
-        );
+    CurrentProfile->FileName = (WCHAR*)Memory_Allocate((String_GetLength(buffer)+1) * sizeof(WCHAR));
 
     String_Copy(CurrentProfile->FileName, buffer);
 
@@ -813,10 +809,7 @@ static PROFILEKEY *PROFILE_Find(
             }
             if (!create) return NULL;
 
-            if (!(*key = (PROFILEKEY*)Memory_Allocate(
-                /*NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap,
-                0,*/
-                sizeof(PROFILEKEY) + String_GetLength(KeyName) * sizeof(WCHAR) )))
+            if (!(*key = (PROFILEKEY*)Memory_Allocate(sizeof(PROFILEKEY) + String_GetLength(KeyName) * sizeof(WCHAR) )))
             {
                 return NULL;
             }
@@ -831,11 +824,7 @@ static PROFILEKEY *PROFILE_Find(
     }
     if (!create) return NULL;
 
-    *Section = (PROFILESECTION*)Memory_Allocate(
-        /*NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap,
-        0,*/
-        sizeof(PROFILESECTION) + String_GetLength(SectionName) * sizeof(WCHAR)
-        );
+    *Section = (PROFILESECTION*)Memory_Allocate(sizeof(PROFILESECTION) + String_GetLength(SectionName) * sizeof(WCHAR));
 
     if(*Section == NULL) return NULL;
 
@@ -843,10 +832,7 @@ static PROFILEKEY *PROFILE_Find(
 
     (*Section)->next = NULL;
 
-    if (!((*Section)->Key = (PROFILEKEY*)Memory_Allocate(
-        /*NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap,
-        0,*/
-        sizeof(PROFILEKEY) + String_GetLength(KeyName) * sizeof(WCHAR) )))
+    if (!((*Section)->Key = (PROFILEKEY*)Memory_Allocate(sizeof(PROFILEKEY) + String_GetLength(KeyName) * sizeof(WCHAR) )))
     {
         Memory_Free(*Section);
 
@@ -1334,8 +1320,7 @@ SlIniReadBoolean(WCHAR* Section, WCHAR* Key, BOOLEAN DefaultValue, WCHAR* File)
 }
 
 
-WCHAR*
-SlIniReadString( WCHAR* Section, WCHAR* Key, WCHAR* DefaultValue, WCHAR* File )
+WCHAR* SlIniReadString( WCHAR* Section, WCHAR* Key, WCHAR* DefaultValue, WCHAR* File )
 {
     INT32 bufferSize = 1000;
     INT32 count = 0;
@@ -1346,7 +1331,7 @@ SlIniReadString( WCHAR* Section, WCHAR* Key, WCHAR* DefaultValue, WCHAR* File )
     {
         count++;
 
-        buffer = (WCHAR*) RtlReAllocateHeap(NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap, 0, buffer, bufferSize * 2 * count);
+        buffer = (WCHAR*)Memory_ReAllocate(buffer, bufferSize * 2 * count);
 
         returnValue = GetString(Section, Key, DefaultValue, buffer, bufferSize * count, File);
 

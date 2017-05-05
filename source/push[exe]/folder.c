@@ -23,7 +23,6 @@ NTSTATUS Directory_Enum(
     UINT32 bufferSize = 0x400;
     UINT32 i;
     UNICODE_STRING pattern;
-    VOID *heapHandle;
 
     status = File_Create(
         &directoryHandle,
@@ -38,7 +37,6 @@ NTSTATUS Directory_Enum(
     if (!NT_SUCCESS(status))
         return status;
 
-    heapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
     buffer = Memory_Allocate(bufferSize);
 
     UnicodeString_Init(&pattern, SearchPattern);
@@ -74,7 +72,7 @@ NTSTATUS Directory_Enum(
 
             if (status == STATUS_BUFFER_OVERFLOW || status == STATUS_INFO_LENGTH_MISMATCH)
             {
-				Memory_Free(buffer);
+                Memory_Free(buffer);
 
                 bufferSize *= 2;
                 buffer = Memory_Allocate(bufferSize);
@@ -107,7 +105,7 @@ NTSTATUS Directory_Enum(
             information = (FILE_DIRECTORY_INFORMATION *)(((UINT_B)(buffer)) + i);
 
             if (Callback)
-				Callback(Directory, information);
+                Callback(Directory, information);
 
             if (information->NextEntryOffset != 0)
                 i += information->NextEntryOffset;
@@ -118,7 +116,7 @@ NTSTATUS Directory_Enum(
         firstTime = FALSE;
     }
 
-	Memory_Free(buffer);
+    Memory_Free(buffer);
 
     NtClose(directoryHandle);
 
