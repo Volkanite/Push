@@ -31,7 +31,8 @@ VOID* scmHandle;
 VOID* R0DriverHandle    = INVALID_HANDLE_VALUE;
 FILE_LIST PushFileList    = 0;
 VOID* PushHeapHandle;
-UINT32 thisPID;
+UINT32 PushProcessId;
+ULONG PushSessionId;
 PUSH_SHARED_MEMORY* PushSharedMemory;
 OVERLAY_INTERFACE PushOverlayInterface = OVERLAY_INTERFACE_PURE;
 extern SYSTEM_BASIC_INFORMATION HwInfoSystemBasicInformation;
@@ -973,6 +974,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     MSG messages;
     BOOLEAN bAlreadyRunning;
     OBJECT_ATTRIBUTES objAttrib = {0};
+    PTEB threadEnvironmentBlock;
 
     // Check if already running
     hMutex = CreateMutexW(0, FALSE, L"PushOneInstance");
@@ -986,8 +988,11 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
         ExitProcess(0);
     }
 
-    thisPID = (UINT32) NtCurrentTeb()->ClientId.UniqueProcess;
-    PushHeapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
+    threadEnvironmentBlock = NtCurrentTeb();
+
+    PushProcessId = threadEnvironmentBlock->ClientId.UniqueProcess;
+    PushHeapHandle = threadEnvironmentBlock->ProcessEnvironmentBlock->ProcessHeap;
+    PushSessionId = threadEnvironmentBlock->ProcessEnvironmentBlock->SessionId;
 
     //create image event
     CreateEventW(NULL, TRUE, FALSE, L"Global\\" PUSH_IMAGE_EVENT_NAME);

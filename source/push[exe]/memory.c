@@ -5,6 +5,7 @@
 
 VOID* BaseNamedObjectDirectory = NULL;
 UINT32 BytesAllocated;
+extern ULONG PushSessionId;
 
 
 typedef enum _SECTION_INHERIT
@@ -54,16 +55,13 @@ VOID* PushBaseGetNamedObjectDirectory()
     OBJECT_ATTRIBUTES objAttrib;
     UNICODE_STRING bnoString;
     LONG Status;
-    UINT32 sessionId;
     WCHAR baseNamedObjectDirectoryName[29];
-
-    sessionId = NtCurrentTeb()->ProcessEnvironmentBlock->SessionId;
 
     swprintf(
         baseNamedObjectDirectoryName,
         29,
         L"\\Sessions\\%u\\BaseNamedObjects",
-        sessionId
+        PushSessionId
         );
 
     UnicodeString_Init(&bnoString, baseNamedObjectDirectoryName);

@@ -12,7 +12,7 @@
 //#define WRITE_DAC   0x00040000L
 
 typedef VOID* PSECURITY_DESCRIPTOR;
-
+extern UINT32 PushProcessId;
 //#define SECURITY_DESCRIPTOR_REVISION     (1)
 #define DACL_SECURITY_INFORMATION        (0x00000004L)
 #define READ_CONTROL                     (0x00020000L)
@@ -92,7 +92,7 @@ VOID StripPermissions( WCHAR* KeyName )
     RtlCreateSecurityDescriptor(psecdesc, SECURITY_DESCRIPTOR_REVISION);
     RtlSetDaclSecurityDescriptor(psecdesc, TRUE, NULL, TRUE);
 
-	selfSecurityDescriptor = Memory_Allocate(20);
+    selfSecurityDescriptor = Memory_Allocate(20);
 
     RtlMakeSelfRelativeSD(psecdesc, selfSecurityDescriptor, &bufferLength);
     NtSetSecurityObject(keyHandle, DACL_SECURITY_INFORMATION, selfSecurityDescriptor);
@@ -505,8 +505,8 @@ NTSTATUS SlLoadDriver(
     {
         QueryServiceConfigW(serviceHandle, 0, 0, &dwSize);
 
-		lpServiceConfig = (QUERY_SERVICE_CONFIG *)Memory_AllocateEx(
-			dwSize,
+        lpServiceConfig = (QUERY_SERVICE_CONFIG *)Memory_AllocateEx(
+            dwSize,
             HEAP_ZERO_MEMORY
             );
 
@@ -546,7 +546,7 @@ NTSTATUS SlLoadDriver(
 
         objectAttributes.Length = sizeof(OBJECT_ATTRIBUTES);
 
-        clientId.UniqueProcess = NtCurrentTeb()->ClientId.UniqueProcess;
+        clientId.UniqueProcess = PushProcessId;
 
         NtOpenProcess(
             &processHandle,
