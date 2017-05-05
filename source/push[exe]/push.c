@@ -673,6 +673,9 @@ VOID OnImageEvent( PROCESSID ProcessId )
 
     Process_Close(processHandle);
 
+    //start timer
+    SetTimer(PushMainWindow->Handle, 0, 1000, 0);
+
     // Start disk monitoring;
     DiskStartMonitoring();
 }
@@ -1105,9 +1108,6 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 
     //initialize OSD items
     OSD_Initialize();
-
-    //start timer
-    SetTimer(PushMainWindow->Handle, 0, 1000, 0);
 
     // Activate process monitoring
 
