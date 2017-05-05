@@ -56,17 +56,11 @@ BOOLEAN IsGame( WCHAR* ExecutablePath )
 
     result = Ini_GetString(L"Games", ExecutablePath, 0, buffer, 260, L".\\" PUSH_SETTINGS_FILE);
     
-    if (result == 260 - 1 || result == 260 - 2)
+    if (result)
     {
         //is game
         return TRUE;
     }
-   /* if (ps != 0)
-    {
-        //is game
-
-        return TRUE;
-    }*/
     else
     {
         // Try searching for names that match. If a match is found, compare the executable's checksum.
