@@ -32,6 +32,12 @@ NTSTATUS __stdcall NtMapViewOfSection(
     ULONG Win32Protect
     );
 
+SIZE_T __stdcall RtlSizeHeap(
+    _In_ VOID* HeapHandle,
+    _In_ ULONG Flags,
+    _In_ VOID* BaseAddress
+    );
+
 
 #define DIRECTORY_QUERY   0x0001
 #define DIRECTORY_TRAVERSE   0x0002
@@ -139,32 +145,46 @@ VOID* Memory_CreateFileMapping( WCHAR* FileName, DWORD Size )
 
 VOID* Memory_Allocate( UINT_B Size )
 {
-	BytesAllocated += Size;
+    BytesAllocated += Size;
 
-	//Log(L"BytesAllocated: %i", BytesAllocated);
+    Log(L"BytesAllocated: %i", BytesAllocated);
 
-	return RtlAllocateHeap(PushHeapHandle, 0, Size);
+    return RtlAllocateHeap(PushHeapHandle, 0, Size);
 }
 
 
 VOID* Memory_AllocateEx( UINT_B Size, DWORD Flags )
 {
-	BytesAllocated += Size;
+    BytesAllocated += Size;
 
-	return RtlAllocateHeap(PushHeapHandle, Flags, Size);
+    return RtlAllocateHeap(PushHeapHandle, Flags, Size);
 }
 
 
 VOID* Memory_ReAllocate( VOID* Memory, SIZE_T Size )
 {
-	return RtlReAllocateHeap(PushHeapHandle, HEAP_GENERATE_EXCEPTIONS, Memory, Size);
+    return RtlReAllocateHeap(PushHeapHandle, HEAP_GENERATE_EXCEPTIONS, Memory, Size);
 }
 
 
 VOID Memory_Free( VOID* Heap )
 {
-	RtlFreeHeap(PushHeapHandle, 0, Heap);
+    //SIZE_T size;
+
+    //size = RtlSizeHeap(PushHeapHandle, 0, Heap);
+
+    //Log(L"Freeing %i bytes of memory", size);
+
+    //BytesAllocated -= size;
+    
+    if (!Heap)
+    {
+        Log(L"Why are you trying to free memory that doesn't exist!?");
+    }
+
+    RtlFreeHeap(PushHeapHandle, 0, Heap);
 }
+
 
 #include <string.h>
 VOID Memory_Copy( VOID* Destination, VOID* Source, UINT32 Length )

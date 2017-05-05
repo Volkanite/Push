@@ -365,7 +365,7 @@ PROFILE_Load( VOID* FileHandle )
     if (fileSize == INVALID_FILE_SIZE || fileSize == 0)
         return NULL;
 
-	bufferBase = Memory_Allocate(fileSize);
+    bufferBase = Memory_Allocate(fileSize);
 
     if (!bufferBase) return NULL;
 
@@ -388,7 +388,7 @@ PROFILE_Load( VOID* FileHandle )
     fileSize -= length;
     file = (WCHAR*) pBuffer;
     szEnd = (WCHAR *)((char *)pBuffer + fileSize);
-	firstSection = (PROFILESECTION*)Memory_Allocate(sizeof(*section));
+    firstSection = (PROFILESECTION*)Memory_Allocate(sizeof(*section));
 
     if(firstSection == NULL)
     {
@@ -443,7 +443,7 @@ PROFILE_Load( VOID* FileHandle )
                 /*if (!(section = HeapAlloc( GetProcessHeap(), 0, sizeof(*section) + length * sizeof(WCHAR) )))
                     break;*/
 
-				if (!(section = (PROFILESECTION*)Memory_Allocate(sizeof(*section) + length * sizeof(WCHAR))))
+                if (!(section = (PROFILESECTION*)Memory_Allocate(sizeof(*section) + length * sizeof(WCHAR))))
                     break;
 
                 memcpy(section->Name, szLineStart, length * sizeof(WCHAR));
@@ -479,7 +479,7 @@ PROFILE_Load( VOID* FileHandle )
              * already included in structure */
 
             //if (!(key = HeapAlloc( GetProcessHeap(), 0, sizeof(*key) + length * sizeof(WCHAR) ))) break;
-			if (!(key = (PROFILEKEY*)Memory_Allocate(sizeof(*key) + length * sizeof(WCHAR))))
+            if (!(key = (PROFILEKEY*)Memory_Allocate(sizeof(*key) + length * sizeof(WCHAR))))
                 break;
 
             memcpy(key->Name, szLineStart, length * sizeof(WCHAR));
@@ -490,7 +490,7 @@ PROFILE_Load( VOID* FileHandle )
             {
                 length = (int)(szLineEnd - szValueStart);
                 //key->value = HeapAlloc( GetProcessHeap(), 0, (length + 1) * sizeof(WCHAR) );
-				key->Value = (WCHAR*)Memory_Allocate((length + 1) * sizeof(WCHAR));
+                key->Value = (WCHAR*)Memory_Allocate((length + 1) * sizeof(WCHAR));
 
                 memcpy(key->Value, szValueStart, length * sizeof(WCHAR));
 
@@ -559,7 +559,7 @@ PROFILE_Open( WCHAR* Filename, BOOLEAN WriteAccess )
     if(!CurrentProfile)
        for(i=0;i<N_CACHED_PROFILES;i++)
        {
-		   MRUProfile[i] = (PROFILE*)Memory_Allocate(sizeof(PROFILE));
+           MRUProfile[i] = (PROFILE*)Memory_Allocate(sizeof(PROFILE));
           if(MRUProfile[i] == NULL) break;
           MRUProfile[i]->changed=FALSE;
           MRUProfile[i]->section=NULL;
@@ -660,7 +660,7 @@ PROFILE_Open( WCHAR* Filename, BOOLEAN WriteAccess )
     if(CurrentProfile->FileName) PROFILE_ReleaseFile();
 
     /* OK, now that CurProfile is definitely free we assign it our new file */
-	CurrentProfile->FileName = (WCHAR*)Memory_Allocate(
+    CurrentProfile->FileName = (WCHAR*)Memory_Allocate(
         /*NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap,
         0,*/
         (String_GetLength(buffer)+1) * sizeof(WCHAR)
@@ -813,7 +813,7 @@ static PROFILEKEY *PROFILE_Find(
             }
             if (!create) return NULL;
 
-			if (!(*key = (PROFILEKEY*)Memory_Allocate(
+            if (!(*key = (PROFILEKEY*)Memory_Allocate(
                 /*NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap,
                 0,*/
                 sizeof(PROFILEKEY) + String_GetLength(KeyName) * sizeof(WCHAR) )))
@@ -831,7 +831,7 @@ static PROFILEKEY *PROFILE_Find(
     }
     if (!create) return NULL;
 
-	*Section = (PROFILESECTION*)Memory_Allocate(
+    *Section = (PROFILESECTION*)Memory_Allocate(
         /*NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap,
         0,*/
         sizeof(PROFILESECTION) + String_GetLength(SectionName) * sizeof(WCHAR)
@@ -843,7 +843,7 @@ static PROFILEKEY *PROFILE_Find(
 
     (*Section)->next = NULL;
 
-	if (!((*Section)->Key = (PROFILEKEY*)Memory_Allocate(
+    if (!((*Section)->Key = (PROFILEKEY*)Memory_Allocate(
         /*NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap,
         0,*/
         sizeof(PROFILEKEY) + String_GetLength(KeyName) * sizeof(WCHAR) )))
@@ -914,7 +914,7 @@ PROFILE_SetString(
             Memory_Free(key->Value );
         }
 
-		key->Value = (WCHAR*)Memory_Allocate((String_GetLength(Value) + 1) * sizeof(WCHAR));
+        key->Value = (WCHAR*)Memory_Allocate((String_GetLength(Value) + 1) * sizeof(WCHAR));
 
         String_Copy(key->Value, Value);
 
@@ -1254,7 +1254,7 @@ GetString(
         {
             int length = (int)(p - def_val) + 1;
 
-			defval_tmp = (WCHAR*)Memory_Allocate((length + 1) * sizeof(WCHAR));
+            defval_tmp = (WCHAR*)Memory_Allocate((length + 1) * sizeof(WCHAR));
 
             memcpy(defval_tmp, def_val, length * sizeof(WCHAR));
             defval_tmp[length] = '\0';
@@ -1284,7 +1284,11 @@ GetString(
     }
 
     RtlLeaveCriticalSection( &PROFILE_CritSect );
-    Memory_Free(defval_tmp);
+    
+    if (defval_tmp)
+    {
+        Memory_Free(defval_tmp);
+    }
 
     return ret;
 }
@@ -1336,7 +1340,7 @@ SlIniReadString( WCHAR* Section, WCHAR* Key, WCHAR* DefaultValue, WCHAR* File )
     INT32 bufferSize = 1000;
     INT32 count = 0;
     DWORD returnValue;
-	WCHAR* buffer = (WCHAR*)Memory_Allocate(4);
+    WCHAR* buffer = (WCHAR*)Memory_Allocate(4);
 
     do
     {
