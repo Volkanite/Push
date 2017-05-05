@@ -147,7 +147,7 @@ VOID* Memory_Allocate( UINT_B Size )
 {
     BytesAllocated += Size;
 
-    Log(L"BytesAllocated: %i", BytesAllocated);
+    //Log(L"BytesAllocated: %i", BytesAllocated);
 
     return RtlAllocateHeap(PushHeapHandle, 0, Size);
 }
@@ -171,16 +171,18 @@ VOID Memory_Free( VOID* Heap )
 {
     //SIZE_T size;
 
+    if (!Heap)
+    {
+        Log(L"Why are you trying to free memory that doesn't exist!?");
+
+        return;
+    }
+
     //size = RtlSizeHeap(PushHeapHandle, 0, Heap);
 
     //Log(L"Freeing %i bytes of memory", size);
 
     //BytesAllocated -= size;
-    
-    if (!Heap)
-    {
-        Log(L"Why are you trying to free memory that doesn't exist!?");
-    }
 
     RtlFreeHeap(PushHeapHandle, 0, Heap);
 }

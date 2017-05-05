@@ -405,7 +405,7 @@ VOID GetHardwareInfo()
 
     for (i = 0; i < PushSharedMemory->HarwareInformation.Processor.NumberOfCores; i++)
     {
-		coreListEntry->nextEntry = (CORE_LIST*)Memory_Allocate(
+        coreListEntry->nextEntry = (CORE_LIST*)Memory_Allocate(
                                     /*PushHeapHandle,
                                     0,*/
                                     sizeof(CORE_LIST)
@@ -418,9 +418,6 @@ VOID GetHardwareInfo()
 
         coreListEntry = coreListEntry->nextEntry;
     }
-    
-    // Start disk monitoring;
-    DiskStartMonitoring();
 
     CPU_Intialize();
 
@@ -436,7 +433,7 @@ VOID GetHardwareInfo()
 
     int monitorCount = GetSystemMetrics(SM_CMONITORS);
 
-	MonitorHandles = Memory_Allocate(sizeof(HANDLE) * monitorCount);
+    MonitorHandles = Memory_Allocate(sizeof(HANDLE) * monitorCount);
 
     EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, NULL);
 }
@@ -472,7 +469,9 @@ VOID RefreshHardwareInfo()
     PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle     = gpuInfo.FanDutyCycle;
     PushSharedMemory->HarwareInformation.Memory.Used                    = GetRamUsed();
     PushSharedMemory->HarwareInformation.Memory.Load                    = GetRamUsage();
-    PushSharedMemory->HarwareInformation.Disk.ReadWriteRate             = GetDiskReadWriteRate();
+    
+    if (DiskMonitorInitialized)
+        PushSharedMemory->HarwareInformation.Disk.ReadWriteRate             = GetDiskReadWriteRate();
 
     MC_TIMING_REPORT timingReport;
 

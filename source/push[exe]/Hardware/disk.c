@@ -4,6 +4,9 @@
 #include <push.h>
 
 
+BOOLEAN DiskMonitorInitialized;
+
+
 typedef struct _PROCESS_RESPONSE_TIME
 {
     UINT32 ProcessId;
@@ -997,6 +1000,10 @@ VOID DiskStartMonitoring()
     InitializeCircularBuffer(&DiskReadWriteHistory, 2);
     EtFileNameHashtable = PhCreateSimpleHashtable(128);
     CreateRemoteThread(NtCurrentProcess(), 0, 0, &DiskMonitorThread, 0, 0, 0);
+
+    Log(L"Initialized Disk Monitor");
+
+    DiskMonitorInitialized = TRUE;
 }
 
 

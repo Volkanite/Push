@@ -28,5 +28,6 @@ UINT8 GPU_GetLoad();
 UINT64 GPU_GetTotalMemory();
 UINT64 GPU_GetFreeMemory();
 
+extern BOOLEAN DiskMonitorInitialized;
 
 #endif //GPU_H
