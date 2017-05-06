@@ -135,7 +135,7 @@ VOID MarkForCache( WCHAR *FilePath )
     String_Concatenate(newPath, L"cache_");
     String_Concatenate(newPath, pszFileName);
 
-    FsRenameFile(FilePath, newPath);
+    File_Rename(FilePath, newPath);
 }
 
 
@@ -166,58 +166,6 @@ BOOLEAN FolderExists( WCHAR* Folder )
     }
 }
 
-
-/**
-* Renames a file.
-*
-* \param FilePath The Win32 file name.
-* \param NewFileName The new file name.
-*/
-
-VOID FsRenameFile( WCHAR* FilePath, WCHAR* NewFileName )
-{
-    VOID *fileHandle, *heapHandle;
-    UINT32 renameInfoSize;
-    IO_STATUS_BLOCK ioStatusBlock;
-    FILE_RENAME_INFORMATION *renameInfo;
-    UNICODE_STRING newFileName;
-
-    File_Create(
-        &fileHandle,
-        FilePath,
-        DELETE | SYNCHRONIZE,
-        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-        FILE_OPEN,
-        FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
-        NULL
-        );
-
-    RtlDosPathNameToNtPathName_U(NewFileName, &newFileName, NULL, NULL);
-
-    renameInfoSize = FIELD_OFFSET(FILE_RENAME_INFORMATION, FileName) + (ULONG)newFileName.Length;
-
-    heapHandle = PushHeapHandle;
-
-    renameInfo = (FILE_RENAME_INFORMATION*) Memory_Allocate(renameInfoSize);
-    renameInfo->ReplaceIfExists = FALSE;
-    renameInfo->RootDirectory = NULL;
-    renameInfo->FileNameLength = (ULONG)newFileName.Length;
-
-    memcpy(renameInfo->FileName, newFileName.Buffer, newFileName.Length);
-
-    NtSetInformationFile(
-        fileHandle,
-        &ioStatusBlock,
-        renameInfo,
-        renameInfoSize,
-        FileRenameInformation
-        );
-
-    Memory_Free(newFileName.Buffer);
-    Memory_Free(renameInfo);
-
-    NtClose(fileHandle);
-}
 
 #define MEM_RESERVE 0x2000
 
@@ -927,6 +875,57 @@ VOID File_Delete( WCHAR* FileName )
     {
         NtClose(fileHandle);
     }
+}
+
+
+/**
+* Renames a file.
+*
+* \param FilePath The Win32 file name.
+* \param NewFileName The new file name.
+*/
+
+VOID File_Rename( WCHAR* FilePath, WCHAR* NewFileName )
+{
+    VOID *fileHandle;
+    UINT32 renameInfoSize;
+    IO_STATUS_BLOCK ioStatusBlock;
+    FILE_RENAME_INFORMATION *renameInfo;
+    UNICODE_STRING newFileName;
+
+    File_Create(
+        &fileHandle,
+        FilePath,
+        DELETE | SYNCHRONIZE,
+        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+        FILE_OPEN,
+        FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
+        NULL
+        );
+
+    RtlDosPathNameToNtPathName_U(NewFileName, &newFileName, NULL, NULL);
+
+    renameInfoSize = FIELD_OFFSET(FILE_RENAME_INFORMATION, FileName) + (ULONG)newFileName.Length;
+
+    renameInfo = (FILE_RENAME_INFORMATION*)Memory_Allocate(renameInfoSize);
+    renameInfo->ReplaceIfExists = FALSE;
+    renameInfo->RootDirectory = NULL;
+    renameInfo->FileNameLength = (ULONG)newFileName.Length;
+
+    memcpy(renameInfo->FileName, newFileName.Buffer, newFileName.Length);
+
+    NtSetInformationFile(
+        fileHandle,
+        &ioStatusBlock,
+        renameInfo,
+        renameInfoSize,
+        FileRenameInformation
+        );
+
+    Memory_Free(newFileName.Buffer);
+    Memory_Free(renameInfo);
+
+    NtClose(fileHandle);
 }
 
 

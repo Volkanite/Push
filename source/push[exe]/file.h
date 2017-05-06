@@ -46,7 +46,7 @@ VOID GetPathOnly( WCHAR *pszFilePath, WCHAR *pszBuffer );
 * \param FilePath The Win32 file name.
 * \param NewFileName The new file name.
 */
-VOID FsRenameFile(
+VOID File_Rename(
     WCHAR* FilePath,
     WCHAR* NewFileName
     );
