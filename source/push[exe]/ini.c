@@ -1332,7 +1332,7 @@ WCHAR* SlIniReadSubKey( WCHAR *section, WCHAR* MasterKey, WCHAR *subKey )
 }
 
 
-BOOLEAN SlIniReadSubKeyBoolean( WCHAR* Section, WCHAR* MasterKey, WCHAR* subKey, BOOLEAN DefaultValue )
+BOOLEAN Ini_ReadSubKeyBoolean( WCHAR* Section, WCHAR* MasterKey, WCHAR* subKey, BOOLEAN DefaultValue )
 {
     WCHAR result[255], defaultValue[255];
     WCHAR key[260];

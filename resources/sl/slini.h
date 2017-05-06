@@ -41,7 +41,7 @@ WCHAR* SlIniReadSubKey(
     WCHAR *subKey
     );
 
-BOOLEAN SlIniReadSubKeyBoolean(
+BOOLEAN Ini_ReadSubKeyBoolean(
     WCHAR *section,
     WCHAR *masterKey,
     WCHAR *subKey,

@@ -50,27 +50,27 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
 
     // Game Settings.
 
-    if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"DisableOverlay", FALSE))
+    if (Ini_ReadSubKeyBoolean(L"Game Settings", gameId, L"DisableOverlay", FALSE))
     {
         Game->Settings.DisableOverlay = TRUE;
     }
 
-    if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"UseRamDisk", FALSE))
+    if (Ini_ReadSubKeyBoolean(L"Game Settings", gameId, L"UseRamDisk", FALSE))
     {
         Game->Settings.UseRamDisk = TRUE;
     }
 
-    if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"DisableRepeatKeys", FALSE))
+    if (Ini_ReadSubKeyBoolean(L"Game Settings", gameId, L"DisableRepeatKeys", FALSE))
     {
         Game->Settings.DisableRepeatKeys = TRUE;
     }
 
-    if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"SwapWASD", FALSE))
+    if (Ini_ReadSubKeyBoolean(L"Game Settings", gameId, L"SwapWASD", FALSE))
     {
         Game->Settings.SwapWASD = TRUE;
     }
 
-    if (SlIniReadSubKeyBoolean(L"Game Settings", gameId, L"ForceMaxClocks",FALSE))
+    if (Ini_ReadSubKeyBoolean(L"Game Settings", gameId, L"ForceMaxClocks", FALSE))
     {
         Game->Settings.ForceMaxClocks = TRUE;
     }
