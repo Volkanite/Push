@@ -35,10 +35,12 @@ DWORD Ini_GetString(
     DWORD Length
     );
 
-WCHAR* SlIniReadSubKey(
+VOID Ini_ReadSubKey(
     WCHAR *section,
-    WCHAR *masterKey,
-    WCHAR *subKey
+    WCHAR* MasterKey,
+    WCHAR *subKey,
+    WCHAR* Buffer,
+    DWORD Length
     );
 
 BOOLEAN Ini_ReadSubKeyBoolean(

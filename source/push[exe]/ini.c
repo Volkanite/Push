@@ -1308,15 +1308,12 @@ BOOLEAN SlIniReadBoolean(WCHAR* Section, WCHAR* Key, BOOLEAN DefaultValue)
 }
 
 
-WCHAR* SlIniReadSubKey( WCHAR *section, WCHAR* MasterKey, WCHAR *subKey )
+VOID Ini_ReadSubKey( WCHAR *section, WCHAR* MasterKey, WCHAR *subKey, WCHAR* Buffer, DWORD Length )
 {
     WCHAR key[260];
-    WCHAR *buffer;
 
-    if (!MasterKey)
-    {
-        return NULL;
-    }
+    if (!MasterKey) 
+        return;
 
     String_Copy(key, L"(");
 
@@ -1324,11 +1321,7 @@ WCHAR* SlIniReadSubKey( WCHAR *section, WCHAR* MasterKey, WCHAR *subKey )
     String_Concatenate(key, L").");
     String_Concatenate(key, subKey);
 
-    buffer = Memory_Allocate(260 * sizeof(WCHAR));
-
-    Ini_GetString(section, key, 0, buffer, 260);
-    
-    return buffer;
+    Ini_GetString(section, key, 0, Buffer, Length);
 }
 
 

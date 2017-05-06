@@ -25,12 +25,13 @@ WCHAR* HeapedString( WCHAR* String )
 VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
 {
     WCHAR gameId[260];
-    WCHAR *buffer;
+    WCHAR buffer[260];
     WCHAR *lastSlash;
     WCHAR testing[260];
 
     String_Format(testing, 260, L"Game_Initialize(%s)", Win32Name);
     Log(testing);
+    
     Game->ExecutablePath = HeapedString(Win32Name);
     lastSlash = String_FindLastChar(Game->ExecutablePath, '\\');
     Game->ExecutableName = lastSlash + 1;
@@ -39,13 +40,13 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
 
     String_CopyN(Game->Id, gameId, 2);
 
-    buffer = SlIniReadSubKey(L"Game Settings", gameId, L"Name");
+    Ini_ReadSubKey(L"Game Settings", gameId, L"Name", buffer, 260);
     Game->Name = HeapedString(buffer ? buffer : Game->ExecutableName);
 
-    buffer = SlIniReadSubKey(L"Game Settings", gameId, GAME_INSTALL_PATH);
+    Ini_ReadSubKey(L"Game Settings", gameId, GAME_INSTALL_PATH, buffer, 260);
     Game->InstallPath = HeapedString(buffer);
 
-    buffer = SlIniReadSubKey(L"Game Settings", gameId, L"CheckSum");
+    Ini_ReadSubKey(L"Game Settings", gameId, L"CheckSum", buffer, 260);
     if (buffer) Game->CheckSum = wcstol(buffer, NULL, 16);
 
     // Game Settings.
@@ -75,7 +76,7 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
         Game->Settings.ForceMaxClocks = TRUE;
     }
 
-    buffer = SlIniReadSubKey(L"Game Settings", gameId, L"ForceVsync");
+    Ini_ReadSubKey(L"Game Settings", gameId, L"ForceVsync", buffer, 260);
 
     if (String_Compare(buffer, L"FORCE_ON") == 0)
     {
