@@ -419,32 +419,35 @@ VOID OnProcessEvent( PROCESSID processID )
 
 VOID Inject32( HANDLE ProcessHandle )
 {
-    VOID *threadHandle, *pLibRemote, *hKernel32;
-    WCHAR szModulePath[260], *pszLastSlash;
+    VOID *threadHandle, *remoteMemory, *hKernel32;
+    WCHAR modulePath[260], *pszLastSlash;
     UINT32 regionSize;
 
     hKernel32 = GetModuleHandleW(L"Kernel32");
 
-    GetModuleFileNameW(0, szModulePath, 260);
+    GetModuleFileNameW(0, modulePath, 260);
 
-    pszLastSlash = String_FindLastChar(szModulePath, '\\');
+    pszLastSlash = String_FindLastChar(modulePath, '\\');
 
     pszLastSlash[1] = '\0';
 
-    String_Concatenate(szModulePath, PUSH_LIB_NAME_32);
+    String_Concatenate(modulePath, PUSH_LIB_NAME_32);
 
-    // Allocate remote memory
-    pLibRemote = VirtualAllocEx(ProcessHandle, 0, sizeof(szModulePath), MEM_COMMIT, PAGE_READWRITE);
+    // Allocate memory in the remote process's address space.
+    remoteMemory = NULL;
+    regionSize = sizeof(modulePath);
+
+    NtAllocateVirtualMemory(ProcessHandle, &remoteMemory, 0, &regionSize, MEM_COMMIT, PAGE_READWRITE);
 
     // Copy library name
-    Process_WriteMemory(ProcessHandle, pLibRemote, szModulePath, sizeof(szModulePath));
+    Process_WriteMemory(ProcessHandle, remoteMemory, modulePath, sizeof(modulePath));
 
     // Load dll into the remote process
     threadHandle = CreateRemoteThread(
         ProcessHandle,
         0,0,
         (PTHREAD_START_ROUTINE) Module_GetProcedureAddress(hKernel32, "LoadLibraryW"),
-        pLibRemote,
+        remoteMemory,
         0,0
         );
 
@@ -457,7 +460,7 @@ VOID Inject32( HANDLE ProcessHandle )
     // Free the memory we allocated inside the remote process
     regionSize = 0;
 
-    NtFreeVirtualMemory(ProcessHandle, &pLibRemote, &regionSize, MEM_RELEASE);
+    NtFreeVirtualMemory(ProcessHandle, &remoteMemory, &regionSize, MEM_RELEASE);
 }
 
 

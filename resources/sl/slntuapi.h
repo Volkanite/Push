@@ -378,7 +378,7 @@ GetModuleFileNameW(
     DWORD   nSize
     );
 
-VOID*
+/*VOID*
 __stdcall
 VirtualAllocEx(
     VOID    *hProcess,
@@ -386,7 +386,7 @@ VirtualAllocEx(
     DWORD   dwSize,
     DWORD   flAllocationType,
     DWORD   flProtect
-    );
+    );*/
 
 /*SDWORD
 __stdcall
