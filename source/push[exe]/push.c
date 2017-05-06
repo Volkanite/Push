@@ -451,7 +451,8 @@ VOID Inject32( VOID *hProcess )
     //CloseHandle(hThread);
     NtClose(threadHandle);
 
-    VirtualFreeEx(hProcess, pLibRemote, sizeof(szModulePath), MEM_RELEASE);
+    // Free the memory we allocated inside the remote process
+    VirtualFreeEx(hProcess, pLibRemote, 0, MEM_RELEASE);
 }
 
 
