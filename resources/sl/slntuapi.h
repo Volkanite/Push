@@ -460,13 +460,13 @@ CreateEventW(
     const WCHAR         *lpName
     );
 
-VOID*
+/*VOID*
 __stdcall
 OpenEventW(
     DWORD       dwDesiredAccess,
     BYTE        bInheritHandle,
     const WCHAR *lpName
-    );
+    );*/
 
 SDWORD
 __stdcall

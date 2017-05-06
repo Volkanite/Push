@@ -750,13 +750,91 @@ DWORD __stdcall RetrieveImageEvent( VOID* Parameter )
 }
 
 
+NTSTATUS __stdcall NtOpenEvent(
+    HANDLE* EventHandle,
+    DWORD DesiredAccess,
+    OBJECT_ATTRIBUTES* ObjectAttributes
+    );
+VOID* BaseNamedObjectDirectory = NULL;
+NTSTATUS __stdcall NtOpenDirectoryObject(VOID**  FileHandle,
+    DWORD   DesiredAccess,
+    OBJECT_ATTRIBUTES*  ObjectAttributes
+    );
+#define DIRECTORY_QUERY   0x0001
+#define DIRECTORY_TRAVERSE   0x0002
+#define DIRECTORY_CREATE_OBJECT   0x0004
+#define DIRECTORY_CREATE_SUBDIRECTORY   0x0008
+
+
+VOID* PushBaseGetNamedObjectDirectory()
+{
+    OBJECT_ATTRIBUTES objAttrib;
+    UNICODE_STRING bnoString;
+    LONG Status;
+    WCHAR baseNamedObjectDirectoryName[29];
+
+    swprintf(
+        baseNamedObjectDirectoryName,
+        29,
+        L"\\Sessions\\%u\\BaseNamedObjects",
+        PushSessionId
+        );
+
+    UnicodeString_Init(&bnoString, baseNamedObjectDirectoryName);
+
+    if (!BaseNamedObjectDirectory)
+    {
+
+        objAttrib.Length = sizeof(OBJECT_ATTRIBUTES);
+        objAttrib.RootDirectory = NULL;
+        objAttrib.Attributes = OBJ_CASE_INSENSITIVE;
+        objAttrib.ObjectName = &bnoString;
+        objAttrib.SecurityDescriptor = NULL;
+        objAttrib.SecurityQualityOfService = NULL;
+
+        Status = NtOpenDirectoryObject(
+            &BaseNamedObjectDirectory,
+            DIRECTORY_CREATE_OBJECT |
+            DIRECTORY_CREATE_SUBDIRECTORY |
+            DIRECTORY_QUERY |
+            DIRECTORY_TRAVERSE,
+            &objAttrib
+            );
+    }
+
+    return BaseNamedObjectDirectory;
+}
+
+
+HANDLE OpenEvent( WCHAR* EventName )
+{
+    UNICODE_STRING eventName;
+    OBJECT_ATTRIBUTES objAttrib;
+    HANDLE eventHandle;
+
+    UnicodeString_Init(&eventName, EventName);
+
+    objAttrib.Length = sizeof(OBJECT_ATTRIBUTES);
+    objAttrib.RootDirectory = PushBaseGetNamedObjectDirectory();
+    objAttrib.ObjectName = &eventName;
+    objAttrib.Attributes = 0;
+    objAttrib.SecurityDescriptor = NULL;
+    objAttrib.SecurityQualityOfService = NULL;
+
+    NtOpenEvent(&eventHandle, SYNCHRONIZE, &objAttrib);
+
+    return eventHandle;
+}
+
+
 DWORD __stdcall MonitorThread(VOID* Parameter)
 {
-    VOID *processEvent, *d3dImageEvent;
+    HANDLE processEvent;
+    HANDLE d3dImageEvent;
     VOID *handles[2];
 
-    processEvent = OpenEventW(SYNCHRONIZE, FALSE, L"Global\\" PUSH_PROCESS_EVENT_NAME);
-    d3dImageEvent = OpenEventW(SYNCHRONIZE, FALSE, L"Global\\" PUSH_IMAGE_EVENT_NAME);
+    processEvent = OpenEvent(L"Global\\" PUSH_PROCESS_EVENT_NAME);
+    d3dImageEvent = OpenEvent(L"Global\\" PUSH_IMAGE_EVENT_NAME);
 
     handles[0] = processEvent;
     handles[1] = d3dImageEvent;

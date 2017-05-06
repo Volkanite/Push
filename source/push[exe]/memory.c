@@ -3,7 +3,6 @@
 #include "push.h"
 
 
-VOID* BaseNamedObjectDirectory = NULL;
 UINT32 BytesAllocated;
 extern ULONG PushSessionId;
 
@@ -14,11 +13,6 @@ typedef enum _SECTION_INHERIT
     ViewUnmap = 2
 } SECTION_INHERIT;
 
-
-NTSTATUS __stdcall NtOpenDirectoryObject   (   VOID**  FileHandle,
-        DWORD   DesiredAccess,
-        OBJECT_ATTRIBUTES*  ObjectAttributes
-        );
 
 NTSTATUS __stdcall NtMapViewOfSection(
     VOID* SectionHandle,
@@ -40,54 +34,11 @@ SIZE_T __stdcall RtlSizeHeap(
     );
 
 
-#define DIRECTORY_QUERY   0x0001
-#define DIRECTORY_TRAVERSE   0x0002
-#define DIRECTORY_CREATE_OBJECT   0x0004
-#define DIRECTORY_CREATE_SUBDIRECTORY   0x0008
+VOID* PushBaseGetNamedObjectDirectory();
 
 #define OBJ_OPENIF   0x00000080L
 #define SEC_COMMIT   0x8000000
 #define HEAP_GENERATE_EXCEPTIONS        0x00000004
-
-
-VOID* PushBaseGetNamedObjectDirectory()
-{
-    OBJECT_ATTRIBUTES objAttrib;
-    UNICODE_STRING bnoString;
-    LONG Status;
-    WCHAR baseNamedObjectDirectoryName[29];
-
-    swprintf(
-        baseNamedObjectDirectoryName,
-        29,
-        L"\\Sessions\\%u\\BaseNamedObjects",
-        PushSessionId
-        );
-
-    UnicodeString_Init(&bnoString, baseNamedObjectDirectoryName);
-
-    if ( !BaseNamedObjectDirectory )
-    {
-
-        objAttrib.Length = sizeof(OBJECT_ATTRIBUTES);
-        objAttrib.RootDirectory = NULL;
-        objAttrib.Attributes = OBJ_CASE_INSENSITIVE;
-        objAttrib.ObjectName = &bnoString;
-        objAttrib.SecurityDescriptor = NULL;
-        objAttrib.SecurityQualityOfService = NULL;
-
-        Status = NtOpenDirectoryObject(
-            &BaseNamedObjectDirectory,
-            DIRECTORY_CREATE_OBJECT |
-            DIRECTORY_CREATE_SUBDIRECTORY |
-            DIRECTORY_QUERY |
-            DIRECTORY_TRAVERSE,
-            &objAttrib
-            );
-    }
-
-    return BaseNamedObjectDirectory;
-}
 
 
 VOID* Memory_CreateFileMapping( WCHAR* FileName, DWORD Size )
