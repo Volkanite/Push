@@ -451,14 +451,14 @@ INTBOOL __stdcall GetSystemTimes(
     FILETIME *lpUserTime
     );
 
-VOID*
+/*VOID*
 __stdcall
 CreateEventW(
     SECURITY_ATTRIBUTES *lpEventAttributes,
     BYTE                bManualReset,
     BYTE                bInitialState,
     const WCHAR         *lpName
-    );
+    );*/
 
 /*VOID*
 __stdcall

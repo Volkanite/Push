@@ -36,7 +36,7 @@ SIZE_T __stdcall RtlSizeHeap(
 
 VOID* PushBaseGetNamedObjectDirectory();
 
-#define OBJ_OPENIF   0x00000080L
+
 #define SEC_COMMIT   0x8000000
 #define HEAP_GENERATE_EXCEPTIONS        0x00000004
 

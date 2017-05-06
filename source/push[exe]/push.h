@@ -111,4 +111,6 @@ VOID PushGetImageInfo(
 VOID Log(const wchar_t* Format, ...);
 VOID Push_FormatTime(WCHAR* Buffer);
 
+#define OBJ_OPENIF   0x00000080L
+
 #endif //PUSH_H

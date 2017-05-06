@@ -682,6 +682,22 @@ VOID OnImageEvent( PROCESSID ProcessId )
 }
 
 
+typedef enum _EVENT_TYPE
+{
+    NotificationEvent,
+    SynchronizationEvent
+} EVENT_TYPE;
+
+NTSTATUS __stdcall NtCreateEvent(
+    HANDLE* EventHandle,
+    DWORD DesiredAccess,
+    OBJECT_ATTRIBUTES* ObjectAttributes,
+    EVENT_TYPE EventType,
+    BOOLEAN InitialState
+    );
+#define EVENT_ALL_ACCESS    0x1f0003
+
+
 DWORD __stdcall RetrieveProcessEvent( VOID* Parameter )
 {
     OVERLAPPED              ov          = { 0 };
@@ -691,13 +707,7 @@ DWORD __stdcall RetrieveProcessEvent( VOID* Parameter )
 
 
     // Create an event handle for async notification from the driver
-
-    ov.hEvent = CreateEventW(
-        0,  // Default security
-        TRUE,  // Manual reset
-        FALSE, // non-signaled state
-        0
-        );
+    NtCreateEvent(&ov.hEvent, EVENT_ALL_ACCESS, NULL, NotificationEvent, FALSE);
 
     // Get the process info
     PushGetProcessInfo(&processInfo);
@@ -728,12 +738,7 @@ DWORD __stdcall RetrieveImageEvent( VOID* Parameter )
     IMAGE_CALLBACK_INFO imageInfo;
 
     // Create an event handle for async notification from the driver
-    ov.hEvent = CreateEventW(
-        NULL,  // Default security
-        TRUE,  // Manual reset
-        FALSE, // non-signaled state
-        NULL
-        );
+    NtCreateEvent(&ov.hEvent, EVENT_ALL_ACCESS, NULL, NotificationEvent, FALSE);
 
     // Get the process info
     PushGetImageInfo(&imageInfo);
@@ -1052,11 +1057,13 @@ DWORD __stdcall PipeThread( VOID* Parameter )
 
 INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, INT32 iCmdShow )
 {
-    VOID *sectionHandle = INVALID_HANDLE_VALUE, *hMutex;
+    HANDLE sectionHandle = INVALID_HANDLE_VALUE, *hMutex;
+    HANDLE eventHandle;
     MSG messages;
     BOOLEAN bAlreadyRunning;
     OBJECT_ATTRIBUTES objAttrib = {0};
     PTEB threadEnvironmentBlock;
+    UNICODE_STRING eventSource;
 
     // Check if already running
     hMutex = CreateMutexW(0, FALSE, L"PushOneInstance");
@@ -1077,7 +1084,18 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     PushSessionId = threadEnvironmentBlock->ProcessEnvironmentBlock->SessionId;
 
     //create image event
-    CreateEventW(NULL, TRUE, FALSE, L"Global\\" PUSH_IMAGE_EVENT_NAME);
+    eventHandle = NULL;
+    
+    UnicodeString_Init(&eventSource, L"Global\\" PUSH_IMAGE_EVENT_NAME);
+
+    objAttrib.Length = sizeof(OBJECT_ATTRIBUTES);
+    objAttrib.RootDirectory = PushBaseGetNamedObjectDirectory();
+    objAttrib.ObjectName = &eventSource;
+    objAttrib.Attributes = OBJ_OPENIF;
+    objAttrib.SecurityDescriptor = NULL;
+    objAttrib.SecurityQualityOfService = NULL;
+
+    NtCreateEvent(&eventHandle, EVENT_ALL_ACCESS, &objAttrib, NotificationEvent, FALSE);
 
     // Start Driver.
 
