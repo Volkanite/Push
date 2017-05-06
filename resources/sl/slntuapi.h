@@ -388,14 +388,14 @@ VirtualAllocEx(
     DWORD   flProtect
     );
 
-SDWORD
+/*SDWORD
 __stdcall
 VirtualFreeEx(
     VOID    *hProcess,
     VOID    *lpAddress,
     DWORD   dwSize,
     DWORD   dwFreeType
-    );
+    );*/
 
 
 
