@@ -366,9 +366,9 @@ DWORD
 __stdcall
 GetLogicalDrives( VOID );
 
-VOID*
+/*VOID*
 __stdcall
-GetModuleHandleW( WCHAR* lpModuleName );
+GetModuleHandleW( WCHAR* lpModuleName );*/
 
 DWORD
 __stdcall

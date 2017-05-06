@@ -18,6 +18,33 @@ VOID* Module_Load( WCHAR* FileName )
 }
 
 
+NTSTATUS __stdcall LdrGetDllHandle(
+    WCHAR* DllPath,
+    ULONG* DllCharacteristics,
+    UNICODE_STRING* DllName,
+    VOID** DllHandle
+    );
+
+NTSTATUS __stdcall LdrGetProcedureAddress(
+    VOID* DllHandle,
+    PANSI_STRING ProcedureName,
+    ULONG ProcedureNumber,
+    VOID** ProcedureAddress
+    );
+
+
+VOID* Module_GetHandle( WCHAR* FileName )
+{
+    UNICODE_STRING moduleName;
+    VOID* moduleHandle;
+
+    UnicodeString_Init(&moduleName, FileName);
+    LdrGetDllHandle(NULL, NULL, &moduleName, &moduleHandle);
+
+    return moduleHandle;
+}
+
+
 #include <string.h>
 VOID RtlInitAnsiString( PANSI_STRING DestinationString, CHAR* SourceString )
 {
@@ -28,14 +55,6 @@ VOID RtlInitAnsiString( PANSI_STRING DestinationString, CHAR* SourceString )
 
     DestinationString->Buffer = SourceString;
 }
-
-
-NTSTATUS __stdcall LdrGetProcedureAddress(
-    VOID* DllHandle,
-    PANSI_STRING ProcedureName,
-    ULONG ProcedureNumber,
-    VOID**ProcedureAddress
-    );
 
 
 VOID* Module_GetProcedureAddress( VOID* DllHandle, CHAR* ProcedureName )

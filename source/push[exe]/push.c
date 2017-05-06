@@ -419,12 +419,10 @@ VOID OnProcessEvent( PROCESSID processID )
 
 VOID Inject32( HANDLE ProcessHandle )
 {
-    VOID *threadHandle, *remoteMemory, *hKernel32;
+    VOID *threadHandle, *remoteMemory, *kernel32Handle;
     WCHAR modulePath[260], *pszLastSlash;
     UINT32 regionSize;
-
-    hKernel32 = GetModuleHandleW(L"Kernel32");
-
+    
     GetModuleFileNameW(0, modulePath, 260);
 
     pszLastSlash = String_FindLastChar(modulePath, '\\');
@@ -443,10 +441,12 @@ VOID Inject32( HANDLE ProcessHandle )
     Process_WriteMemory(ProcessHandle, remoteMemory, modulePath, sizeof(modulePath));
 
     // Load dll into the remote process
+    kernel32Handle = Module_GetHandle(L"Kernel32");
+
     threadHandle = CreateRemoteThread(
         ProcessHandle,
         0,0,
-        (PTHREAD_START_ROUTINE) Module_GetProcedureAddress(hKernel32, "LoadLibraryW"),
+        (PTHREAD_START_ROUTINE) Module_GetProcedureAddress(kernel32Handle, "LoadLibraryW"),
         remoteMemory,
         0,0
         );
