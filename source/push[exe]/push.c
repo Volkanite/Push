@@ -63,7 +63,11 @@ BOOLEAN IsGame( WCHAR* ExecutablePath )
     }
     else
     {
-        // Try searching for names that match. If a match is found, compare the executable's checksum.
+        // Try searching for names that match. If a match is found, compare the executable's checksum. We do this to find
+        // games that might have changed paths. As Push uses a direct file path hueristic to determine game settings to
+        // use, users might run into problems trying to figure out why their games settings don't work while not noticing
+        // that their game executable has changed paths. This function updates the path and gets everything back to
+        // running nicely again.
 
         DWORD headerSum;
         DWORD checkSum;
@@ -72,12 +76,12 @@ BOOLEAN IsGame( WCHAR* ExecutablePath )
 
         executable++;
 
-        MapFileAndCheckSumW(ExecutablePath, &headerSum, &checkSum);
-
         while (gameList != NULL)
         {
             if (String_Compare(gameList->Game->ExecutableName, executable) == 0)
             {
+                MapFileAndCheckSumW(ExecutablePath, &headerSum, &checkSum);
+
                 if (gameList->Game->CheckSum == checkSum)
                 {
                     // Update path.
