@@ -1,5 +1,7 @@
 #include <sl.h>
 
+#define COLOR_WINDOW            5
+
 
 VOID* SlCreateWindow(
     DWORD ExStyle,
@@ -21,6 +23,7 @@ VOID* SlCreateWindow(
     windowClass.Size = sizeof(WNDCLASSEX);
     windowClass.Icon = Icon;
     windowClass.IconSm = NULL;
+    windowClass.Background = (HANDLE)(COLOR_WINDOW + 1);
 
     RegisterClassExW(&windowClass);
 
