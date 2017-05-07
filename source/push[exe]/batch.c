@@ -6,6 +6,9 @@
 #include "batch.h"
 
 
+WCHAR* BatchFileName;
+
+
 VOID GetBatchFile( PUSH_GAME* Game, WCHAR* Buffer )
 {
     WCHAR *dot;
@@ -41,8 +44,8 @@ VOID BatchFile_Initialize( PUSH_GAME* Game )
 
     // Allocate some memory for the batchfile name
     BatchFileName = (WCHAR*) Memory_Allocate(
-		(String_GetLength(batchFile) + 1) * sizeof(WCHAR)
-		);
+        (String_GetLength(batchFile) + 1) * sizeof(WCHAR)
+        );
 
     // Save new batchfile name
     String_Copy(BatchFileName, batchFile);
@@ -173,7 +176,7 @@ VOID BatchFile_SaveBatchFile()
         FILE_SHARE_READ | FILE_SHARE_WRITE,
         FILE_OVERWRITE_IF,
         FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
-		NULL
+        NULL
         );
 
     // Check if \cache folder has not been created yet.
@@ -189,7 +192,7 @@ VOID BatchFile_SaveBatchFile()
             FILE_SHARE_READ | FILE_SHARE_WRITE,
             FILE_CREATE,
             FILE_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT | FILE_OPEN_FOR_BACKUP_INTENT,
-			NULL
+            NULL
             );
 
         File_Close(directoryHandle);
@@ -202,7 +205,7 @@ VOID BatchFile_SaveBatchFile()
             FILE_SHARE_READ | FILE_SHARE_WRITE,
             FILE_OVERWRITE_IF,
             FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
-			NULL
+            NULL
             );
     }
 

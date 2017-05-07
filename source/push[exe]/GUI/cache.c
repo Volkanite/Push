@@ -201,6 +201,8 @@ LONG __stdcall CacheWndProc(
                         SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE
                         );
                 }
+
+                BatchFile_Initialize(&game);
             }
 
         } break;

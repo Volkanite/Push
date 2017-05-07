@@ -5,7 +5,6 @@
 #include "game.h"
 
     FILE_LIST FileList;
-    WCHAR* BatchFileName;
     UINT64 BatchSize;
     BfBatchFile( PUSH_GAME* Game );
     BOOLEAN BatchFile_IsBatchedFile(FILE_LIST_ENTRY* File);
