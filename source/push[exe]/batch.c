@@ -160,7 +160,7 @@ UINT64 BatchFile_GetBatchSize()
 * \param BatchFile The batchfile.
 */
 
-VOID BatchFile_SaveBatchFile()
+VOID BatchFile_SaveBatchFile( PUSH_GAME* Game )
 {
     HANDLE fileHandle = NULL;
     IO_STATUS_BLOCK isb;
@@ -210,6 +210,11 @@ VOID BatchFile_SaveBatchFile()
     }
 
     file = (FILE_LIST_ENTRY*) FileList;
+
+    if (file)
+    {
+        Game_SetFlags(Game, GAME_RAMDISK);
+    }
 
     // Write character marker
     NtWriteFile(

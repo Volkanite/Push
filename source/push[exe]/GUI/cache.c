@@ -25,6 +25,7 @@ LONG __stdcall CacheWndProc(
     )
 {
     static HANDLE comboBoxHandle;
+    static PUSH_GAME game;
 
     switch(uMessage)
     {
@@ -52,11 +53,9 @@ LONG __stdcall CacheWndProc(
 
     case WM_CLOSE:
         {
-            //if (MwBatchFile)
-                BatchFile_SaveBatchFile();
-
-            break;
-        }
+            BatchFile_SaveBatchFile(&game);
+            
+        }break;
 
     case WM_COMMAND:
         switch (LOWORD(wParam))
@@ -106,7 +105,6 @@ LONG __stdcall CacheWndProc(
 
             if (HIWORD(wParam) == CBN_SELCHANGE)
             {
-                PUSH_GAME game;
                 UINT32 columnWidth;
                 RECT windowRect, treeListRect;
                 INT32 iIndex;
