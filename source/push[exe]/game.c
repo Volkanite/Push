@@ -32,7 +32,7 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
     if (!Win32Name)
         return;
 
-    Log(L"Game_Initialize(%s)", Win32Name);
+    //Log(L"Game_Initialize(%s)", Win32Name);
     
     Game->ExecutablePath = HeapedString(Win32Name);
     lastSlash = String_FindLastChar(Game->ExecutablePath, '\\');
