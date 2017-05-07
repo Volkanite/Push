@@ -21,7 +21,7 @@ SIZE_T __stdcall RtlSizeHeap(
 #define HEAP_GENERATE_EXCEPTIONS        0x00000004
 
 
-VOID* Memory_CreateFileMapping( WCHAR* FileName, DWORD Size, HANDLE* SectionHandle )
+VOID* Memory_MapViewOfSection( WCHAR* FileName, DWORD Size, HANDLE* SectionHandle )
 {
     NTSTATUS status;
     HANDLE sectionHandle;

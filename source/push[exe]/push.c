@@ -1188,7 +1188,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     MwCreateMainWindow();
 
     // Create file mapping.
-    PushSharedMemory = (PUSH_SHARED_MEMORY*)Memory_CreateFileMapping(
+    PushSharedMemory = (PUSH_SHARED_MEMORY*)Memory_MapViewOfSection(
         PUSH_SECTION_NAME, 
         sizeof(PUSH_SHARED_MEMORY),
         &sectionHandle
