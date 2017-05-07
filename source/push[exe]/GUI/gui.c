@@ -52,8 +52,7 @@ DWORD           Tray_TaskBarCreatedMessage;
 TYPE_Shell_NotifyIconW Shell_NotifyIconW;
 
 
-VOID
-SlTrayGetMenuHandles(VOID** Menu, VOID** hSubMenu)
+VOID SlTrayGetMenuHandles(VOID** Menu, VOID** hSubMenu)
 {
     VOID* subMenu;
 
@@ -65,7 +64,8 @@ SlTrayGetMenuHandles(VOID** Menu, VOID** hSubMenu)
     AppendMenuW(subMenu, MF_STRING, BUTTON_ADDGAME, L"Add Game");
     AppendMenuW(subMenu, MF_STRING, BUTTON_STOPRAMDISK, L"Stop RAMDisk");
     AppendMenuW(subMenu, MF_STRING, BUTTON_MANUALADD, L"Manual Add");
-	AppendMenuW(subMenu, MF_STRING, OVERCLOCK, L"Overclock");
+    AppendMenuW(subMenu, MF_STRING, MENU_OVERCLOCK, L"Overclock");
+    AppendMenuW(subMenu, MF_STRING, MENU_CACHE, L"Cache");
 
     *hSubMenu = GetSubMenu(*Menu, 0);
 }

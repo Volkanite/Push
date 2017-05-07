@@ -36,9 +36,10 @@ DWORD Ini_GetString(
     );
 
 VOID Ini_ReadSubKey(
-    WCHAR *section,
+    WCHAR* section,
     WCHAR* MasterKey,
-    WCHAR *subKey,
+    WCHAR* subKey,
+    WCHAR* DefaultString,
     WCHAR* Buffer,
     DWORD Length
     );

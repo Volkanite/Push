@@ -95,9 +95,9 @@ VOID* Memory_CreateFileMapping( WCHAR* FileName, DWORD Size )
 VOID* Memory_Allocate( UINT_B Size )
 {
 #if DEBUG
-    BytesAllocated += Size;
+    //BytesAllocated += Size;
 
-    Log(L"Allocating %i bytes, BytesAllocated: %i", Size, BytesAllocated);
+    //Log(L"Allocating %i bytes, BytesAllocated: %i", Size, BytesAllocated);
 #endif
 
     return RtlAllocateHeap(PushHeapHandle, 0, Size);
@@ -128,13 +128,13 @@ VOID Memory_Free( VOID* Heap )
     }
 
 #if DEBUG
-    SIZE_T size;
+    //SIZE_T size;
 
-    size = RtlSizeHeap(PushHeapHandle, 0, Heap);
+    //size = RtlSizeHeap(PushHeapHandle, 0, Heap);
 
-    Log(L"Freeing %i bytes of memory", size);
+    //Log(L"Freeing %i bytes of memory", size);
 
-    BytesAllocated -= size;
+    //BytesAllocated -= size;
 #endif
 
     RtlFreeHeap(PushHeapHandle, 0, Heap);

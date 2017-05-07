@@ -121,27 +121,6 @@ ListViewAddItems()
 }
 
 
-WCHAR*
-GetComboBoxData()
-{
-    INT32 iIndex;
-
-    iIndex = SendMessageW(
-                MwControlHandles[COMBOBOX_GAMES],
-                CB_GETCURSEL,
-                0,
-                0
-                );
-
-    return (WCHAR*) SendMessageW(
-                        MwControlHandles[COMBOBOX_GAMES],
-                        CB_GETITEMDATA,
-                        iIndex,
-                        0
-                        );
-}
-
-
 VOID
 CreateControl(
     WINDOW* window,
@@ -380,7 +359,7 @@ VOID OpenCacheWindow()
         0,
         L"Cache Manager",
         L"Cache Settings",
-        0,
+        WS_SYSMENU,
         600,
         500,
         CacheWndProc,
@@ -424,8 +403,11 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
             }
             break;
 
-            case OVERCLOCK:
+            case MENU_OVERCLOCK:
                 Overclock();
+                break;
+            case MENU_CACHE:
+                OpenCacheWindow();
                 break;
             case BUTTON_RESET_GPU:
                 PushSharedMemory->Overloads = 0;
@@ -507,59 +489,6 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     Game_SetInstallPath(&game, path);
                     Game_SetFlags(&game, GAME_RAMDISK);
                     Game_SetCheckSum(&game, checkSum);
-
-                } break;
-
-            case COMBOBOX_GAMES:
-                {
-                    if (HIWORD(wParam) == CBN_DROPDOWN)
-                    {
-                        static BOOLEAN gamesInited = FALSE;
-
-                        if (!gamesInited)
-                        {
-                            WCHAR *games;
-                            INT32   i;
-
-                            games = Memory_Allocate(512 * sizeof(WCHAR));
-
-                            Ini_GetString(L"Games", 0, 0, games, 512);
-
-                            if (games)
-                            {
-                                for (i = 0; games[0] != '\0'; i++)
-                                {
-                                    PUSH_GAME game;
-
-                                    Game_Initialize(games, &game);
-
-                                    SendMessageW(
-                                        MwControlHandles[COMBOBOX_GAMES],
-                                        CB_ADDSTRING,
-                                        0,
-                                        (LONG) game.Name
-                                        );
-
-                                    SendMessageW(
-                                        MwControlHandles[COMBOBOX_GAMES],
-                                        CB_SETITEMDATA,
-                                        i,
-                                        (LONG) games
-                                        );
-
-                                    games = String_FindLastChar(games, '\0') + 1;
-                                }
-                            }
-
-                            gamesInited = TRUE;
-                        }
-
-                    }
-
-                    if (HIWORD(wParam) == CBN_SELCHANGE)
-                    {
-                        OpenCacheWindow();
-                    }
 
                 } break;
 

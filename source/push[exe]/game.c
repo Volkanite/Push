@@ -26,11 +26,13 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
 {
     WCHAR gameId[260];
     WCHAR buffer[260];
+    WCHAR installPath[260];
     WCHAR *lastSlash;
-    WCHAR testing[260];
 
-    String_Format(testing, 260, L"Game_Initialize(%s)", Win32Name);
-    Log(testing);
+    if (!Win32Name)
+        return;
+
+    Log(L"Game_Initialize(%s)", Win32Name);
     
     Game->ExecutablePath = HeapedString(Win32Name);
     lastSlash = String_FindLastChar(Game->ExecutablePath, '\\');
@@ -40,13 +42,44 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
 
     String_CopyN(Game->Id, gameId, 2);
 
-    Ini_ReadSubKey(L"Game Settings", gameId, L"Name", buffer, 260);
-    Game->Name = HeapedString(buffer ? buffer : Game->ExecutableName);
+    Ini_ReadSubKey(
+        L"Game Settings", 
+        gameId, 
+        L"Name", 
+        Game->ExecutableName, 
+        buffer, 
+        260
+        );
 
-    Ini_ReadSubKey(L"Game Settings", gameId, GAME_INSTALL_PATH, buffer, 260);
+    Game->Name = HeapedString(buffer);
+
+    // Get install path
+
+    // get default one by determing the path of the exectuble. The install directory
+    // does not nessarilly have to be where the executable is located though, hence the
+    // purpose of the Game::InstallPath field.
+    
+    DWORD start = Game->ExecutablePath;
+    DWORD end = lastSlash;
+    DWORD len = (end - start) / sizeof(WCHAR);
+
+    String_CopyN(installPath, Game->ExecutablePath, len);
+    
+    installPath[len] = L'\0';
+    
+    Ini_ReadSubKey(
+        L"Game Settings", 
+        gameId, 
+        GAME_INSTALL_PATH, 
+        installPath, 
+        buffer, 
+        260
+        );
+    
     Game->InstallPath = HeapedString(buffer);
 
-    Ini_ReadSubKey(L"Game Settings", gameId, L"CheckSum", buffer, 260);
+    // Get checksum
+    Ini_ReadSubKey(L"Game Settings", gameId, L"CheckSum", NULL, buffer, 260);
     if (buffer) Game->CheckSum = wcstol(buffer, NULL, 16);
 
     // Game Settings.
@@ -76,7 +109,7 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
         Game->Settings.ForceMaxClocks = TRUE;
     }
 
-    Ini_ReadSubKey(L"Game Settings", gameId, L"ForceVsync", buffer, 260);
+    Ini_ReadSubKey(L"Game Settings", gameId, L"ForceVsync", NULL, buffer, 260);
 
     if (String_Compare(buffer, L"FORCE_ON") == 0)
     {

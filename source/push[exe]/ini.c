@@ -1308,7 +1308,7 @@ BOOLEAN SlIniReadBoolean(WCHAR* Section, WCHAR* Key, BOOLEAN DefaultValue)
 }
 
 
-VOID Ini_ReadSubKey( WCHAR *section, WCHAR* MasterKey, WCHAR *subKey, WCHAR* Buffer, DWORD Length )
+VOID Ini_ReadSubKey( WCHAR *section, WCHAR* MasterKey, WCHAR *subKey, WCHAR* DefaultString, WCHAR* Buffer, DWORD Length )
 {
     WCHAR key[260];
 
@@ -1321,7 +1321,7 @@ VOID Ini_ReadSubKey( WCHAR *section, WCHAR* MasterKey, WCHAR *subKey, WCHAR* Buf
     String_Concatenate(key, L").");
     String_Concatenate(key, subKey);
 
-    Ini_GetString(section, key, 0, Buffer, Length);
+    Ini_GetString(section, key, DefaultString, Buffer, Length);
 }
 
 

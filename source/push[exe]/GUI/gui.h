@@ -4,7 +4,6 @@
 enum CONTROLS
 {
     GROUPBOX_CUSTOM,
-    BUTTON_CACHE,
     BUTTON_RESET_GPU,
     BUTTON_STOPRAMDISK,
     BUTTON_EDITCACHE,
@@ -15,12 +14,12 @@ enum CONTROLS
 };
 
 
-#define IDM_RESTORE                       104
-#define IDM_EXIT                        105
-#define IDI_MAIN_ICON                 107
-#define IDR_POPUP_MENU                  130
-#define OVERCLOCK 131
-
+#define IDM_RESTORE     104
+#define IDM_EXIT        105
+#define IDI_MAIN_ICON   107
+#define IDR_POPUP_MENU  130
+#define MENU_OVERCLOCK  131
+#define MENU_CACHE      132
 
 
 typedef struct _WINDOW{

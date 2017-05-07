@@ -18,78 +18,35 @@ extern WINDOW* cacheWindow;
 
 
 LONG __stdcall CacheWndProc( 
-    VOID* Handle, 
+    VOID* hWnd, 
     UINT32 uMessage, 
     DWORD wParam, 
     LONG lParam 
     )
 {
+    static HANDLE comboBoxHandle;
+
     switch(uMessage)
     {
     case WM_CREATE:
         {
-            UINT32 columnWidth;
-            RECT windowRect, treeListRect;
-            PUSH_GAME game;
-
-            ListView_Create(0, LISTVIEW, 0, 0, 0);
+            ListView_Create(0, 0, 300, hWnd, LISTVIEW);
             ListView_EnableCheckboxes();
 
             ListView_AddColumn(L"File");
             ListView_AddColumn(L"Size");
 
-            Game_Initialize(GetComboBoxData(), &game);
-
-            if (!FolderExists(game.InstallPath))
-            {
-                MessageBoxW(0, L"Folder not exist!", 0,0);
-
-                return 0;
-            }
-
-            //MwBatchFile = new BfBatchFile(&game);
-
-            Directory_Enum(
-                ManualLoad ? ManualLoad : game.InstallPath, 
-                L"*", 
-                BuildGameFilesList
+            comboBoxHandle = CreateWindowExW(
+                0,
+                L"ComboBox",
+                NULL,
+                CBS_DROPDOWN | WS_CHILD | WS_VISIBLE,
+                20, 400, 200, 20,
+                hWnd,
+                (VOID*) COMBOBOX_GAMES,
+                NULL,
+                NULL
                 );
-
-            ListViewAddItems();
-
-            ListView_SortItems(ListViewCompareProc);
-            ListView_SetColumnWidth(0, LVSCW_AUTOSIZE_USEHEADER);
-
-            columnWidth = ListView_GetColumnWidth(0);
-            columnWidth += ListView_GetColumnWidth(1);
-            columnWidth += 50;
-
-            GetWindowRect(Handle, &windowRect);
-
-            if (columnWidth > (UINT32)(windowRect.right - windowRect.left))
-            {
-                SetWindowPos(
-                    Handle,
-                    0,
-                    0,
-                    0,
-                    columnWidth,
-                    windowRect.bottom - windowRect.top,
-                    SWP_NOMOVE | SWP_NOZORDER| SWP_NOACTIVATE
-                    );
-
-                GetWindowRect(ListView_Handle, &treeListRect);
-
-                SetWindowPos(
-                    ListView_Handle,
-                    0,
-                    0,
-                    0,
-                    columnWidth - 15,
-                    treeListRect.bottom - treeListRect.top,
-                    SWP_NOMOVE | SWP_NOZORDER| SWP_NOACTIVATE
-                    );
-            }
 
         } break;
 
@@ -100,6 +57,155 @@ LONG __stdcall CacheWndProc(
 
             break;
         }
+
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+        case COMBOBOX_GAMES:
+        {
+            if (HIWORD(wParam) == CBN_DROPDOWN)
+            {
+                static BOOLEAN gamesInited = FALSE;
+
+                if (!gamesInited)
+                {
+                    WCHAR* games = (WCHAR*)Memory_Allocate(4);
+                    INT32   i;
+                    INT32 bufferSize = 512;
+                    INT32 count = 0;
+                    DWORD returnValue;
+
+                    do
+                    {
+                        count++;
+
+                        games = (WCHAR*)Memory_ReAllocate(
+                            games, 
+                            bufferSize * 2 * count
+                            );
+
+                        returnValue = Ini_GetString(
+                            L"Games",
+                            0, 0,
+                            games,
+                            bufferSize * count
+                            );
+
+                        if (!returnValue)
+                        {
+                            Memory_Free(games);
+                        }
+
+                    } while ((returnValue == ((bufferSize * count) - 1))
+                        || (returnValue == ((bufferSize * count) - 2)));
+
+                    if (games)
+                    {
+                        for (i = 0; games[0] != '\0'; i++)
+                        {
+                            PUSH_GAME game;
+
+                            Game_Initialize(games, &game);
+
+                            SendMessageW(
+                                comboBoxHandle, 
+                                CB_ADDSTRING,
+                                0,
+                                (LONG)game.Name
+                                );
+
+                            SendMessageW(
+                                comboBoxHandle,
+                                CB_SETITEMDATA,
+                                i,
+                                (LONG)games
+                                );
+
+                            games = String_FindLastChar(games, '\0') + 1;
+                        }
+                    }
+
+                    gamesInited = TRUE;
+                }
+
+            }
+
+            if (HIWORD(wParam) == CBN_SELCHANGE)
+            {
+                PUSH_GAME game;
+                UINT32 columnWidth;
+                RECT windowRect, treeListRect;
+                INT32 iIndex;
+                wchar_t* comboBoxText;
+
+                iIndex = SendMessageW(
+                    comboBoxHandle, 
+                    CB_GETCURSEL, 
+                    0, 0
+                    );
+
+                comboBoxText = (WCHAR*)SendMessageW(
+                    comboBoxHandle,
+                    CB_GETITEMDATA,
+                    iIndex,
+                    0
+                    );
+
+                Game_Initialize(comboBoxText, &game);
+
+                if (!FolderExists(game.InstallPath))
+                {
+                    MessageBoxW(0, L"Folder not exist!", 0, 0);
+
+                    return 0;
+                }
+
+                Directory_Enum(
+                    ManualLoad ? ManualLoad : game.InstallPath,
+                    L"*",
+                    BuildGameFilesList
+                    );
+
+                ListViewAddItems();
+
+                ListView_SortItems(ListViewCompareProc);
+                ListView_SetColumnWidth(0, LVSCW_AUTOSIZE_USEHEADER);
+
+                columnWidth = ListView_GetColumnWidth(0);
+                columnWidth += ListView_GetColumnWidth(1);
+                columnWidth += 50;
+
+                GetWindowRect(hWnd, &windowRect);
+
+                if (columnWidth > (UINT32)(windowRect.right - windowRect.left))
+                {
+                    SetWindowPos(
+                        hWnd,
+                        0,
+                        0,
+                        0,
+                        columnWidth,
+                        windowRect.bottom - windowRect.top,
+                        SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE
+                        );
+
+                    GetWindowRect(ListView_Handle, &treeListRect);
+
+                    SetWindowPos(
+                        ListView_Handle,
+                        0,
+                        0,
+                        0,
+                        columnWidth - 15,
+                        treeListRect.bottom - treeListRect.top,
+                        SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE
+                        );
+                }
+            }
+
+        } break;
+        }
+        break;
 
     case WM_NOTIFY:
         {
@@ -142,5 +248,5 @@ LONG __stdcall CacheWndProc(
         } break;
     }
 
-    return DefWindowProcW(Handle, uMessage, wParam, lParam);
+    return DefWindowProcW(hWnd, uMessage, wParam, lParam);
 }
