@@ -60,12 +60,12 @@ VOID SlTrayGetMenuHandles(VOID** Menu, VOID** hSubMenu)
     subMenu = CreatePopupMenu();
 
     AppendMenuW(*Menu, MF_POPUP, (UINT_B)subMenu, L"Menu");
-    AppendMenuW(subMenu, MF_STRING, IDM_EXIT, L"Exit");
     AppendMenuW(subMenu, MF_STRING, BUTTON_ADDGAME, L"Add Game");
     AppendMenuW(subMenu, MF_STRING, BUTTON_STOPRAMDISK, L"Stop RAMDisk");
     AppendMenuW(subMenu, MF_STRING, BUTTON_MANUALADD, L"Manual Add");
     AppendMenuW(subMenu, MF_STRING, MENU_OVERCLOCK, L"Overclock");
     AppendMenuW(subMenu, MF_STRING, MENU_CACHE, L"Cache");
+    AppendMenuW(subMenu, MF_STRING, IDM_EXIT, L"Exit");
 
     *hSubMenu = GetSubMenu(*Menu, 0);
 }
