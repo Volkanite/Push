@@ -321,7 +321,7 @@ typedef struct _PUSH_SHARED_MEMORY
     BOOLEAN                     LogFileIo;
     BOOLEAN                     AutoLogFileIo;
 
-    //OSD_ITEM OsdItems[1];
+    OSD_ITEM OsdItems[1];
 
 } PUSH_SHARED_MEMORY;
 
@@ -338,7 +338,7 @@ typedef struct _PROCESS_CALLBACK_INFO
 
 typedef struct _THREAD_CALLBACK_INFO
 {
-    UINT16 threadOwner;
+    UINT32 threadOwner;
     UINT16 threadID;
     unsigned char create;
 

@@ -41,7 +41,7 @@ VOID* PushBaseGetNamedObjectDirectory();
 #define HEAP_GENERATE_EXCEPTIONS        0x00000004
 
 
-VOID* Memory_CreateFileMapping( WCHAR* FileName, DWORD Size )
+VOID* Memory_CreateFileMapping( WCHAR* FileName, DWORD Size, HANDLE* SectionHandle )
 {
     NTSTATUS status;
     HANDLE sectionHandle;
@@ -71,6 +71,8 @@ VOID* Memory_CreateFileMapping( WCHAR* FileName, DWORD Size )
         SEC_COMMIT,
         NULL
         );
+
+    *SectionHandle = sectionHandle;
 
     //must be NULL or will fail
     viewBase = NULL;

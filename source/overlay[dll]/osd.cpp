@@ -9,8 +9,6 @@ extern UINT32 BackBufferWidth;
 extern UINT32 BackBufferHeight;
 extern UINT32 BackBufferCount;
 
-VOID* OpenSection(WCHAR* SectionName, SIZE_T SectionSize);
-
 
 /**
 * Draws all on-screen display items.
@@ -19,15 +17,9 @@ VOID* OpenSection(WCHAR* SectionName, SIZE_T SectionSize);
 VOID Osd_Draw( OvOverlay* Overlay )
 {
     UINT8 i;
-    static void* section = NULL;
     OSD_ITEM *osdItem;
-    
-    if (!section)
-    {
-        section = OpenSection(L"PushOSDMemory", PushSharedMemory->NumberOfOsdItems * sizeof(OSD_ITEM));
-    }
 
-    osdItem = (OSD_ITEM*)section;
+    osdItem = (OSD_ITEM*) PushSharedMemory->OsdItems;
 
     for (i = 0; i < PushSharedMemory->NumberOfOsdItems; i++, osdItem++)
     {

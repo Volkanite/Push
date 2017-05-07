@@ -1,3 +1,2 @@
-VOID OSD_Initialize();
+UINT32 OSD_Initialize();
 VOID OSD_Refresh();
-//extern OSD_ITEM OsdItems[15];

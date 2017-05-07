@@ -1110,9 +1110,33 @@ DWORD __stdcall PipeThread( VOID* Parameter )
 }
 
 
+typedef enum _SECTION_INFORMATION_CLASS
+{
+    SectionBasicInformation,
+    SectionImageInformation,
+    SectionRelocationInformation, // name:wow64:whNtQuerySection_SectionRelocationInformation
+    SectionOriginalBaseInformation, // PVOID BaseAddress
+    MaxSectionInfoClass
+} SECTION_INFORMATION_CLASS;
+NTSTATUS __stdcall NtQuerySection(
+    HANDLE SectionHandle,
+    SECTION_INFORMATION_CLASS SectionInformationClass,
+    VOID* SectionInformation,
+    SIZE_T SectionInformationLength,
+    SIZE_T* ReturnLength
+    );
+
+typedef struct _SECTION_BASIC_INFORMATION
+{
+    VOID* BaseAddress;
+    ULONG AllocationAttributes;
+    LARGE_INTEGER MaximumSize;
+} SECTION_BASIC_INFORMATION, *PSECTION_BASIC_INFORMATION;
+
+
 INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, INT32 iCmdShow )
 {
-    HANDLE sectionHandle = INVALID_HANDLE_VALUE, *hMutex;
+    HANDLE sectionHandle, *hMutex;
     HANDLE eventHandle;
     MSG messages;
     BOOLEAN bAlreadyRunning;
@@ -1164,7 +1188,11 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     MwCreateMainWindow();
 
     // Create file mapping.
-    PushSharedMemory = (PUSH_SHARED_MEMORY*)Memory_CreateFileMapping(PUSH_SECTION_NAME, sizeof(PUSH_SHARED_MEMORY));
+    PushSharedMemory = (PUSH_SHARED_MEMORY*)Memory_CreateFileMapping(
+        PUSH_SECTION_NAME, 
+        sizeof(PUSH_SHARED_MEMORY),
+        &sectionHandle
+        );
 
     if (!PushSharedMemory)
     {
@@ -1267,7 +1295,23 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     GetHardwareInfo();
 
     //initialize OSD items
-    OSD_Initialize();
+    SECTION_BASIC_INFORMATION sectionInfo;
+
+    NtQuerySection(
+        sectionHandle,
+        SectionBasicInformation,
+        &sectionInfo,
+        sizeof(SECTION_BASIC_INFORMATION),
+        NULL
+        );
+    LARGE_INTEGER newSectionSize;
+
+    newSectionSize.QuadPart = OSD_Initialize() + sizeof(PUSH_SHARED_MEMORY);
+
+    if (newSectionSize.QuadPart > sectionInfo.MaximumSize.QuadPart)
+    {
+        Log(L"Shared memory too small!");
+    }
 
     // Activate process monitoring
 

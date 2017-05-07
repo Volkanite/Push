@@ -25,7 +25,6 @@ typedef VOID(*OSD_DYNAMIC_FORMAT)(
 
 
 OSD_ITEM* OsdItems;
-OSD_ITEM* SharedMemory;
 
 
 VOID FormatTime( UINT32 Value, WCHAR* Buffer )
@@ -131,7 +130,7 @@ VOID OSD_Refresh()
     }
 
     if (PushOverlayInterface == OVERLAY_INTERFACE_PURE)
-        memcpy(SharedMemory, OsdItems, sizeof(OSD_ITEM) * items);
+        memcpy(PushSharedMemory->OsdItems, OsdItems, sizeof(OSD_ITEM) * items);
     else if (PushOverlayInterface == OVERLAY_INTERFACE_RTSS)
         RTSS_Update(OsdItems);
 }
@@ -148,7 +147,7 @@ VOID OSD_AddItem(
     )
 {
     if (!OsdItems)
-		OsdItems = Memory_AllocateEx(sizeof(OSD_ITEM) * 21, HEAP_ZERO_MEMORY);
+        OsdItems = Memory_AllocateEx(sizeof(OSD_ITEM) * 21, HEAP_ZERO_MEMORY);
 
     OsdItems[items].Flag = Flag;
     OsdItems[items].DisplayFormat = DisplayFormat;
@@ -162,7 +161,7 @@ VOID OSD_AddItem(
 }
 
 
-VOID OSD_Initialize()
+UINT32 OSD_Initialize()
 {
     PUSH_HARDWARE_INFORMATION* hardware = &PushSharedMemory->HarwareInformation;
 
@@ -198,6 +197,5 @@ VOID OSD_Initialize()
     OSD_AddItem(OSD_REFRESH_RATE, L"MON : %i Hz", &hardware->Display.RefreshRate, sizeof(UINT8), NULL, 0, NULL);
     OSD_AddItem(OSD_FPS, 0, 0, sizeof(UINT8), 0, 0, 0);
 
-    // Create file mapping for OSD items
-    SharedMemory = (OSD_ITEM*)Memory_CreateFileMapping(L"PushOSDMemory", sizeof(OSD_ITEM) * items);
+    return sizeof(OSD_ITEM) * items;
 }
