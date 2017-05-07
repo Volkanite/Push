@@ -103,12 +103,6 @@ typedef enum _RTL_PATH_TYPE
         RtlLeaveCriticalSection(
         RTL_CRITICAL_SECTION* CriticalSection
         );
-    INTBOOL __stdcall GetFileTime(
-        VOID* hFile,
-        FILETIME* lpCreationTime,
-        FILETIME* lpLastAccessTime,
-        FILETIME* lpLastWriteTime
-        );
     VOID __stdcall GetSystemTimeAsFileTime(
         FILETIME* lpSystemTimeAsFileTime
         );
@@ -244,7 +238,7 @@ PROFILE_FlushFile(void)
 
     PROFILE_Save( fileHandle, CurrentProfile->section );
 
-    if(GetFileTime(fileHandle, NULL, NULL, &LastWriteTime))
+    if (File_GetLastWriteTime(fileHandle, &LastWriteTime))
        CurrentProfile->LastWriteTime=LastWriteTime;
 
     NtClose(fileHandle);
@@ -624,7 +618,7 @@ PROFILE_Open( WCHAR* Filename, BOOLEAN WriteAccess )
 
             if (fileHandle != INVALID_HANDLE_VALUE)
             {
-                GetFileTime(fileHandle, NULL, NULL, &LastWriteTime);
+                File_GetLastWriteTime(fileHandle, &LastWriteTime);
 
                 if (!memcmp( &CurrentProfile->LastWriteTime, &LastWriteTime, sizeof(FILETIME) ) &&
                     is_not_current(&LastWriteTime))
@@ -669,7 +663,7 @@ PROFILE_Open( WCHAR* Filename, BOOLEAN WriteAccess )
     {
         CurrentProfile->section = PROFILE_Load(fileHandle);
 
-        GetFileTime(fileHandle, NULL, NULL, &CurrentProfile->LastWriteTime);
+        File_GetLastWriteTime(fileHandle, &CurrentProfile->LastWriteTime);
 
         NtClose(fileHandle);
     }

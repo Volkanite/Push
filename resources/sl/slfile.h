@@ -13,6 +13,7 @@ BOOLEAN File_Exists(WCHAR *FileName);
 VOID File_Copy(WCHAR* SourceFileName, WCHAR* DestinationFileName, TYPE_FsProgessRoutine ProgressRoutine);
 VOID* File_Load(WCHAR* FileName, UINT64* FileSize);
 UINT64 File_GetSize(WCHAR* FileName);
+BOOLEAN File_GetLastWriteTime(HANDLE FileHandle, FILETIME* LastWriteTime);
 DWORD File_GetAttributes(WCHAR* FileName);
 UINT32 File_Read(HANDLE FileHandle, VOID* Buffer, UINT32 Length);
 VOID File_Write(HANDLE FileHandle, VOID* Buffer, UINT32 Length);

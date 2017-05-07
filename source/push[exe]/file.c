@@ -184,7 +184,14 @@ typedef struct _FILE_NETWORK_OPEN_INFORMATION {
     LARGE_INTEGER EndOfFile;
     ULONG FileAttributes;
 } FILE_NETWORK_OPEN_INFORMATION, *PFILE_NETWORK_OPEN_INFORMATION;
-
+typedef struct _FILE_BASIC_INFORMATION
+{
+    LARGE_INTEGER CreationTime;
+    LARGE_INTEGER LastAccessTime;
+    LARGE_INTEGER LastWriteTime;
+    LARGE_INTEGER ChangeTime;
+    ULONG FileAttributes;
+} FILE_BASIC_INFORMATION, *PFILE_BASIC_INFORMATION;
 NTSTATUS __stdcall NtQueryFullAttributesFile(
     OBJECT_ATTRIBUTES* ObjectAttributes,
     FILE_NETWORK_OPEN_INFORMATION* FileInformation
@@ -780,6 +787,26 @@ UINT64 File_GetSize( WCHAR* FileName )
     NtClose(fileHandle);
 
     return fileInformation.EndOfFile.QuadPart;
+}
+
+
+BOOLEAN File_GetLastWriteTime( HANDLE FileHandle, FILETIME* LastWriteTime )
+{
+    IO_STATUS_BLOCK isb;
+    FILE_BASIC_INFORMATION fileInformation;
+
+    NtQueryInformationFile(
+        FileHandle, 
+        &isb, 
+        &fileInformation, 
+        sizeof(FILE_BASIC_INFORMATION), 
+        FileBasicInformation
+        );
+
+    LastWriteTime->dwLowDateTime = fileInformation.LastWriteTime.u.LowPart;
+    LastWriteTime->dwHighDateTime = fileInformation.LastWriteTime.u.HighPart;
+
+    return TRUE;
 }
 
 
