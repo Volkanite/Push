@@ -85,11 +85,13 @@ typedef enum _RTL_PATH_TYPE
         WCHAR* lpBuffer,
         UINT32 uSize
         );
-    DWORD __stdcall GetFullPathNameW(
-        WCHAR* lpFileName,
-        DWORD nBufferLength,
-        WCHAR* lpBuffer,
-        WCHAR** lpFilePart
+
+    NTSTATUS __stdcall RtlGetFullPathName_UEx(
+        WCHAR* FileName,
+        ULONG BufferLength,
+        WCHAR* Buffer,
+        WCHAR** FilePart,
+        RTL_PATH_TYPE* InputPathType
         );
 
     BOOLEAN __stdcall RtlIsTextUnicode  (
@@ -582,8 +584,11 @@ PROFILE_Open( WCHAR* Filename, BOOLEAN WriteAccess )
     else
     {
         WCHAR* dummy;
+        WCHAR* dummy2;
 
-        GetFullPathNameW(Filename, sizeof(buffer)/sizeof(buffer[0]), buffer, &dummy);
+        dummy2 = &dummy;
+
+        RtlGetFullPathName_UEx(Filename, sizeof(buffer), buffer, &dummy, (RTL_PATH_TYPE*) &dummy2);
     }
 
   status = File_Create(
