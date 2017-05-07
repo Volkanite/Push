@@ -7,26 +7,39 @@
 LPRTSS_SHARED_MEMORY RTSSSharedMemory;
 
 
-HANDLE __stdcall OpenFileMappingW(
-    _In_ DWORD   dwDesiredAccess,
-    _In_ INTBOOL    bInheritHandle,
-    _In_ WCHAR* lpName
-    );
-
-VOID* __stdcall MapViewOfFile(
-    _In_ HANDLE hFileMappingObject,
-    _In_ DWORD  dwDesiredAccess,
-    _In_ DWORD  dwFileOffsetHigh,
-    _In_ DWORD  dwFileOffsetLow,
-    _In_ SIZE_T dwNumberOfBytesToMap
+NTSTATUS __stdcall NtOpenSection(
+    HANDLE* SectionHandle,
+    DWORD DesiredAccess,
+    OBJECT_ATTRIBUTES* ObjectAttributes
     );
 
 
 VOID Initialize()
 {
-    HANDLE MapFile;
-    MapFile = OpenFileMappingW(FILE_MAP_ALL_ACCESS, FALSE, L"RTSSSharedMemoryV2");
-    RTSSSharedMemory = (LPRTSS_SHARED_MEMORY) MapViewOfFile(MapFile, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+    HANDLE sectionHandle;
+    OBJECT_ATTRIBUTES objAttrib;
+    UNICODE_STRING sectionName;
+    VOID* viewBase;
+    SIZE_T viewSize;
+
+    UnicodeString_Init(&sectionName, L"RTSSSharedMemoryV2");
+
+    objAttrib.Length = sizeof(OBJECT_ATTRIBUTES);
+    objAttrib.RootDirectory = PushBaseGetNamedObjectDirectory();
+    objAttrib.ObjectName = &sectionName;
+    objAttrib.Attributes = OBJ_OPENIF;
+    objAttrib.SecurityDescriptor = NULL;
+    objAttrib.SecurityQualityOfService = NULL;
+
+    NtOpenSection(&sectionHandle, SECTION_ALL_ACCESS, &objAttrib);
+
+    //must be NULL or will fail
+    viewBase = NULL;
+    viewSize = 0;
+
+    NtMapViewOfSection(sectionHandle, NtCurrentProcess(), &viewBase, 0, 0, NULL, &viewSize, ViewShare, 0, PAGE_READWRITE);
+
+    RTSSSharedMemory = (LPRTSS_SHARED_MEMORY) viewBase;
 }
 
 

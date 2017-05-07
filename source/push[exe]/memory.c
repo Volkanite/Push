@@ -7,34 +7,14 @@ UINT32 BytesAllocated;
 extern ULONG PushSessionId;
 
 
-typedef enum _SECTION_INHERIT
-{
-    ViewShare = 1,
-    ViewUnmap = 2
-} SECTION_INHERIT;
 
 
-NTSTATUS __stdcall NtMapViewOfSection(
-    VOID* SectionHandle,
-    VOID* ProcessHandle,
-    VOID** BaseAddress,
-    UINT_B ZeroBits,
-    UINT_B CommitSize,
-    LARGE_INTEGER* SectionOffset,
-    UINT_B* ViewSize,
-    SECTION_INHERIT InheritDisposition,
-    ULONG AllocationType,
-    ULONG Win32Protect
-    );
 
 SIZE_T __stdcall RtlSizeHeap(
     _In_ VOID* HeapHandle,
     _In_ ULONG Flags,
     _In_ VOID* BaseAddress
     );
-
-
-VOID* PushBaseGetNamedObjectDirectory();
 
 
 #define SEC_COMMIT   0x8000000
