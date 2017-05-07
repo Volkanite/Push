@@ -64,26 +64,6 @@ VOID __stdcall RtlInitUnicodeString(
     WCHAR* SourceString
 );
 
-VOID Process_Create( WCHAR* ImagePath, WCHAR* Args, WCHAR* WorkingDirectory )
-{
-    STARTUPINFOW startupInfo = { 0 };
-    PROCESS_INFORMATION processInfo = { 0 };
-
-    startupInfo.cb = sizeof(startupInfo);
-
-    CreateProcessW(ImagePath, Args, NULL, NULL, FALSE, NULL, NULL, WorkingDirectory, &startupInfo, &processInfo);
-
-    /*NtCreateProcessEx(&ProcessHandle,
-        PROCESS_ALL_ACCESS,
-        ObjectAttributes,
-        NtCurrentProcess(),
-        Flags,
-        SectionHandle,
-        DebugHandle,
-        NULL,
-        InJob);*/
-}
-
 
 VOID* Process_Open( UINT32 processID, DWORD rights )
 {
