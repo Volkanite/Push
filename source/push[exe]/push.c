@@ -130,15 +130,41 @@ CopyProgress(
 }
 
 
-VOID
-CacheFile( WCHAR *FileName, CHAR cMountPoint )
+NTSTATUS __stdcall NtOpenDirectoryObject(
+    HANDLE* DirectoryHandle,
+    DWORD DesiredAccess,
+    OBJECT_ATTRIBUTES* ObjectAttributes
+    );
+
+NTSTATUS __stdcall NtOpenSymbolicLinkObject(
+    HANDLE* LinkHandle,
+    DWORD DesiredAccess,
+    OBJECT_ATTRIBUTES* ObjectAttributes
+    );
+
+NTSTATUS __stdcall NtQuerySymbolicLinkObject(
+    HANDLE LinkHandle,
+    UNICODE_STRING* LinkTarget,
+    ULONG* ReturnedLength
+    );
+
+#define SYMBOLIC_LINK_QUERY 0x0001
+#define DIRECTORY_QUERY 0x0001
+
+
+VOID CacheFile( WCHAR *FileName, CHAR cMountPoint )
 {
     WCHAR destination[260];
     WCHAR *pszFileName;
     CHAR bMarkedForCaching = FALSE;
-
     WCHAR* slash;
     WCHAR deviceName[260], dosName[260];
+    HANDLE directoryHandle;
+    HANDLE linkHandle;
+    OBJECT_ATTRIBUTES objAttrib;
+    UNICODE_STRING directoryName;
+    UNICODE_STRING driveLetter;
+    UNICODE_STRING linkTarget;
 
     destination[0] = cMountPoint;
     destination[1] = ':';
@@ -161,7 +187,35 @@ CacheFile( WCHAR *FileName, CHAR cMountPoint )
     slash = String_FindFirstChar(dosName, '\\');
     *slash = L'\0';
 
-    QueryDosDeviceW(dosName, deviceName, 260);
+    UnicodeString_Init(&directoryName, L"\\??");
+
+    objAttrib.Length = sizeof(OBJECT_ATTRIBUTES);
+    objAttrib.RootDirectory = NULL;
+    objAttrib.ObjectName = &directoryName;
+    objAttrib.Attributes = OBJ_CASE_INSENSITIVE;
+    objAttrib.SecurityDescriptor = NULL;
+    objAttrib.SecurityQualityOfService = NULL;
+
+    NtOpenDirectoryObject(&directoryHandle, DIRECTORY_QUERY, &objAttrib);
+
+    UnicodeString_Init(&driveLetter, dosName);
+
+    objAttrib.Length = sizeof(OBJECT_ATTRIBUTES);
+    objAttrib.RootDirectory = directoryHandle;
+    objAttrib.ObjectName = &driveLetter;
+    objAttrib.Attributes = OBJ_CASE_INSENSITIVE;
+    objAttrib.SecurityDescriptor = NULL;
+    objAttrib.SecurityQualityOfService = NULL;
+
+    NtOpenSymbolicLinkObject(&linkHandle, SYMBOLIC_LINK_QUERY, &objAttrib);
+
+    linkTarget.Length = 0;
+    linkTarget.MaximumLength = 260 * sizeof(WCHAR);
+    linkTarget.Buffer = deviceName;
+
+    NtQuerySymbolicLinkObject(linkHandle, &linkTarget, NULL);
+
+    deviceName[linkTarget.Length / sizeof(WCHAR)] = L'\0';
 
     String_Concatenate(deviceName, L"\\");
     String_Concatenate(deviceName, slash + 1);

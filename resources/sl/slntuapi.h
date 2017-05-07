@@ -354,13 +354,13 @@ INT32 __stdcall DefineDosDeviceW(
     WCHAR   *lpTargetPath
     );
 
-DWORD
+/*DWORD
 __stdcall
 QueryDosDeviceW(
     WCHAR*  lpDeviceName,
     WCHAR*  lpTargetPath,
     DWORD   ucchMax
-    );
+    );*/
 
 DWORD
 __stdcall
