@@ -732,7 +732,8 @@ VOID OnImageEvent( PROCESSID ProcessId )
     SetTimer(PushMainWindow->Handle, 0, 1000, 0);
 
     // Start disk monitoring;
-    DiskStartMonitoring();
+    if (!DiskMonitorInitialized)
+        DiskStartMonitoring();
 }
 
 
