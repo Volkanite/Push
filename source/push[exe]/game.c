@@ -171,13 +171,38 @@ GAME_LIST Game_GetGames()
     GAME_LIST_ENTRY* gameListEntry = NULL;
     WCHAR *games;
     INT32 i;
+    INT32 count = 0;
+    INT32 bufferSize = 512;
+    DWORD returnValue;
 
     if (firstEntry)
         return firstEntry;
 
-    games = Memory_Allocate(512 * sizeof(WCHAR));
+    games = (WCHAR*)Memory_Allocate(4);
 
-    Ini_GetString(L"Games", NULL, NULL, games, 512);
+    do
+    {
+        count++;
+
+        games = (WCHAR*)Memory_ReAllocate(
+            games,
+            bufferSize * 2 * count
+            );
+
+        returnValue = Ini_GetString(
+            L"Games",
+            0, 0,
+            games,
+            bufferSize * count
+            );
+
+        if (!returnValue)
+        {
+            Memory_Free(games);
+        }
+
+    } while ((returnValue == ((bufferSize * count) - 1))
+        || (returnValue == ((bufferSize * count) - 2)));
 
     if (games)
     {

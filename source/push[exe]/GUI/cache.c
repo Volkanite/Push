@@ -69,60 +69,34 @@ LONG __stdcall CacheWndProc(
 
                 if (!gamesInited)
                 {
-                    WCHAR* games = (WCHAR*)Memory_Allocate(4);
-                    INT32   i;
-                    INT32 bufferSize = 512;
-                    INT32 count = 0;
-                    DWORD returnValue;
+                    GAME_LIST gameList;
+                    PUSH_GAME* game;
+                    UINT8 i;
 
-                    do
+                    i = 0;
+
+                    gameList = Game_GetGames();
+
+                    while (gameList != NULL)
                     {
-                        count++;
+                        game = gameList->Game;
 
-                        games = (WCHAR*)Memory_ReAllocate(
-                            games, 
-                            bufferSize * 2 * count
+                        SendMessageW(
+                            comboBoxHandle, 
+                            CB_ADDSTRING, 
+                            0,
+                            (LONG)game->Name
                             );
 
-                        returnValue = Ini_GetString(
-                            L"Games",
-                            0, 0,
-                            games,
-                            bufferSize * count
+                        SendMessageW(
+                            comboBoxHandle,
+                            CB_SETITEMDATA,
+                            i,
+                            (LONG)game->ExecutablePath
                             );
 
-                        if (!returnValue)
-                        {
-                            Memory_Free(games);
-                        }
-
-                    } while ((returnValue == ((bufferSize * count) - 1))
-                        || (returnValue == ((bufferSize * count) - 2)));
-
-                    if (games)
-                    {
-                        for (i = 0; games[0] != '\0'; i++)
-                        {
-                            PUSH_GAME game;
-
-                            Game_Initialize(games, &game);
-
-                            SendMessageW(
-                                comboBoxHandle, 
-                                CB_ADDSTRING,
-                                0,
-                                (LONG)game.Name
-                                );
-
-                            SendMessageW(
-                                comboBoxHandle,
-                                CB_SETITEMDATA,
-                                i,
-                                (LONG)games
-                                );
-
-                            games = String_FindLastChar(games, '\0') + 1;
-                        }
+                        gameList = gameList->NextEntry;
+                        i++;
                     }
 
                     gamesInited = TRUE;
