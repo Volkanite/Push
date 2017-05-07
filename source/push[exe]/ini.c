@@ -1197,10 +1197,9 @@ BOOLEAN SlIniWriteString( WCHAR* section, WCHAR* entry, WCHAR* string )
   }
   else if (PROFILE_Open(L".\\" PUSH_SETTINGS_FILE, TRUE))
   {
-      if (!section) {
-          SetLastError(ERROR_FILE_NOT_FOUND);
-      } else {
-          ret = PROFILE_SetString( section, entry, string, FALSE);
+      if (section) 
+      {
+          ret = PROFILE_SetString(section, entry, string, FALSE);
           PROFILE_FlushFile();
       }
   }

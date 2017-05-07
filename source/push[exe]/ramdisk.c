@@ -86,11 +86,9 @@ OpenDeviceByName( UNICODE_STRING *FileName )
             0
             );
 
-  if (!NT_SUCCESS(status))
+    if (!NT_SUCCESS(status))
     {
-      SetLastError(RtlNtStatusToDosError(status));
-
-      return INVALID_HANDLE_VALUE;
+        return INVALID_HANDLE_VALUE;
     }
 
   return handle;

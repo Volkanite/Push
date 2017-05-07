@@ -503,9 +503,9 @@ CreateMutexW(
     WCHAR*                  lpName
     );
 
-VOID
+/*VOID
 __stdcall
-SetLastError( DWORD dwErrCode );
+SetLastError( DWORD dwErrCode );*/
 
 DWORD
 __stdcall
