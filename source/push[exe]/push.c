@@ -1137,6 +1137,7 @@ typedef struct _SECTION_BASIC_INFORMATION
 INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, INT32 iCmdShow )
 {
     HANDLE sectionHandle, *hMutex;
+    DWORD sectionSize;
     HANDLE eventHandle;
     MSG messages;
     BOOLEAN bAlreadyRunning;
@@ -1187,18 +1188,18 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     // Create interface
     MwCreateMainWindow();
 
-    // Create file mapping.
-    PushSharedMemory = (PUSH_SHARED_MEMORY*)Memory_MapViewOfSection(
-        PUSH_SECTION_NAME, 
-        sizeof(PUSH_SHARED_MEMORY),
-        &sectionHandle
-        );
+    // Create section.
+    sectionSize = sizeof(PUSH_SHARED_MEMORY) + OSD_GetSize();
+        
+    PushSharedMemory = (PUSH_SHARED_MEMORY*)Memory_MapViewOfSection(PUSH_SECTION_NAME, sectionSize, &sectionHandle);
 
     if (!PushSharedMemory)
     {
-        OutputDebugStringW(L"Could not create shared memory");
+        Log(L"Could not create shared memory");
         return 0;
     }
+
+    Log(L"Created section of size %i bytes", sectionSize);
 
     //zero struct
     memset(PushSharedMemory, 0, sizeof(PUSH_SHARED_MEMORY));

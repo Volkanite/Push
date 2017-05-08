@@ -161,6 +161,12 @@ VOID OSD_AddItem(
 }
 
 
+UINT32 OSD_GetSize()
+{
+    return sizeof(OSD_ITEM) * 21;
+}
+
+
 UINT32 OSD_Initialize()
 {
     PUSH_HARDWARE_INFORMATION* hardware = &PushSharedMemory->HarwareInformation;
