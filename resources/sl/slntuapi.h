@@ -483,13 +483,13 @@ WaitForSingleObject(
     DWORD   dwMilliseconds
     );*/
 
-DWORD __stdcall WaitForMultipleObjectsEx(
+/*DWORD __stdcall WaitForMultipleObjectsEx(
     DWORD nCount,
     VOID** lpHandles,
     INTBOOL bWaitAll,
     DWORD dwMilliseconds,
     INTBOOL bAlertable
-    );
+    );*/
 
 DWORD
 __stdcall

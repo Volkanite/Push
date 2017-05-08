@@ -896,6 +896,22 @@ HANDLE OpenEvent( WCHAR* EventName )
 }
 
 
+typedef enum _WAIT_TYPE
+{
+    WaitAll,
+    WaitAny,
+    WaitNotification
+} WAIT_TYPE;
+
+NTSTATUS __stdcall NtWaitForMultipleObjects(
+    ULONG Count,
+    HANDLE Handles[],
+    WAIT_TYPE WaitType,
+    BOOLEAN Alertable,
+    LARGE_INTEGER* Timeout
+    );
+
+
 DWORD __stdcall MonitorThread(VOID* Parameter)
 {
     HANDLE processEvent;
@@ -910,21 +926,15 @@ DWORD __stdcall MonitorThread(VOID* Parameter)
 
     while (processEvent)
     {
-        DWORD result = 0;
+        NTSTATUS result;
 
-        result = WaitForMultipleObjectsEx(
-            sizeof(handles) / sizeof(handles[0]),
-            &handles[0],
-            FALSE,
-            INFINITE,
-            FALSE
-            );
+        result = NtWaitForMultipleObjects(2, &handles[0], WaitAny, FALSE, NULL);
 
-        if (processEvent && handles[result - WAIT_OBJECT_0] == processEvent)
+        if (processEvent && handles[result - STATUS_WAIT_0] == processEvent)
         {
             CreateRemoteThread(NtCurrentProcess(), 0, 0, &RetrieveProcessEvent, NULL, 0, NULL);
         }
-        else if (handles[result - WAIT_OBJECT_0] == d3dImageEvent)
+        else if (handles[result - STATUS_WAIT_0] == d3dImageEvent)
         {
             CreateRemoteThread(NtCurrentProcess(), 0, 0, &RetrieveImageEvent, NULL, 0, NULL);
         }
