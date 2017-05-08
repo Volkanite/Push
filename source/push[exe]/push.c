@@ -1337,26 +1337,6 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 }
 
 
-WCHAR* GetDirectoryFile( WCHAR *pszFileName )
-{
-    static WCHAR szPath[260];
-
-    GetCurrentDirectoryW(260, szPath);
-
-    String_Concatenate(szPath, L"\\");
-    String_Concatenate(szPath, pszFileName);
-
-    return szPath;
-}
-
-
-/*VOID
-UpdateSharedMemory()
-{
-    PushSharedMemory->HarwareInformation = hardware;
-}*/
-
-
 VOID PushOnTimer()
 {
     RefreshHardwareInfo();
