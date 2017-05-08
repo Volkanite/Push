@@ -105,10 +105,6 @@ typedef enum _RTL_PATH_TYPE
         RtlLeaveCriticalSection(
         RTL_CRITICAL_SECTION* CriticalSection
         );
-    VOID __stdcall GetSystemTimeAsFileTime(
-        FILETIME* lpSystemTimeAsFileTime
-        );
-
 
 
 /***********************************************************************
@@ -251,6 +247,40 @@ PROFILE_FlushFile(void)
 }
 
 
+typedef struct _KSYSTEM_TIME
+{
+    ULONG LowPart;
+    LONG High1Time;
+    LONG High2Time;
+} KSYSTEM_TIME, *PKSYSTEM_TIME;
+
+typedef struct _KUSER_SHARED_DATA
+{
+    ULONG TickCountLowDeprecated;
+    ULONG TickCountMultiplier;
+
+    volatile KSYSTEM_TIME InterruptTime;
+    volatile KSYSTEM_TIME SystemTime;
+} KUSER_SHARED_DATA;
+
+#define USER_SHARED_DATA ((KUSER_SHARED_DATA * const)0x7ffe0000)
+
+
+VOID NtGetSystemTimeAsFileTime( FILETIME* lpFileTime )
+{
+    LARGE_INTEGER SystemTime;
+
+    do
+    {
+        SystemTime.u.HighPart = USER_SHARED_DATA->SystemTime.High1Time;
+        SystemTime.u.LowPart = USER_SHARED_DATA->SystemTime.LowPart;
+    } while (SystemTime.u.HighPart != USER_SHARED_DATA->SystemTime.High2Time);
+
+    lpFileTime->dwLowDateTime = SystemTime.u.LowPart;
+    lpFileTime->dwHighDateTime = SystemTime.u.HighPart;
+}
+
+
 /***********************************************************************
  *
  * Compares a file time with the current time. If the file time is
@@ -266,7 +296,7 @@ is_not_current(FILETIME * ft)
     FILETIME Now;
     INT64 ftll, nowll;
 
-    GetSystemTimeAsFileTime(&Now);
+    NtGetSystemTimeAsFileTime(&Now);
 
     ftll = ((INT64)ft->dwHighDateTime << 32) + ft->dwLowDateTime;
     nowll = ((INT64)Now.dwHighDateTime << 32) + Now.dwLowDateTime;
