@@ -476,12 +476,12 @@ SDWORD
 __stdcall
 ResetEvent( VOID *hEvent );
 
-DWORD
+/*DWORD
 __stdcall
 WaitForSingleObject(
     VOID    *hHandle,
     DWORD   dwMilliseconds
-    );
+    );*/
 
 DWORD __stdcall WaitForMultipleObjectsEx(
     DWORD nCount,

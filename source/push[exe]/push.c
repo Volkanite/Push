@@ -505,7 +505,7 @@ VOID Inject32( HANDLE ProcessHandle )
         0,0
         );
 
-    WaitForSingleObject(threadHandle, INFINITE );
+    NtWaitForSingleObject(threadHandle, FALSE, NULL);
 
     // Clean up
     //CloseHandle(hThread);
