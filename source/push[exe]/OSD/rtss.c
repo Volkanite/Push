@@ -71,7 +71,7 @@ VOID RTSS_Update( OSD_ITEM* OsdItems )
     if (!RTSSSharedMemory) Initialize();
     if (!RTSSSharedMemory) return;
 
-    WideCharToMultiByte(CP_ACP, 0, osdText, -1, ansiText, 256, NULL, NULL);
+    UTF16ToMultiByte(osdText, ansiText);
 
     for (DWORD dwPass = 0; dwPass<2; dwPass++)
         //1st pass : find previously captured OSD slot

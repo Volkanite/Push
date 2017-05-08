@@ -11,5 +11,5 @@ INT32 String_CompareN(WCHAR* s1, WCHAR* s2, UINT_B n);
 INT32 String_Format(WCHAR* String, UINT32 count, const wchar_t *format, ...);
 INT32 String_ToInteger(WCHAR* String);
 
-
 VOID UnicodeString_Init(UNICODE_STRING* DestinationString, WCHAR* SourceString);
+VOID UTF16ToMultiByte(WCHAR* UTF16StringSource, CHAR* MultiByteStringDestination);

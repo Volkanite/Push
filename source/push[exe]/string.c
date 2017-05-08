@@ -230,3 +230,18 @@ VOID UTF8ToWchar(
 
     WcharStringDestination[actualByteCount / sizeof(WCHAR)] = L'\0';
 }
+
+
+NTSTATUS __stdcall RtlUnicodeToMultiByteN(
+    CHAR* MultiByteString,
+    ULONG MaxBytesInMultiByteString,
+    ULONG* BytesInMultiByteString,
+    WCHAR* UnicodeString,
+    ULONG BytesInUnicodeString
+    );
+
+
+VOID UTF16ToMultiByte( WCHAR* UTF16StringSource, CHAR* MultiByteStringDestination )
+{
+    RtlUnicodeToMultiByteN(MultiByteStringDestination, 256, NULL, UTF16StringSource, 256 * sizeof(WCHAR));
+}

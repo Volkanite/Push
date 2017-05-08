@@ -537,7 +537,7 @@ GetOverlappedResult(
     INT32       bWait
     );
 
-INT32
+/*INT32
 __stdcall
 WideCharToMultiByte(
     UINT32          CodePage,
@@ -547,14 +547,7 @@ WideCharToMultiByte(
     CHAR            *lpMultiByteStr,
     INT32           cbMultiByte,
     const CHAR      *lpDefaultChar,
-    INT32           *lpUsedDefaultChar);
-
-
-
-
-
-
-
+    INT32           *lpUsedDefaultChar);*/
 
 
 DWORD
