@@ -76,16 +76,6 @@ typedef enum _RTL_PATH_TYPE
 } RTL_PATH_TYPE;
 
 
-    RTL_PATH_TYPE
-    __stdcall
-    RtlDetermineDosPathNameType_U(
-    WCHAR* DosFileName
-    );
-    UINT32 __stdcall GetWindowsDirectoryW(
-        WCHAR* lpBuffer,
-        UINT32 uSize
-        );
-
     NTSTATUS __stdcall RtlGetFullPathName_UEx(
         WCHAR* FileName,
         ULONG BufferLength,
@@ -598,28 +588,12 @@ PROFILE_Open( WCHAR* Filename, BOOLEAN WriteAccess )
     if (!Filename)
   Filename = (WCHAR*) wininiW;
 
-    if ((RtlDetermineDosPathNameType_U(Filename) == RtlPathTypeRelative) &&
-      !String_FindFirstChar(Filename, '\\') && !String_FindFirstChar(Filename, '/'))
-    {
-        static const WCHAR separator[] = {'\\', 0};
-        WCHAR windir[260];
-
-      GetWindowsDirectoryW( windir, 260 );
-
-      String_Copy(buffer, windir);
-
-      String_Concatenate(buffer, (WCHAR*) separator);
-      String_Concatenate(buffer, Filename);
-    }
-    else
-    {
-        WCHAR* dummy;
-        WCHAR* dummy2;
-
-        dummy2 = &dummy;
-
-        RtlGetFullPathName_UEx(Filename, sizeof(buffer), buffer, &dummy, (RTL_PATH_TYPE*) &dummy2);
-    }
+    WCHAR* dummy;
+    WCHAR* dummy2;
+    
+    dummy2 = &dummy;
+    
+    RtlGetFullPathName_UEx(Filename, sizeof(buffer), buffer, &dummy, (RTL_PATH_TYPE*) &dummy2);
 
   status = File_Create(
     &fileHandle,
