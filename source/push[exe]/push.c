@@ -471,17 +471,32 @@ VOID OnProcessEvent( PROCESSID processID )
 }
 
 
-int inject64(HANDLE ProcessHandle, DWORD RemoteMemory);
-VOID Inject32( HANDLE ProcessHandle, BOOLEAN x64 )
+typedef unsigned __int64 DWORD64;
+DWORD64 GetRemoteModuleHandle(HANDLE ProcessHandle, WCHAR* ModuleName);
+DWORD64 GetRemoteProcAddress(HANDLE ProcessHandle, DWORD64 BaseAddress, const char* name_ord);
+DWORD64 CreateRemoteThread64(HANDLE ProcessHandle, DWORD64 StartRoutine, DWORD RemoteMemory);
+
+
+VOID Inject( HANDLE ProcessHandle )
 {
-    VOID *threadHandle, *remoteMemory, *kernel32Handle;
+    VOID *remoteMemory;
+    DWORD64 kernel32Base;
+    DWORD64 _LoadLibraryW;
+    DWORD64 threadHandle;
     WCHAR modulePath[260], *pszLastSlash;
     UINT32 regionSize;
+    BOOLEAN x64 = FALSE;
+
+    if (!Process_IsWow64(ProcessHandle))
+    {
+        x64 = TRUE;
+    }
+
+    Resource_Extract(x64 ? L"OVERLAY64" : L"OVERLAY32", x64 ? PUSH_LIB_NAME_64 : PUSH_LIB_NAME_32);
     
     GetModuleFileNameW(0, modulePath, 260);
 
     pszLastSlash = String_FindLastChar(modulePath, '\\');
-
     pszLastSlash[1] = '\0';
 
     String_Concatenate(modulePath, x64 ? PUSH_LIB_NAME_64 : PUSH_LIB_NAME_32);
@@ -495,28 +510,27 @@ VOID Inject32( HANDLE ProcessHandle, BOOLEAN x64 )
     // Copy library name
     Process_WriteMemory(ProcessHandle, remoteMemory, modulePath, sizeof(modulePath));
 
-    if (x64)
-    {
-        inject64(ProcessHandle, (DWORD)remoteMemory);
-        return;
-    }
 
     // Load dll into the remote process
-    kernel32Handle = Module_GetHandle(L"Kernel32");
 
-    threadHandle = CreateRemoteThread(
-        ProcessHandle,
-        0,0,
-        (PTHREAD_START_ROUTINE) Module_GetProcedureAddress(kernel32Handle, "LoadLibraryW"),
-        remoteMemory,
-        0,0
-        );
+    if (x64)
+    {
+        kernel32Base = GetRemoteModuleHandle(ProcessHandle, L"kernel32.dll");
+        _LoadLibraryW = GetRemoteProcAddress(ProcessHandle, kernel32Base, "LoadLibraryW");
+        threadHandle = CreateRemoteThread64(ProcessHandle, _LoadLibraryW, (DWORD)remoteMemory);
+    }
+    else
+    {
+        kernel32Base = Module_GetHandle(L"kernel32.dll");
+        _LoadLibraryW = Module_GetProcedureAddress((VOID*)kernel32Base, "LoadLibraryW");
+        threadHandle = CreateRemoteThread(ProcessHandle, 0, 0, (PTHREAD_START_ROUTINE)_LoadLibraryW, remoteMemory, 0, 0);
+    }
 
-    NtWaitForSingleObject(threadHandle, FALSE, NULL);
+    NtWaitForSingleObject((VOID*)threadHandle, FALSE, NULL);
 
     // Clean up
-    //CloseHandle(hThread);
-    NtClose(threadHandle);
+
+    NtClose((HANDLE)threadHandle);
 
     // Free the memory we allocated inside the remote process
     regionSize = 0;
@@ -560,7 +574,7 @@ DWORD __stdcall SetFilePointer(
     DWORD dwMoveMethod
     );
 
-#define PROCESS_TERMINATE 0x0001
+
 VOID OnImageEvent( PROCESSID ProcessId )
 {
     VOID *processHandle = 0;
@@ -582,7 +596,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
         PROCESS_VM_OPERATION |
         PROCESS_CREATE_THREAD |
         PROCESS_QUERY_INFORMATION |
-        SYNCHRONIZE | PROCESS_TERMINATE
+        SYNCHRONIZE
         );
 
     if (!processHandle)
@@ -696,30 +710,15 @@ VOID OnImageEvent( PROCESSID ProcessId )
 
     GameProcessId = ProcessId;
 
-    if (Process_IsWow64(processHandle))
+    if (PushOverlayInterface == OVERLAY_INTERFACE_PURE)
     {
-        if (PushOverlayInterface == OVERLAY_INTERFACE_PURE)
-        {
-            Resource_Extract(L"OVERLAY32", PUSH_LIB_NAME_32);
-            Inject32(processHandle, FALSE);
-        }
-        else
-        {
-            if (!Process_GetId(L"RTSS.exe", 0))
-            {
-                MessageBoxW(0, L"Rivatuner Statistics Server not running!", 0, 0);
-            }
-        }
+        Inject(processHandle);
     }
     else
     {
-        if (PushOverlayInterface == OVERLAY_INTERFACE_PURE)
+        if (!Process_GetId(L"RTSS.exe", 0))
         {
-            Resource_Extract(L"OVERLAY64", PUSH_LIB_NAME_64);
-            
-            #ifdef _MSC_PLATFORM_TOOLSET_v120
-            Inject32(processHandle, TRUE);
-            #endif
+            MessageBoxW(0, L"Rivatuner Statistics Server not running!", 0, 0);
         }
     }
 

@@ -1,7 +1,6 @@
 #include <Windows.h>
 #include <stdio.h>
-#include "inject64.h"
-
+#include "wow64.h"
 
 
 __declspec(naked) void* memcpy64(unsigned long long Dst, unsigned long long Src, unsigned long len)
@@ -862,37 +861,34 @@ DWORD64 GetRemoteProcAddress(HANDLE ProcessHandle, DWORD64 BaseAddress, const ch
 }
 
 
-int inject64( HANDLE ProcessHandle, DWORD RemoteMemory )
+DWORD64 CreateRemoteThread64(HANDLE ProcessHandle, DWORD64 StartRoutine, DWORD RemoteMemory)
 {
     DWORD64 ulModule = GetModuleHandle64(L"ntdll.dll");
-    
+    DWORD64 threadHandle = NULL;
+
     if (ulModule)
     {
         DWORD64 _NtCreateThreadEx = GetProcAddress64(ulModule, "NtCreateThreadEx");
-    
+
         if (_NtCreateThreadEx)
         {
-            DWORD64 threadHandle = NULL;
-            DWORD64 kern32Base = GetRemoteModuleHandle(ProcessHandle, L"kernel32.dll");
-            DWORD64 loadLibrary = GetRemoteProcAddress(ProcessHandle, kern32Base, "LoadLibraryW");
-            
             DWORD64 parameters[11] = { 0 };
-            
+
             parameters[0] = (DWORD64)&threadHandle;     // _Out_ PHANDLE ThreadHandle
             parameters[1] = (DWORD64)THREAD_ALL_ACCESS; // _In_ ACCESS_MASK DesiredAccess
             parameters[2] = (DWORD64)NULL;              // _In_opt_ POBJECT_ATTRIBUTES ObjectAttributes
             parameters[3] = (DWORD64)ProcessHandle;     // _In_ HANDLE ProcessHandle
-            parameters[4] = (DWORD64)loadLibrary;       // _In_ PVOID StartRoutine
+            parameters[4] = (DWORD64)StartRoutine;      // _In_ PVOID StartRoutine
             parameters[5] = (DWORD64)RemoteMemory;      // _In_opt_ PVOID Argument
             parameters[6] = (DWORD64)HideFromDebug;     // _In_ ULONG CreateFlags
             parameters[7] = (DWORD64)0;                 // _In_ SIZE_T ZeroBits
             parameters[8] = (DWORD64)0x1000;            // _In_ SIZE_T StackSize
             parameters[9] = (DWORD64)0x100000;          // _In_ SIZE_T MaximumStackSize
             parameters[10] = (DWORD64)NULL;             // _In_opt_ PPS_ATTRIBUTE_LIST AttributeList
-    
+
             CallFunction64(_NtCreateThreadEx, 0, parameters, 11, 0);
         }
     }
 
-    return 0;
+    return threadHandle;
 }

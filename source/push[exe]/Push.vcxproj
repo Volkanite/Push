@@ -48,7 +48,7 @@
     <ClCompile Include="Hardware\GPU\OpenNvapi.c" />
     <ClCompile Include="Hardware\hardware.c" />
     <ClCompile Include="ini.c" />
-    <ClCompile Include="inject64.c" />
+    <ClCompile Include="wow64.c" />
     <ClCompile Include="listview.c" />
     <ClCompile Include="memory.c" />
     <ClCompile Include="module.c" />
@@ -90,7 +90,7 @@
     <ClInclude Include="Hardware\GPU\OpenNvapi.h" />
     <ClInclude Include="Hardware\hardware.h" />
     <ClInclude Include="Hardware\vendors.h" />
-    <ClInclude Include="inject64.h" />
+    <ClInclude Include="wow64.h" />
     <ClInclude Include="OSD\osd.h" />
     <ClInclude Include="OSD\rtss.h" />
     <ClInclude Include="push.h" />
