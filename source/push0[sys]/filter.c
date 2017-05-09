@@ -231,6 +231,7 @@ FilterPreCreate(
                     Data->IoStatus.Status = STATUS_REPARSE;
                     Data->Iopb->TargetFileObject->RelatedFileObject = NULL;
 
+                    FltReleaseFileNameInformation(nameInformation);
                     FltSetCallbackDataDirty(Data);
 
                     return FLT_PREOP_COMPLETE;
@@ -239,9 +240,9 @@ FilterPreCreate(
                 file = file->NextEntry;
             }
         }
-    }
 
-    FltReleaseFileNameInformation(nameInformation);
+        FltReleaseFileNameInformation(nameInformation);
+    }
 
     return FLT_PREOP_SUCCESS_NO_CALLBACK;
 }
