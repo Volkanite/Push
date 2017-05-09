@@ -48,6 +48,7 @@
     <ClCompile Include="Hardware\GPU\OpenNvapi.c" />
     <ClCompile Include="Hardware\hardware.c" />
     <ClCompile Include="ini.c" />
+    <ClCompile Include="inject64.c" />
     <ClCompile Include="listview.c" />
     <ClCompile Include="memory.c" />
     <ClCompile Include="module.c" />
@@ -89,6 +90,7 @@
     <ClInclude Include="Hardware\GPU\OpenNvapi.h" />
     <ClInclude Include="Hardware\hardware.h" />
     <ClInclude Include="Hardware\vendors.h" />
+    <ClInclude Include="inject64.h" />
     <ClInclude Include="OSD\osd.h" />
     <ClInclude Include="OSD\rtss.h" />
     <ClInclude Include="push.h" />
@@ -199,7 +201,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;inject64.lib;Imagehlp.lib;gdi32.lib;ole32.lib</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;d3d9.lib;psapi.lib;ntdll.lib;advapi32.lib;setupapi.lib;user32.lib;shell32.lib;comdlg32.lib;Imagehlp.lib;gdi32.lib;ole32.lib</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
       <AdditionalOptions>/OPT:NOLBR %(AdditionalOptions)</AdditionalOptions>

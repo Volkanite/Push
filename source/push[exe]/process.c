@@ -300,7 +300,7 @@ VOID Process_WriteMemory( HANDLE ProcessHandle, VOID* BaseAddress, VOID* Buffer,
     }
 
     /* Flush the ITLB */
-    NtFlushInstructionCache(ProcessHandle, baseAddress, sizeof(Buffer));
+    //NtFlushInstructionCache(ProcessHandle, baseAddress, sizeof(Buffer));
 }
 
 

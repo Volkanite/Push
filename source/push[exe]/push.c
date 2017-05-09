@@ -471,7 +471,8 @@ VOID OnProcessEvent( PROCESSID processID )
 }
 
 
-VOID Inject32( HANDLE ProcessHandle )
+int inject64(HANDLE ProcessHandle, DWORD RemoteMemory);
+VOID Inject32( HANDLE ProcessHandle, BOOLEAN x64 )
 {
     VOID *threadHandle, *remoteMemory, *kernel32Handle;
     WCHAR modulePath[260], *pszLastSlash;
@@ -483,7 +484,7 @@ VOID Inject32( HANDLE ProcessHandle )
 
     pszLastSlash[1] = '\0';
 
-    String_Concatenate(modulePath, PUSH_LIB_NAME_32);
+    String_Concatenate(modulePath, x64 ? PUSH_LIB_NAME_64 : PUSH_LIB_NAME_32);
 
     // Allocate memory in the remote process's address space.
     remoteMemory = NULL;
@@ -493,6 +494,12 @@ VOID Inject32( HANDLE ProcessHandle )
 
     // Copy library name
     Process_WriteMemory(ProcessHandle, remoteMemory, modulePath, sizeof(modulePath));
+
+    if (x64)
+    {
+        inject64(ProcessHandle, (DWORD)remoteMemory);
+        return;
+    }
 
     // Load dll into the remote process
     kernel32Handle = Module_GetHandle(L"Kernel32");
@@ -553,9 +560,7 @@ DWORD __stdcall SetFilePointer(
     DWORD dwMoveMethod
     );
 
-VOID Inject64(UINT32 ProcessId, WCHAR* Path);
-
-
+#define PROCESS_TERMINATE 0x0001
 VOID OnImageEvent( PROCESSID ProcessId )
 {
     VOID *processHandle = 0;
@@ -577,7 +582,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
         PROCESS_VM_OPERATION |
         PROCESS_CREATE_THREAD |
         PROCESS_QUERY_INFORMATION |
-        SYNCHRONIZE
+        SYNCHRONIZE | PROCESS_TERMINATE
         );
 
     if (!processHandle)
@@ -696,7 +701,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
         if (PushOverlayInterface == OVERLAY_INTERFACE_PURE)
         {
             Resource_Extract(L"OVERLAY32", PUSH_LIB_NAME_32);
-            Inject32(processHandle);
+            Inject32(processHandle, FALSE);
         }
         else
         {
@@ -710,18 +715,10 @@ VOID OnImageEvent( PROCESSID ProcessId )
     {
         if (PushOverlayInterface == OVERLAY_INTERFACE_PURE)
         {
-            WCHAR szModulePath[260], *pszLastSlash;
-
-            GetModuleFileNameW(0, szModulePath, 260);
-
-            pszLastSlash = String_FindLastChar(szModulePath, '\\');
-            pszLastSlash[1] = '\0';
-
             Resource_Extract(L"OVERLAY64", PUSH_LIB_NAME_64);
-            String_Concatenate(szModulePath, PUSH_LIB_NAME_64);
             
             #ifdef _MSC_PLATFORM_TOOLSET_v120
-            Inject64(ProcessId, szModulePath);
+            Inject32(processHandle, TRUE);
             #endif
         }
     }

@@ -110,6 +110,7 @@
     <ClCompile Include="slgui.c" />
     <ClCompile Include="module.c" />
     <ClCompile Include="process.c" />
+    <ClCompile Include="inject64.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\cache.h">
@@ -185,6 +186,7 @@
     <ClInclude Include="Hardware\CPU\amd.h">
       <Filter>Hardware\CPU</Filter>
     </ClInclude>
+    <ClInclude Include="inject64.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="push.ico">
