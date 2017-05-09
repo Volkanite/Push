@@ -211,6 +211,9 @@ FilterPreCreate(
                         );
 
                     redirect.Length += nameInformation->FinalComponent.Length;
+
+                    FltReleaseFileNameInformation(nameInformation);
+
                     currentName = &Data->Iopb->TargetFileObject->FileName;
 
                     // Throw away the current file name
