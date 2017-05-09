@@ -212,8 +212,6 @@ FilterPreCreate(
 
                     redirect.Length += nameInformation->FinalComponent.Length;
 
-                    FltReleaseFileNameInformation(nameInformation);
-
                     currentName = &Data->Iopb->TargetFileObject->FileName;
 
                     // Throw away the current file name
@@ -242,6 +240,8 @@ FilterPreCreate(
             }
         }
     }
+
+    FltReleaseFileNameInformation(nameInformation);
 
     return FLT_PREOP_SUCCESS_NO_CALLBACK;
 }
