@@ -1,5 +1,5 @@
 #include <sl.h>
-//#include <ntmmapi.h>
+#include "push.h"
 
 
 typedef struct _STARTUPINFOW {
@@ -223,9 +223,6 @@ BOOLEAN Process_ThreadExists( UINT32 ProcessId, UINT32 ThreadId )
 }
 
 
-#include <string.h>
-
-
 NTSTATUS Process_GetFileNameByHandle( HANDLE ProcessHandle, WCHAR* FileName )
 {
     UINT16 bufferSize;
@@ -236,7 +233,7 @@ NTSTATUS Process_GetFileNameByHandle( HANDLE ProcessHandle, WCHAR* FileName )
     imageFileName = (UNICODE_STRING*)Memory_Allocate(bufferSize);
     status = NtQueryInformationProcess(ProcessHandle, ProcessImageFileNameWin32, imageFileName, bufferSize, NULL);
 
-    memcpy(FileName, imageFileName->Buffer, imageFileName->Length);
+    Memory_Copy(FileName, imageFileName->Buffer, imageFileName->Length);
 
     FileName[imageFileName->Length / sizeof(WCHAR)] = L'\0';
 

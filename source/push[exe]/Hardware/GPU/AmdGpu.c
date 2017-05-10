@@ -1,5 +1,4 @@
 #include <sl.h>
-#include <stdio.h>
 #include <push.h>
 #include <hardware.h>
 #include "adl.h"

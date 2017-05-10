@@ -56,10 +56,6 @@ VOID GetGamePath(
     WCHAR *pszBuffer
     );
 
-VOID GetTime(
-    CHAR *pszBuffer
-    );
-
 VOID VerifyLib(
     WCHAR *libName
     );
@@ -173,6 +169,41 @@ enum _THREAD_CREATE_FLAGS
     NoDllCallbacks = 0x0002,
     HideFromDebug = 0x0004,
 }THREAD_CREATE_FLAGS;
+
+typedef char *  va_list;
+
+typedef int (*TYPE_iswspace)(unsigned short C);
+typedef int (*TYPE_memcmp)(const void *Buf1, const void *Buf2, int Size);
+typedef void* (*TYPE_memcpy)(void *Dst, const void *Src, UINT32 Size);
+typedef void (*TYPE_memset)(void *Region, DWORD Val, UINT32 Size);
+typedef int(*TYPE_strcmp)(const char *Str1, const char *Str2);
+typedef char* (*TYPE_strcpy)(char *Dest, const char *Source);
+typedef UINT32 (*TYPE_strlen)(const char *Str);
+typedef int (*TYPE_strncmp)(const char *Str1, const char *Str2, int MaxCount);
+typedef char* (*TYPE_strncpy)(char *Dest, const char *Source, UINT32 Count);
+typedef int (*TYPE_swscanf_s)(const wchar_t *Src, const wchar_t *Format, ...);
+typedef int(*TYPE_vswprintf_s)(wchar_t *Dst, UINT32 SizeInWords, const wchar_t *Format, va_list ArgList);
+typedef wchar_t* (*TYPE_wcsncat)(wchar_t *Dest, const wchar_t *Source, UINT32 Count);
+typedef UINT32 (*TYPE_wcsnlen)(const wchar_t *Src, UINT32 MaxCount);
+typedef __int32 (*TYPE_wcstol)(const wchar_t *Str, wchar_t **EndPtr, int Radix);
+typedef int (*TYPE__wtoi)(const wchar_t *Str);
+
+
+extern TYPE_iswspace	iswspace;
+extern TYPE_memcmp		memcmp;
+extern TYPE_memcpy		memcpy;
+extern TYPE_memset		memset;
+extern TYPE_strcmp		strcmp;
+extern TYPE_strcpy		strcpy;
+extern TYPE_strlen		strlen;
+extern TYPE_strncmp		strncmp;
+extern TYPE_strncpy		strncpy;
+extern TYPE_swscanf_s	swscanf_s;
+extern TYPE_vswprintf_s	vswprintf_s;
+extern TYPE_wcsncat		wcsncat;
+extern TYPE_wcsnlen		wcsnlen;
+extern TYPE_wcstol		wcstol;
+extern TYPE__wtoi		_wtoi;
 
 
 #endif //PUSH_H

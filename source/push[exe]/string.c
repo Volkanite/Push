@@ -1,9 +1,6 @@
 #include <sl.h>
-#include <wchar.h>
-#include <stdarg.h>
-#include <string.h>
-#include <stdio.h>
-//#include <psdk\psdk.h>
+#include "push.h"
+
 
 //like wcslen
 UINT32 String_GetLength( WCHAR* String )
@@ -169,15 +166,7 @@ WCHAR* String_FindLastChar(
     return ((wchar_t *)last);
 }
 
-int bigstring(FILE  *stream, const wchar_t *format, va_list argptr);
-typedef int(*WOUTPUTFN)(FILE *, const wchar_t *, va_list);
-int __cdecl bigstring_helper(
-    WOUTPUTFN woutfn,
-    wchar_t *string,
-    size_t count,
-    const wchar_t *format,
-    va_list ap
-    );
+#include <stdarg.h>
 INT32 String_Format( wchar_t* String, UINT32 Count, const wchar_t* Format, ... )
 {
 #ifdef GCC
@@ -185,10 +174,9 @@ INT32 String_Format( wchar_t* String, UINT32 Count, const wchar_t* Format, ... )
 #else
     va_list _Arglist;
     int _Ret;
-    _crt_va_start(_Arglist, Format);
-    _Ret = _vswprintf_c_l(String, Count, Format, NULL, _Arglist);
-    //_Ret = bigstring_helper(bigstring, String, Count, Format, _Arglist);
-    _crt_va_end(_Arglist);
+    va_start(_Arglist, Format);
+	_Ret = vswprintf_s(String, Count, Format, _Arglist);
+    va_end(_Arglist);
     return _Ret;
 #endif // GCC
 }

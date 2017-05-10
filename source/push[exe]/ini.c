@@ -1,10 +1,8 @@
 #include <sl.h>
 #include <slfile.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <wchar.h>
 #include <pushbase.h>
+
+#include "push.h"
 
 
 static const char bom_utf8[] = {0xEF,0xBB,0xBF};
@@ -237,38 +235,7 @@ PROFILE_FlushFile(void)
 }
 
 
-typedef struct _KSYSTEM_TIME
-{
-    ULONG LowPart;
-    LONG High1Time;
-    LONG High2Time;
-} KSYSTEM_TIME, *PKSYSTEM_TIME;
-
-typedef struct _KUSER_SHARED_DATA
-{
-    ULONG TickCountLowDeprecated;
-    ULONG TickCountMultiplier;
-
-    volatile KSYSTEM_TIME InterruptTime;
-    volatile KSYSTEM_TIME SystemTime;
-} KUSER_SHARED_DATA;
-
-#define USER_SHARED_DATA ((KUSER_SHARED_DATA * const)0x7ffe0000)
-
-
-VOID NtGetSystemTimeAsFileTime( FILETIME* lpFileTime )
-{
-    LARGE_INTEGER SystemTime;
-
-    do
-    {
-        SystemTime.u.HighPart = USER_SHARED_DATA->SystemTime.High1Time;
-        SystemTime.u.LowPart = USER_SHARED_DATA->SystemTime.LowPart;
-    } while (SystemTime.u.HighPart != USER_SHARED_DATA->SystemTime.High2Time);
-
-    lpFileTime->dwLowDateTime = SystemTime.u.LowPart;
-    lpFileTime->dwHighDateTime = SystemTime.u.HighPart;
-}
+VOID NtGetSystemTimeAsFileTime(FILETIME* lpFileTime);
 
 
 /***********************************************************************
@@ -326,7 +293,7 @@ PROFILE_Free( PROFILESECTION *Section )
 
 
 WCHAR
-*memrchrW(const WCHAR *ptr, WCHAR ch, size_t n)
+*memrchrW(const WCHAR *ptr, WCHAR ch, int n)
 {
     const WCHAR *end;
     WCHAR *ret = NULL;
@@ -539,8 +506,7 @@ PROFILE_Load( VOID* FileHandle )
  *
  * Flush the current profile to disk and remove it from the cache.
  */
-VOID
-PROFILE_ReleaseFile(void)
+VOID PROFILE_ReleaseFile(void)
 {
     PROFILE_FlushFile();
 
@@ -552,7 +518,7 @@ PROFILE_ReleaseFile(void)
     CurrentProfile->section = NULL;
     CurrentProfile->FileName  = NULL;
 
-    memset(&CurrentProfile->LastWriteTime, 0, sizeof(CurrentProfile->LastWriteTime));
+    Memory_Clear(&CurrentProfile->LastWriteTime, sizeof(CurrentProfile->LastWriteTime));
 }
 
 
@@ -582,7 +548,7 @@ PROFILE_Open( WCHAR* Filename, BOOLEAN WriteAccess )
           MRUProfile[i]->section=NULL;
           MRUProfile[i]->FileName=NULL;
 
-        memset(&MRUProfile[i]->LastWriteTime, 0, sizeof(FILETIME));
+		Memory_Clear(&MRUProfile[i]->LastWriteTime, sizeof(FILETIME));
        }
 
     if (!Filename)
@@ -612,7 +578,7 @@ PROFILE_Open( WCHAR* Filename, BOOLEAN WriteAccess )
 
     for(i=0;i<N_CACHED_PROFILES;i++)
     {
-        if ((MRUProfile[i]->FileName && !wcscmp( buffer, MRUProfile[i]->FileName )))
+        if ((MRUProfile[i]->FileName && !String_Compare( buffer, MRUProfile[i]->FileName )))
         {
             if(i)
             {
@@ -693,7 +659,7 @@ PROFILE_DeleteSection( PROFILESECTION **Section, WCHAR* Name )
     while (*Section)
     {
         //if ((*section)->Name[0] && !strcmpiW( (*section)->name, name ))
-        if ((*Section)->Name[0] && !wcscmp( (*Section)->Name, Name ))
+        if ((*Section)->Name[0] && !String_Compare( (*Section)->Name, Name ))
         {
             PROFILESECTION *to_del = *Section;
             *Section = to_del->next;
@@ -723,13 +689,13 @@ PROFILE_DeleteKey( PROFILESECTION **Section, WCHAR* SectionName, WCHAR* KeyName 
 {
     while (*Section)
     {
-        if ((*Section)->Name[0] && !wcscmp( (*Section)->Name, SectionName ))
+        if ((*Section)->Name[0] && !String_Compare( (*Section)->Name, SectionName ))
         {
             PROFILEKEY **key = &(*Section)->Key;
 
             while (*key)
             {
-                if (!wcscmp( (*key)->Name, KeyName ))
+                if (!String_Compare( (*key)->Name, KeyName ))
                 {
                     PROFILEKEY *to_del = *key;
                     *key = to_del->next;
@@ -791,7 +757,7 @@ static PROFILEKEY *PROFILE_Find(
     {
         if ( ((*Section)->Name[0])
              //&& (!(strncmpiW( (*section)->name, SectionName, seclen )))
-             && (!(wcsncmp( (*Section)->Name, SectionName, seclen )))
+             && (!(String_CompareN( (*Section)->Name, SectionName, seclen )))
              && (((*Section)->Name)[seclen] == '\0') )
         {
             PROFILEKEY **key = &(*Section)->Key;
@@ -805,7 +771,7 @@ static PROFILEKEY *PROFILE_Find(
                  */
                 if(!create_always)
                 {
-                    if ( (!(wcsncmp( (*key)->Name, KeyName, keylen )))
+                    if ( (!(String_CompareN( (*key)->Name, KeyName, keylen )))
                          && (((*key)->Name)[keylen] == '\0') )
                         return *key;
                 }
@@ -896,7 +862,7 @@ PROFILE_SetString(
 
         if (key->Value)
         {
-            if (!wcscmp( key->Value, Value ))
+            if (!String_Compare( key->Value, Value ))
             {
                 return TRUE;  /* No change needed */
             }
@@ -991,8 +957,7 @@ PROFILE_CopyEntry(
     if (quote && (Length >= String_GetLength(Value))) Buffer[String_GetLength(Buffer) - 1] = '\0';
 }
 
-#include <string.h>
-#include <stdlib.h>
+
 /***********************************************************************
  *           PROFILE_GetSection
  *
@@ -1015,7 +980,7 @@ PROFILE_GetSection(
 
     while (Section)
     {
-        if (Section->Name[0] && !wcscmp( Section->Name, SectionName ))
+        if (Section->Name[0] && !String_Compare( Section->Name, SectionName ))
         {
             UINT32 oldlen = Length;
             UINT32 bufferLength;
@@ -1276,7 +1241,7 @@ VOID SlIniWriteBoolean( WCHAR* Section, WCHAR* Key, BOOLEAN bolValue )
 {
     WCHAR value[255];
 
-    swprintf(value, 255, L"%ls", bolValue ? L"True" : L"False");
+    String_Format(value, 255, L"%ls", bolValue ? L"True" : L"False");
     SlIniWriteString(Section, Key, value);
 }
 
@@ -1300,11 +1265,11 @@ BOOLEAN SlIniReadBoolean(WCHAR* Section, WCHAR* Key, BOOLEAN DefaultValue)
     WCHAR result[255], defaultValue[255];
     BOOLEAN bResult;
 
-    swprintf(defaultValue, 255, L"%ls", DefaultValue? L"True" : L"False");
+    String_Format(defaultValue, 255, L"%ls", DefaultValue? L"True" : L"False");
     Ini_GetString(Section, Key, defaultValue, result, 255);
 
-    bResult =  (wcscmp(result, L"True") == 0 ||
-        wcscmp(result, L"true") == 0) ? TRUE : FALSE;
+    bResult =  (String_Compare(result, L"True") == 0 ||
+		String_Compare(result, L"true") == 0) ? TRUE : FALSE;
 
     return bResult;
 }
@@ -1342,11 +1307,11 @@ BOOLEAN Ini_ReadSubKeyBoolean( WCHAR* Section, WCHAR* MasterKey, WCHAR* subKey, 
     String_Concatenate(key, L").");
     String_Concatenate(key, subKey);
 
-    swprintf(defaultValue, 255, L"%ls", DefaultValue? L"True" : L"False");
+    String_Format(defaultValue, 255, L"%ls", DefaultValue? L"True" : L"False");
     Ini_GetString(Section, key, defaultValue, result, 255);
 
-    bResult =  (wcscmp(result, L"True") == 0 ||
-        wcscmp(result, L"true") == 0) ? TRUE : FALSE;
+    bResult =  (String_Compare(result, L"True") == 0 ||
+		String_Compare(result, L"true") == 0) ? TRUE : FALSE;
 
     return bResult;
 }

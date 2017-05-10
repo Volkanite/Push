@@ -1,6 +1,5 @@
 #include <sl.h>
 #include <slprocess.h>
-#include <string.h>
 #include <push.h>
 
 
@@ -380,8 +379,8 @@ CIRCULAR_BUFFER DiskReadWriteHistory;
 * FALSE.
 */
 typedef BOOLEAN(__stdcall *PPH_HASHTABLE_COMPARE_FUNCTION)(
-    _In_ VOID* Entry1,
-    _In_ VOID* Entry2
+    VOID* Entry1,
+    VOID* Entry2
     );
 
 /**
@@ -399,7 +398,7 @@ typedef BOOLEAN(__stdcall *PPH_HASHTABLE_COMPARE_FUNCTION)(
 * different hash codes.
 */
 typedef ULONG(__stdcall *PPH_HASHTABLE_HASH_FUNCTION)(
-    _In_ VOID* Entry
+    VOID* Entry
     );
 
 
@@ -479,8 +478,8 @@ typedef struct _PH_HASHTABLE_ENTRY
 
 
 ULONG PhpIndexFromHash(
-    _In_ PPH_HASHTABLE Hashtable,
-    _In_ ULONG Hash
+    PPH_HASHTABLE Hashtable,
+    ULONG Hash
     )
 {
 #ifdef PH_HASHTABLE_POWER_OF_TWO_SIZE
@@ -495,7 +494,7 @@ ULONG PhpIndexFromHash(
 * Rounds up a number to the next power of two.
 */
 ULONG PhRoundUpToPowerOfTwo(
-    _In_ ULONG Number
+    ULONG Number
     )
 {
     Number--;
@@ -511,7 +510,7 @@ ULONG PhRoundUpToPowerOfTwo(
 
 
 ULONG PhpGetNumberOfBuckets(
-    _In_ ULONG Capacity
+    ULONG Capacity
     )
 {
 #ifdef PH_HASHTABLE_POWER_OF_TWO_SIZE
@@ -523,8 +522,8 @@ ULONG PhpGetNumberOfBuckets(
 
 
 VOID PhpResizeHashtable(
-    _Inout_ PPH_HASHTABLE Hashtable,
-    _In_ ULONG NewCapacity
+    PPH_HASHTABLE Hashtable,
+    ULONG NewCapacity
     )
 {
     PPH_HASHTABLE_ENTRY entry;
@@ -536,7 +535,7 @@ VOID PhpResizeHashtable(
     Memory_Free(Hashtable->Buckets);
     Hashtable->Buckets = (ULONG*) Memory_Allocate(sizeof(ULONG) * Hashtable->AllocatedBuckets);
     // Set all bucket values to -1.
-    memset(Hashtable->Buckets, 0xff, sizeof(ULONG) * Hashtable->AllocatedBuckets);
+    Memory_ClearEx(Hashtable->Buckets, 0xff, sizeof(ULONG) * Hashtable->AllocatedBuckets);
 
     // Re-allocate the entries.
     Hashtable->AllocatedEntries = Hashtable->AllocatedBuckets;
@@ -569,7 +568,7 @@ VOID PhpResizeHashtable(
 
 
 ULONG PhpValidateHash(
-    _In_ ULONG Hash
+    ULONG Hash
     )
 {
     // No point in using a full hash when we're going to
@@ -586,10 +585,10 @@ ULONG PhpValidateHash(
 
 
 VOID* PhpAddEntryHashtable(
-    _Inout_ PPH_HASHTABLE Hashtable,
-    _In_ VOID* Entry,
-    _In_ BOOLEAN CheckForDuplicate,
-    _Out_opt_ BOOLEAN* Added
+    PPH_HASHTABLE Hashtable,
+    VOID* Entry,
+    BOOLEAN CheckForDuplicate,
+    BOOLEAN* Added
     )
 {
     ULONG hashCode; // hash code of the new entry
@@ -676,9 +675,9 @@ VOID* PhpAddEntryHashtable(
 * aligned, even on 64-bit systems.
 */
 VOID* PhAddEntryHashtableEx(
-    _Inout_ PPH_HASHTABLE Hashtable,
-    _In_ VOID* Entry,
-    _Out_opt_ BOOLEAN* Added
+    PPH_HASHTABLE Hashtable,
+    VOID* Entry,
+    BOOLEAN* Added
     )
 {
     return PhpAddEntryHashtable(Hashtable, Entry, TRUE, Added);
@@ -706,8 +705,8 @@ typedef struct _PH_STRING *PPH_STRING;
 * work with them.
 */
 VOID* PhFindEntryHashtable(
-    _In_ PPH_HASHTABLE Hashtable,
-    _In_ VOID* Entry
+    PPH_HASHTABLE Hashtable,
+    VOID* Entry
     )
 {
     ULONG hashCode;
@@ -733,7 +732,7 @@ VOID* PhFindEntryHashtable(
 
 
 PPH_STRING EtFileObjectToFileName(
-    _In_ VOID* FileObject
+    VOID* FileObject
     )
 {
     PH_KEY_VALUE_PAIR pair;
@@ -755,8 +754,8 @@ PPH_STRING EtFileObjectToFileName(
 
 
 BOOLEAN __stdcall PhpSimpleHashtableCompareFunction(
-    _In_ VOID* Entry1,
-    _In_ VOID* Entry2
+    VOID* Entry1,
+    VOID* Entry2
     )
 {
     PPH_KEY_VALUE_PAIR entry1 = (PH_KEY_VALUE_PAIR*) Entry1;
@@ -767,7 +766,7 @@ BOOLEAN __stdcall PhpSimpleHashtableCompareFunction(
 
 
 ULONG PhHashInt32(
-_In_ ULONG Value
+	ULONG Value
 )
 {
     // Java style.
@@ -777,7 +776,7 @@ _In_ ULONG Value
 
 
 ULONG PhHashIntPtr(
-_In_ ULONG_PTR Value
+	ULONG_PTR Value
 )
 {
 #ifdef _WIN64
@@ -789,7 +788,7 @@ _In_ ULONG_PTR Value
 
 
 ULONG __stdcall PhpSimpleHashtableHashFunction(
-    _In_ VOID* Entry
+    VOID* Entry
     )
 {
     PPH_KEY_VALUE_PAIR entry = (PH_KEY_VALUE_PAIR*) Entry;
@@ -816,10 +815,10 @@ PPH_OBJECT_TYPE PhHashtableType;
 * allocate storage for initially.
 */
 PPH_HASHTABLE PhCreateHashtable(
-    _In_ ULONG EntrySize,
-    _In_ PPH_HASHTABLE_COMPARE_FUNCTION CompareFunction,
-    _In_ PPH_HASHTABLE_HASH_FUNCTION HashFunction,
-    _In_ ULONG InitialCapacity
+    ULONG EntrySize,
+    PPH_HASHTABLE_COMPARE_FUNCTION CompareFunction,
+    PPH_HASHTABLE_HASH_FUNCTION HashFunction,
+    ULONG InitialCapacity
     )
 {
     PPH_HASHTABLE hashtable;
@@ -838,7 +837,7 @@ PPH_HASHTABLE PhCreateHashtable(
     hashtable->AllocatedBuckets = PhpGetNumberOfBuckets(InitialCapacity);
     hashtable->Buckets = (ULONG*) Memory_Allocate(sizeof(ULONG) * hashtable->AllocatedBuckets);
     // Set all bucket values to -1.
-    memset(hashtable->Buckets, 0xff, sizeof(ULONG) * hashtable->AllocatedBuckets);
+    Memory_ClearEx(hashtable->Buckets, 0xff, sizeof(ULONG) * hashtable->AllocatedBuckets);
 
     // Allocate the entries.
     hashtable->AllocatedEntries = hashtable->AllocatedBuckets;
@@ -853,7 +852,7 @@ PPH_HASHTABLE PhCreateHashtable(
 
 
 PPH_HASHTABLE PhCreateSimpleHashtable(
-    _In_ ULONG InitialCapacity
+    ULONG InitialCapacity
     )
 {
     return PhCreateHashtable(
@@ -957,13 +956,15 @@ DWORD __stdcall DiskMonitorThread( VOID* Parameter )
 {
     EVENT_TRACE_PROPERTIES *traceProperties;
     UINT32 bufferSize;
-    EVENT_TRACE_LOGFILEW trace = { 0 };
+    EVENT_TRACE_LOGFILEW trace;
     UINT64 traceHandle = NULL, sessionHandle = NULL;
+
+	Memory_Clear(&trace, sizeof(EVENT_TRACE_LOGFILEW));
 
     bufferSize = sizeof(EVENT_TRACE_PROPERTIES) + sizeof(KERNEL_LOGGER_NAME);
     traceProperties = (EVENT_TRACE_PROPERTIES*) Memory_Allocate(bufferSize);
 
-    memset(traceProperties, 0, sizeof(EVENT_TRACE_PROPERTIES));
+    Memory_ClearEx(traceProperties, 0, sizeof(EVENT_TRACE_PROPERTIES));
 
     traceProperties->Wnode.BufferSize = bufferSize;
     traceProperties->Wnode.Guid = SystemTraceControlGuid_I;

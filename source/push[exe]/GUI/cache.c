@@ -1,5 +1,4 @@
 #include <sl.h>
-#include <wchar.h>
 #include <file.h>
 #include <sldirectory.h>
 

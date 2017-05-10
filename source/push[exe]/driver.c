@@ -2,8 +2,6 @@
 #include <sldriver.h>
 #include <slresource.h>
 #include <slregistry.h>
-#include <stdio.h>
-#include <string.h>
 
 #include "push.h"
 #include "ring0.h"
@@ -82,10 +80,11 @@ VOID Driver_Extract()
 VOID StripPermissions( WCHAR* KeyName )
 {
     HANDLE keyHandle;
-    unsigned char p[9000];
-    PSECURITY_DESCRIPTOR psecdesc = (PSECURITY_DESCRIPTOR)p;
+	PSECURITY_DESCRIPTOR psecdesc;
     VOID* selfSecurityDescriptor;
     ULONG bufferLength = 20;
+
+	psecdesc = Memory_Allocate(9000);
 
     keyHandle = Registry_OpenKey(KeyName, WRITE_DAC);
 
@@ -179,7 +178,7 @@ VOID Driver_Load()
 
                 guidAsWideChar[39] = L'\0';
 
-                swprintf(
+                String_Format(
                     buffer,
                     255,
                     L"\\Registry\\Machine\\BCD00000000\\Objects\\%s\\Elements",
@@ -306,7 +305,7 @@ BOOLEAN RegisterInstance( WCHAR* ServiceName )
         DWORD dwFlags=INSTANCE_FLAGS;
         WCHAR buffer[260] = L"System\\CurrentControlSet\\Services\\";
 
-        wcscat(buffer, ServiceName);
+        String_Concatenate(buffer, ServiceName);
 
         if (RegOpenKeyExW(
             HKEY_LOCAL_MACHINE,
@@ -336,7 +335,7 @@ BOOLEAN RegisterInstance( WCHAR* ServiceName )
             0,
             REG_SZ,
             (const BYTE*)INSTANCE_NAME,
-            (wcslen(INSTANCE_NAME)+1)*sizeof(wchar_t))!=ERROR_SUCCESS)
+            (String_GetLength(INSTANCE_NAME)+1)*sizeof(wchar_t))!=ERROR_SUCCESS)
             break;
 
         RegCreateKeyExW(
@@ -359,7 +358,7 @@ BOOLEAN RegisterInstance( WCHAR* ServiceName )
             0,
             REG_SZ,
             (const BYTE*)INSTANCE_ALTITUDE,
-            (wcslen(INSTANCE_ALTITUDE)+1)*sizeof(wchar_t))!=ERROR_SUCCESS)
+            (String_GetLength(INSTANCE_ALTITUDE)+1)*sizeof(wchar_t))!=ERROR_SUCCESS)
             break;
 
         if(RegSetValueExW(
@@ -413,7 +412,7 @@ NTSTATUS SlLoadDriver(
     )
 {
     VOID *serviceHandle, *scmHandle, *fileHandle = NULL;
-    WCHAR registyPath[260] = L"\\Registry\\Machine\\System\\CurrentControlSet\\Services\\";
+    WCHAR registyPath[260];
     DWORD dwSize;
     QUERY_SERVICE_CONFIG *lpServiceConfig;
     SERVICE_STATUS ServiceStatus;
@@ -422,6 +421,8 @@ NTSTATUS SlLoadDriver(
     WCHAR root[4];
     WCHAR dir[260];
     WCHAR *ptr;
+
+	String_Copy(registyPath, L"\\Registry\\Machine\\System\\CurrentControlSet\\Services\\");
 
     if (!DriverBinaryName)
     {
@@ -452,7 +453,7 @@ NTSTATUS SlLoadDriver(
         *ptr = '\0';
     }
 
-    swprintf(driverPath, 260, L"%s\\%s", dir, DriverBinaryName);
+    String_Format(driverPath, 260, L"%s\\%s", dir, DriverBinaryName);
 
     root[0] = driverPath[0];
     root[1] = ':';
@@ -464,7 +465,7 @@ NTSTATUS SlLoadDriver(
         WCHAR tempPath[260];
 
         GetTempPathW(260, tempPath);
-        wcscat(tempPath, DriverBinaryName);
+        String_Concatenate(tempPath, DriverBinaryName);
         File_Copy(driverPath, tempPath, NULL);
         String_Copy(driverPath, tempPath);
     }
@@ -574,7 +575,7 @@ NTSTATUS SlLoadDriver(
 
         NtClose(tokenHandle);
 
-        wcscat(registyPath, ServiceName);
+        String_Concatenate(registyPath, ServiceName);
 
         UnicodeString_Init(&u_str, registyPath);
 

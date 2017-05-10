@@ -1,5 +1,4 @@
 #include <sl.h>
-#include <string.h>
 
 #include "gui.h"
 
@@ -166,7 +165,9 @@ VOID Tray_Minimize(
     HANDLE* TrayIconHandle
     )
 {
-    WNDCLASSEX windowClass = { 0 };
+    WNDCLASSEX windowClass;
+
+	Memory_Clear(&windowClass, sizeof(WNDCLASSEX));
 
     windowClass.Size = sizeof(WNDCLASSEX);
     windowClass.Style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
@@ -193,7 +194,7 @@ VOID Tray_Minimize(
     if (TrayIconHandle)
         *TrayIconHandle = Tray_TrayIconHandle;
 
-    memset(&Tray_IconData, 0, sizeof(NOTIFYICONDATA));
+    Memory_Clear(&Tray_IconData, sizeof(NOTIFYICONDATA));
 
     Tray_IconData.cbSize = sizeof(NOTIFYICONDATA);
     Tray_IconData.NotifyWindowHandle = Tray_TrayIconHandle;

@@ -18,8 +18,6 @@ typedef struct _PCI_CONFIG
 
 WORD GPU_VendorId;
 
-#include <wchar.h>
-
 
 VOID GPU_Initialize( ULONG PciAddress )
 {
@@ -41,7 +39,7 @@ VOID GPU_Initialize( ULONG PciAddress )
         wchar_t devicePath[260];
 
         GetDisplayAdapterDevicePath(devicePath);
-        swscanf(devicePath, L"\\\\?\\pci#ven_%04x", &vendorID);
+        swscanf_s(devicePath, L"\\\\?\\pci#ven_%04x", &vendorID);
     }
 
     switch (vendorID)

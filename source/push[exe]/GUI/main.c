@@ -1,7 +1,5 @@
 #include <sl.h>
 #include <sltray.h>
-#include <stdio.h>
-#include <string.h>
 #include <file.h>
 #include <ramdisk.h>
 #include <sldirectory.h>
@@ -99,8 +97,7 @@ VOID GetPathOnly( WCHAR *pszFilePath, WCHAR *pszBuffer )
 }
 
 
-VOID
-ListViewAddItems()
+VOID ListViewAddItems()
 {
     FILE_LIST_ENTRY *file = MwFileList;
     WCHAR text[260];
@@ -110,7 +107,7 @@ ListViewAddItems()
     {
         item = ListView_AddItem(file->Name, file->Bytes);
 
-        swprintf(text, 260, L"%u", file->Bytes);
+        String_Format(text, 260, L"%u", file->Bytes);
         ListView_SetItemText(text, item, 1);
 
         if (file->Cache)
@@ -186,7 +183,7 @@ VOID BuildFileList(
 
     fileNameLength = Information->FileNameLength / sizeof(WCHAR);
 
-    wcsncpy(fileName, Information->FileName, fileNameLength);
+    String_CopyN(fileName, Information->FileName, fileNameLength);
 
     // Add terminating null
     fileName[fileNameLength] = 0;
@@ -204,9 +201,7 @@ VOID BuildFileList(
         WCHAR *filePath, slash[] = L"\\";
 
         filePath = (WCHAR*)Memory_Allocate(
-            /*PushHeapHandle,
-            0,*/
-            (wcslen(Directory) * sizeof(WCHAR)) + sizeof(slash) + Information->FileNameLength
+            (String_GetLength(Directory) * sizeof(WCHAR)) + sizeof(slash) + Information->FileNameLength
             );
 
         AppendFileNameToPath(fileName, Directory, filePath);
@@ -305,12 +300,12 @@ typedef struct _browseinfo {
 #define BIF_USENEWUI            (BIF_NEWDIALOGSTYLE | BIF_EDITBOX)
 
 typedef PIDLIST_ABSOLUTE (__stdcall *TYPE_SHBrowseForFolderW)(
-    _In_ LPBROWSEINFOW lpbi
+    LPBROWSEINFOW lpbi
     );
 
 typedef INTBOOL (__stdcall *TYPE_SHGetPathFromIDListW)(
-    _In_  PCIDLIST_ABSOLUTE pidl,
-    _Out_ WCHAR*            pszPath
+    PCIDLIST_ABSOLUTE pidl,
+    WCHAR*            pszPath
     );
 
 
@@ -325,25 +320,25 @@ TYPE_SHGetPathFromIDListW   SHGetPathFromIDListW;
         );
 
     LONG __stdcall OleInitialize(
-        _In_ VOID* pvReserved
+        VOID* pvReserved
         );
 
     void __stdcall OleUninitialize(void);
 
     void __stdcall CoTaskMemFree(
-        _In_opt_ VOID* pv
+        VOID* pv
         );
 
     INT32 __stdcall DialogBoxParamW(
-        _In_opt_ HANDLE hInstance,
-        _In_     WCHAR*   lpTemplateName,
-        _In_opt_ HANDLE      hWndParent,
-        _In_opt_ VOID*   lpDialogFunc,
-        _In_     LONG    dwInitParam
+        HANDLE hInstance,
+        WCHAR*   lpTemplateName,
+        HANDLE      hWndParent,
+        VOID*   lpDialogFunc,
+        LONG    dwInitParam
         );
 
     void __stdcall ILFree(
-        _In_ VOID* pidl
+        VOID* pidl
         );
 
 WCHAR* ManualLoad;
@@ -475,7 +470,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     // Increment counter by 1, this is the new index
                     i++;
 
-                    swprintf(indexString, 10, L"%i", i);
+                    String_Format(indexString, 10, L"%i", i);
                     SlIniWriteString(L"Games", filePath, indexString);
                     GetPathOnly(filePath, path);
 

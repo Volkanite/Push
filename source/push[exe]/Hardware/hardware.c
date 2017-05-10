@@ -1,5 +1,4 @@
 #include <sl.h>
-#include <string.h>
 #include <push.h>
 #include <ring0.h>
 
@@ -276,34 +275,34 @@ typedef enum _MC_VCP_CODE_TYPE {
 
 
 typedef NTSTATUS(__stdcall* TYPE_GetNumberOfPhysicalMonitors)(
-    _In_   UNICODE_STRING *pstrDeviceName,
-    _Out_  DWORD* pdwNumberOfPhysicalMonitors
+    UNICODE_STRING *pstrDeviceName,
+    DWORD* pdwNumberOfPhysicalMonitors
     );
 
 typedef NTSTATUS(__stdcall* TYPE_GetPhysicalMonitors)(
-    _In_   UNICODE_STRING *pstrDeviceName,
-    _In_   DWORD dwPhysicalMonitorArraySize,
-    _Out_  DWORD *pdwNumPhysicalMonitorHandlesInArray,
-    _Out_  HANDLE *phPhysicalMonitorArray
+    UNICODE_STRING *pstrDeviceName,
+    DWORD dwPhysicalMonitorArraySize,
+    DWORD *pdwNumPhysicalMonitorHandlesInArray,
+    HANDLE *phPhysicalMonitorArray
     );
 
 typedef NTSTATUS(__stdcall* TYPE_DDCCIGetTimingReport)(
-    _In_   HANDLE hMonitor,
-    _Out_  LPMC_TIMING_REPORT pmtr
+    HANDLE hMonitor,
+    LPMC_TIMING_REPORT pmtr
     );
 
 typedef NTSTATUS(__stdcall* TYPE_DDCCIGetVCPFeature)(
-    _In_       HANDLE hMonitor,
-    _In_       DWORD dwVCPCode,
-    _Out_opt_  LPMC_VCP_CODE_TYPE pvct,
-    _Out_      DWORD *pdwCurrentValue,
-    _Out_opt_  DWORD *pdwMaximumValue
+    HANDLE hMonitor,
+    DWORD dwVCPCode,
+    LPMC_VCP_CODE_TYPE pvct,
+    DWORD *pdwCurrentValue,
+    DWORD *pdwMaximumValue
     );
 
 typedef NTSTATUS (__stdcall* TYPE_DDCCISetVCPFeature)(
-    _In_  HANDLE hMonitor,
-    _In_  DWORD dwVCPCode,
-    _In_  DWORD dwNewValue
+    HANDLE hMonitor,
+    DWORD dwVCPCode,
+    DWORD dwNewValue
     );
 
 
@@ -326,17 +325,17 @@ typedef struct tagMONITORINFOEXW {
     WCHAR szDevice[CCHDEVICENAME];
 } MONITORINFOEXW, *LPMONITORINFOEXW;
 INTBOOL __stdcall GetMonitorInfoW(
-    _In_  HANDLE      hMonitor,
-    _Out_ MONITORINFOEXW* lpmi
+    HANDLE      hMonitor,
+    MONITORINFOEXW* lpmi
     );
 
 typedef INTBOOL(__stdcall* MONITORENUMPROC)(HMONITOR, HDC, LPRECT, LPARAM);
 
 INTBOOL __stdcall EnumDisplayMonitors(
-    _In_opt_ HANDLE hdc,
-    _In_opt_ RECT* lprcClip,
-    _In_ MONITORENUMPROC lpfnEnum,
-    _In_ DWORD dwData
+    HANDLE hdc,
+    RECT* lprcClip,
+    MONITORENUMPROC lpfnEnum,
+    DWORD dwData
     );
 
 
@@ -367,7 +366,7 @@ INTBOOL __stdcall MonitorEnumProc( HANDLE hMonitor, HANDLE hdcMonitor, RECT* lpr
 }
 
 int __stdcall GetSystemMetrics(
-    _In_ int nIndex
+    int nIndex
     );
 #define SM_CMONITORS            80
 VOID GetHardwareInfo()

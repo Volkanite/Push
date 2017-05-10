@@ -1,5 +1,4 @@
 #include <sl.h>
-#include <wchar.h>
 #include <pushbase.h>
 
 #include "game.h"
@@ -160,7 +159,7 @@ VOID Game_SetCheckSum( PUSH_GAME* Game, DWORD CheckSum )
 
     Ini_GetString(L"Games", Game->ExecutablePath, NULL, gameId, 260);
 
-    swprintf(checkSum, 100, L"0x%X", CheckSum);
+    String_Format(checkSum, 100, L"0x%X", CheckSum);
     SlIniWriteSubKey(L"Game Settings", gameId, L"CheckSum", checkSum);
 }
 

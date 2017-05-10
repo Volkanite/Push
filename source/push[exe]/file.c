@@ -1,5 +1,4 @@
 #include <sl.h>
-#include <string.h>
 
 #include "push.h"
 #include "file.h"
@@ -9,19 +8,18 @@
 #define PTR_ADD_OFFSET(Pointer, Offset) ((VOID*)((UINT_B)(Pointer) + (UINT_B)(Offset)))
 
 
-BOOLEAN
-SymLinkTargetCmp( WCHAR *Name, WCHAR *dest )
+BOOLEAN SymLinkTargetCmp( WCHAR *Name, WCHAR *dest )
 {
     VOID    *fileHandle;
     WCHAR   szName[1024];
-    BYTE    reparseBuffer[17000];
     BYTE    *reparseData;
     BOOLEAN    bDirectory = FALSE;
     DWORD   dwFlagsAndAttributes;
     IO_STATUS_BLOCK isb;
     NTSTATUS status;
+	UINT32 reparseBufferSize = 17000;
 
-    REPARSE_DATA_BUFFER *reparseInfo = (REPARSE_DATA_BUFFER *) reparseBuffer;
+	REPARSE_DATA_BUFFER *reparseInfo = Memory_Allocate(reparseBufferSize);
 
     if (File_GetAttributes(dest) & FILE_ATTRIBUTE_DIRECTORY)
     {
@@ -60,7 +58,7 @@ SymLinkTargetCmp( WCHAR *Name, WCHAR *dest )
                 &isb,
                 FSCTL_GET_REPARSE_POINT,
                 reparseInfo,
-                sizeof(reparseBuffer),
+				sizeof(reparseBufferSize),
                 NULL,
                 0
                 );
@@ -76,7 +74,7 @@ SymLinkTargetCmp( WCHAR *Name, WCHAR *dest )
 
     NtClose(fileHandle);
 
-    if (String_CompareN(dest, szName + 6, wcslen(dest)) != 0)
+    if (String_CompareN(dest, szName + 6, String_GetLength(dest)) != 0)
         return FALSE;
     else
         return TRUE;
@@ -108,7 +106,7 @@ WCHAR* GetPointerToFilePath( WCHAR *Path, WCHAR *File )
 {
     WCHAR *filePath;
 
-    filePath = (WCHAR *) Memory_Allocate((wcslen(Path) + wcslen(File) + 2) * 2);
+    filePath = (WCHAR *) Memory_Allocate((String_GetLength(Path) + String_GetLength(File) + 2) * 2);
 
     String_Copy(filePath, Path);
 

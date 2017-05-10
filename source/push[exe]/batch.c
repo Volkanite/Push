@@ -1,5 +1,4 @@
 #include <sl.h>
-#include <string.h>
 
 #include "push.h"
 #include "file.h"
@@ -12,8 +11,9 @@ WCHAR* BatchFileName;
 VOID GetBatchFile( PUSH_GAME* Game, WCHAR* Buffer )
 {
     WCHAR *dot;
-    WCHAR batchFile[260] = L"cache\\";
+    WCHAR batchFile[260];
 
+	String_Copy(batchFile, L"cache\\");
     String_Concatenate(batchFile, Game->Name);
 
     dot = String_FindLastChar(batchFile, '.');
@@ -89,7 +89,7 @@ VOID BatchFile_Initialize( PUSH_GAME* Game )
         lineLength = (nextLine - 1) - lineStart;
 
         // Copy line into a buffer
-        wcsncpy(line, lineStart, lineLength);
+		String_CopyN(line, lineStart, lineLength);
 
         // Terminate the buffer;
         line[lineLength] = L'\0';

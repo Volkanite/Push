@@ -10,26 +10,23 @@
 #endif // _MSC_VER > 1000
 #include <Windows.h>
 //////////////////////////////////////////////////////////////////////
-class CContext  
+typedef struct CContext
 {
-public:
-    CContext();
-    virtual ~CContext();
 
-    DWORD   m_dwCoreFamily;
+	DWORD   m_dwCoreFamily;
 
-    LONG    m_dwDiodeGainMul;
-    LONG    m_dwDiodeGainDiv;
-    LONG    m_dwDiodeOffsetMul;
-    LONG    m_dwDiodeOffsetDiv;
-    LONG    m_dwDiodeOffsetBinMul;
-    LONG    m_dwDiodeOffsetBinDiv;
-    DWORD   m_dwDiodeMask;
-    LONG    m_dwTemperatureCompensationMul;
-    LONG    m_dwTemperatureCompensationDiv;
-    LONG    m_dwTemperatureThreshold;
-    LONG    m_dwMaxDiv;
-};
+	LONG    m_dwDiodeGainMul;
+	LONG    m_dwDiodeGainDiv;
+	LONG    m_dwDiodeOffsetMul;
+	LONG    m_dwDiodeOffsetDiv;
+	LONG    m_dwDiodeOffsetBinMul;
+	LONG    m_dwDiodeOffsetBinDiv;
+	DWORD   m_dwDiodeMask;
+	LONG    m_dwTemperatureCompensationMul;
+	LONG    m_dwTemperatureCompensationDiv;
+	LONG    m_dwTemperatureThreshold;
+	LONG    m_dwMaxDiv;
+}CContext;
 //////////////////////////////////////////////////////////////////////
 #endif
 //////////////////////////////////////////////////////////////////////

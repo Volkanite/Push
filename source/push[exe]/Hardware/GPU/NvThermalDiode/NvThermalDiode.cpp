@@ -27,7 +27,7 @@ HINSTANCE                       g_hModule                           = 0;
 //////////////////////////////////////////////////////////////////////
 // This helper function is used to get GPU fuse state by fuse number
 //////////////////////////////////////////////////////////////////////
-extern "C" DWORD ReadGpuRegister(DWORD dwAddr);
+DWORD ReadGpuRegister(DWORD dwAddr);
 
 LONG GetFuseStateByNumber(DWORD dwGpu, DWORD dwFuse)
 {
@@ -78,12 +78,24 @@ LONG GetFuseStateByNumber(DWORD dwGpu, DWORD dwFuse)
 // This exported function is called by RivaTuner to get descriptor
 // for the specified data source
 //////////////////////////////////////////////////////////////////////
-extern "C"
-BOOLEAN
-NvtdInitialize()
+
+BOOLEAN NvtdInitialize()
 {
     DWORD dwGpu     = 0;
         //extract GPU and data source indices from macro index
+
+	g_context[dwGpu].m_dwCoreFamily = 0;
+	g_context[dwGpu].m_dwDiodeGainMul = 0;
+	g_context[dwGpu].m_dwDiodeGainDiv = 0;
+	g_context[dwGpu].m_dwDiodeOffsetMul = 0;
+	g_context[dwGpu].m_dwDiodeOffsetDiv = 0;
+	g_context[dwGpu].m_dwDiodeOffsetBinMul = 0;
+	g_context[dwGpu].m_dwDiodeOffsetBinDiv = 1;
+	g_context[dwGpu].m_dwDiodeMask = 0;
+	g_context[dwGpu].m_dwTemperatureCompensationMul = 0;
+	g_context[dwGpu].m_dwTemperatureCompensationDiv = 1;
+	g_context[dwGpu].m_dwTemperatureThreshold = 125;
+	g_context[dwGpu].m_dwMaxDiv = 1;
 
     if (dwGpu >= MAX_GPU)
         //validate GPU index
@@ -276,9 +288,8 @@ LONG GetDiodeTemp(DWORD dwGpu)
 /////////////////////////////////////////////////////////////////////////////
 // This exported function is called by RivaTuner to poll data sources
 /////////////////////////////////////////////////////////////////////////////
-extern "C"
-FLOAT
-NvtdGetTemperature()
+
+FLOAT NvtdGetTemperature()
 {
     FLOAT   result  = FLT_MAX;
     LONG    temp;

@@ -1,5 +1,4 @@
 #include <sl.h>
-#include <string.h>
 #include <RTSSSharedMemory.h>
 #include <push.h>
 

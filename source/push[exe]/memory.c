@@ -1,5 +1,5 @@
 #include <sl.h>
-#include <stdio.h>
+//#include <stdio.h>
 #include "push.h"
 
 
@@ -11,9 +11,9 @@ extern ULONG PushSessionId;
 
 
 SIZE_T __stdcall RtlSizeHeap(
-    _In_ VOID* HeapHandle,
-    _In_ ULONG Flags,
-    _In_ VOID* BaseAddress
+    VOID* HeapHandle,
+    ULONG Flags,
+    VOID* BaseAddress
     );
 
 
@@ -123,7 +123,6 @@ VOID Memory_Free( VOID* Heap )
 }
 
 
-#include <string.h>
 VOID Memory_Copy( VOID* Destination, VOID* Source, UINT32 Length )
 {
     memcpy(Destination, Source, Length);
@@ -132,7 +131,13 @@ VOID Memory_Copy( VOID* Destination, VOID* Source, UINT32 Length )
 
 VOID Memory_Clear( VOID* Region, UINT32 Size )
 {
-    memset(Region, 0, Size);
+	Memory_ClearEx(Region, 0, Size);
+}
+
+
+VOID Memory_ClearEx(VOID* Region, DWORD Val, UINT32 Size)
+{
+	memset(Region, Val, Size);
 }
 
 

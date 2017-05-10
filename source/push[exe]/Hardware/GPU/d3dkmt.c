@@ -1,6 +1,5 @@
 #include <sl.h>
 #include <sld3dkmt.h>
-#include <string.h>
 #include <push.h>
 #include <hardware.h>
 #include "gpu.h"
@@ -78,7 +77,7 @@ RtlSetBits(
     );
 
 NTSTATUS __stdcall RtlGetVersion(
-    _Out_ RTL_OSVERSIONINFOW* lpVersionInformation
+    RTL_OSVERSIONINFOW* lpVersionInformation
     );
 
 RTL_BITMAP EtGpuNodeBitMap;
@@ -161,7 +160,7 @@ UINT64 D3DKMTGetMemoryUsage()
 
     for (i = 0; i < D3dkmt_GpuAdapter->SegmentCount; i++)
     {
-        memset(&queryStatistics, 0, sizeof(D3DKMT_QUERYSTATISTICS));
+        Memory_Clear(&queryStatistics, sizeof(D3DKMT_QUERYSTATISTICS));
 
         queryStatistics.Type = D3DKMT_QUERYSTATISTICS_SEGMENT;
         queryStatistics.AdapterLuid = D3dkmt_GpuAdapter->AdapterLuid;
@@ -237,7 +236,7 @@ VOID D3DKMTInitialize()
 
             if (NT_SUCCESS(D3DKMTOpenAdapterFromDeviceName(&openAdapterFromDeviceName)))
             {
-                memset(&queryStatistics, 0, sizeof(D3DKMT_QUERYSTATISTICS));
+                Memory_Clear(&queryStatistics, sizeof(D3DKMT_QUERYSTATISTICS));
 
                 queryStatistics.Type = D3DKMT_QUERYSTATISTICS_ADAPTER;
                 queryStatistics.AdapterLuid = openAdapterFromDeviceName.AdapterLuid;
@@ -267,7 +266,7 @@ VOID D3DKMTInitialize()
 
                     for (i = 0; i < D3dkmt_GpuAdapter->SegmentCount; i++)
                     {
-                        memset(&queryStatistics, 0, sizeof(D3DKMT_QUERYSTATISTICS));
+                        Memory_Clear(&queryStatistics, sizeof(D3DKMT_QUERYSTATISTICS));
 
                         queryStatistics.Type = D3DKMT_QUERYSTATISTICS_SEGMENT;
                         queryStatistics.AdapterLuid = D3dkmt_GpuAdapter->AdapterLuid;
@@ -304,7 +303,7 @@ VOID D3DKMTInitialize()
 
     EtGpuNodesTotalRunningTimeDelta = (PPH_UINT64_DELTA) Memory_Allocate(sizeof(PH_UINT64_DELTA) * EtGpuTotalNodeCount);
 
-    memset(EtGpuNodesTotalRunningTimeDelta, 0, sizeof(PH_UINT64_DELTA) * EtGpuTotalNodeCount);
+    Memory_Clear(EtGpuNodesTotalRunningTimeDelta, sizeof(PH_UINT64_DELTA) * EtGpuTotalNodeCount);
 
     D3DKMT_Initialized = TRUE;
 }
@@ -337,7 +336,7 @@ UpdateNodeInformation()
 
     for (j = 0; j < D3dkmt_GpuAdapter->NodeCount; j++)
     {
-        memset(&queryStatistics, 0, sizeof(D3DKMT_QUERYSTATISTICS));
+        Memory_Clear(&queryStatistics, sizeof(D3DKMT_QUERYSTATISTICS));
 
         queryStatistics.Type                = D3DKMT_QUERYSTATISTICS_NODE;
         queryStatistics.AdapterLuid         = D3dkmt_GpuAdapter->AdapterLuid;

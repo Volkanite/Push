@@ -1,10 +1,6 @@
 #include <sl.h>
 #include <slresource.h>
 #include <slregistry.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 #include <pushbase.h>
 #include <gui.h>
 #include <osd.h>
@@ -47,13 +43,14 @@ DWORD __stdcall MapFileAndCheckSumW(
     DWORD* HeaderSum,
     DWORD* CheckSum
     );
+VOID InitializeCRT();
 
 
 BOOLEAN IsGame( WCHAR* ExecutablePath )
 {
     wchar_t buffer[260];
     DWORD result;
-
+	
     result = Ini_GetString(L"Games", ExecutablePath, 0, buffer, 260);
     
     if (result)
@@ -107,26 +104,12 @@ INTBOOL __stdcall SetWindowTextW(
     );
 
 
-VOID
-CopyProgress(
-    UINT64 TotalSize,
-    UINT64 TotalTransferred
-    )
+VOID CopyProgress( UINT64 TotalSize, UINT64 TotalTransferred )
 {
     WCHAR progressText[260];
 
-    swprintf(
-        progressText,
-        260,
-        L"%I64d / %I64d",
-        TotalTransferred,
-        TotalSize
-        );
-
-    SetWindowTextW(
-        CpwTextBoxHandle,
-        progressText
-        );
+    String_Format(progressText, 260, L"%I64d / %I64d", TotalTransferred, TotalSize);
+    SetWindowTextW(CpwTextBoxHandle, progressText);
 }
 
 
@@ -846,7 +829,7 @@ VOID* PushBaseGetNamedObjectDirectory()
     LONG Status;
     WCHAR baseNamedObjectDirectoryName[29];
 
-    swprintf(
+    String_Format(
         baseNamedObjectDirectoryName,
         29,
         L"\\Sessions\\%u\\BaseNamedObjects",
@@ -986,38 +969,46 @@ INTBOOL __stdcall ConnectNamedPipe(
         );
 
     NTSTATUS __stdcall NtCreateNamedPipeFile(
-        _Out_ HANDLE* FileHandle,
-        _In_ ULONG DesiredAccess,
-        _In_ OBJECT_ATTRIBUTES* ObjectAttributes,
-        _Out_ PIO_STATUS_BLOCK IoStatusBlock,
-        _In_ ULONG ShareAccess,
-        _In_ ULONG CreateDisposition,
-        _In_ ULONG CreateOptions,
-        _In_ ULONG NamedPipeType,
-        _In_ ULONG ReadMode,
-        _In_ ULONG CompletionMode,
-        _In_ ULONG MaximumInstances,
-        _In_ ULONG InboundQuota,
-        _In_ ULONG OutboundQuota,
-        _In_opt_ LARGE_INTEGER* DefaultTimeout
+        HANDLE* FileHandle,
+        ULONG DesiredAccess,
+        OBJECT_ATTRIBUTES* ObjectAttributes,
+        PIO_STATUS_BLOCK IoStatusBlock,
+        ULONG ShareAccess,
+        ULONG CreateDisposition,
+        ULONG CreateOptions,
+        ULONG NamedPipeType,
+        ULONG ReadMode,
+        ULONG CompletionMode,
+        ULONG MaximumInstances,
+        ULONG InboundQuota,
+        ULONG OutboundQuota,
+        LARGE_INTEGER* DefaultTimeout
         );
 
 
 #include "Hardware\GPU\adl.h"
 #define PIPE_ACCEPT_REMOTE_CLIENTS 0x00000000
-    VOID Log(const wchar_t* Format, ...)
-    {
-        wchar_t buffer[260];
-        wchar_t output[260] = L"[PUSH] ";
-        va_list _Arglist;
+#define _ADDRESSOF(v)   ( &(v) )
+#define _INTSIZEOF(n)   ( (sizeof(n) + sizeof(int) - 1) & ~(sizeof(int) - 1) )
+#define va_start(ap,v)  ( ap = (va_list)_ADDRESSOF(v) + _INTSIZEOF(v) )
+#define va_end(ap)      ( ap = (va_list)0 )
 
-        _crt_va_start(_Arglist, Format);
-        _vswprintf_c_l(buffer, 260, Format, NULL, _Arglist);
-        _crt_va_end(_Arglist);
 
-        wcsncat(output, buffer, 260);
-        OutputDebugStringW(output);
-    }
+VOID Log(const wchar_t* Format, ...)
+{
+    wchar_t buffer[260];
+	wchar_t output[260];
+    va_list _Arglist;
+
+	String_Copy(output, L"[PUSH] ");
+    va_start(_Arglist, Format);
+    String_Format(buffer, 260, Format, NULL, _Arglist);
+    va_end(_Arglist);
+
+    wcsncat(output, buffer, 260);
+    OutputDebugStringW(output);
+}
+
 
 DWORD __stdcall PipeThread( VOID* Parameter )
 {
@@ -1169,7 +1160,7 @@ typedef struct _SECTION_BASIC_INFORMATION
 } SECTION_BASIC_INFORMATION, *PSECTION_BASIC_INFORMATION;
 
 
-INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, INT32 iCmdShow )
+INT32 __stdcall start( )
 {
     HANDLE sectionHandle, *hMutex;
     DWORD sectionSize;
@@ -1179,6 +1170,8 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     OBJECT_ATTRIBUTES objAttrib = {0};
     PTEB threadEnvironmentBlock;
     UNICODE_STRING eventSource;
+
+	InitializeCRT();
 
     // Check if already running
     hMutex = CreateMutexW(0, FALSE, L"PushOneInstance");
@@ -1218,7 +1211,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     Driver_Load();
 
     //initialize instance
-    PushInstance = Instance;
+	PushInstance = Module_GetHandle(L"Push.exe");
 
     // Create interface
     MwCreateMainWindow();
@@ -1237,7 +1230,7 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
     Log(L"Created section of size %i bytes", sectionSize);
 
     //zero struct
-    memset(PushSharedMemory, 0, sizeof(PUSH_SHARED_MEMORY));
+    Memory_Clear(PushSharedMemory, sizeof(PUSH_SHARED_MEMORY));
 
     //initialize window handle used by overlay
     PushSharedMemory->WindowHandle = PushMainWindow->Handle;
@@ -1390,6 +1383,8 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
         DispatchMessageW(&messages);
     }
 
+	ExitProcess(0);
+
     return 0;
 }
 
@@ -1402,38 +1397,228 @@ VOID PushOnTimer()
 }
 
 
-VOID
-GetTime(CHAR *pszBuffer)
+typedef struct _KSYSTEM_TIME
 {
-    time_t rawtime;
-    struct tm * timeinfo;
+	ULONG LowPart;
+	LONG High1Time;
+	LONG High2Time;
+} KSYSTEM_TIME, *PKSYSTEM_TIME;
 
-    time ( &rawtime );
+typedef struct _KUSER_SHARED_DATA
+{
+	ULONG TickCountLowDeprecated;
+	ULONG TickCountMultiplier;
 
-    timeinfo = localtime ( &rawtime );
+	volatile KSYSTEM_TIME InterruptTime;
+	volatile KSYSTEM_TIME SystemTime;
+} KUSER_SHARED_DATA;
 
-    strftime (pszBuffer,80,"%H:%M:%S",timeinfo);
+#define USER_SHARED_DATA ((KUSER_SHARED_DATA * const)0x7ffe0000)
+
+
+VOID NtGetSystemTimeAsFileTime(FILETIME* lpFileTime)
+{
+	LARGE_INTEGER SystemTime;
+
+	do
+	{
+		SystemTime.u.HighPart = USER_SHARED_DATA->SystemTime.High1Time;
+		SystemTime.u.LowPart = USER_SHARED_DATA->SystemTime.LowPart;
+	} while (SystemTime.u.HighPart != USER_SHARED_DATA->SystemTime.High2Time);
+
+	lpFileTime->dwLowDateTime = SystemTime.u.LowPart;
+	lpFileTime->dwHighDateTime = SystemTime.u.HighPart;
 }
+
+
+#define DAYSPERYEAR 365
+#define DAYSPER4YEARS (4*DAYSPERYEAR+1)
+#define DAYSPER100YEARS (25*DAYSPER4YEARS-1)
+#define DAYSPER400YEARS (4*DAYSPER100YEARS+1)
+#define SECONDSPERDAY (24*60*60)
+#define SECONDSPERHOUR (60*60)
+#define LEAPDAY 59
+
+#define DIFFTIME 0x19db1ded53e8000ULL
+#define DIFFDAYS (3 * DAYSPER100YEARS + 17 * DAYSPER4YEARS + 1 * DAYSPERYEAR)
+
+
+__int64 FileTimeToUnixTime( FILETIME *FileTime )
+{
+	ULARGE_INTEGER ULargeInt;
+	__int64 time;
+
+	ULargeInt.u.LowPart = FileTime->dwLowDateTime;
+	ULargeInt.u.HighPart = FileTime->dwHighDateTime;
+	ULargeInt.QuadPart -= DIFFTIME;
+
+	time = ULargeInt.QuadPart / 10000000;
+
+	return time;
+}
+//#include <time.h>
+long leapyears_passed(long days)
+{
+	long quadcenturies, centuries, quadyears;
+	quadcenturies = days / DAYSPER400YEARS;
+	days -= quadcenturies;
+	centuries = days / DAYSPER100YEARS;
+	days += centuries;
+	quadyears = days / DAYSPER4YEARS;
+	return quadyears - centuries + quadcenturies;
+}
+long leapdays_passed(long days)
+{
+	return leapyears_passed(days + DAYSPERYEAR - LEAPDAY + 1);
+}
+
+
+unsigned int g_monthdays[13] = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 };
+unsigned int g_lpmonthdays[13] = { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 };
+
+typedef struct _TIME_INFORMATION {
+	int tm_sec;     /* seconds after the minute - [0,59] */
+	int tm_min;     /* minutes after the hour - [0,59] */
+	int tm_hour;    /* hours since midnight - [0,23] */
+	int tm_mday;    /* day of the month - [1,31] */
+	int tm_mon;     /* months since January - [0,11] */
+	int tm_year;    /* years since 1900 */
+	int tm_wday;    /* days since Sunday - [0,6] */
+	int tm_yday;    /* days since January 1 - [0,365] */
+	int tm_isdst;   /* daylight savings time flag */
+}TIME_INFORMATION;
+
+
+void GetTimeUnits( TIME_INFORMATION *ptm, __int64 time )
+{
+	unsigned int days, daystoyear, dayinyear, leapdays, leapyears, years, month;
+	unsigned int secondinday, secondinhour;
+	unsigned int *padays;
+
+	/* Divide into date and time */
+	days = (unsigned int)(time / SECONDSPERDAY);
+	secondinday = time % SECONDSPERDAY;
+
+	/* Shift to days from 1.1.1601 */
+	days += DIFFDAYS;
+
+	/* Calculate leap days passed till today */
+	leapdays = leapdays_passed(days);
+
+	/* Calculate number of full leap years passed */
+	leapyears = leapyears_passed(days);
+
+	/* Are more leap days passed than leap years? */
+	if (leapdays > leapyears)
+	{
+		/* Yes, we're in a leap year */
+		padays = g_lpmonthdays;
+	}
+	else
+	{
+		/* No, normal year */
+		padays = g_monthdays;
+	}
+
+	/* Calculate year */
+	years = (days - leapdays) / 365;
+	ptm->tm_year = years - 299;
+
+	/* Calculate number of days till 1.1. of this year */
+	daystoyear = years * 365 + leapyears;
+
+	/* Calculate the day in this year */
+	dayinyear = days - daystoyear;
+
+	/* Shall we do DST corrections? */
+	ptm->tm_isdst = 0;
+
+	ptm->tm_yday = dayinyear;
+
+	/* dayinyear < 366 => terminates with i <= 11 */
+	for (month = 0; dayinyear >= padays[month + 1]; month++)
+		;
+
+	/* Set month and day in month */
+	ptm->tm_mon = month;
+	ptm->tm_mday = 1 + dayinyear - padays[month];
+
+	/* Get weekday */
+	ptm->tm_wday = (days + 1) % 7;
+
+	/* Calculate hour and second in hour */
+	ptm->tm_hour = secondinday / SECONDSPERHOUR;
+	secondinhour = secondinday % SECONDSPERHOUR;
+
+	/* Calculate minute and second */
+	ptm->tm_min = secondinhour / 60;
+	ptm->tm_sec = secondinhour % 60;
+}
+int wcsftime(wchar_t *str, int max, const wchar_t *format,
+	TIME_INFORMATION *mstm);
 
 
 VOID Push_FormatTime( WCHAR* Buffer )
 {
-    time_t rawtime;
-    struct tm * timeinfo;
+	__int64 rawtime;
+	FILETIME Now;
+	TIME_INFORMATION timeInfo;
 
-    time(&rawtime);
 
-    timeinfo = localtime(
-        &rawtime
-        );
+	NtGetSystemTimeAsFileTime(&Now);
+	rawtime = FileTimeToUnixTime(&Now);
 
-    wcsftime(
-        Buffer,
-        20,
-        L"%H:%M:%S",
-        timeinfo
-        );
+	GetTimeUnits(&timeInfo, rawtime);
+	String_Format(Buffer, 20, L"%i:%i:%i", timeInfo.tm_hour, timeInfo.tm_min, timeInfo.tm_sec);
 }
 
+
+TYPE_iswspace		iswspace;
+TYPE_memcmp			memcmp;
+TYPE_memcpy			memcpy;
+TYPE_memset			memset;
+TYPE_strcmp			strcmp;
+TYPE_strcpy			strcpy;
+TYPE_strlen			strlen;
+TYPE_strncmp		strncmp;
+TYPE_strncpy		strncpy;
+TYPE_swscanf_s		swscanf_s;
+TYPE_vswprintf_s	vswprintf_s;
+TYPE_wcsncat		wcsncat;
+TYPE_wcsnlen		wcsnlen;
+TYPE_wcstol			wcstol;
+TYPE__wtoi			_wtoi;
+
+
+FARPROC __stdcall GetProcAddress(
+	HANDLE hModule,
+	CHAR*  lpProcName
+	);
+
+int _fltused;
+
+
+VOID InitializeCRT()
+{
+	void* ntdll;
+
+	ntdll = Module_GetHandle(L"ntdll.dll");
+
+	iswspace = (TYPE_iswspace)GetProcAddress(ntdll, "iswspace");
+	memcmp = (TYPE_memcmp)GetProcAddress(ntdll, "memcmp");
+	memcpy = (TYPE_memcpy)GetProcAddress(ntdll, "memcpy");
+	memset = (TYPE_memset)GetProcAddress(ntdll, "memset");
+	strcmp = (TYPE_strcmp)GetProcAddress(ntdll, "strcmp");
+	strcpy = (TYPE_strcpy)GetProcAddress(ntdll, "strcpy");
+	strlen = (TYPE_strlen)GetProcAddress(ntdll, "strlen");
+	strncmp = (TYPE_strncmp)GetProcAddress(ntdll, "strncmp");
+	strncpy = (TYPE_strncpy)GetProcAddress(ntdll, "strncpy");
+	swscanf_s = (TYPE_swscanf_s)GetProcAddress(ntdll, "swscanf_s");
+	vswprintf_s = (TYPE_vswprintf_s)GetProcAddress(ntdll, "vswprintf_s");
+	wcsncat = (TYPE_wcsncat)GetProcAddress(ntdll, "wcsncat");
+	wcsnlen = (TYPE_wcsnlen)GetProcAddress(ntdll, "wcsnlen");
+	wcstol = (TYPE_wcstol)GetProcAddress(ntdll, "wcstol");
+	_wtoi = (TYPE__wtoi)GetProcAddress(ntdll, "_wtoi");
+}
 
 

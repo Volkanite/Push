@@ -1,4 +1,5 @@
 #include <sl.h>
+#include "push.h"
 
 
 VOID* Module_Load( WCHAR* FileName )
@@ -44,12 +45,24 @@ VOID* Module_GetHandle( WCHAR* FileName )
     return moduleHandle;
 }
 
+UINT32 strlen_o(CHAR* String)
+{
+	const char *p;
 
-#include <string.h>
+	if (!String)
+		return NULL;
+
+	p = String;
+
+	while (*p)
+		p++;
+
+	return p - String;
+}
 VOID RtlInitAnsiString( PANSI_STRING DestinationString, CHAR* SourceString )
 {
     if (SourceString)
-        DestinationString->MaximumLength = (DestinationString->Length = (UINT16)strlen(SourceString)) + 1;
+		DestinationString->MaximumLength = (DestinationString->Length = (UINT16)strlen ? strlen(SourceString) : strlen_o(SourceString)) + 1;
     else
         DestinationString->MaximumLength = DestinationString->Length = 0;
 

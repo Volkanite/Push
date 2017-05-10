@@ -12,7 +12,7 @@ static char THIS_FILE[]=__FILE__;
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-CContext::CContext()
+/*CContext::CContext()
 {
     m_dwCoreFamily                      = 0;
     m_dwDiodeGainMul                    = 0;
@@ -26,9 +26,9 @@ CContext::CContext()
     m_dwTemperatureCompensationDiv      = 1;
     m_dwTemperatureThreshold            = 125;
     m_dwMaxDiv                          = 1;
-}
+}*/
 //////////////////////////////////////////////////////////////////////
-CContext::~CContext()
+/*CContext::~CContext()
 {
-}
+}*/
 //////////////////////////////////////////////////////////////////////

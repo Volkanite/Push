@@ -1,7 +1,5 @@
 #include <sl.h>
 #include <time.h>
-#include <stdio.h>
-#include <string.h>
 #include <push.h>
 #include <hardware.h>
 
@@ -33,10 +31,10 @@ VOID FormatTime( UINT32 Value, WCHAR* Buffer )
 }
 
 
-VOID FormatDiskReadWriteRate(
-    UINT32 Value,
-    WCHAR* Buffer
-    )
+VOID FormatDiskReadWriteRate( 
+	UINT32 Value, 
+	WCHAR* Buffer 
+	)
 {
     UINT32 rate;
     WCHAR *format;
@@ -56,12 +54,7 @@ VOID FormatDiskReadWriteRate(
         format = L"DSK : %i MB/s";
     }
 
-    swprintf(
-        Buffer,
-        20,
-        format,
-        rate
-        );
+    String_Format(Buffer, 20, format, rate);
 }
 
 
@@ -111,7 +104,7 @@ VOID OSD_Refresh()
                 }
                 else if (OsdItems[i].DisplayFormat)
                 {
-                    swprintf(
+                    String_Format(
                         OsdItems[i].Text,
                         20,
                         OsdItems[i].DisplayFormat,
@@ -119,7 +112,7 @@ VOID OSD_Refresh()
                         );
                 }
 
-                wcscat(OsdItems[i].Text, L"\n");
+                String_Concatenate(OsdItems[i].Text, L"\n");
             }
 
             if (PushSharedMemory->Overloads & OsdItems[i].Flag)

@@ -1,8 +1,8 @@
 #include <sl.h>
 #include <vendors.h>
 #include <intrin.h>
-#include <string.h>
 #include <pushbase.h>
+#include <push.h>
 
 #include "amd.h"
 #include "intel.h"

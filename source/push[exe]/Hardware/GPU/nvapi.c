@@ -88,25 +88,39 @@ UINT16 Nvapi_GetMemoryClock()
 
 UINT16 Nvapi_GetMaxEngineClock()
 {
-    NV_GPU_PERF_PSTATES_INFO pstateInfo = {0};
+	NV_GPU_PERF_PSTATES_INFO *pstateInfo;
+	UINT16 frequency;
 
-    pstateInfo.Version = sizeof(NV_GPU_PERF_PSTATES_INFO) | 0x10000;
+	pstateInfo = Memory_AllocateEx(sizeof(NV_GPU_PERF_PSTATES_INFO), HEAP_ZERO_MEMORY);
 
-    NvAPI_GPU_GetPstatesInfo(gpuHandles[0], &pstateInfo);
+    pstateInfo->Version = sizeof(NV_GPU_PERF_PSTATES_INFO) | 0x10000;
 
-    return pstateInfo.Pstates[NVAPI_GPU_PERF_PSTATE_P0].Clocks[0].Freq * 0.001f;
+    NvAPI_GPU_GetPstatesInfo(gpuHandles[0], pstateInfo);
+
+	frequency = pstateInfo->Pstates[NVAPI_GPU_PERF_PSTATE_P0].Clocks[0].Freq * 0.001f;
+
+	Memory_Free(pstateInfo);
+
+	return frequency;
 }
 
 
 UINT16 Nvapi_GetMaxMemoryClock()
 {
-    NV_GPU_PERF_PSTATES_INFO pstateInfo = {0};
+	NV_GPU_PERF_PSTATES_INFO *pstateInfo;
+	UINT16 frequency;
 
-    pstateInfo.Version = sizeof(NV_GPU_PERF_PSTATES_INFO) | 0x10000;
+	pstateInfo = Memory_AllocateEx(sizeof(NV_GPU_PERF_PSTATES_INFO), HEAP_ZERO_MEMORY);
 
-    NvAPI_GPU_GetPstatesInfo(gpuHandles[0], &pstateInfo);
+	pstateInfo->Version = sizeof(NV_GPU_PERF_PSTATES_INFO) | 0x10000;
 
-    return pstateInfo.Pstates[NVAPI_GPU_PERF_PSTATE_P0].Clocks[1].Freq * 0.001f;
+	NvAPI_GPU_GetPstatesInfo(gpuHandles[0], pstateInfo);
+
+	frequency = pstateInfo->Pstates[NVAPI_GPU_PERF_PSTATE_P0].Clocks[1].Freq * 0.001f;
+
+	Memory_Free(pstateInfo);
+
+	return frequency;
 }
 
 
@@ -151,15 +165,22 @@ UINT8 Nvapi_GetTemperature()
 
 UINT32 Nvapi_GetVoltage()
 {
-    NV_VOLTAGES voltageInfo = { 0 };
+	NV_VOLTAGES *voltageInfo;
+	UINT32 voltage;
 
-    voltageInfo.Version = sizeof(NV_VOLTAGES) | 0x10000;
-    voltageInfo.Flags = 0;
-    voltageInfo.voltages[0].domainId = NVAPI_GPU_PERF_VOLTAGE_INFO_DOMAIN_CORE;
+	voltageInfo = Memory_AllocateEx(sizeof(NV_VOLTAGES), HEAP_ZERO_MEMORY);
 
-    NvAPI_GPU_GetVoltages(gpuHandles[0], &voltageInfo);
+    voltageInfo->Version = sizeof(NV_VOLTAGES) | 0x10000;
+    voltageInfo->Flags = 0;
+    voltageInfo->voltages[0].domainId = NVAPI_GPU_PERF_VOLTAGE_INFO_DOMAIN_CORE;
 
-    return voltageInfo.voltages[0].info[2].mvolt;
+    NvAPI_GPU_GetVoltages(gpuHandles[0], voltageInfo);
+
+	voltage = voltageInfo->voltages[0].info[2].mvolt;
+
+	Memory_Free(voltageInfo);
+
+	return voltage;
 }
 
 

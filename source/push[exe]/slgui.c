@@ -16,7 +16,9 @@ VOID* SlCreateWindow(
     )
 {
     VOID *handle;
-    WNDCLASSEX windowClass = { 0 };
+    WNDCLASSEX windowClass;
+
+	Memory_Clear(&windowClass, sizeof(WNDCLASSEX));
 
     windowClass.WndProc = wndProc;
     windowClass.ClassName = className;
