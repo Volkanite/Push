@@ -235,31 +235,24 @@ NTSTATUS __stdcall NtTerminateThread(
 #define MB_TOPMOST          0x00040000L
 
 
-VOID
-CacheFiles(CHAR driveLetter)
+VOID CacheFiles( CHAR driveLetter )
 {
+    HANDLE threadHandle;
     FILE_LIST_ENTRY *file = (FILE_LIST_ENTRY*) PushFileList;
-    VOID *threadHandle;
 
     //create copy progress window
-    /*threadHandle = CreateThread(
-                    NULL,
-                    NULL,
-                    &CpwThread,
-                    NULL,
-                    NULL,
-                    NULL
-                    );*/
 
-    threadHandle = CreateRemoteThread(
-                    NtCurrentProcess(),
-                    NULL,
-                    NULL,
-                    &CpwThread,
-                    NULL,
-                    NULL,
-                    NULL
-                    );
+    NtCreateThreadEx(
+        &threadHandle,
+        THREAD_ALL_ACCESS,
+        NULL,
+        NtCurrentProcess(),
+        &CpwThread,
+        NULL,
+        NoThreadFlags,
+        0, 0, 0,
+        NULL
+        );
 
     while (file != 0)
     {
@@ -474,14 +467,13 @@ VOID OnProcessEvent( PROCESSID processID )
 typedef unsigned __int64 DWORD64;
 DWORD64 GetRemoteModuleHandle(HANDLE ProcessHandle, WCHAR* ModuleName);
 DWORD64 GetRemoteProcAddress(HANDLE ProcessHandle, DWORD64 BaseAddress, const char* name_ord);
-DWORD64 CreateRemoteThread64(HANDLE ProcessHandle, DWORD64 StartRoutine, DWORD RemoteMemory);
+DWORD64 NtCreateThreadEx64(HANDLE ProcessHandle, DWORD64 StartRoutine, DWORD RemoteMemory);
 
 
 VOID Inject( HANDLE ProcessHandle )
 {
     VOID *remoteMemory;
     DWORD64 kernel32Base;
-    DWORD64 _LoadLibraryW;
     DWORD64 threadHandle;
     WCHAR modulePath[260], *pszLastSlash;
     UINT32 regionSize;
@@ -510,20 +502,36 @@ VOID Inject( HANDLE ProcessHandle )
     // Copy library name
     Process_WriteMemory(ProcessHandle, remoteMemory, modulePath, sizeof(modulePath));
 
-
     // Load dll into the remote process
-
     if (x64)
     {
+        DWORD64 _LoadLibraryW;
+
         kernel32Base = GetRemoteModuleHandle(ProcessHandle, L"kernel32.dll");
         _LoadLibraryW = GetRemoteProcAddress(ProcessHandle, kernel32Base, "LoadLibraryW");
-        threadHandle = CreateRemoteThread64(ProcessHandle, _LoadLibraryW, (DWORD)remoteMemory);
+        threadHandle = NtCreateThreadEx64(ProcessHandle, _LoadLibraryW, (DWORD)remoteMemory);
     }
     else
     {
+        HANDLE _threadHandle;
+        void* _LoadLibraryW;
+
         kernel32Base = Module_GetHandle(L"kernel32.dll");
         _LoadLibraryW = Module_GetProcedureAddress((VOID*)kernel32Base, "LoadLibraryW");
-        threadHandle = CreateRemoteThread(ProcessHandle, 0, 0, (PTHREAD_START_ROUTINE)_LoadLibraryW, remoteMemory, 0, 0);
+
+        NtCreateThreadEx(
+            &_threadHandle, 
+            THREAD_ALL_ACCESS, 
+            NULL, 
+            ProcessHandle,
+            _LoadLibraryW,
+            remoteMemory,
+            NoThreadFlags,
+            0, 0, 0,
+            NULL
+            );
+
+        threadHandle = _threadHandle;
     }
 
     NtWaitForSingleObject((VOID*)threadHandle, FALSE, NULL);
@@ -923,16 +931,37 @@ DWORD __stdcall MonitorThread(VOID* Parameter)
     while (processEvent)
     {
         NTSTATUS result;
+        HANDLE threadHandle;
 
         result = NtWaitForMultipleObjects(2, &handles[0], WaitAny, FALSE, NULL);
 
         if (processEvent && handles[result - STATUS_WAIT_0] == processEvent)
         {
-            CreateRemoteThread(NtCurrentProcess(), 0, 0, &RetrieveProcessEvent, NULL, 0, NULL);
+            NtCreateThreadEx(
+                &threadHandle,
+                THREAD_ALL_ACCESS,
+                NULL,
+                NtCurrentProcess(),
+                &RetrieveProcessEvent,
+                NULL,
+                NoThreadFlags,
+                0, 0, 0,
+                NULL
+                );
         }
         else if (handles[result - STATUS_WAIT_0] == d3dImageEvent)
         {
-            CreateRemoteThread(NtCurrentProcess(), 0, 0, &RetrieveImageEvent, NULL, 0, NULL);
+            NtCreateThreadEx(
+                &threadHandle,
+                THREAD_ALL_ACCESS,
+                NULL,
+                NtCurrentProcess(),
+                &RetrieveImageEvent,
+                NULL,
+                NoThreadFlags,
+                0, 0, 0,
+                NULL
+                );
         }
     }
 
@@ -1326,9 +1355,31 @@ INT32 __stdcall WinMain( VOID* Instance, VOID *hPrevInstance, CHAR *pszCmdLine, 
 
     g_szPrevGame[5] = '\0';
 
-    PushMonitorThreadHandle = CreateRemoteThread(NtCurrentProcess(), 0, 0, &MonitorThread, NULL, 0, NULL);
+    NtCreateThreadEx(
+        &PushMonitorThreadHandle,
+        THREAD_ALL_ACCESS,
+        NULL,
+        NtCurrentProcess(),
+        &MonitorThread,
+        NULL,
+        NoThreadFlags,
+        0, 0, 0,
+        NULL
+        );
 
-    CreateRemoteThread(NtCurrentProcess(), NULL, 0, &PipeThread, NULL, 0, NULL);
+    HANDLE threadHandle;
+
+    NtCreateThreadEx(
+        &threadHandle,
+        THREAD_ALL_ACCESS,
+        NULL,
+        NtCurrentProcess(),
+        &PipeThread,
+        NULL,
+        NoThreadFlags,
+        0, 0, 0,
+        NULL
+        );
 
     // Handle messages
 

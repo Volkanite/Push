@@ -119,6 +119,23 @@ typedef enum _SECTION_INHERIT
     ViewShare = 1,
     ViewUnmap = 2
 } SECTION_INHERIT;
+typedef struct _PS_ATTRIBUTE
+{
+    ULONG_PTR Attribute;
+    SIZE_T Size;
+    union
+    {
+        ULONG_PTR Value;
+        VOID* ValuePtr;
+    };
+    SIZE_T* ReturnLength;
+} PS_ATTRIBUTE, *PPS_ATTRIBUTE;
+typedef struct _PS_ATTRIBUTE_LIST
+{
+    SIZE_T TotalLength;
+    PS_ATTRIBUTE Attributes[1];
+} PS_ATTRIBUTE_LIST, *PPS_ATTRIBUTE_LIST;
+
 
 NTSTATUS __stdcall NtMapViewOfSection(
     VOID* SectionHandle,
@@ -132,5 +149,30 @@ NTSTATUS __stdcall NtMapViewOfSection(
     ULONG AllocationType,
     ULONG Win32Protect
     );
+
+NTSTATUS __stdcall NtCreateThreadEx(
+    HANDLE* ThreadHandle,
+    DWORD DesiredAccess,
+    OBJECT_ATTRIBUTES* ObjectAttributes,
+    HANDLE ProcessHandle,
+    VOID* StartRoutine, // PUSER_THREAD_START_ROUTINE
+    VOID* Argument,
+    ULONG CreateFlags, // THREAD_CREATE_FLAGS_*
+    SIZE_T ZeroBits,
+    SIZE_T StackSize,
+    SIZE_T MaximumStackSize,
+    PPS_ATTRIBUTE_LIST AttributeList
+    );
+
+#define THREAD_ALL_ACCESS (STANDARD_RIGHTS_REQUIRED | SYNCHRONIZE | 0xFFFF)
+
+enum _THREAD_CREATE_FLAGS
+{
+    NoThreadFlags = 0x0000,
+    CreateSuspended = 0x0001,
+    NoDllCallbacks = 0x0002,
+    HideFromDebug = 0x0004,
+}THREAD_CREATE_FLAGS;
+
 
 #endif //PUSH_H

@@ -409,7 +409,7 @@ WriteProcessMemory(
     DWORD*  lpNumberOfBytesWritten
     );
 
-VOID*
+/*VOID*
 __stdcall
 CreateRemoteThread(
     VOID                    *hProcess,
@@ -419,7 +419,7 @@ CreateRemoteThread(
     VOID                    *lpParameter,
     DWORD                   dwCreationFlags,
     DWORD                   *lpThreadId
-    );
+    );*/
 
 INT32
 __stdcall ControlService(

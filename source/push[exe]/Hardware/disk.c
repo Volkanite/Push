@@ -995,11 +995,23 @@ DWORD __stdcall DiskMonitorThread( VOID* Parameter )
 VOID DiskStartMonitoring()
 {
     LARGE_INTEGER performanceCounter;
+    HANDLE threadHandle;
 
     NtQueryPerformanceCounter(&performanceCounter, &PerformanceFrequency);
     InitializeCircularBuffer(&DiskReadWriteHistory, 2);
     EtFileNameHashtable = PhCreateSimpleHashtable(128);
-    CreateRemoteThread(NtCurrentProcess(), 0, 0, &DiskMonitorThread, 0, 0, 0);
+
+    NtCreateThreadEx(
+        &threadHandle,
+        THREAD_ALL_ACCESS,
+        NULL,
+        NtCurrentProcess(),
+        &DiskMonitorThread,
+        NULL,
+        NoThreadFlags,
+        0, 0, 0,
+        NULL
+        );
 
     Log(L"Initialized Disk Monitor");
 

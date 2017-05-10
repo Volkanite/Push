@@ -861,7 +861,7 @@ DWORD64 GetRemoteProcAddress(HANDLE ProcessHandle, DWORD64 BaseAddress, const ch
 }
 
 
-DWORD64 CreateRemoteThread64(HANDLE ProcessHandle, DWORD64 StartRoutine, DWORD RemoteMemory)
+DWORD64 NtCreateThreadEx64( HANDLE ProcessHandle, DWORD64 StartRoutine, DWORD RemoteMemory )
 {
     DWORD64 ulModule = GetModuleHandle64(L"ntdll.dll");
     DWORD64 threadHandle = NULL;
