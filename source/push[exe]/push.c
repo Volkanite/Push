@@ -19,6 +19,7 @@
 
 WCHAR g_szPrevGame[260];
 WCHAR g_szLastDir[260];
+WCHAR PushFilePath[260];
 BOOLEAN g_bRecache;
 VOID* PushControlHandles[50];
 VOID* PushInstance;
@@ -50,7 +51,7 @@ BOOLEAN IsGame( WCHAR* ExecutablePath )
 {
     wchar_t buffer[260];
     DWORD result;
-	
+    
     result = Ini_GetString(L"Games", ExecutablePath, 0, buffer, 260);
     
     if (result)
@@ -468,8 +469,7 @@ VOID Inject( HANDLE ProcessHandle )
     }
 
     Resource_Extract(x64 ? L"OVERLAY64" : L"OVERLAY32", x64 ? PUSH_LIB_NAME_64 : PUSH_LIB_NAME_32);
-    
-    GetModuleFileNameW(0, modulePath, 260);
+    String_Copy(modulePath, PushFilePath);
 
     pszLastSlash = String_FindLastChar(modulePath, '\\');
     pszLastSlash[1] = '\0';
@@ -997,10 +997,10 @@ INTBOOL __stdcall ConnectNamedPipe(
 VOID Log(const wchar_t* Format, ...)
 {
     wchar_t buffer[260];
-	wchar_t output[260];
+    wchar_t output[260];
     va_list _Arglist;
 
-	String_Copy(output, L"[PUSH] ");
+    String_Copy(output, L"[PUSH] ");
     va_start(_Arglist, Format);
     String_Format(buffer, 260, Format, NULL, _Arglist);
     va_end(_Arglist);
@@ -1171,7 +1171,7 @@ INT32 __stdcall start( )
     PTEB threadEnvironmentBlock;
     UNICODE_STRING eventSource;
 
-	InitializeCRT();
+    InitializeCRT();
 
     // Check if already running
     hMutex = CreateMutexW(0, FALSE, L"PushOneInstance");
@@ -1205,13 +1205,16 @@ INT32 __stdcall start( )
 
     NtCreateEvent(&eventHandle, EVENT_ALL_ACCESS, &objAttrib, NotificationEvent, FALSE);
 
+    // populate file name and path
+    GetModuleFileNameW(NULL, PushFilePath, 260);
+
     // Start Driver.
 
     Driver_Extract();
     Driver_Load();
 
     //initialize instance
-	PushInstance = Module_GetHandle(L"Push.exe");
+    PushInstance = Module_GetHandle(L"Push.exe");
 
     // Create interface
     MwCreateMainWindow();
@@ -1383,7 +1386,7 @@ INT32 __stdcall start( )
         DispatchMessageW(&messages);
     }
 
-	ExitProcess(0);
+    ExitProcess(0);
 
     return 0;
 }
@@ -1399,18 +1402,18 @@ VOID PushOnTimer()
 
 typedef struct _KSYSTEM_TIME
 {
-	ULONG LowPart;
-	LONG High1Time;
-	LONG High2Time;
+    ULONG LowPart;
+    LONG High1Time;
+    LONG High2Time;
 } KSYSTEM_TIME, *PKSYSTEM_TIME;
 
 typedef struct _KUSER_SHARED_DATA
 {
-	ULONG TickCountLowDeprecated;
-	ULONG TickCountMultiplier;
+    ULONG TickCountLowDeprecated;
+    ULONG TickCountMultiplier;
 
-	volatile KSYSTEM_TIME InterruptTime;
-	volatile KSYSTEM_TIME SystemTime;
+    volatile KSYSTEM_TIME InterruptTime;
+    volatile KSYSTEM_TIME SystemTime;
 } KUSER_SHARED_DATA;
 
 #define USER_SHARED_DATA ((KUSER_SHARED_DATA * const)0x7ffe0000)
@@ -1418,16 +1421,16 @@ typedef struct _KUSER_SHARED_DATA
 
 VOID NtGetSystemTimeAsFileTime(FILETIME* lpFileTime)
 {
-	LARGE_INTEGER SystemTime;
+    LARGE_INTEGER SystemTime;
 
-	do
-	{
-		SystemTime.u.HighPart = USER_SHARED_DATA->SystemTime.High1Time;
-		SystemTime.u.LowPart = USER_SHARED_DATA->SystemTime.LowPart;
-	} while (SystemTime.u.HighPart != USER_SHARED_DATA->SystemTime.High2Time);
+    do
+    {
+        SystemTime.u.HighPart = USER_SHARED_DATA->SystemTime.High1Time;
+        SystemTime.u.LowPart = USER_SHARED_DATA->SystemTime.LowPart;
+    } while (SystemTime.u.HighPart != USER_SHARED_DATA->SystemTime.High2Time);
 
-	lpFileTime->dwLowDateTime = SystemTime.u.LowPart;
-	lpFileTime->dwHighDateTime = SystemTime.u.HighPart;
+    lpFileTime->dwLowDateTime = SystemTime.u.LowPart;
+    lpFileTime->dwHighDateTime = SystemTime.u.HighPart;
 }
 
 
@@ -1445,31 +1448,31 @@ VOID NtGetSystemTimeAsFileTime(FILETIME* lpFileTime)
 
 __int64 FileTimeToUnixTime( FILETIME *FileTime )
 {
-	ULARGE_INTEGER ULargeInt;
-	__int64 time;
+    ULARGE_INTEGER ULargeInt;
+    __int64 time;
 
-	ULargeInt.u.LowPart = FileTime->dwLowDateTime;
-	ULargeInt.u.HighPart = FileTime->dwHighDateTime;
-	ULargeInt.QuadPart -= DIFFTIME;
+    ULargeInt.u.LowPart = FileTime->dwLowDateTime;
+    ULargeInt.u.HighPart = FileTime->dwHighDateTime;
+    ULargeInt.QuadPart -= DIFFTIME;
 
-	time = ULargeInt.QuadPart / 10000000;
+    time = ULargeInt.QuadPart / 10000000;
 
-	return time;
+    return time;
 }
 //#include <time.h>
 long leapyears_passed(long days)
 {
-	long quadcenturies, centuries, quadyears;
-	quadcenturies = days / DAYSPER400YEARS;
-	days -= quadcenturies;
-	centuries = days / DAYSPER100YEARS;
-	days += centuries;
-	quadyears = days / DAYSPER4YEARS;
-	return quadyears - centuries + quadcenturies;
+    long quadcenturies, centuries, quadyears;
+    quadcenturies = days / DAYSPER400YEARS;
+    days -= quadcenturies;
+    centuries = days / DAYSPER100YEARS;
+    days += centuries;
+    quadyears = days / DAYSPER4YEARS;
+    return quadyears - centuries + quadcenturies;
 }
 long leapdays_passed(long days)
 {
-	return leapyears_passed(days + DAYSPERYEAR - LEAPDAY + 1);
+    return leapyears_passed(days + DAYSPERYEAR - LEAPDAY + 1);
 }
 
 
@@ -1477,148 +1480,148 @@ unsigned int g_monthdays[13] = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 30
 unsigned int g_lpmonthdays[13] = { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 };
 
 typedef struct _TIME_INFORMATION {
-	int tm_sec;     /* seconds after the minute - [0,59] */
-	int tm_min;     /* minutes after the hour - [0,59] */
-	int tm_hour;    /* hours since midnight - [0,23] */
-	int tm_mday;    /* day of the month - [1,31] */
-	int tm_mon;     /* months since January - [0,11] */
-	int tm_year;    /* years since 1900 */
-	int tm_wday;    /* days since Sunday - [0,6] */
-	int tm_yday;    /* days since January 1 - [0,365] */
-	int tm_isdst;   /* daylight savings time flag */
+    int tm_sec;     /* seconds after the minute - [0,59] */
+    int tm_min;     /* minutes after the hour - [0,59] */
+    int tm_hour;    /* hours since midnight - [0,23] */
+    int tm_mday;    /* day of the month - [1,31] */
+    int tm_mon;     /* months since January - [0,11] */
+    int tm_year;    /* years since 1900 */
+    int tm_wday;    /* days since Sunday - [0,6] */
+    int tm_yday;    /* days since January 1 - [0,365] */
+    int tm_isdst;   /* daylight savings time flag */
 }TIME_INFORMATION;
 
 
 void GetTimeUnits( TIME_INFORMATION *ptm, __int64 time )
 {
-	unsigned int days, daystoyear, dayinyear, leapdays, leapyears, years, month;
-	unsigned int secondinday, secondinhour;
-	unsigned int *padays;
+    unsigned int days, daystoyear, dayinyear, leapdays, leapyears, years, month;
+    unsigned int secondinday, secondinhour;
+    unsigned int *padays;
 
-	/* Divide into date and time */
-	days = (unsigned int)(time / SECONDSPERDAY);
-	secondinday = time % SECONDSPERDAY;
+    /* Divide into date and time */
+    days = (unsigned int)(time / SECONDSPERDAY);
+    secondinday = time % SECONDSPERDAY;
 
-	/* Shift to days from 1.1.1601 */
-	days += DIFFDAYS;
+    /* Shift to days from 1.1.1601 */
+    days += DIFFDAYS;
 
-	/* Calculate leap days passed till today */
-	leapdays = leapdays_passed(days);
+    /* Calculate leap days passed till today */
+    leapdays = leapdays_passed(days);
 
-	/* Calculate number of full leap years passed */
-	leapyears = leapyears_passed(days);
+    /* Calculate number of full leap years passed */
+    leapyears = leapyears_passed(days);
 
-	/* Are more leap days passed than leap years? */
-	if (leapdays > leapyears)
-	{
-		/* Yes, we're in a leap year */
-		padays = g_lpmonthdays;
-	}
-	else
-	{
-		/* No, normal year */
-		padays = g_monthdays;
-	}
+    /* Are more leap days passed than leap years? */
+    if (leapdays > leapyears)
+    {
+        /* Yes, we're in a leap year */
+        padays = g_lpmonthdays;
+    }
+    else
+    {
+        /* No, normal year */
+        padays = g_monthdays;
+    }
 
-	/* Calculate year */
-	years = (days - leapdays) / 365;
-	ptm->tm_year = years - 299;
+    /* Calculate year */
+    years = (days - leapdays) / 365;
+    ptm->tm_year = years - 299;
 
-	/* Calculate number of days till 1.1. of this year */
-	daystoyear = years * 365 + leapyears;
+    /* Calculate number of days till 1.1. of this year */
+    daystoyear = years * 365 + leapyears;
 
-	/* Calculate the day in this year */
-	dayinyear = days - daystoyear;
+    /* Calculate the day in this year */
+    dayinyear = days - daystoyear;
 
-	/* Shall we do DST corrections? */
-	ptm->tm_isdst = 0;
+    /* Shall we do DST corrections? */
+    ptm->tm_isdst = 0;
 
-	ptm->tm_yday = dayinyear;
+    ptm->tm_yday = dayinyear;
 
-	/* dayinyear < 366 => terminates with i <= 11 */
-	for (month = 0; dayinyear >= padays[month + 1]; month++)
-		;
+    /* dayinyear < 366 => terminates with i <= 11 */
+    for (month = 0; dayinyear >= padays[month + 1]; month++)
+        ;
 
-	/* Set month and day in month */
-	ptm->tm_mon = month;
-	ptm->tm_mday = 1 + dayinyear - padays[month];
+    /* Set month and day in month */
+    ptm->tm_mon = month;
+    ptm->tm_mday = 1 + dayinyear - padays[month];
 
-	/* Get weekday */
-	ptm->tm_wday = (days + 1) % 7;
+    /* Get weekday */
+    ptm->tm_wday = (days + 1) % 7;
 
-	/* Calculate hour and second in hour */
-	ptm->tm_hour = secondinday / SECONDSPERHOUR;
-	secondinhour = secondinday % SECONDSPERHOUR;
+    /* Calculate hour and second in hour */
+    ptm->tm_hour = secondinday / SECONDSPERHOUR;
+    secondinhour = secondinday % SECONDSPERHOUR;
 
-	/* Calculate minute and second */
-	ptm->tm_min = secondinhour / 60;
-	ptm->tm_sec = secondinhour % 60;
+    /* Calculate minute and second */
+    ptm->tm_min = secondinhour / 60;
+    ptm->tm_sec = secondinhour % 60;
 }
 int wcsftime(wchar_t *str, int max, const wchar_t *format,
-	TIME_INFORMATION *mstm);
+    TIME_INFORMATION *mstm);
 
 
 VOID Push_FormatTime( WCHAR* Buffer )
 {
-	__int64 rawtime;
-	FILETIME Now;
-	TIME_INFORMATION timeInfo;
+    __int64 rawtime;
+    FILETIME Now;
+    TIME_INFORMATION timeInfo;
 
 
-	NtGetSystemTimeAsFileTime(&Now);
-	rawtime = FileTimeToUnixTime(&Now);
+    NtGetSystemTimeAsFileTime(&Now);
+    rawtime = FileTimeToUnixTime(&Now);
 
-	GetTimeUnits(&timeInfo, rawtime);
-	String_Format(Buffer, 20, L"%i:%i:%i", timeInfo.tm_hour, timeInfo.tm_min, timeInfo.tm_sec);
+    GetTimeUnits(&timeInfo, rawtime);
+    String_Format(Buffer, 20, L"%i:%i:%i", timeInfo.tm_hour, timeInfo.tm_min, timeInfo.tm_sec);
 }
 
 
-TYPE_iswspace		iswspace;
-TYPE_memcmp			memcmp;
-TYPE_memcpy			memcpy;
-TYPE_memset			memset;
-TYPE_strcmp			strcmp;
-TYPE_strcpy			strcpy;
-TYPE_strlen			strlen;
-TYPE_strncmp		strncmp;
-TYPE_strncpy		strncpy;
-TYPE_swscanf_s		swscanf_s;
-TYPE_vswprintf_s	vswprintf_s;
-TYPE_wcsncat		wcsncat;
-TYPE_wcsnlen		wcsnlen;
-TYPE_wcstol			wcstol;
-TYPE__wtoi			_wtoi;
+TYPE_iswspace       iswspace;
+TYPE_memcmp         memcmp;
+TYPE_memcpy         memcpy;
+TYPE_memset         memset;
+TYPE_strcmp         strcmp;
+TYPE_strcpy         strcpy;
+TYPE_strlen         strlen;
+TYPE_strncmp        strncmp;
+TYPE_strncpy        strncpy;
+TYPE_swscanf_s      swscanf_s;
+TYPE_vswprintf_s    vswprintf_s;
+TYPE_wcsncat        wcsncat;
+TYPE_wcsnlen        wcsnlen;
+TYPE_wcstol         wcstol;
+TYPE__wtoi          _wtoi;
 
 
 FARPROC __stdcall GetProcAddress(
-	HANDLE hModule,
-	CHAR*  lpProcName
-	);
+    HANDLE hModule,
+    CHAR*  lpProcName
+    );
 
 int _fltused;
 
 
 VOID InitializeCRT()
 {
-	void* ntdll;
+    void* ntdll;
 
-	ntdll = Module_GetHandle(L"ntdll.dll");
+    ntdll = Module_GetHandle(L"ntdll.dll");
 
-	iswspace = (TYPE_iswspace)GetProcAddress(ntdll, "iswspace");
-	memcmp = (TYPE_memcmp)GetProcAddress(ntdll, "memcmp");
-	memcpy = (TYPE_memcpy)GetProcAddress(ntdll, "memcpy");
-	memset = (TYPE_memset)GetProcAddress(ntdll, "memset");
-	strcmp = (TYPE_strcmp)GetProcAddress(ntdll, "strcmp");
-	strcpy = (TYPE_strcpy)GetProcAddress(ntdll, "strcpy");
-	strlen = (TYPE_strlen)GetProcAddress(ntdll, "strlen");
-	strncmp = (TYPE_strncmp)GetProcAddress(ntdll, "strncmp");
-	strncpy = (TYPE_strncpy)GetProcAddress(ntdll, "strncpy");
-	swscanf_s = (TYPE_swscanf_s)GetProcAddress(ntdll, "swscanf_s");
-	vswprintf_s = (TYPE_vswprintf_s)GetProcAddress(ntdll, "vswprintf_s");
-	wcsncat = (TYPE_wcsncat)GetProcAddress(ntdll, "wcsncat");
-	wcsnlen = (TYPE_wcsnlen)GetProcAddress(ntdll, "wcsnlen");
-	wcstol = (TYPE_wcstol)GetProcAddress(ntdll, "wcstol");
-	_wtoi = (TYPE__wtoi)GetProcAddress(ntdll, "_wtoi");
+    iswspace = (TYPE_iswspace)GetProcAddress(ntdll, "iswspace");
+    memcmp = (TYPE_memcmp)GetProcAddress(ntdll, "memcmp");
+    memcpy = (TYPE_memcpy)GetProcAddress(ntdll, "memcpy");
+    memset = (TYPE_memset)GetProcAddress(ntdll, "memset");
+    strcmp = (TYPE_strcmp)GetProcAddress(ntdll, "strcmp");
+    strcpy = (TYPE_strcpy)GetProcAddress(ntdll, "strcpy");
+    strlen = (TYPE_strlen)GetProcAddress(ntdll, "strlen");
+    strncmp = (TYPE_strncmp)GetProcAddress(ntdll, "strncmp");
+    strncpy = (TYPE_strncpy)GetProcAddress(ntdll, "strncpy");
+    swscanf_s = (TYPE_swscanf_s)GetProcAddress(ntdll, "swscanf_s");
+    vswprintf_s = (TYPE_vswprintf_s)GetProcAddress(ntdll, "vswprintf_s");
+    wcsncat = (TYPE_wcsncat)GetProcAddress(ntdll, "wcsncat");
+    wcsnlen = (TYPE_wcsnlen)GetProcAddress(ntdll, "wcsnlen");
+    wcstol = (TYPE_wcstol)GetProcAddress(ntdll, "wcstol");
+    _wtoi = (TYPE__wtoi)GetProcAddress(ntdll, "_wtoi");
 }
 
 

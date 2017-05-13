@@ -80,11 +80,11 @@ VOID Driver_Extract()
 VOID StripPermissions( WCHAR* KeyName )
 {
     HANDLE keyHandle;
-	PSECURITY_DESCRIPTOR psecdesc;
+    PSECURITY_DESCRIPTOR psecdesc;
     VOID* selfSecurityDescriptor;
     ULONG bufferLength = 20;
 
-	psecdesc = Memory_Allocate(9000);
+    psecdesc = Memory_Allocate(9000);
 
     keyHandle = Registry_OpenKey(KeyName, WRITE_DAC);
 
@@ -422,7 +422,7 @@ NTSTATUS SlLoadDriver(
     WCHAR dir[260];
     WCHAR *ptr;
 
-	String_Copy(registyPath, L"\\Registry\\Machine\\System\\CurrentControlSet\\Services\\");
+    String_Copy(registyPath, L"\\Registry\\Machine\\System\\CurrentControlSet\\Services\\");
 
     if (!DriverBinaryName)
     {
@@ -446,7 +446,7 @@ NTSTATUS SlLoadDriver(
         }
     }
 
-    GetModuleFileNameW(NULL, dir, 260);
+    String_Copy(dir, PushFilePath);
 
     if((ptr = String_FindLastChar(dir, '\\')) != NULL)
     {

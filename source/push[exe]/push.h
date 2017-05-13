@@ -49,6 +49,7 @@ extern BOOLEAN g_ThreadListLock;
 extern OVERLAY_INTERFACE PushOverlayInterface;
 extern BOOLEAN             g_bRecache;
 extern UINT32 GameProcessId;
+extern WCHAR PushFilePath[260];
 
 
 VOID GetGamePath(
@@ -189,21 +190,21 @@ typedef __int32 (*TYPE_wcstol)(const wchar_t *Str, wchar_t **EndPtr, int Radix);
 typedef int (*TYPE__wtoi)(const wchar_t *Str);
 
 
-extern TYPE_iswspace	iswspace;
-extern TYPE_memcmp		memcmp;
-extern TYPE_memcpy		memcpy;
-extern TYPE_memset		memset;
-extern TYPE_strcmp		strcmp;
-extern TYPE_strcpy		strcpy;
-extern TYPE_strlen		strlen;
-extern TYPE_strncmp		strncmp;
-extern TYPE_strncpy		strncpy;
-extern TYPE_swscanf_s	swscanf_s;
-extern TYPE_vswprintf_s	vswprintf_s;
-extern TYPE_wcsncat		wcsncat;
-extern TYPE_wcsnlen		wcsnlen;
-extern TYPE_wcstol		wcstol;
-extern TYPE__wtoi		_wtoi;
+extern TYPE_iswspace    iswspace;
+extern TYPE_memcmp      memcmp;
+extern TYPE_memcpy      memcpy;
+extern TYPE_memset      memset;
+extern TYPE_strcmp      strcmp;
+extern TYPE_strcpy      strcpy;
+extern TYPE_strlen      strlen;
+extern TYPE_strncmp     strncmp;
+extern TYPE_strncpy     strncpy;
+extern TYPE_swscanf_s   swscanf_s;
+extern TYPE_vswprintf_s vswprintf_s;
+extern TYPE_wcsncat     wcsncat;
+extern TYPE_wcsnlen     wcsnlen;
+extern TYPE_wcstol      wcstol;
+extern TYPE__wtoi       _wtoi;
 
 
 #endif //PUSH_H
