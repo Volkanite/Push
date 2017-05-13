@@ -241,6 +241,7 @@ NTSTATUS Process_GetFileNameByHandle( HANDLE ProcessHandle, WCHAR* FileName )
 }
 
 
+// GetModuleFileNameW is faster
 BOOLEAN Process_GetFileNameByProcessId( UINT32 processID, WCHAR* buffer )
 {
     VOID *processHandle = 0;

@@ -1158,6 +1158,45 @@ typedef struct _SECTION_BASIC_INFORMATION
     ULONG AllocationAttributes;
     LARGE_INTEGER MaximumSize;
 } SECTION_BASIC_INFORMATION, *PSECTION_BASIC_INFORMATION;
+double PCFreq = 0.0;
+
+
+VOID StartCounter()
+{
+    LARGE_INTEGER perfCount;
+    LARGE_INTEGER frequency;
+
+    NtQueryPerformanceCounter(&perfCount, &frequency);
+
+    PCFreq = (double)frequency.QuadPart / 1000.0;;
+}
+
+
+double GetPerformanceCounter()
+{
+    LARGE_INTEGER li;
+
+    NtQueryPerformanceCounter(&li, NULL);
+
+    return (double)li.QuadPart / PCFreq;
+}
+
+
+typedef struct _LDR_DATA_TABLE_ENTRY
+{
+    LIST_ENTRY InLoadOrderLinks;
+    LIST_ENTRY InMemoryOrderLinks;
+    union
+    {
+        LIST_ENTRY InInitializationOrderLinks;
+        LIST_ENTRY InProgressLinks;
+    };
+    VOID* DllBase;
+    VOID* EntryPoint;
+    ULONG SizeOfImage;
+    UNICODE_STRING FullDllName;
+    UNICODE_STRING BaseDllName;
+} LDR_DATA_TABLE_ENTRY, *PLDR_DATA_TABLE_ENTRY;
 
 
 INT32 __stdcall start( )
@@ -1170,6 +1209,7 @@ INT32 __stdcall start( )
     OBJECT_ATTRIBUTES objAttrib = {0};
     PTEB threadEnvironmentBlock;
     UNICODE_STRING eventSource;
+    LDR_DATA_TABLE_ENTRY *module;
 
     InitializeCRT();
 
@@ -1206,10 +1246,13 @@ INT32 __stdcall start( )
     NtCreateEvent(&eventHandle, EVENT_ALL_ACCESS, &objAttrib, NotificationEvent, FALSE);
 
     // populate file name and path
-    GetModuleFileNameW(NULL, PushFilePath, 260);
+    module = (LDR_DATA_TABLE_ENTRY*)threadEnvironmentBlock->ProcessEnvironmentBlock->Ldr->InLoadOrderModuleList.Flink;
+    
+    Memory_Copy(PushFilePath, module->FullDllName.Buffer, module->FullDllName.Length);
+    
+    PushFilePath[module->FullDllName.Length] = L'\0';
 
     // Start Driver.
-
     Driver_Extract();
     Driver_Load();
 

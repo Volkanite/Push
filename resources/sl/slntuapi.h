@@ -370,13 +370,13 @@ GetLogicalDrives( VOID );
 __stdcall
 GetModuleHandleW( WCHAR* lpModuleName );*/
 
-DWORD
+/*DWORD
 __stdcall
 GetModuleFileNameW(
     VOID*   hModule,
     WCHAR*  lpFilename,
     DWORD   nSize
-    );
+    );*/
 
 /*VOID*
 __stdcall
