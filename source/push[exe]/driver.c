@@ -294,6 +294,7 @@ LONG __stdcall RegOpenKeyExW(
   VOID** phkResult
 );
 
+
 BOOLEAN RegisterInstance( WCHAR* ServiceName )
 {
     VOID *hKeyService=NULL, *hKeyInstances=NULL, *hKeyInstance=NULL;
@@ -303,8 +304,9 @@ BOOLEAN RegisterInstance( WCHAR* ServiceName )
     {
         DWORD dwDisposition;
         DWORD dwFlags=INSTANCE_FLAGS;
-        WCHAR buffer[260] = L"System\\CurrentControlSet\\Services\\";
+        WCHAR buffer[260];
 
+        String_Copy(buffer, L"System\\CurrentControlSet\\Services\\");
         String_Concatenate(buffer, ServiceName);
 
         if (RegOpenKeyExW(
@@ -390,12 +392,6 @@ void StartServiceAvi (WCHAR *pszServiceName)
     hSCManager = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
     hService = OpenServiceW(hSCManager, pszServiceName, SERVICE_ALL_ACCESS);
     result = StartServiceW(hService, 0, NULL);
-
-    if (!result)
-    {
-        DWORD error = GetLastError();
-        error = error;
-    }
 
     CloseServiceHandle(hSCManager);
     CloseServiceHandle(hService);

@@ -1205,7 +1205,6 @@ INT32 __stdcall start( )
     DWORD sectionSize;
     HANDLE eventHandle;
     MSG messages;
-    BOOLEAN bAlreadyRunning;
     OBJECT_ATTRIBUTES objAttrib = {0};
     PTEB threadEnvironmentBlock;
     UNICODE_STRING eventSource;
@@ -1213,23 +1212,22 @@ INT32 __stdcall start( )
 
     InitializeCRT();
 
-    // Check if already running
-    hMutex = CreateMutexW(0, FALSE, L"PushOneInstance");
-
-    bAlreadyRunning = (GetLastError() == ERROR_ALREADY_EXISTS
-                        || GetLastError() == ERROR_ACCESS_DENIED);
-
-    if (bAlreadyRunning)
-    {
-        MessageBoxW(0, L"Only one instance!", 0,0);
-        ExitProcess(0);
-    }
-
     threadEnvironmentBlock = NtCurrentTeb();
 
     PushProcessId = threadEnvironmentBlock->ClientId.UniqueProcess;
     PushHeapHandle = threadEnvironmentBlock->ProcessEnvironmentBlock->ProcessHeap;
     PushSessionId = threadEnvironmentBlock->ProcessEnvironmentBlock->SessionId;
+
+    // Check if already running
+    hMutex = CreateMutexW(0, FALSE, L"PushOneInstance");
+
+    if (threadEnvironmentBlock->LastErrorValue == ERROR_ALREADY_EXISTS 
+        || threadEnvironmentBlock->LastErrorValue == ERROR_ACCESS_DENIED)
+    {
+        MessageBoxW(0, L"Only one instance!", 0,0);
+        ExitProcess(0);
+    }
+    
 
     //create image event
     eventHandle = NULL;

@@ -507,9 +507,9 @@ CreateMutexW(
 __stdcall
 SetLastError( DWORD dwErrCode );*/
 
-DWORD
+/*DWORD
 __stdcall
-GetLastError( VOID );
+GetLastError( VOID );*/
 
 __declspec(noreturn)
 VOID
