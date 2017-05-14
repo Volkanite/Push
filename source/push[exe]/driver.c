@@ -418,7 +418,10 @@ NTSTATUS SlLoadDriver(
     WCHAR dir[260];
     WCHAR *ptr;
 
-    String_Copy(registyPath, L"\\Registry\\Machine\\System\\CurrentControlSet\\Services\\");
+    String_Copy(
+        registyPath, 
+        L"\\Registry\\Machine\\System\\CurrentControlSet\\Services\\"
+        );
 
     if (!DriverBinaryName)
     {
@@ -455,16 +458,6 @@ NTSTATUS SlLoadDriver(
     root[1] = ':';
     root[2] = '\\';
     root[3] = '\0';
-
-    if(root[0] == '\\' || GetDriveTypeW((WCHAR*)root) == DRIVE_REMOTE)
-    {
-        WCHAR tempPath[260];
-
-        GetTempPathW(260, tempPath);
-        String_Concatenate(tempPath, DriverBinaryName);
-        File_Copy(driverPath, tempPath, NULL);
-        String_Copy(driverPath, tempPath);
-    }
 
     scmHandle = OpenSCManagerW(0, 0, SC_MANAGER_ALL_ACCESS);
 
