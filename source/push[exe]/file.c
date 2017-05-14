@@ -17,9 +17,9 @@ BOOLEAN SymLinkTargetCmp( WCHAR *Name, WCHAR *dest )
     DWORD   dwFlagsAndAttributes;
     IO_STATUS_BLOCK isb;
     NTSTATUS status;
-	UINT32 reparseBufferSize = 17000;
+    UINT32 reparseBufferSize = 17000;
 
-	REPARSE_DATA_BUFFER *reparseInfo = Memory_Allocate(reparseBufferSize);
+    REPARSE_DATA_BUFFER *reparseInfo = Memory_Allocate(reparseBufferSize);
 
     if (File_GetAttributes(dest) & FILE_ATTRIBUTE_DIRECTORY)
     {
@@ -58,7 +58,7 @@ BOOLEAN SymLinkTargetCmp( WCHAR *Name, WCHAR *dest )
                 &isb,
                 FSCTL_GET_REPARSE_POINT,
                 reparseInfo,
-				sizeof(reparseBufferSize),
+                sizeof(reparseBufferSize),
                 NULL,
                 0
                 );
@@ -78,27 +78,6 @@ BOOLEAN SymLinkTargetCmp( WCHAR *Name, WCHAR *dest )
         return FALSE;
     else
         return TRUE;
-}
-
-
-VOID
-CreateLink( WCHAR *name, WCHAR *dest )
-{
-    if (!SymLinkTargetCmp( name, dest ))
-    {
-        if (File_GetAttributes(dest) & FILE_ATTRIBUTE_DIRECTORY)
-        {
-            RemoveDirectoryW(name);
-
-            CreateSymbolicLinkW(name, dest, TRUE);
-        }
-        else
-        {
-            File_Delete(name);
-
-            CreateSymbolicLinkW(name, dest, FALSE);
-        }
-    }
 }
 
 
