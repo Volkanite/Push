@@ -429,9 +429,9 @@ __stdcall ControlService(
 );
 
 
-VOID*
+/*VOID*
 __stdcall
-GetCurrentThread( VOID );
+GetCurrentThread( VOID );*/
 
 DWORD
 __stdcall

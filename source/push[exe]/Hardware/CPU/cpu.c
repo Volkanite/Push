@@ -45,7 +45,7 @@ BOOLEAN CpuidTx(
     DWORD   mask = 0;
     HANDLE  hThread = NULL;
 
-    hThread = GetCurrentThread();
+    hThread = NtCurrentThread();
     
     mask = SetThreadAffinityMask(
         hThread, 

@@ -24,7 +24,7 @@ UINT8 Intel_GetTemperature()
         float coreTemp; 
         void *hThread       = NULL;
 
-        hThread = GetCurrentThread();
+        hThread = NtCurrentThread();
         
         mask = SetThreadAffinityMask(hThread, 1UL << i);
 

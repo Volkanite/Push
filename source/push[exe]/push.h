@@ -162,6 +162,7 @@ NTSTATUS __stdcall NtCreateThreadEx(
     );
 
 #define THREAD_ALL_ACCESS (STANDARD_RIGHTS_REQUIRED | SYNCHRONIZE | 0xFFFF)
+#define NtCurrentThread() ((HANDLE)(LONG)-2)
 
 enum _THREAD_CREATE_FLAGS
 {
