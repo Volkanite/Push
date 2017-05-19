@@ -119,18 +119,19 @@ VOID Hardware_ForceMaxClocks()
 
 DWORD FindPciDeviceByClass( BYTE baseClass, BYTE subClass, BYTE programIf, BYTE index )
 {
-    if(R0DriverHandle == INVALID_HANDLE_VALUE)
-    {
-        return 0xFFFFFFFF;
-    }
-
-    DWORD bus = 0, dev = 0, func = 0;
+	DWORD bus = 0, dev = 0, func = 0;
     DWORD count = 0;
     DWORD pciAddress = 0xFFFFFFFF;
     DWORD conf[3] = {0};
     DWORD error = 0;    
     BOOLEAN multiFuncFlag = FALSE;
     BYTE type = 0;
+
+    if(R0DriverHandle == INVALID_HANDLE_VALUE)
+    {
+        return 0xFFFFFFFF;
+    }
+
     count = 0;
 
     for(bus = 0; bus <= 255; bus++)
@@ -365,14 +366,19 @@ INTBOOL __stdcall MonitorEnumProc( HANDLE hMonitor, HANDLE hdcMonitor, RECT* lpr
     return TRUE;
 }
 
+
 int __stdcall GetSystemMetrics(
     int nIndex
     );
 #define SM_CMONITORS            80
+
+
 VOID GetHardwareInfo()
 {
     int i = 0;
+	int monitorCount;
     CORE_LIST *coreListEntry;
+	HANDLE gdi32;
     
     //use 64 bits to force allmul() on 32 bit builds
     UINT64 physicalPages;
@@ -420,8 +426,6 @@ VOID GetHardwareInfo()
 
     CPU_Intialize();
 
-    HANDLE gdi32;
-
     gdi32 = Module_Load(L"gdi32.dll");
 
     GetNumberOfPhysicalMonitors = Module_GetProcedureAddress(gdi32, "GetNumberOfPhysicalMonitors");
@@ -430,8 +434,7 @@ VOID GetHardwareInfo()
     DDCCIGetVCPFeature = Module_GetProcedureAddress(gdi32, "DDCCIGetVCPFeature");
     DDCCISetVCPFeature = Module_GetProcedureAddress(gdi32, "DDCCISetVCPFeature");
 
-    int monitorCount = GetSystemMetrics(SM_CMONITORS);
-
+    monitorCount = GetSystemMetrics(SM_CMONITORS);
     MonitorHandles = Memory_Allocate(sizeof(HANDLE) * monitorCount);
 
     EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, NULL);
@@ -450,6 +453,7 @@ VOID GetHardwareInfo()
 VOID RefreshHardwareInfo()
 {
     GPU_INFO gpuInfo;
+	MC_TIMING_REPORT timingReport;
 
     GPU_GetInfo(&gpuInfo);
 
@@ -471,8 +475,6 @@ VOID RefreshHardwareInfo()
     
     if (DiskMonitorInitialized)
         PushSharedMemory->HarwareInformation.Disk.ReadWriteRate             = GetDiskReadWriteRate();
-
-    MC_TIMING_REPORT timingReport;
 
     DDCCIGetTimingReport(MonitorHandles[1], &timingReport);
 

@@ -1,6 +1,6 @@
 #include <sl.h>
 #include <vendors.h>
-#include <intrin.h>
+//#include <intrin.h>
 #include <pushbase.h>
 #include <push.h>
 

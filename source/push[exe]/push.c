@@ -1200,14 +1200,17 @@ typedef struct _LDR_DATA_TABLE_ENTRY
 INT32 __stdcall start( )
 {
     HANDLE sectionHandle, *hMutex;
+	HANDLE eventHandle;
+	HANDLE threadHandle;
     DWORD sectionSize;
-    HANDLE eventHandle;
     MSG messages;
     OBJECT_ATTRIBUTES objAttrib = {0};
     PTEB threadEnvironmentBlock;
     UNICODE_STRING eventSource;
     LDR_DATA_TABLE_ENTRY *module;
-
+	SECTION_BASIC_INFORMATION sectionInfo;
+	LARGE_INTEGER newSectionSize;
+	
     InitializeCRT();
 
     threadEnvironmentBlock = NtCurrentTeb();
@@ -1366,7 +1369,6 @@ INT32 __stdcall start( )
     GetHardwareInfo();
 
     //initialize OSD items
-    SECTION_BASIC_INFORMATION sectionInfo;
 
     NtQuerySection(
         sectionHandle,
@@ -1375,7 +1377,6 @@ INT32 __stdcall start( )
         sizeof(SECTION_BASIC_INFORMATION),
         NULL
         );
-    LARGE_INTEGER newSectionSize;
 
     newSectionSize.QuadPart = OSD_Initialize() + sizeof(PUSH_SHARED_MEMORY);
 
@@ -1401,8 +1402,6 @@ INT32 __stdcall start( )
         0, 0, 0,
         NULL
         );
-
-    HANDLE threadHandle;
 
     NtCreateThreadEx(
         &threadHandle,

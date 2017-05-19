@@ -500,20 +500,20 @@ typedef struct _PROCESS_BASIC_INFORMATION_64
 // NtWow64QueryInformationProcess64
 typedef NTSTATUS(__stdcall *TYPE_NtWow64QueryInformationProcess64)
 (
-_In_  HANDLE ProcessHandle,
-_In_  ULONG  ProcessInformationClass,
-_Out_ VOID*  ProcessInformation64,
-_In_  ULONG  Length,
-_Out_ ULONG* ReturnLength
+	HANDLE ProcessHandle,
+	ULONG  ProcessInformationClass,
+	VOID*  ProcessInformation64,
+	ULONG  Length,
+	ULONG* ReturnLength
 );
 typedef DWORD64 PTR64;
 // NtWow64ReadVirtualMemory64
 typedef NTSTATUS(__stdcall *TYPE_NtWow64ReadVirtualMemory64)(
-    _In_  HANDLE   ProcessHandle,
-    _In_  PTR64  BaseAddress,
-    _Out_ VOID*   Buffer,
-    _In_  UINT64  BufferLength,
-    _Out_ UINT64* ReturnLength
+	HANDLE   ProcessHandle,
+	PTR64  BaseAddress,
+	VOID*   Buffer,
+	UINT64  BufferLength,
+	UINT64* ReturnLength
     );
 
 TYPE_NtWow64QueryInformationProcess64  NtWow64QueryInformationProcess64;
@@ -673,11 +673,11 @@ typedef struct _PEB_LDR_DATA_64
 typedef unsigned long long  uint64_t;
 typedef uint64_t ptr_t;
 NTSTATUS __stdcall NtReadVirtualMemory(
-    _In_ HANDLE ProcessHandle,
-    _In_opt_ VOID* BaseAddress,
-    _Out_writes_bytes_(BufferSize) VOID* Buffer,
-    _In_ SIZE_T BufferSize,
-    _Out_opt_ SIZE_T* NumberOfBytesRead
+	HANDLE ProcessHandle,
+	VOID* BaseAddress,
+	VOID* Buffer,
+	SIZE_T BufferSize,
+	SIZE_T* NumberOfBytesRead
     );
 NTSTATUS ReadProcessMemoryMy(
     HANDLE ProcessHandle,
@@ -776,19 +776,23 @@ VOID* Memory_Allocate(DWORD Size);
 
 DWORD64 GetRemoteProcAddress(HANDLE ProcessHandle, DWORD64 BaseAddress, const char* name_ord)
 {
+	IMAGE_DOS_HEADER hdrDos = { 0 };
+	UINT8 hdrNt32[sizeof(IMAGE_NT_HEADERS64)] = { 0 };
+	PIMAGE_NT_HEADERS32 phdrNt32 = (PIMAGE_NT_HEADERS32)(hdrNt32);
+    PIMAGE_NT_HEADERS64 phdrNt64 = (PIMAGE_NT_HEADERS64)(hdrNt32);
+	IMAGE_EXPORT_DIRECTORY* pExpData;
+    DWORD expSize = 0;
+    size_t expBase = 0;
+	WORD *pAddressOfOrds;
+	DWORD *pAddressOfNames;
+	DWORD *pAddressOfFuncs;
+	DWORD i;
 
     /// Invalid module
     if (BaseAddress == 0)
     {
         return 0;
     }
-
-    IMAGE_DOS_HEADER hdrDos = { 0 };
-    UINT8 hdrNt32[sizeof(IMAGE_NT_HEADERS64)] = { 0 };
-    PIMAGE_NT_HEADERS32 phdrNt32 = (PIMAGE_NT_HEADERS32)(hdrNt32);
-    PIMAGE_NT_HEADERS64 phdrNt64 = (PIMAGE_NT_HEADERS64)(hdrNt32);
-    DWORD expSize = 0;
-    size_t expBase = 0;
 
     Read(ProcessHandle, BaseAddress, sizeof(hdrDos), &hdrDos, FALSE);
 
@@ -813,20 +817,20 @@ DWORD64 GetRemoteProcAddress(HANDLE ProcessHandle, DWORD64 BaseAddress, const ch
         else
             expSize = phdrNt64->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].Size;
 
-        IMAGE_EXPORT_DIRECTORY* pExpData = Memory_Allocate(expSize);
+        pExpData = Memory_Allocate(expSize);
 
         Read(ProcessHandle, BaseAddress + expBase, expSize, pExpData, FALSE);
 
-        WORD *pAddressOfOrds = (WORD*)(
+        pAddressOfOrds = (WORD*)(
             pExpData->AddressOfNameOrdinals + (size_t)(pExpData)-expBase);
 
-        DWORD *pAddressOfNames = (DWORD*)(
+        pAddressOfNames = (DWORD*)(
             pExpData->AddressOfNames + (size_t)(pExpData)-expBase);
 
-        DWORD *pAddressOfFuncs = (DWORD*)(
+        pAddressOfFuncs = (DWORD*)(
             pExpData->AddressOfFunctions + (size_t)(pExpData)-expBase);
 
-        for (DWORD i = 0; i < pExpData->NumberOfFunctions; ++i)
+        for (i = 0; i < pExpData->NumberOfFunctions; ++i)
         {
             WORD OrdIndex = 0xFFFF;
             char *pName = NULL;

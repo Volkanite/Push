@@ -530,12 +530,14 @@ VOID PROFILE_ReleaseFile(void)
 BOOLEAN
 PROFILE_Open( WCHAR* Filename, BOOLEAN WriteAccess )
 {
-    WCHAR buffer[260];
+	WCHAR buffer[260];
+	WCHAR* dummy;
+    WCHAR* dummy2;
     VOID* fileHandle = INVALID_HANDLE_VALUE;
-  FILETIME LastWriteTime = {0};
+	FILETIME LastWriteTime = {0};
     int i,j;
     PROFILE *tempProfile;
-  NTSTATUS status;
+	NTSTATUS status;
 
     /* First time around */
 
@@ -553,9 +555,6 @@ PROFILE_Open( WCHAR* Filename, BOOLEAN WriteAccess )
 
     if (!Filename)
   Filename = (WCHAR*) wininiW;
-
-    WCHAR* dummy;
-    WCHAR* dummy2;
     
     dummy2 = &dummy;
     

@@ -46,10 +46,13 @@ VOID RTSS_Update( OSD_ITEM* OsdItems )
 {
     UINT8 i;
     OSD_ITEM *osdItem;
-    osdItem = OsdItems;
     WCHAR osdText[256];
     CHAR ansiText[256];
     BOOLEAN stuffToDraw = FALSE;
+	DWORD dwPass;
+	DWORD dwEntry;
+
+	osdItem = OsdItems;
 
     for (i = 0; i < PushSharedMemory->NumberOfOsdItems; i++, osdItem++)
     {
@@ -72,11 +75,11 @@ VOID RTSS_Update( OSD_ITEM* OsdItems )
 
     UTF16ToMultiByte(osdText, ansiText);
 
-    for (DWORD dwPass = 0; dwPass<2; dwPass++)
+    for (dwPass = 0; dwPass<2; dwPass++)
         //1st pass : find previously captured OSD slot
         //2nd pass : otherwise find the first unused OSD slot and capture it
     {
-        for (DWORD dwEntry = 0; dwEntry<RTSSSharedMemory->dwOSDArrSize; dwEntry++)
+        for (dwEntry = 0; dwEntry<RTSSSharedMemory->dwOSDArrSize; dwEntry++)
         {
             RTSS_SHARED_MEMORY_OSD_ENTRY *pEntry = (RTSS_SHARED_MEMORY_OSD_ENTRY*)((BYTE*)RTSSSharedMemory + RTSSSharedMemory->dwOSDArrOffset + dwEntry * RTSSSharedMemory->dwOSDEntrySize);
 

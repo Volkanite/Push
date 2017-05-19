@@ -367,8 +367,12 @@ VOID OpenCacheWindow()
 typedef INT32 (__stdcall *TYPE_GetOpenFileNameW)( VOID* );
 TYPE_GetOpenFileNameW GetOpenFileNameW;
 VOID Overclock();
+
+
 INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lParam )
 {
+	ITEMIDLIST *pIDL;
+
     switch (uMessage)
     {
     case WM_TIMER:
@@ -516,7 +520,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                         );
 
                     // Show the dialog and get the itemIDList for the selected folder.
-                    ITEMIDLIST *pIDL = SHBrowseForFolderW(&bi);
+                    pIDL = SHBrowseForFolderW(&bi);
 
                     if (pIDL != NULL)
                     {

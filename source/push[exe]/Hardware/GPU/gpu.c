@@ -62,6 +62,8 @@ VOID GPU_Initialize( ULONG PciAddress )
 
 VOID GPU_GetInfo( GPU_INFO* Info )
 {
+	UINT64 total, free, used;
+
     switch (GPU_VendorId)
     {
     case AMD:
@@ -69,8 +71,6 @@ VOID GPU_GetInfo( GPU_INFO* Info )
 
         //AMD ADL gpu load is finicky
         Info->Load = D3DKMT_GetGpuUsage();
-
-        UINT64 total, free, used;
 
         total = GPU_GetTotalMemory();
         free = GPU_GetFreeMemory();

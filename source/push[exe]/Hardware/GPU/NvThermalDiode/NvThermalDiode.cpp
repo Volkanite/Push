@@ -82,6 +82,8 @@ LONG GetFuseStateByNumber(DWORD dwGpu, DWORD dwFuse)
 BOOLEAN NvtdInitialize()
 {
     DWORD dwGpu     = 0;
+	LONG dwDiodeOffsetBin   = 0;
+
         //extract GPU and data source indices from macro index
 
 	g_context[dwGpu].m_dwCoreFamily = 0;
@@ -183,8 +185,6 @@ BOOLEAN NvtdInitialize()
     //defined with GPU fuses
 
     //now we'll read diode specific binary offset
-
-    LONG dwDiodeOffsetBin   = 0;
 
     switch (g_context[dwGpu].m_dwCoreFamily)
     {

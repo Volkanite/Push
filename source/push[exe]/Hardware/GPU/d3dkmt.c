@@ -194,8 +194,9 @@ D3DKMT_OPENADAPTERFROMDEVICENAME    openAdapterFromDeviceName;
 VOID D3DKMTInitialize()
 {
     HANDLE gdi32 = NULL;
-    D3DKMT_QUERYSTATISTICS              queryStatistics;
+    D3DKMT_QUERYSTATISTICS queryStatistics;
     RTL_OSVERSIONINFOW versionInfo;
+	wchar_t devicePath[260];
 
     if (D3DKMT_Initialized)
     {
@@ -227,8 +228,6 @@ VOID D3DKMTInitialize()
     {
         return;
     }
-
-    wchar_t devicePath[260];
 
     GetDisplayAdapterDevicePath(devicePath);
 

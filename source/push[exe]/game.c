@@ -27,6 +27,9 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
     WCHAR buffer[260];
     WCHAR installPath[260];
     WCHAR *lastSlash;
+	DWORD start;
+	DWORD end;
+	DWORD len;
 
     if (!Win32Name)
         return;
@@ -58,9 +61,9 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
     // does not nessarilly have to be where the executable is located though, hence the
     // purpose of the Game::InstallPath field.
     
-    DWORD start = Game->ExecutablePath;
-    DWORD end = lastSlash;
-    DWORD len = (end - start) / sizeof(WCHAR);
+    start = Game->ExecutablePath;
+    end = lastSlash;
+    len = (end - start) / sizeof(WCHAR);
 
     String_CopyN(installPath, Game->ExecutablePath, len);
     

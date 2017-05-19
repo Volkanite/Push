@@ -96,8 +96,8 @@ INT32 __stdcall OverlockWndProc(
 	int memory;
 	int voltage;
 	int fan;
-
 	int pstate;
+	wchar_t lol[260];
 
 	switch (uMessage)
 	{
@@ -160,7 +160,6 @@ INT32 __stdcall OverlockWndProc(
 
 	case WM_HSCROLL:
 		dwPos = SendMessageW((void*)lParam, TBM_GETPOS, 0, 0);
-		wchar_t lol[260];
 
 		String_Format(lol, 260, L"%i", dwPos);
 		SetWindowTextW(textHandle, lol);

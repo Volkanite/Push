@@ -119,7 +119,7 @@ VOID Adl_GetInfo( GPU_INFO* Information )
     {
         fanSpeed.iSpeedType = ADL_DL_FANCTRL_SPEED_TYPE_RPM;
 
-        int status = ADL_Overdrive5_FanSpeed_Get(0, 0, &fanSpeed);
+        ADL_Overdrive5_FanSpeed_Get(0, 0, &fanSpeed);
 
         Information->FanSpeed = fanSpeed.iFanSpeed;
     }
@@ -132,7 +132,7 @@ VOID Adl_GetInfo( GPU_INFO* Information )
     {
         fanSpeed.iSpeedType = ADL_DL_FANCTRL_SPEED_TYPE_PERCENT;
 
-        int status = ADL_Overdrive5_FanSpeed_Get(0, 0, &fanSpeed);
+        ADL_Overdrive5_FanSpeed_Get(0, 0, &fanSpeed);
 
         Information->FanDutyCycle = fanSpeed.iFanSpeed;
     }
