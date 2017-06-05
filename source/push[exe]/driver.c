@@ -114,9 +114,11 @@ VOID Driver_Load()
 
     if (!NT_SUCCESS(status))
     {
+        Log(L"failed to load driver");
+
         if (status == STATUS_OBJECT_NAME_NOT_FOUND)
         {
-            MessageBoxW(NULL, L"Driver file not found!", L"Error", 0);
+            Log(L"Driver file not found!");
         }
 
         if (status == STATUS_DRIVER_BLOCKED_CRITICAL)
@@ -458,6 +460,16 @@ NTSTATUS SlLoadDriver(
     root[1] = ':';
     root[2] = '\\';
     root[3] = '\0';
+
+    if(root[0] == '\\' || GetDriveTypeW((WCHAR*)root) == DRIVE_REMOTE)
+    {
+        WCHAR tempPath[260];
+
+        GetTempPathW(260, tempPath);
+        String_Concatenate(tempPath, DriverBinaryName);
+        File_Copy(driverPath, tempPath, NULL);
+        String_Copy(driverPath, tempPath);
+    }
 
     scmHandle = OpenSCManagerW(0, 0, SC_MANAGER_ALL_ACCESS);
 
