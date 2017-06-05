@@ -180,118 +180,118 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\batch.c"
+				RelativePath="batch.c"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\driver.c"
+				RelativePath="driver.c"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\file.c"
+				RelativePath="file.c"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\folder.c"
+				RelativePath="folder.c"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\game.c"
+				RelativePath="game.c"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\ini.c"
+				RelativePath="ini.c"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\listview.c"
+				RelativePath="listview.c"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\math.c"
+				RelativePath="math.c"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\memory.c"
+				RelativePath="memory.c"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\module.c"
+				RelativePath="module.c"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\overclock.c"
+				RelativePath="overclock.c"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\process.c"
+				RelativePath="process.c"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\push.c"
+				RelativePath="push.c"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\ramdisk.c"
+				RelativePath="ramdisk.c"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\registry.c"
+				RelativePath="registry.c"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\resource.c"
+				RelativePath="resource.c"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\ring0.c"
+				RelativePath="ring0.c"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\slgui.c"
+				RelativePath="slgui.c"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\string.c"
+				RelativePath="string.c"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\wow64.c"
+				RelativePath="wow64.c"
 				>
 			</File>
 			<Filter
 				Name="GUI"
 				>
 				<File
-					RelativePath="D:\Code\Push\source\push[exe]\GUI\cache.c"
+					RelativePath="GUI\cache.c"
 					>
 				</File>
 				<File
-					RelativePath="D:\Code\Push\source\push[exe]\GUI\cache.h"
+					RelativePath="GUI\cache.h"
 					>
 				</File>
 				<File
-					RelativePath="D:\Code\Push\source\push[exe]\GUI\copy.c"
+					RelativePath="GUI\copy.c"
 					>
 				</File>
 				<File
-					RelativePath="D:\Code\Push\source\push[exe]\GUI\copy.h"
+					RelativePath="GUI\copy.h"
 					>
 				</File>
 				<File
-					RelativePath="D:\Code\Push\source\push[exe]\GUI\gui.c"
+					RelativePath="GUI\gui.c"
 					>
 				</File>
 				<File
-					RelativePath="D:\Code\Push\source\push[exe]\GUI\gui.h"
+					RelativePath="GUI\gui.h"
 					>
 				</File>
 				<File
-					RelativePath="D:\Code\Push\source\push[exe]\GUI\main.c"
+					RelativePath="GUI\main.c"
 					>
 				</File>
 				<File
-					RelativePath="D:\Code\Push\source\push[exe]\GUI\main.h"
+					RelativePath="GUI\main.h"
 					>
 				</File>
 			</Filter>
@@ -299,23 +299,23 @@
 				Name="OSD"
 				>
 				<File
-					RelativePath="D:\Code\Push\source\push[exe]\OSD\local.c"
+					RelativePath="OSD\local.c"
 					>
 				</File>
 				<File
-					RelativePath="D:\Code\Push\source\push[exe]\OSD\osd.c"
+					RelativePath="OSD\osd.c"
 					>
 				</File>
 				<File
-					RelativePath="D:\Code\Push\source\push[exe]\OSD\osd.h"
+					RelativePath="OSD\osd.h"
 					>
 				</File>
 				<File
-					RelativePath="D:\Code\Push\source\push[exe]\OSD\rtss.c"
+					RelativePath="OSD\rtss.c"
 					>
 				</File>
 				<File
-					RelativePath="D:\Code\Push\source\push[exe]\OSD\rtss.h"
+					RelativePath="OSD\rtss.h"
 					>
 				</File>
 			</Filter>
@@ -323,105 +323,105 @@
 				Name="Hardware"
 				>
 				<File
-					RelativePath="D:\Code\Push\source\push[exe]\Hardware\disk.c"
+					RelativePath="Hardware\disk.c"
 					>
 				</File>
 				<File
-					RelativePath="D:\Code\Push\source\push[exe]\Hardware\disk.h"
+					RelativePath="Hardware\disk.h"
 					>
 				</File>
 				<File
-					RelativePath="D:\Code\Push\source\push[exe]\Hardware\hardware.c"
+					RelativePath="Hardware\hardware.c"
 					>
 				</File>
 				<File
-					RelativePath="D:\Code\Push\source\push[exe]\Hardware\hardware.h"
+					RelativePath="Hardware\hardware.h"
 					>
 				</File>
 				<File
-					RelativePath="D:\Code\Push\source\push[exe]\Hardware\vendors.h"
+					RelativePath="Hardware\vendors.h"
 					>
 				</File>
 				<Filter
 					Name="GPU"
 					>
 					<File
-						RelativePath="D:\Code\Push\source\push[exe]\Hardware\GPU\adl.c"
+						RelativePath="Hardware\GPU\adl.c"
 						>
 					</File>
 					<File
-						RelativePath="D:\Code\Push\source\push[exe]\Hardware\GPU\adl.h"
+						RelativePath="Hardware\GPU\adl.h"
 						>
 					</File>
 					<File
-						RelativePath="D:\Code\Push\source\push[exe]\Hardware\GPU\AmdGpu.c"
+						RelativePath="Hardware\GPU\AmdGpu.c"
 						>
 					</File>
 					<File
-						RelativePath="D:\Code\Push\source\push[exe]\Hardware\GPU\amdgpu.h"
+						RelativePath="Hardware\GPU\amdgpu.h"
 						>
 					</File>
 					<File
-						RelativePath="D:\Code\Push\source\push[exe]\Hardware\GPU\d3dkmt.c"
+						RelativePath="Hardware\GPU\d3dkmt.c"
 						>
 					</File>
 					<File
-						RelativePath="D:\Code\Push\source\push[exe]\Hardware\GPU\d3dkmt.h"
+						RelativePath="Hardware\GPU\d3dkmt.h"
 						>
 					</File>
 					<File
-						RelativePath="D:\Code\Push\source\push[exe]\Hardware\GPU\gpu.c"
+						RelativePath="Hardware\GPU\gpu.c"
 						>
 					</File>
 					<File
-						RelativePath="D:\Code\Push\source\push[exe]\Hardware\GPU\gpu.h"
+						RelativePath="Hardware\GPU\gpu.h"
 						>
 					</File>
 					<File
-						RelativePath="D:\Code\Push\source\push[exe]\Hardware\GPU\IntelGpu.c"
+						RelativePath="Hardware\GPU\IntelGpu.c"
 						>
 					</File>
 					<File
-						RelativePath="D:\Code\Push\source\push[exe]\Hardware\GPU\IntelGpu.h"
+						RelativePath="Hardware\GPU\IntelGpu.h"
 						>
 					</File>
 					<File
-						RelativePath="D:\Code\Push\source\push[exe]\Hardware\GPU\nvapi.c"
+						RelativePath="Hardware\GPU\nvapi.c"
 						>
 					</File>
 					<File
-						RelativePath="D:\Code\Push\source\push[exe]\Hardware\GPU\nvapi.h"
+						RelativePath="Hardware\GPU\nvapi.h"
 						>
 					</File>
 					<File
-						RelativePath="D:\Code\Push\source\push[exe]\Hardware\GPU\NvidiaGpu.c"
+						RelativePath="Hardware\GPU\NvidiaGpu.c"
 						>
 					</File>
 					<File
-						RelativePath="D:\Code\Push\source\push[exe]\Hardware\GPU\nvidiagpu.h"
+						RelativePath="Hardware\GPU\nvidiagpu.h"
 						>
 					</File>
 					<File
-						RelativePath="D:\Code\Push\source\push[exe]\Hardware\GPU\OpenNvapi.c"
+						RelativePath="Hardware\GPU\OpenNvapi.c"
 						>
 					</File>
 					<File
-						RelativePath="D:\Code\Push\source\push[exe]\Hardware\GPU\OpenNvapi.h"
+						RelativePath="Hardware\GPU\OpenNvapi.h"
 						>
 					</File>
 					<Filter
 						Name="NvThermalDiode"
 						>
 						<File
-							RelativePath="D:\Code\Push\source\push[exe]\Hardware\GPU\NvThermalDiode\Context.c"
+							RelativePath="Hardware\GPU\NvThermalDiode\Context.c"
 							>
 						</File>
 						<File
-							RelativePath="D:\Code\Push\source\push[exe]\Hardware\GPU\NvThermalDiode\Context.h"
+							RelativePath="Hardware\GPU\NvThermalDiode\Context.h"
 							>
 						</File>
 						<File
-							RelativePath="D:\Code\Push\source\push[exe]\Hardware\GPU\NvThermalDiode\NvThermalDiode.cpp"
+							RelativePath="Hardware\GPU\NvThermalDiode\NvThermalDiode.cpp"
 							>
 							<FileConfiguration
 								Name="Debug|Win32"
@@ -433,7 +433,7 @@
 							</FileConfiguration>
 						</File>
 						<File
-							RelativePath="D:\Code\Push\source\push[exe]\Hardware\GPU\NvThermalDiode\NvThermalDiode.h"
+							RelativePath="Hardware\GPU\NvThermalDiode\NvThermalDiode.h"
 							>
 						</File>
 					</Filter>
@@ -442,27 +442,27 @@
 					Name="CPU"
 					>
 					<File
-						RelativePath="D:\Code\Push\source\push[exe]\Hardware\CPU\amd.c"
+						RelativePath="Hardware\CPU\amd.c"
 						>
 					</File>
 					<File
-						RelativePath="D:\Code\Push\source\push[exe]\Hardware\CPU\amd.h"
+						RelativePath="Hardware\CPU\amd.h"
 						>
 					</File>
 					<File
-						RelativePath="D:\Code\Push\source\push[exe]\Hardware\CPU\cpu.c"
+						RelativePath="Hardware\CPU\cpu.c"
 						>
 					</File>
 					<File
-						RelativePath="D:\Code\Push\source\push[exe]\Hardware\CPU\cpu.h"
+						RelativePath="Hardware\CPU\cpu.h"
 						>
 					</File>
 					<File
-						RelativePath="D:\Code\Push\source\push[exe]\Hardware\CPU\intel.c"
+						RelativePath="Hardware\CPU\intel.c"
 						>
 					</File>
 					<File
-						RelativePath="D:\Code\Push\source\push[exe]\Hardware\CPU\intel.h"
+						RelativePath="Hardware\CPU\intel.h"
 						>
 					</File>
 				</Filter>
@@ -474,35 +474,35 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\batch.h"
+				RelativePath="batch.h"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\driver.h"
+				RelativePath="driver.h"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\file.h"
+				RelativePath="file.h"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\game.h"
+				RelativePath="game.h"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\push.h"
+				RelativePath="push.h"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\ramdisk.h"
+				RelativePath="ramdisk.h"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\ring0.h"
+				RelativePath="ring0.h"
 				>
 			</File>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\wow64.h"
+				RelativePath="wow64.h"
 				>
 			</File>
 		</Filter>
@@ -512,7 +512,7 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath="D:\Code\Push\source\push[exe]\push.rc"
+				RelativePath="push.rc"
 				>
 			</File>
 		</Filter>
