@@ -63,6 +63,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="ntdll.lib user32.lib advapi32.lib gdi32.lib imagehlp.lib ole32.lib"
 				LinkIncremental="2"
+				GenerateManifest="false"
 				IgnoreAllDefaultLibraries="true"
 				GenerateDebugInformation="true"
 				SubSystem="2"
