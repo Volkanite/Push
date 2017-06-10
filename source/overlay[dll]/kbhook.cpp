@@ -18,6 +18,36 @@ typedef struct _KEYBOARD_HOOK_PARAMS
 HANDLE ProcessHeap;
 HHOOK KeyboardHookHandle;
 WNDPROC OldWNDPROC;
+BOOLEAN RawInputProcessed;
+DetourXS *RawInputDetour;
+
+typedef BOOL(WINAPI* TYPE_PeekMessageW)(
+    LPMSG lpMsg,
+    HWND hWnd,
+    UINT wMsgFilterMin,
+    UINT wMsgFilterMax,
+    UINT wRemoveMsg
+    );
+
+typedef BOOL(WINAPI* TYPE_PeekMessageA)(
+    LPMSG lpMsg,
+    HWND hWnd,
+    UINT wMsgFilterMin,
+    UINT wMsgFilterMax,
+    UINT wRemoveMsg
+    );
+
+typedef UINT(WINAPI* TYPE_GetRawInputData)(
+    _In_      HRAWINPUT hRawInput,
+    _In_      UINT      uiCommand,
+    _Out_opt_ LPVOID    pData,
+    _Inout_   PUINT     pcbSize,
+    _In_      UINT      cbSizeHeader
+    );
+
+TYPE_PeekMessageW       PushPeekMessageW;
+TYPE_PeekMessageA       PushPeekMessageA;
+TYPE_GetRawInputData    OverlayGetRawInputData;
 
 
 LONG WINAPI KeyboardHook(
@@ -73,6 +103,20 @@ BOOLEAN MessageHook( LPMSG Message )
     {
     case WM_KEYDOWN:
     {
+        if (Message->wParam == VK_INSERT && OverlayGetRawInputData)
+        {           
+            //Unhook raw hook since this message hook is sufficient
+            Log(L"KEYBOARD_HOOK_RAW::Destroy()");
+            RawInputDetour->Destroy();
+            OverlayGetRawInputData = NULL;
+
+            //Check if raw input already processed this request or we'll
+            //send it twice resulting in menu appearing then quickly
+            //disappearing.
+            if (RawInputProcessed)
+                return TRUE;
+        }
+
         MenuKeyboardHook(Message->wParam);
 
         if (PushSharedMemory->SwapWASD)
@@ -122,39 +166,10 @@ LRESULT CALLBACK MessageProc(
     LPARAM lParam
     )
 {
-    wchar_t fileName[260];
-
     if (nCode == HC_ACTION && wParam & PM_REMOVE)
     {
         MessageHook((LPMSG)lParam);
     }
-
-    GetModuleFileNameW(NULL, fileName, 260);
-    
-    /*if (wcsstr(
-        fileName, 
-        L"E:\\Steam\\steamapps\\common\\Tom Clany's HAWX\\HAWX") == 0)
-    {*/
-        wchar_t output[260];
-        MSG *msg;
-
-        //swprintf(output, L"MessageProc(%i, 0x%x, 0x%x)", nCode, wParam, lParam);
-        msg = (MSG*) lParam;
-
-        swprintf(
-            output,
-            L"MessageProc(0x%x, %i, 0x%x, 0x%x, %i, %i, %i)",
-            msg->hwnd, 
-            msg->message, 
-            msg->wParam,
-            msg->lParam,
-            msg->time,
-            msg->pt.x,
-            msg->pt.y
-            );
-
-        OutputDebugStringW(output);
-    //}
 
     return CallNextHookEx(KeyboardHookHandle, nCode, wParam, lParam);
 }
@@ -198,41 +213,11 @@ BOOL CALLBACK MessageHookWindowEnum( HWND hwnd, LPARAM lParam )
 }
 
 
-typedef BOOL(WINAPI* TYPE_PeekMessageW)(
-    LPMSG lpMsg,
-    HWND hWnd,
-    UINT wMsgFilterMin,
-    UINT wMsgFilterMax,
-    UINT wRemoveMsg
-    );
-
-typedef BOOL(WINAPI* TYPE_PeekMessageA)(
-    LPMSG lpMsg,
-    HWND hWnd,
-    UINT wMsgFilterMin,
-    UINT wMsgFilterMax,
-    UINT wRemoveMsg
-    );
-
-
-typedef UINT (WINAPI* TYPE_GetRawInputData)(
-    _In_      HRAWINPUT hRawInput,
-    _In_      UINT      uiCommand,
-    _Out_opt_ LPVOID    pData,
-    _Inout_   PUINT     pcbSize,
-    _In_      UINT      cbSizeHeader
-    );
-
 VOID* DetourApi(
     WCHAR* dllName, 
     CHAR* apiName, 
     BYTE* NewFunction
     );
-
-
-TYPE_PeekMessageW       PushPeekMessageW;
-TYPE_PeekMessageA       PushPeekMessageA;
-TYPE_GetRawInputData    OverlayGetRawInputData;
 
 
 BOOL WINAPI PeekMessageWHook(
@@ -318,6 +303,11 @@ UINT WINAPI GetRawInputDataHook(
         if (data->header.dwType == RIM_TYPEKEYBOARD
             && data->data.keyboard.Message == WM_KEYDOWN)
         {
+            if (data->data.keyboard.VKey == VK_INSERT)
+            {
+                RawInputProcessed = TRUE;
+            }
+
             MenuKeyboardHook(data->data.keyboard.VKey);
         }
     }
@@ -415,13 +405,20 @@ void Keyboard_Hook( PUSH_KEYBOARD_HOOK_TYPE HookType )
     case KEYBOARD_HOOK_RAW:
         if (!OverlayGetRawInputData)
         {
-            OverlayGetRawInputData = (TYPE_GetRawInputData)DetourApi(
-                L"user32.dll",
-                "GetRawInputData",
-                (BYTE*)GetRawInputDataHook
-                );
+            BYTE *functionStart = NULL;
+            HMODULE moduleHandle;
+            DWORD address = 0;
+            
+            Log(L"KEYBOARD_HOOK_RAW::Create()");
 
-            Log(L"using KEYBOARD_HOOK_RAW");
+            // Get the API address
+            moduleHandle = GetModuleHandleW(L"user32.dll");
+            address = (DWORD)GetProcAddress(moduleHandle, "GetRawInputData");
+
+            functionStart = (BYTE*)address;
+            RawInputDetour = new DetourXS(functionStart, (BYTE*)GetRawInputDataHook);
+
+            OverlayGetRawInputData = (TYPE_GetRawInputData)RawInputDetour->GetTrampoline();
         }
         break;
     default:

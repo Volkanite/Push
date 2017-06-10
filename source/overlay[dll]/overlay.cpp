@@ -87,6 +87,7 @@ ULONG __stdcall MonitorThread( LPVOID Params )
     {
         Keyboard_Hook(KEYBOARD_HOOK_MESSAGE);
 
+        // Check for DirectInput library
         if (GetModuleHandleW(L"dinput8.dll"))
         {
             Keyboard_Hook(KEYBOARD_HOOK_RAW);
