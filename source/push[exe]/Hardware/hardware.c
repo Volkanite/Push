@@ -119,7 +119,7 @@ VOID Hardware_ForceMaxClocks()
 
 DWORD FindPciDeviceByClass( BYTE baseClass, BYTE subClass, BYTE programIf, BYTE index )
 {
-	DWORD bus = 0, dev = 0, func = 0;
+    DWORD bus = 0, dev = 0, func = 0;
     DWORD count = 0;
     DWORD pciAddress = 0xFFFFFFFF;
     DWORD conf[3] = {0};
@@ -370,15 +370,20 @@ INTBOOL __stdcall MonitorEnumProc( HANDLE hMonitor, HANDLE hdcMonitor, RECT* lpr
 int __stdcall GetSystemMetrics(
     int nIndex
     );
-#define SM_CMONITORS            80
 
+#define SM_CXSCREEN     0
+#define SM_CYSCREEN     1
+#define SM_CMONITORS    80
+
+int MonitorWidth;
+int MonitorHeight;
 
 VOID GetHardwareInfo()
 {
     int i = 0;
-	int monitorCount;
+    int monitorCount;
     CORE_LIST *coreListEntry;
-	HANDLE gdi32;
+    HANDLE gdi32;
     
     //use 64 bits to force allmul() on 32 bit builds
     UINT64 physicalPages;
@@ -435,6 +440,9 @@ VOID GetHardwareInfo()
     DDCCISetVCPFeature = Module_GetProcedureAddress(gdi32, "DDCCISetVCPFeature");
 
     monitorCount = GetSystemMetrics(SM_CMONITORS);
+    MonitorWidth = GetSystemMetrics(SM_CXSCREEN);
+    MonitorHeight = GetSystemMetrics(SM_CYSCREEN);
+
     MonitorHandles = Memory_Allocate(sizeof(HANDLE) * monitorCount);
 
     EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, NULL);
@@ -453,7 +461,7 @@ VOID GetHardwareInfo()
 VOID RefreshHardwareInfo()
 {
     GPU_INFO gpuInfo;
-	MC_TIMING_REPORT timingReport;
+    MC_TIMING_REPORT timingReport;
 
     GPU_GetInfo(&gpuInfo);
 

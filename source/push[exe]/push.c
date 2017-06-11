@@ -653,6 +653,10 @@ HANDLE* OpenProcess( DWORD ProcessId, PUSH_GAME** Game, WCHAR* FilePath )
 }
 
 
+extern int MonitorWidth;
+extern int MonitorHeight;
+
+
 VOID PatchMemory()
 {
     PUSH_GAME *game = NULL;
@@ -683,16 +687,33 @@ VOID PatchMemory()
             szAddr[8] = L'\0';
 
             fileContents += 9;
-            String_CopyN(szValue, fileContents, 4);
-            szValue[4] = L'\0';
+
+            if (fileContents[0] == '{')
+            {
+                if (String_CompareN(fileContents, L"{DISPLAYWIDTH}", 14) == 0)
+                {
+                    dwValue = MonitorWidth;
+                }
+                else if (String_CompareN(fileContents, L"{DISPLAYHEIGHT}", 15) == 0)
+                {
+                    dwValue = MonitorHeight;
+                }
+            }
+            else
+            {
+                String_CopyN(szValue, fileContents, 4);
+                szValue[4] = L'\0';
+                dwValue = _wtoi(szValue);
+            }
 
             dwAddr = wcstol(szAddr, NULL, 16);
-            dwValue = _wtoi(szValue);
 
             Log(L"PatchMemory(0x%x, %u)", dwAddr, dwValue);
             Process_WriteMemory(processHandle, (VOID*)dwAddr, &dwValue, sizeof(DWORD));
 
-            fileContents += 6;
+            // Try to find new line character
+            wchar_t *nextLine = String_FindFirstChar(fileContents, L'\n');
+            fileContents = nextLine + 1;
         }
     }
 }
