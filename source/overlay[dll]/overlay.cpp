@@ -74,17 +74,8 @@ VOID CreateOverlay()
 extern HHOOK KeyboardHookHandle;
 
 
-ULONG __stdcall MonitorThread( LPVOID Params )
+VOID InitializeKeyboardHook()
 {
-    while (!RenderThreadHandle)
-    {
-        Sleep(500);
-    }
-
-    Log(L"RenderThreadId %i", GetThreadId(RenderThreadHandle));
-
-    CallPipe(L"Patch", NULL);
-
     if (PushSharedMemory->KeyboardHookType == KEYBOARD_HOOK_AUTO)
     {
         Keyboard_Hook(KEYBOARD_HOOK_MESSAGE);
@@ -99,11 +90,6 @@ ULONG __stdcall MonitorThread( LPVOID Params )
     {
         Keyboard_Hook(PushSharedMemory->KeyboardHookType);
     }
-
-    // Thread can't end or keyboard hook won't work.
-    Sleep(INFINITE);
-
-    return NULL;
 }
 
 
@@ -234,7 +220,7 @@ BOOL __stdcall DllMain(
             InitializeCriticalSection(&OvCriticalSection);
             CreateOverlay();
 
-            CreateThread(0, 0, &MonitorThread, 0, 0, 0);
+            //CreateThread(0, 0, &MonitorThread, 0, 0, 0);
             CreateThread(0, 0, &ImageMonitorThread, 0, 0, 0);
 
             EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &devMode);

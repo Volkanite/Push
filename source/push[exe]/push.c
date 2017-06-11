@@ -81,6 +81,7 @@ BOOLEAN IsGame( WCHAR* ExecutablePath )
             if (String_Compare(gameList->Game->ExecutableName, executable) == 0)
             {
                 MapFileAndCheckSumW(ExecutablePath, &headerSum, &checkSum);
+                Log(L"MapFileAndCheckSumW(%s)", ExecutablePath);
 
                 if (gameList->Game->CheckSum == checkSum)
                 {

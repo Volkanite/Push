@@ -234,8 +234,21 @@ VOID RunFrameStatistics()
 }
 
 
+VOID InitializeKeyboardHook();
+
+
 VOID RnRender( OvOverlay* Overlay )
 {
+    static BOOLEAN rendering = FALSE;
+
+    if (!rendering)
+    {
+        rendering = TRUE;
+
+        CallPipe(L"Patch", NULL);
+        InitializeKeyboardHook();
+    }
+
     RunFrameStatistics();
     Osd_Draw( Overlay );
     MnuRender( Overlay );
