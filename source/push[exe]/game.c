@@ -21,9 +21,78 @@ WCHAR* HeapedString( WCHAR* String )
 }
 
 
+BOOLEAN SearchGame( WCHAR* ExecutablePath, WCHAR* GameId )
+{
+    // Try searching for names that match. If a match is found, compare the executable's checksum. We do this to find
+    // games that might have changed paths. As Push uses a direct file path hueristic to determine game settings to
+    // use, users might run into problems trying to figure out why their games settings don't work while not noticing
+    // that their game executable has changed paths. This function updates the path and gets everything back to
+    // running nicely again.
+
+    DWORD headerSum;
+    DWORD checkSum;
+    GAME_LIST gameList = Game_GetGames();
+    wchar_t *executable = String_FindLastChar(ExecutablePath, '\\');
+
+    executable++;
+
+    while (gameList != NULL)
+    {
+        if (String_Compare(gameList->Game->ExecutableName, executable) == 0)
+        {
+            MapFileAndCheckSumW(ExecutablePath, &headerSum, &checkSum);
+            Log(L"MapFileAndCheckSumW(%s, 0x%X)", ExecutablePath, checkSum);
+            Log(L"gameList->Game->CheckSum: 0x%X", gameList->Game->CheckSum);
+
+            if (gameList->Game->CheckSum == checkSum)
+            {
+                Log(L"Found game executable at another path!");
+                
+                if (GameId)
+                {
+                    String_Copy(GameId, gameList->Game->Id);
+                }
+
+                // Update path. 
+                SlIniWriteString(L"Games", gameList->Game->ExecutablePath, NULL);
+                SlIniWriteString(L"Games", ExecutablePath, gameList->Game->Id);
+
+                return TRUE;
+            }
+        }
+
+        gameList = gameList->NextEntry;
+    }
+
+    return FALSE;
+}
+
+
+BOOLEAN Game_IsGame( WCHAR* ExecutablePath )
+{
+    wchar_t buffer[260];
+    DWORD result;
+
+    Log(L"IsGame(%s)", ExecutablePath);
+
+    result = Ini_GetString(L"Games", ExecutablePath, 0, buffer, 260);
+
+    if (result)
+    {
+        //is game
+        return TRUE;
+    }
+    else
+    {
+        return SearchGame(ExecutablePath, NULL);
+    }
+
+    return FALSE;
+}
+
+
 VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
 {
-    WCHAR gameId[260];
     WCHAR buffer[260];
     WCHAR installPath[260];
     WCHAR *lastSlash;
@@ -34,19 +103,25 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
     if (!Win32Name)
         return;
 
-    //Log(L"Game_Initialize(%s)", Win32Name);
+    Log(L"Game_Initialize(%s)", Win32Name);
     
     Game->ExecutablePath = HeapedString(Win32Name);
     lastSlash = String_FindLastChar(Game->ExecutablePath, '\\');
     Game->ExecutableName = lastSlash + 1;
 
-    Ini_GetString(L"Games", Game->ExecutablePath, NULL, gameId, 260);
+    Ini_GetString(L"Games", Game->ExecutablePath, NULL, Game->Id, sizeof(Game->Id) / sizeof(WCHAR));
+    Log(L"gameId: %s", Game->Id);
 
-    String_CopyN(Game->Id, gameId, 2);
+    if (String_Compare(Game->Id, L"") == 0)
+    {
+        Log(L"Bad game id! game must have changed paths!");
+        SearchGame(Win32Name, Game->Id);
+        Log(L"Found game at new gameId: %s", Game->Id);
+    }
 
     Ini_ReadSubKey(
         L"Game Settings", 
-        gameId, 
+        Game->Id,
         L"Name", 
         Game->ExecutableName, 
         buffer, 
@@ -71,7 +146,7 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
     
     Ini_ReadSubKey(
         L"Game Settings", 
-        gameId, 
+        Game->Id,
         GAME_INSTALL_PATH, 
         installPath, 
         buffer, 
@@ -81,7 +156,7 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
     Game->InstallPath = HeapedString(buffer);
 
     // Get checksum
-    Ini_ReadSubKey(L"Game Settings", gameId, L"CheckSum", NULL, buffer, 260);
+    Ini_ReadSubKey(L"Game Settings", Game->Id, L"CheckSum", NULL, buffer, 260);
     
     if (buffer)
     {
@@ -100,37 +175,37 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
 
     // Game Settings.
 
-    if (Ini_ReadSubKeyBoolean(L"Game Settings", gameId, L"DisableOverlay", FALSE))
+    if (Ini_ReadSubKeyBoolean(L"Game Settings", Game->Id, L"DisableOverlay", FALSE))
     {
         Game->Settings.DisableOverlay = TRUE;
     }
 
-    if (Ini_ReadSubKeyBoolean(L"Game Settings", gameId, L"UseRamDisk", FALSE))
+    if (Ini_ReadSubKeyBoolean(L"Game Settings", Game->Id, L"UseRamDisk", FALSE))
     {
         Game->Settings.UseRamDisk = TRUE;
     }
 
-    if (Ini_ReadSubKeyBoolean(L"Game Settings", gameId, L"DisableRepeatKeys", FALSE))
+    if (Ini_ReadSubKeyBoolean(L"Game Settings", Game->Id, L"DisableRepeatKeys", FALSE))
     {
         Game->Settings.DisableRepeatKeys = TRUE;
     }
 
-    if (Ini_ReadSubKeyBoolean(L"Game Settings", gameId, L"SwapWASD", FALSE))
+    if (Ini_ReadSubKeyBoolean(L"Game Settings", Game->Id, L"SwapWASD", FALSE))
     {
         Game->Settings.SwapWASD = TRUE;
     }
 
-    if (Ini_ReadSubKeyBoolean(L"Game Settings", gameId, L"ForceMaxClocks", FALSE))
+    if (Ini_ReadSubKeyBoolean(L"Game Settings", Game->Id, L"ForceMaxClocks", FALSE))
     {
         Game->Settings.ForceMaxClocks = TRUE;
     }
 
-    if (Ini_ReadSubKeyBoolean(L"Game Settings", gameId, L"Patch", FALSE))
+    if (Ini_ReadSubKeyBoolean(L"Game Settings", Game->Id, L"Patch", FALSE))
     {
         Game->Settings.PatchMemory = TRUE;
     }
 
-    Ini_ReadSubKey(L"Game Settings", gameId, L"ForceVsync", NULL, buffer, 260);
+    Ini_ReadSubKey(L"Game Settings", Game->Id, L"ForceVsync", NULL, buffer, 260);
 
     if (String_Compare(buffer, L"FORCE_ON") == 0)
     {

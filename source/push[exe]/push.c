@@ -43,64 +43,6 @@ TYPE_MuteJack MuteJack;
 VOID InitializeCRT();
 
 
-BOOLEAN IsGame( WCHAR* ExecutablePath )
-{
-    wchar_t buffer[260];
-    DWORD result;
-    
-    Log(L"IsGame(%s)", ExecutablePath);
-
-    result = Ini_GetString(L"Games", ExecutablePath, 0, buffer, 260);
-    
-    if (result)
-    {
-        //is game
-        return TRUE;
-    }
-    else
-    {
-        // Try searching for names that match. If a match is found, compare the executable's checksum. We do this to find
-        // games that might have changed paths. As Push uses a direct file path hueristic to determine game settings to
-        // use, users might run into problems trying to figure out why their games settings don't work while not noticing
-        // that their game executable has changed paths. This function updates the path and gets everything back to
-        // running nicely again.
-
-        DWORD headerSum;
-        DWORD checkSum;
-        GAME_LIST gameList = Game_GetGames();
-        wchar_t *executable = String_FindLastChar(ExecutablePath, '\\');
-
-        executable++;
-
-        while (gameList != NULL)
-        {
-            if (String_Compare(gameList->Game->ExecutableName, executable) == 0)
-            {
-                MapFileAndCheckSumW(ExecutablePath, &headerSum, &checkSum);
-                Log(L"MapFileAndCheckSumW(%s, 0x%X)", ExecutablePath, checkSum);
-                Log(L"gameList->Game->CheckSum: 0x%X", gameList->Game->CheckSum);
-
-                if (gameList->Game->CheckSum == checkSum)
-                {
-                    // Update path.
-
-                    Log(L"Found game executable at another path!");
-
-                    SlIniWriteString(L"Games", gameList->Game->ExecutablePath, NULL);
-                    SlIniWriteString(L"Games", ExecutablePath, gameList->Game->Id);
-
-                    return TRUE;
-                }
-            }
-
-            gameList = gameList->NextEntry;
-        }
-    }
-
-    return FALSE;
-}
-
-
 INTBOOL __stdcall SetWindowTextW(
     VOID* hWnd,
     WCHAR* lpString
@@ -396,7 +338,7 @@ VOID OnProcessEvent( PROCESSID processID )
 
     Process_GetFileNameByHandle(processHandle, fileName);
 
-    if (IsGame(fileName))
+    if (Game_IsGame(fileName))
     {
         PUSH_GAME game = { 0 };
 
@@ -696,7 +638,7 @@ HANDLE* OpenProcess( DWORD ProcessId, PUSH_GAME** Game, WCHAR* FilePath )
         String_Copy(FilePath, filePath);
     }
 
-    if (IsGame(filePath))
+    if (Game_IsGame(filePath))
     {
         PUSH_GAME *game;
 

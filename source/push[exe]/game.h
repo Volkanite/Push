@@ -27,7 +27,7 @@ typedef struct _PUSH_GAME
     WCHAR* ExecutablePath;
     WCHAR* Name;
     WCHAR* InstallPath;
-    WCHAR Id[2];
+    WCHAR Id[3];
     DWORD CheckSum;
     PUSH_GAME_SETTINGS Settings;
 
@@ -47,6 +47,7 @@ VOID Game_SetCheckSum(PUSH_GAME* Game, DWORD CheckSum);
 VOID Game_SetFlags(PUSH_GAME *Game, DWORD Flags);
 VOID Game_SetInstallPath(PUSH_GAME *Game, WCHAR* Path);
 VOID Game_SetName(PUSH_GAME* Game, WCHAR* Name);
+BOOLEAN Game_IsGame(WCHAR* ExecutablePath);
 GAME_LIST Game_GetGames();
 
 
