@@ -52,6 +52,8 @@ BOOLEAN IsGame( WCHAR* ExecutablePath )
     wchar_t buffer[260];
     DWORD result;
     
+    Log(L"IsGame(%s)", ExecutablePath);
+
     result = Ini_GetString(L"Games", ExecutablePath, 0, buffer, 260);
     
     if (result)

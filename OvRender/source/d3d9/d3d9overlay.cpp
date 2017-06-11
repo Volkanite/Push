@@ -102,12 +102,15 @@ VOID UpdatePresentationParameters( D3DPRESENT_PARAMETERS* PresentationParameters
 
 VOID Dx9Overlay_CreateDevice( D3DPRESENT_PARAMETERS* PresentationParameters )
 {
+    Log(L"Dx9Overlay_CreateDevice()");
     UpdatePresentationParameters(PresentationParameters);
 }
 
 
 VOID Dx9Overlay_Reset( D3DPRESENT_PARAMETERS* PresentationParameters )
 {
+    Log(L"Dx9Overlay_Reset()");
+
     if (Dx9OvFont)
     {
         Dx9OvFont->InvalidateDeviceObjects();
