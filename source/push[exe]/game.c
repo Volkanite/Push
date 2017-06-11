@@ -27,9 +27,9 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
     WCHAR buffer[260];
     WCHAR installPath[260];
     WCHAR *lastSlash;
-	DWORD start;
-	DWORD end;
-	DWORD len;
+    DWORD start;
+    DWORD end;
+    DWORD len;
 
     if (!Win32Name)
         return;
@@ -109,6 +109,11 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
     if (Ini_ReadSubKeyBoolean(L"Game Settings", gameId, L"ForceMaxClocks", FALSE))
     {
         Game->Settings.ForceMaxClocks = TRUE;
+    }
+
+    if (Ini_ReadSubKeyBoolean(L"Game Settings", gameId, L"Patch", FALSE))
+    {
+        Game->Settings.PatchMemory = TRUE;
     }
 
     Ini_ReadSubKey(L"Game Settings", gameId, L"ForceVsync", NULL, buffer, 260);

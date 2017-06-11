@@ -83,6 +83,8 @@ ULONG __stdcall MonitorThread( LPVOID Params )
 
     Log(L"RenderThreadId %i", GetThreadId(RenderThreadHandle));
 
+    CallPipe(L"Patch", NULL);
+
     if (PushSharedMemory->KeyboardHookType == KEYBOARD_HOOK_AUTO)
     {
         Keyboard_Hook(KEYBOARD_HOOK_MESSAGE);

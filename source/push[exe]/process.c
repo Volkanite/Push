@@ -286,12 +286,12 @@ VOID Process_WriteMemory( HANDLE ProcessHandle, VOID* BaseAddress, VOID* Buffer,
         NtProtectVirtualMemory(ProcessHandle, &baseAddress, &regionSize, oldValue, &oldValue);
 
         /* Write the memory */
-        NtWriteVirtualMemory(ProcessHandle, baseAddress, Buffer, Size, &bytesWritten);
+        NtWriteVirtualMemory(ProcessHandle, BaseAddress, Buffer, Size, &bytesWritten);
     }
     else
     {
         /* do the write */
-        NtWriteVirtualMemory(ProcessHandle, baseAddress, Buffer, Size, &bytesWritten);
+        NtWriteVirtualMemory(ProcessHandle, BaseAddress, Buffer, Size, &bytesWritten);
 
         /* And restore the protection */
         NtProtectVirtualMemory(ProcessHandle, &baseAddress, &regionSize, oldValue, &oldValue);

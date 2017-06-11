@@ -16,6 +16,7 @@ typedef struct _PUSH_GAME_SETTINGS
     BOOLEAN                     DisableRepeatKeys;
     BOOLEAN                     SwapWASD;
     BOOLEAN                     ForceMaxClocks;
+    BOOLEAN                     PatchMemory;
     PUSH_VSYNC_OVERRIDE_MODE    VsyncOverrideMode;
 
 } PUSH_GAME_SETTINGS;

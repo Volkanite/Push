@@ -564,18 +564,30 @@ DWORD __stdcall SetFilePointer(
     );
 
 
-VOID OnImageEvent( PROCESSID ProcessId )
+VOID GetPatchFile(PUSH_GAME* Game, WCHAR* Buffer)
+{
+    WCHAR *dot;
+    WCHAR batchFile[260];
+
+    String_Copy(batchFile, L"patches\\");
+    String_Concatenate(batchFile, Game->Name);
+
+    dot = String_FindLastChar(batchFile, '.');
+
+    if (dot)
+        String_Copy(dot, L".txt");
+    else
+        String_Concatenate(batchFile, L".txt");
+
+    String_Copy(Buffer, batchFile);
+}
+
+
+PUSH_GAME* OpenGame( DWORD ProcessId, HANDLE* ProcessHandle, WCHAR* FilePath )
 {
     VOID *processHandle = 0;
-    wchar_t filePath[260];
-    wchar_t *executableName;
     NTSTATUS status;
-    static int lastProcessId = 0;
-
-    if (lastProcessId == ProcessId)
-        return;
-
-    lastProcessId = ProcessId;
+    wchar_t filePath[260];
 
     processHandle = Process_Open(
         ProcessId,
@@ -623,16 +635,16 @@ VOID OnImageEvent( PROCESSID ProcessId )
         if (!NT_SUCCESS(status))
         {
             Memory_Free(securityDescriptor);
-            return;
+            return NULL;
         }
 
         // Open it with WRITE_DAC access so that we can write to the DACL.
         processHandle = Process_Open(ProcessId, (0x00040000L)); //WRITE_DAC
 
-        if(processHandle == 0)
+        if (processHandle == 0)
         {
             Memory_Free(securityDescriptor);
-           return;
+            return NULL;
         }
 
         status = NtSetSecurityObject(
@@ -644,7 +656,7 @@ VOID OnImageEvent( PROCESSID ProcessId )
         if (!NT_SUCCESS(status))
         {
             Memory_Free(securityDescriptor);
-            return;
+            return NULL;
         }
 
         // The DACL is overwritten with our own DACL. We
@@ -670,32 +682,104 @@ VOID OnImageEvent( PROCESSID ProcessId )
 
     if (!processHandle)
     {
-        return;
+        return NULL;
     }
-    
+
     status = Process_GetFileNameByHandle(processHandle, filePath);
+
+    if (FilePath)
+    {
+        String_Copy(FilePath, filePath);
+    }
 
     if (IsGame(filePath))
     {
-        PUSH_GAME game = { 0 };
+        PUSH_GAME *game;
 
-        Game_Initialize(filePath, &game);
+        game = Memory_AllocateEx(sizeof(PUSH_GAME), HEAP_ZERO_MEMORY);
 
-        if (game.Settings.DisableOverlay)
+        Game_Initialize(filePath, game);
+
+        *ProcessHandle = processHandle;
+
+        return game;
+    }
+
+    return NULL;
+}
+
+
+VOID PatchMemory()
+{
+    PUSH_GAME *game;
+    HANDLE processHandle = NULL;
+
+    game = OpenGame(GameProcessId, &processHandle, NULL);
+
+    if (game->Settings.PatchMemory)
+    {
+        Log(L"Patching memory...");
+
+        wchar_t patchFile[260];
+        wchar_t szAddr[9], szValue[5];
+        DWORD dwAddr;
+        DWORD dwValue;
+        wchar_t *fileContents;
+
+        GetPatchFile(game, patchFile);
+        fileContents = File_Load(patchFile, NULL);
+
+        // Start our reads after the UTF16-LE character marker
+        fileContents += 1;
+
+        for (int i = 0; i < 4; i++)
         {
-            Log(L"Skipping injection on %s", game.ExecutableName);
+            String_CopyN(szAddr, fileContents, 8);
+            szAddr[8] = L'\0';
 
-            return;
+            fileContents += 9;
+            String_CopyN(szValue, fileContents, 4);
+            szValue[4] = L'\0';
+
+            dwAddr = wcstol(szAddr, NULL, 16);
+            dwValue = _wtoi(szValue);
+
+            Log(L"PatchMemory(0x%x, %u)", dwAddr, dwValue);
+            Process_WriteMemory(processHandle, (VOID*)dwAddr, &dwValue, sizeof(DWORD));
+
+            fileContents += 6;
         }
     }
+}
 
-    if (NT_SUCCESS(status))
+
+VOID OnImageEvent( PROCESSID ProcessId )
+{
+    VOID *processHandle = 0;
+    wchar_t filePath[260];
+    wchar_t *executableName;
+    static int lastProcessId = 0;
+
+    if (lastProcessId == ProcessId)
+        return;
+
+    lastProcessId = ProcessId;
+
+    PUSH_GAME *game;
+
+    game = OpenGame(ProcessId, &processHandle, filePath);
+
+    if (game->Settings.DisableOverlay)
     {
-        executableName = String_FindLastChar(filePath, '\\');
-        executableName++;
+        Log(L"Skipping injection on %s", game->ExecutableName);
 
-        Log(L"Injecting into %s", executableName);
+        return;
     }
+
+    executableName = String_FindLastChar(filePath, '\\');
+    executableName++;
+
+    Log(L"Injecting into %s", executableName);
 
     GameProcessId = ProcessId;
 
@@ -1000,7 +1084,7 @@ VOID Log(const wchar_t* Format, ...)
 
     String_Copy(output, L"[PUSH] ");
     va_start(_Arglist, Format);
-    String_Format(buffer, 260, Format, NULL, _Arglist);
+    vswprintf_s(buffer, 260, Format, _Arglist);
     va_end(_Arglist);
 
     wcsncat(output, buffer, 260);
@@ -1124,6 +1208,10 @@ DWORD __stdcall PipeThread( VOID* Parameter )
 
                     File_Write(pipeHandle, &responseTime, 2);
                 }
+                else if (String_Compare(buffer, L"Patch") == 0)
+                {
+                    PatchMemory();
+                }
             }
         }
 
@@ -1200,17 +1288,17 @@ typedef struct _LDR_DATA_TABLE_ENTRY
 INT32 __stdcall start( )
 {
     HANDLE sectionHandle, *hMutex;
-	HANDLE eventHandle;
-	HANDLE threadHandle;
+    HANDLE eventHandle;
+    HANDLE threadHandle;
     DWORD sectionSize;
     MSG messages;
     OBJECT_ATTRIBUTES objAttrib = {0};
     PTEB threadEnvironmentBlock;
     UNICODE_STRING eventSource;
     LDR_DATA_TABLE_ENTRY *module;
-	SECTION_BASIC_INFORMATION sectionInfo;
-	LARGE_INTEGER newSectionSize;
-	
+    SECTION_BASIC_INFORMATION sectionInfo;
+    LARGE_INTEGER newSectionSize;
+    
     InitializeCRT();
 
     threadEnvironmentBlock = NtCurrentTeb();
