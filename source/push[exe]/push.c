@@ -461,6 +461,8 @@ VOID Inject( HANDLE ProcessHandle )
     UINT32 regionSize;
     BOOLEAN x64 = FALSE;
 
+    if (!ProcessHandle) return;
+
     if (!Process_IsWow64(ProcessHandle))
     {
         x64 = TRUE;
@@ -583,7 +585,7 @@ VOID GetPatchFile(PUSH_GAME* Game, WCHAR* Buffer)
 }
 
 
-PUSH_GAME* OpenGame( DWORD ProcessId, HANDLE* ProcessHandle, WCHAR* FilePath )
+HANDLE* OpenProcess( DWORD ProcessId, PUSH_GAME** Game, WCHAR* FilePath )
 {
     VOID *processHandle = 0;
     NTSTATUS status;
@@ -700,23 +702,21 @@ PUSH_GAME* OpenGame( DWORD ProcessId, HANDLE* ProcessHandle, WCHAR* FilePath )
 
         Game_Initialize(filePath, game);
 
-        *ProcessHandle = processHandle;
-
-        return game;
+        *Game = game;
     }
 
-    return NULL;
+    return processHandle;
 }
 
 
 VOID PatchMemory()
 {
-    PUSH_GAME *game;
+    PUSH_GAME *game = NULL;
     HANDLE processHandle = NULL;
 
-    game = OpenGame(GameProcessId, &processHandle, NULL);
+    processHandle = OpenProcess(GameProcessId, &game, NULL);
 
-    if (game->Settings.PatchMemory)
+    if (game && game->Settings.PatchMemory)
     {
         wchar_t patchFile[260];
         wchar_t szAddr[9], szValue[5];
@@ -760,16 +760,16 @@ VOID OnImageEvent( PROCESSID ProcessId )
     wchar_t filePath[260];
     wchar_t *executableName;
     static int lastProcessId = 0;
-    PUSH_GAME *game;
+    PUSH_GAME *game = NULL;
 
     if (lastProcessId == ProcessId)
         return;
 
     lastProcessId = ProcessId;
 
-    game = OpenGame(ProcessId, &processHandle, filePath);
+    processHandle = OpenProcess(ProcessId, &game, filePath);
 
-    if (game->Settings.DisableOverlay)
+    if (game && game->Settings.DisableOverlay)
     {
         Log(L"Skipping injection on %s", game->ExecutableName);
 
