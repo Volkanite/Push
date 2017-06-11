@@ -718,13 +718,14 @@ VOID PatchMemory()
 
     if (game->Settings.PatchMemory)
     {
-        Log(L"Patching memory...");
-
         wchar_t patchFile[260];
         wchar_t szAddr[9], szValue[5];
         DWORD dwAddr;
         DWORD dwValue;
         wchar_t *fileContents;
+        int i;
+
+        Log(L"Patching memory...");
 
         GetPatchFile(game, patchFile);
         fileContents = File_Load(patchFile, NULL);
@@ -732,7 +733,7 @@ VOID PatchMemory()
         // Start our reads after the UTF16-LE character marker
         fileContents += 1;
 
-        for (int i = 0; i < 4; i++)
+        for (i = 0; i < 4; i++)
         {
             String_CopyN(szAddr, fileContents, 8);
             szAddr[8] = L'\0';
@@ -759,13 +760,12 @@ VOID OnImageEvent( PROCESSID ProcessId )
     wchar_t filePath[260];
     wchar_t *executableName;
     static int lastProcessId = 0;
+    PUSH_GAME *game;
 
     if (lastProcessId == ProcessId)
         return;
 
     lastProcessId = ProcessId;
-
-    PUSH_GAME *game;
 
     game = OpenGame(ProcessId, &processHandle, filePath);
 
