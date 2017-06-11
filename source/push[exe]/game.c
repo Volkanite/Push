@@ -205,6 +205,7 @@ GAME_LIST Game_GetGames()
         if (!returnValue)
         {
             Memory_Free(games);
+            return NULL;
         }
 
     } while ((returnValue == ((bufferSize * count) - 1))
