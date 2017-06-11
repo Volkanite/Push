@@ -313,12 +313,6 @@ TYPE_SHBrowseForFolderW     SHBrowseForFolderW;
 TYPE_SHGetPathFromIDListW   SHGetPathFromIDListW;
 
 
-    DWORD __stdcall MapFileAndCheckSumW(
-        WCHAR* Filename,
-        DWORD* HeaderSum,
-        DWORD* CheckSum
-        );
-
     LONG __stdcall OleInitialize(
         VOID* pvReserved
         );
@@ -371,7 +365,7 @@ VOID Overclock();
 
 INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lParam )
 {
-	ITEMIDLIST *pIDL;
+    ITEMIDLIST *pIDL;
 
     switch (uMessage)
     {

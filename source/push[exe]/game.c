@@ -82,7 +82,21 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
 
     // Get checksum
     Ini_ReadSubKey(L"Game Settings", gameId, L"CheckSum", NULL, buffer, 260);
-    if (buffer) Game->CheckSum = wcstol(buffer, NULL, 16);
+    
+    if (buffer)
+    {
+        Game->CheckSum = wcstol(buffer, NULL, 16);
+    }
+    
+    if (Game->CheckSum == 0)
+    {
+        //update checksum
+        DWORD headerSum, checkSum;
+
+        Log(L"Updating checksum for %s", Game->ExecutablePath);
+        MapFileAndCheckSumW(Game->ExecutablePath, &headerSum, &checkSum);
+        Game_SetCheckSum(Game, checkSum);
+    }
 
     // Game Settings.
 

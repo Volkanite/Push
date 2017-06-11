@@ -39,11 +39,7 @@ UINT32 GameProcessId;
 typedef int (__stdcall* TYPE_MuteJack)(CHAR *pin);
 TYPE_MuteJack MuteJack;
 
-DWORD __stdcall MapFileAndCheckSumW(
-    WCHAR* Filename,
-    DWORD* HeaderSum,
-    DWORD* CheckSum
-    );
+
 VOID InitializeCRT();
 
 
@@ -81,11 +77,14 @@ BOOLEAN IsGame( WCHAR* ExecutablePath )
             if (String_Compare(gameList->Game->ExecutableName, executable) == 0)
             {
                 MapFileAndCheckSumW(ExecutablePath, &headerSum, &checkSum);
-                Log(L"MapFileAndCheckSumW(%s)", ExecutablePath);
+                Log(L"MapFileAndCheckSumW(%s, 0x%X)", ExecutablePath, checkSum);
+                Log(L"gameList->Game->CheckSum: 0x%X", gameList->Game->CheckSum);
 
                 if (gameList->Game->CheckSum == checkSum)
                 {
                     // Update path.
+
+                    Log(L"Found game executable at another path!");
 
                     SlIniWriteString(L"Games", gameList->Game->ExecutablePath, NULL);
                     SlIniWriteString(L"Games", ExecutablePath, gameList->Game->Id);

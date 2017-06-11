@@ -161,6 +161,12 @@ NTSTATUS __stdcall NtCreateThreadEx(
     PPS_ATTRIBUTE_LIST AttributeList
     );
 
+DWORD __stdcall MapFileAndCheckSumW(
+    WCHAR* Filename,
+    DWORD* HeaderSum,
+    DWORD* CheckSum
+    );
+
 #define THREAD_ALL_ACCESS (STANDARD_RIGHTS_REQUIRED | SYNCHRONIZE | 0xFFFF)
 #define NtCurrentThread() ((HANDLE)(LONG)-2)
 
