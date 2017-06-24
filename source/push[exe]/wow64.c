@@ -1,5 +1,5 @@
 #include <Windows.h>
-#include <stdio.h>
+//#include <stdio.h>
 #include "wow64.h"
 
 
@@ -146,15 +146,15 @@ unsigned long long GetModuleHandle64(wchar_t* ModuleName)
     unsigned long long Current = 0;
     unsigned long long ulModule = 0;
 
-	wchar_t szBuffer[512];
-	PEB64 Peb64;
-	LDR64 Ldr64;
-	LDR_DATA_TABLE_ENTRY64 LdrEntry64;
+    wchar_t szBuffer[512];
+    PEB64 Peb64;
+    LDR64 Ldr64;
+    LDR_DATA_TABLE_ENTRY64 LdrEntry64;
 
-	Memory_Clear(szBuffer, sizeof(szBuffer));
-	Memory_Clear(&Peb64, sizeof(PEB64));
-	Memory_Clear(&Ldr64, sizeof(LDR64));
-	Memory_Clear(&LdrEntry64, sizeof(LDR_DATA_TABLE_ENTRY64));
+    Memory_Clear(szBuffer, sizeof(szBuffer));
+    Memory_Clear(&Peb64, sizeof(PEB64));
+    Memory_Clear(&Ldr64, sizeof(LDR64));
+    Memory_Clear(&LdrEntry64, sizeof(LDR_DATA_TABLE_ENTRY64));
 
     GetPEB64(&Peb64);
 
@@ -329,27 +329,37 @@ __declspec(naked) unsigned long strlen64(unsigned long long Dst)
 }
 
 
+typedef int(*TYPE_memcmp)(const void *Buf1, const void *Buf2, int Size);
+extern TYPE_memcmp      ntdll_memcmp;
+typedef int(*TYPE_strcmp)(const char *Str1, const char *Str2);
+extern TYPE_strcmp      ntdll_strcmp;
+typedef int(*TYPE_strncmp)(const char *Str1, const char *Str2, int MaxCount);
+extern TYPE_strncmp     ntdll_strncmp;
+typedef UINT32(*TYPE_strlen)(const char *Str);
+extern TYPE_strlen      ntdll_strlen;
+
+
 unsigned long long GetProcAddress64(unsigned long long ulModule, char *szFunction)
 {
 
     unsigned long long ulFunction = 0;
 
-	IMAGE_DOS_HEADER DosHeader;
-	IMAGE_NT_HEADERS64 NtHeaders;
+    IMAGE_DOS_HEADER DosHeader;
+    IMAGE_NT_HEADERS64 NtHeaders;
 
-	Memory_Clear(&DosHeader, sizeof(IMAGE_DOS_HEADER));
-	Memory_Clear(&NtHeaders, sizeof(IMAGE_NT_HEADERS64));
+    Memory_Clear(&DosHeader, sizeof(IMAGE_DOS_HEADER));
+    Memory_Clear(&NtHeaders, sizeof(IMAGE_NT_HEADERS64));
 
     memcpy64((unsigned long long)&DosHeader, ulModule, sizeof(IMAGE_DOS_HEADER));
     memcpy64((unsigned long long)&NtHeaders, ulModule + DosHeader.e_lfanew, sizeof(IMAGE_NT_HEADERS64));
 
     if (NtHeaders.Signature == IMAGE_NT_SIGNATURE)
     {
-		char szName[256];
-		IMAGE_EXPORT_DIRECTORY Exports;
+        char szName[256];
+        IMAGE_EXPORT_DIRECTORY Exports;
 
-		Memory_Clear(szName, sizeof(szName));
-		Memory_Clear(&Exports, sizeof(IMAGE_EXPORT_DIRECTORY));
+        Memory_Clear(szName, sizeof(szName));
+        Memory_Clear(&Exports, sizeof(IMAGE_EXPORT_DIRECTORY));
 
         unsigned long ulVA = NtHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
         unsigned long ulSize = NtHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].Size;
@@ -362,7 +372,7 @@ unsigned long long GetProcAddress64(unsigned long long ulModule, char *szFunctio
             ulNameOffset += ulModule;
             memcpy64((unsigned long long)szName, ulNameOffset, strlen64(ulNameOffset));
             
-			if (!m_memcmp(szFunction, szName, strlen(szFunction)))
+            if (!ntdll_memcmp(szFunction, szName, ntdll_strlen(szFunction)))
             {
                 unsigned long long ulAddressOffset = 0;
                 unsigned long long ulOrdinalOffset = 0;
@@ -520,20 +530,20 @@ typedef struct _PROCESS_BASIC_INFORMATION_64
 // NtWow64QueryInformationProcess64
 typedef NTSTATUS(__stdcall *TYPE_NtWow64QueryInformationProcess64)
 (
-	HANDLE ProcessHandle,
-	ULONG  ProcessInformationClass,
-	VOID*  ProcessInformation64,
-	ULONG  Length,
-	ULONG* ReturnLength
+    HANDLE ProcessHandle,
+    ULONG  ProcessInformationClass,
+    VOID*  ProcessInformation64,
+    ULONG  Length,
+    ULONG* ReturnLength
 );
 typedef DWORD64 PTR64;
 // NtWow64ReadVirtualMemory64
 typedef NTSTATUS(__stdcall *TYPE_NtWow64ReadVirtualMemory64)(
-	HANDLE   ProcessHandle,
-	PTR64  BaseAddress,
-	VOID*   Buffer,
-	UINT64  BufferLength,
-	UINT64* ReturnLength
+    HANDLE   ProcessHandle,
+    PTR64  BaseAddress,
+    VOID*   Buffer,
+    UINT64  BufferLength,
+    UINT64* ReturnLength
     );
 
 TYPE_NtWow64QueryInformationProcess64  NtWow64QueryInformationProcess64;
@@ -656,11 +666,11 @@ typedef enum _PROCESSINFOCLASS
 
 VOID* GetRemoteProcessEnvironmentBlock(HANDLE ProcessHandle, PEB_64* ProcessEnvironmentBlock)
 {
-	PROCESS_BASIC_INFORMATION_64 info;
+    PROCESS_BASIC_INFORMATION_64 info;
     ULONG bytes = 0;
     NTSTATUS status;
 
-	Memory_Clear(&info, sizeof(PROCESS_BASIC_INFORMATION_64));
+    Memory_Clear(&info, sizeof(PROCESS_BASIC_INFORMATION_64));
 
     NtWow64QueryInformationProcess64 = (TYPE_NtWow64QueryInformationProcess64)Module_GetProcedureAddress(
         Module_Load(L"ntdll.dll"),
@@ -696,11 +706,11 @@ typedef struct _PEB_LDR_DATA_64
 typedef unsigned long long  uint64_t;
 typedef uint64_t ptr_t;
 NTSTATUS __stdcall NtReadVirtualMemory(
-	HANDLE ProcessHandle,
-	VOID* BaseAddress,
-	VOID* Buffer,
-	SIZE_T BufferSize,
-	SIZE_T* NumberOfBytesRead
+    HANDLE ProcessHandle,
+    VOID* BaseAddress,
+    VOID* Buffer,
+    SIZE_T BufferSize,
+    SIZE_T* NumberOfBytesRead
     );
 NTSTATUS ReadProcessMemoryMy(
     HANDLE ProcessHandle,
@@ -738,11 +748,11 @@ typedef struct _LDR_DATA_TABLE_ENTRY_BASE_64
 
 DWORD64 GetRemoteModuleHandle(HANDLE ProcessHandle, WCHAR* ModuleName)
 {
-	PEB_64 peb;
-	PEB_LDR_DATA_64 ldr;
+    PEB_64 peb;
+    PEB_LDR_DATA_64 ldr;
 
-	Memory_Clear(&peb, sizeof(PEB_64));
-	Memory_Clear(&ldr, sizeof(PEB_LDR_DATA_64));
+    Memory_Clear(&peb, sizeof(PEB_64));
+    Memory_Clear(&ldr, sizeof(PEB_LDR_DATA_64));
 
     GetRemoteProcessEnvironmentBlock(ProcessHandle, &peb);
 
@@ -754,8 +764,11 @@ DWORD64 GetRemoteModuleHandle(HANDLE ProcessHandle, WCHAR* ModuleName)
             head != (peb.Ldr + FIELD_OFFSET(PEB_LDR_DATA_64, InLoadOrderModuleList));
             ReadProcessMemoryMy(ProcessHandle, (ptr_t)(head), &head, sizeof(head), 0))
         {
-            wchar_t localPath[260] = { 0 };
-            LDR_DATA_TABLE_ENTRY_BASE_64 localdata = { 0 };
+            wchar_t localPath[260];
+            LDR_DATA_TABLE_ENTRY_BASE_64 localdata;
+
+            Memory_Clear(localPath, sizeof(localPath));
+            Memory_Clear(&localdata, sizeof(LDR_DATA_TABLE_ENTRY_BASE_64));
 
             ReadProcessMemoryMy(ProcessHandle, head, &localdata, sizeof(localdata), 0);
             ReadProcessMemoryMy(ProcessHandle, localdata.BaseDllName.Buffer, localPath, localdata.FullDllName.Length, 0);
@@ -769,7 +782,6 @@ DWORD64 GetRemoteModuleHandle(HANDLE ProcessHandle, WCHAR* ModuleName)
 
     return 0;
 }
-
 
 
 #define IMAGE_NUMBEROF_DIRECTORY_ENTRIES    16
@@ -800,22 +812,23 @@ NTSTATUS Read(HANDLE ProcessHandle, ptr_t dwAddress, size_t dwSize, VOID* pResul
 VOID* Memory_Allocate(DWORD Size);
 
 
+
 DWORD64 GetRemoteProcAddress(HANDLE ProcessHandle, DWORD64 BaseAddress, const char* name_ord)
 {
-	IMAGE_DOS_HEADER hdrDos;
-	UINT8 hdrNt32[sizeof(IMAGE_NT_HEADERS64)];
-	PIMAGE_NT_HEADERS32 phdrNt32 = (PIMAGE_NT_HEADERS32)(hdrNt32);
+    IMAGE_DOS_HEADER hdrDos;
+    UINT8 hdrNt32[sizeof(IMAGE_NT_HEADERS64)];
+    PIMAGE_NT_HEADERS32 phdrNt32 = (PIMAGE_NT_HEADERS32)(hdrNt32);
     PIMAGE_NT_HEADERS64 phdrNt64 = (PIMAGE_NT_HEADERS64)(hdrNt32);
-	IMAGE_EXPORT_DIRECTORY* pExpData;
+    IMAGE_EXPORT_DIRECTORY* pExpData;
     DWORD expSize = 0;
     size_t expBase = 0;
-	WORD *pAddressOfOrds;
-	DWORD *pAddressOfNames;
-	DWORD *pAddressOfFuncs;
-	DWORD i;
+    WORD *pAddressOfOrds;
+    DWORD *pAddressOfNames;
+    DWORD *pAddressOfFuncs;
+    DWORD i;
 
-	Memory_Clear(&hdrDos, sizeof(IMAGE_DOS_HEADER));
-	Memory_Clear(&hdrNt32, sizeof(hdrNt32));
+    Memory_Clear(&hdrDos, sizeof(IMAGE_DOS_HEADER));
+    Memory_Clear(&hdrNt32, sizeof(hdrNt32));
 
     /// Invalid module
     if (BaseAddress == 0)
@@ -879,7 +892,7 @@ DWORD64 GetRemoteProcAddress(HANDLE ProcessHandle, DWORD64 BaseAddress, const ch
                 return 0;
 
             if (((size_t)(name_ord) <= 0xFFFF && (WORD)((uintptr_t)name_ord) == (OrdIndex + pExpData->Base)) ||
-                ((size_t)(name_ord) > 0xFFFF && strcmp(pName, name_ord) == 0))
+                ((size_t)(name_ord) > 0xFFFF && ntdll_strcmp(pName, name_ord) == 0))
             {
                 DWORD64 procAddress = pAddressOfFuncs[OrdIndex] + BaseAddress;
 
@@ -905,7 +918,9 @@ DWORD64 NtCreateThreadEx64( HANDLE ProcessHandle, DWORD64 StartRoutine, DWORD Re
 
         if (_NtCreateThreadEx)
         {
-            DWORD64 parameters[11] = { 0 };
+            DWORD64 parameters[11];
+
+            Memory_Clear(parameters, sizeof(parameters));
 
             parameters[0] = (DWORD64)&threadHandle;     // _Out_ PHANDLE ThreadHandle
             parameters[1] = (DWORD64)THREAD_ALL_ACCESS; // _In_ ACCESS_MASK DesiredAccess

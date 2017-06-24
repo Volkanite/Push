@@ -213,5 +213,8 @@ extern TYPE_wcsnlen     wcsnlen;
 extern TYPE_wcstol      wcstol;
 extern TYPE__wtoi       _wtoi;
 
+extern TYPE_memcmp      ntdll_memcmp;
+extern TYPE_strcmp      ntdll_strcmp;
+
 
 #endif //PUSH_H

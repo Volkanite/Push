@@ -1683,6 +1683,11 @@ TYPE_wcsnlen        wcsnlen;
 TYPE_wcstol         wcstol;
 TYPE__wtoi          _wtoi;
 
+TYPE_strcmp         ntdll_strcmp;
+TYPE_memcmp         ntdll_memcmp;
+TYPE_strncmp        ntdll_strncmp;
+TYPE_strlen         ntdll_strlen;
+
 
 FARPROC __stdcall GetProcAddress(
     HANDLE hModule,
@@ -1699,13 +1704,13 @@ VOID InitializeCRT()
     ntdll = Module_GetHandle(L"ntdll.dll");
 
     iswspace = (TYPE_iswspace)GetProcAddress(ntdll, "iswspace");
-    memcmp = (TYPE_memcmp)GetProcAddress(ntdll, "memcmp");
+    memcmp = ntdll_memcmp= (TYPE_memcmp)GetProcAddress(ntdll, "memcmp");
     memcpy = (TYPE_memcpy)GetProcAddress(ntdll, "memcpy");
     memset = (TYPE_memset)GetProcAddress(ntdll, "memset");
-    strcmp = (TYPE_strcmp)GetProcAddress(ntdll, "strcmp");
+    strcmp = ntdll_strcmp= (TYPE_strcmp)GetProcAddress(ntdll, "strcmp");
     strcpy = (TYPE_strcpy)GetProcAddress(ntdll, "strcpy");
-    strlen = (TYPE_strlen)GetProcAddress(ntdll, "strlen");
-    strncmp = (TYPE_strncmp)GetProcAddress(ntdll, "strncmp");
+    strlen = ntdll_strlen= (TYPE_strlen)GetProcAddress(ntdll, "strlen");
+    strncmp = ntdll_strncmp= (TYPE_strncmp)GetProcAddress(ntdll, "strncmp");
     strncpy = (TYPE_strncpy)GetProcAddress(ntdll, "strncpy");
     swscanf_s = (TYPE_swscanf_s)GetProcAddress(ntdll, "swscanf_s");
     vswprintf_s = (TYPE_vswprintf_s)GetProcAddress(ntdll, "vswprintf_s");
