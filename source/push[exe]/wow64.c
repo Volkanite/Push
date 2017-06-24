@@ -134,17 +134,27 @@ __declspec(naked) unsigned long GetImageBase()
     }
 }
 
+
+VOID* Module_GetProcedureAddress(VOID* DllHandle, CHAR* ProcedureName);
+VOID* Module_Load(WCHAR* FileName);
+INT32 String_Compare(WCHAR* Source, WCHAR* dst);
+VOID Memory_Clear(VOID* Region, UINT32 Size);
+
+
 unsigned long long GetModuleHandle64(wchar_t* ModuleName)
 {
     unsigned long long Current = 0;
     unsigned long long ulModule = 0;
 
+	wchar_t szBuffer[512];
+	PEB64 Peb64;
+	LDR64 Ldr64;
+	LDR_DATA_TABLE_ENTRY64 LdrEntry64;
 
-    wchar_t szBuffer[512] = { 0 };
-
-    PEB64 Peb64 = { 0 };
-    LDR64 Ldr64 = { 0 };
-    LDR_DATA_TABLE_ENTRY64 LdrEntry64 = { 0 };
+	Memory_Clear(szBuffer, sizeof(szBuffer));
+	Memory_Clear(&Peb64, sizeof(PEB64));
+	Memory_Clear(&Ldr64, sizeof(LDR64));
+	Memory_Clear(&LdrEntry64, sizeof(LDR_DATA_TABLE_ENTRY64));
 
     GetPEB64(&Peb64);
 
@@ -324,16 +334,23 @@ unsigned long long GetProcAddress64(unsigned long long ulModule, char *szFunctio
 
     unsigned long long ulFunction = 0;
 
-    IMAGE_DOS_HEADER DosHeader = { 0 };
-    IMAGE_NT_HEADERS64 NtHeaders = { 0 };
+	IMAGE_DOS_HEADER DosHeader;
+	IMAGE_NT_HEADERS64 NtHeaders;
+
+	Memory_Clear(&DosHeader, sizeof(IMAGE_DOS_HEADER));
+	Memory_Clear(&NtHeaders, sizeof(IMAGE_NT_HEADERS64));
 
     memcpy64((unsigned long long)&DosHeader, ulModule, sizeof(IMAGE_DOS_HEADER));
     memcpy64((unsigned long long)&NtHeaders, ulModule + DosHeader.e_lfanew, sizeof(IMAGE_NT_HEADERS64));
 
     if (NtHeaders.Signature == IMAGE_NT_SIGNATURE)
     {
-        char szName[256] = { 0 };
-        IMAGE_EXPORT_DIRECTORY Exports = { 0 };
+		char szName[256];
+		IMAGE_EXPORT_DIRECTORY Exports;
+
+		Memory_Clear(szName, sizeof(szName));
+		Memory_Clear(&Exports, sizeof(IMAGE_EXPORT_DIRECTORY));
+
         unsigned long ulVA = NtHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
         unsigned long ulSize = NtHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].Size;
         unsigned long i = 0;
@@ -344,7 +361,8 @@ unsigned long long GetProcAddress64(unsigned long long ulModule, char *szFunctio
             memcpy64((unsigned long long)&ulNameOffset, Exports.AddressOfNames + ulModule + (i * 4), sizeof(unsigned long));
             ulNameOffset += ulModule;
             memcpy64((unsigned long long)szName, ulNameOffset, strlen64(ulNameOffset));
-            if (!m_memcmp(szFunction, szName, strlen(szFunction)))
+            
+			if (!m_memcmp(szFunction, szName, strlen(szFunction)))
             {
                 unsigned long long ulAddressOffset = 0;
                 unsigned long long ulOrdinalOffset = 0;
@@ -364,6 +382,8 @@ unsigned long long GetProcAddress64(unsigned long long ulModule, char *szFunctio
 
     return ulFunction;
 }
+
+
 #pragma warning( push )
 #pragma warning( disable : 4409)
 #pragma warning( disable : 4102)
@@ -625,19 +645,22 @@ typedef struct _PEB_64
     DWORD64 CsrServerReadOnlySharedMemoryBase;
 }PEB_64;
 
-VOID* Module_GetProcedureAddress(VOID* DllHandle, CHAR* ProcedureName);
-VOID* Module_Load(WCHAR* FileName);
+
 typedef enum _PROCESSINFOCLASS
 {
     ProcessBasicInformation, // 0, q: PROCESS_BASIC_INFORMATION, PROCESS_EXTENDED_BASIC_INFORMATION
     ProcessQuotaLimits
 }PROCESSINFOCLASS;
 #define STATUS_SUCCESS                  ((NTSTATUS)0x00000000L)
+
+
 VOID* GetRemoteProcessEnvironmentBlock(HANDLE ProcessHandle, PEB_64* ProcessEnvironmentBlock)
 {
-    PROCESS_BASIC_INFORMATION_64 info = { 0 };
+	PROCESS_BASIC_INFORMATION_64 info;
     ULONG bytes = 0;
     NTSTATUS status;
+
+	Memory_Clear(&info, sizeof(PROCESS_BASIC_INFORMATION_64));
 
     NtWow64QueryInformationProcess64 = (TYPE_NtWow64QueryInformationProcess64)Module_GetProcedureAddress(
         Module_Load(L"ntdll.dll"),
@@ -712,11 +735,14 @@ typedef struct _LDR_DATA_TABLE_ENTRY_BASE_64
     DWORD64 PatchInformation;
 }LDR_DATA_TABLE_ENTRY_BASE_64;
 
-INT32 String_Compare(WCHAR* Source, WCHAR* dst);
+
 DWORD64 GetRemoteModuleHandle(HANDLE ProcessHandle, WCHAR* ModuleName)
 {
-    PEB_64 peb = { 0 };
-    PEB_LDR_DATA_64 ldr = { 0 };
+	PEB_64 peb;
+	PEB_LDR_DATA_64 ldr;
+
+	Memory_Clear(&peb, sizeof(PEB_64));
+	Memory_Clear(&ldr, sizeof(PEB_LDR_DATA_64));
 
     GetRemoteProcessEnvironmentBlock(ProcessHandle, &peb);
 
@@ -776,8 +802,8 @@ VOID* Memory_Allocate(DWORD Size);
 
 DWORD64 GetRemoteProcAddress(HANDLE ProcessHandle, DWORD64 BaseAddress, const char* name_ord)
 {
-	IMAGE_DOS_HEADER hdrDos = { 0 };
-	UINT8 hdrNt32[sizeof(IMAGE_NT_HEADERS64)] = { 0 };
+	IMAGE_DOS_HEADER hdrDos;
+	UINT8 hdrNt32[sizeof(IMAGE_NT_HEADERS64)];
 	PIMAGE_NT_HEADERS32 phdrNt32 = (PIMAGE_NT_HEADERS32)(hdrNt32);
     PIMAGE_NT_HEADERS64 phdrNt64 = (PIMAGE_NT_HEADERS64)(hdrNt32);
 	IMAGE_EXPORT_DIRECTORY* pExpData;
@@ -787,6 +813,9 @@ DWORD64 GetRemoteProcAddress(HANDLE ProcessHandle, DWORD64 BaseAddress, const ch
 	DWORD *pAddressOfNames;
 	DWORD *pAddressOfFuncs;
 	DWORD i;
+
+	Memory_Clear(&hdrDos, sizeof(IMAGE_DOS_HEADER));
+	Memory_Clear(&hdrNt32, sizeof(hdrNt32));
 
     /// Invalid module
     if (BaseAddress == 0)
