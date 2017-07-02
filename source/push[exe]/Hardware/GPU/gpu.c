@@ -62,7 +62,7 @@ VOID GPU_Initialize( ULONG PciAddress )
 
 VOID GPU_GetInfo( GPU_INFO* Info )
 {
-	UINT64 total, free, used;
+    UINT64 total, free, used;
 
     switch (GPU_VendorId)
     {
@@ -135,4 +135,9 @@ UINT16 GPU_GetMaximumVoltage()
 UINT16 GPU_GetFanSpeed(){ return 0; }
 UINT8 GPU_GetTemperature(){ return 0; }
 UINT8 GPU_GetLoad(){ return 0; }
-VOID GPU_ForceMaximumClocks(){}
+
+
+VOID GPU_ForceMaximumClocks()
+{
+    AmdGpu_ForceMaximumClocks();
+}

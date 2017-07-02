@@ -27,12 +27,6 @@ VOID AmdGpu_Initialize()
 }
 
 
-VOID RdnSetMaxClocks()
-{
-    Adl_SetMaxClocks();
-}
-
-
 VOID AmdGpu_GetInfo( GPU_INFO* Information )
 {
     Adl_GetInfo(Information);

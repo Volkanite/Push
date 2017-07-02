@@ -7,6 +7,8 @@
 
 VOID AmdGpu_Initialize();
 VOID AmdGpu_GetInfo();
+VOID AmdGpu_ForceMaximumClocks();
+
 UINT16 AmdGpu_GetEngineClockMax();
 UINT16 AmdGpu_GetMemoryClockMax();
 UINT16 AmdGpu_GetVoltageMax();

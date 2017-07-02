@@ -252,7 +252,27 @@ VOID Adl_SetVoltage( UINT16 Voltage )
 
 VOID Adl_SetMaxClocks()
 {
-    Adl_SetVoltage( VoltageMaximum );
-    Adl_SetEngineClock( EngineClockMaximum, 2);
-    Adl_SetMemoryClock( MemoryClockMaximum, 2);
+    ADLODPerformanceLevels *performanceLevels;
+    UINT32 i, lev;
+
+    lev = PerformanceLevels - 1;
+
+    performanceLevels = (ADLODPerformanceLevels*)Memory_Allocate(
+        sizeof(ADLODPerformanceLevels) + (lev * sizeof(ADLODPerformanceLevel))
+        );
+
+    performanceLevels->Size = sizeof(ADLODPerformanceLevels) + sizeof(ADLODPerformanceLevel) * lev;
+
+    ADL_Overdrive5_ODPerformanceLevels_Get(0, 0, performanceLevels);
+
+    for (i = 0; i < lev; i++)
+    {
+        performanceLevels->Levels[i].EngineClock = EngineClockMaximum * 100;
+        performanceLevels->Levels[i].MemoryClock = MemoryClockMaximum * 100;
+        performanceLevels->Levels[i].Vddc = VoltageMaximum;
+    }
+
+    ADL_Overdrive5_ODPerformanceLevels_Set(0, performanceLevels);
+
+    Memory_Free(performanceLevels);
 }
