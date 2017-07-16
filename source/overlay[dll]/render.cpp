@@ -85,7 +85,7 @@ VOID RunFrameStatistics()
 
         EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &devMode);
 
-        acceptableFrameTime = (double)1000 / (double)(devMode.dmDisplayFrequency - 5);
+        acceptableFrameTime = (double)1000 / (double)(devMode.dmDisplayFrequency - 1);
     }
 
     newTickCount = GetPerformanceCounter();
