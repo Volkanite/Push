@@ -202,9 +202,6 @@ BOOL __stdcall DllMain(
     {
     case DLL_PROCESS_ATTACH:
         {
-            
-            DEVMODE devMode;
-
             PushSharedMemory = (PUSH_SHARED_MEMORY *)OpenSection(
                 PUSH_SECTION_NAME, 
                 sizeof(PUSH_SHARED_MEMORY)
@@ -219,14 +216,8 @@ BOOL __stdcall DllMain(
 
             InitializeCriticalSection(&OvCriticalSection);
             CreateOverlay();
-
-            //CreateThread(0, 0, &MonitorThread, 0, 0, 0);
             CreateThread(0, 0, &ImageMonitorThread, 0, 0, 0);
 
-            EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &devMode);
-
-            PushRefreshRate = devMode.dmDisplayFrequency;
-            AcceptableFps = PushRefreshRate - 5;
             PushProcessHeap = GetProcessHeap();
 
         } break;

@@ -6,8 +6,8 @@
 #include <stdio.h>
 
 
-UINT8 PushRefreshRate = 60;
-UINT8 AcceptableFps = 55;
+//UINT8 PushRefreshRate = 60;
+//UINT8 AcceptableFps = 55;
 BOOLEAN g_SetOSDRefresh = TRUE;
 BOOLEAN g_FontInited = FALSE;
 BOOLEAN IsStableFramerate;
@@ -79,9 +79,13 @@ VOID RunFrameStatistics()
 
     if (!inited)
     {
-      StartCounter();
-      inited = TRUE;
-      acceptableFrameTime = (double)1000 / (double)AcceptableFps;
+        DEVMODE devMode;
+        StartCounter();
+        inited = TRUE;
+
+        EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &devMode);
+
+        acceptableFrameTime = (double)1000 / (double)(devMode.dmDisplayFrequency - 5);
     }
 
     newTickCount = GetPerformanceCounter();
@@ -132,12 +136,6 @@ VOID RunFrameStatistics()
         }
 
         RenderThreadHandle = GetCurrentThread();
-    }
-
-    if (PushSharedMemory->FrameLimit && FrameLimit < 60)
-    {
-        AcceptableFps = FrameLimit - 5;
-        acceptableFrameTime = (double)1000 / (double)AcceptableFps;
     }
 
     // Simple Diagnostics.
@@ -193,7 +191,7 @@ VOID RunFrameStatistics()
         //you haz really bad frame rates, for you i give an fps meter.
         IsStableFramerate = FALSE;
 
-    if (fps < PushRefreshRate - 1)
+    if (frameTime > acceptableFrameTime)
     {
         //reset the timer
         oldTick2 = newTickCount;
