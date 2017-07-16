@@ -184,11 +184,10 @@ VOID RunFrameStatistics()
         }
     }
 
-    if (((newTickCount - oldTick2) > 30000) && !PushSharedMemory->KeepFps)
-        //frame rate has been stable for at least 30 seconds, we can disable the thing
+    if (newTickCount - oldTick2 > 30000)
+        //frame rate has been stable for at least 30 seconds.
         IsStableFramerate = TRUE;
     else
-        //you haz really bad frame rates, for you i give an fps meter.
         IsStableFramerate = FALSE;
 
     if (frameTime > acceptableFrameTime)
