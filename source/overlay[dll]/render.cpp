@@ -18,6 +18,8 @@ UINT8 FrameLimit = 80; //80 fps
 UINT64 CyclesWaited;
 HANDLE RenderThreadHandle;
 
+VOID DebugRec();
+VOID InitializeKeyboardHook();
 
 double PCFreq = 0.0;
 __int64 CounterStart = 0;
@@ -28,30 +30,28 @@ typedef enum _OVERCLOCK_UNIT
 
 }OVERCLOCK_UNIT;
 VOID Overclock(OVERCLOCK_UNIT Unit);
-
-VOID
-StartCounter()
+extern "C" LONG __stdcall NtQueryPerformanceCounter(
+	LARGE_INTEGER* PerformanceCounter,
+	LARGE_INTEGER* PerformanceFrequency
+	);
+VOID StartCounter()
 {
-    LARGE_INTEGER li;
-    LARGE_INTEGER freq;
+	LARGE_INTEGER perfCount;
+	LARGE_INTEGER frequency;
 
-    QueryPerformanceFrequency(&freq);
+	NtQueryPerformanceCounter(&perfCount, &frequency);
 
-    PCFreq = (double) freq.QuadPart / 1000.0;
-
-    QueryPerformanceCounter(&li);
-    CounterStart = li.QuadPart;
+	PCFreq = (double)frequency.QuadPart / 1000.0;;
 }
 
 
-double
-GetPerformanceCounter()
+double GetPerformanceCounter()
 {
-    LARGE_INTEGER li;
+	LARGE_INTEGER li;
 
-    QueryPerformanceCounter(&li);
+	NtQueryPerformanceCounter(&li, NULL);
 
-    return (double) (li.QuadPart - CounterStart) /PCFreq;
+	return (double)li.QuadPart / PCFreq;
 }
 
 
@@ -66,7 +66,7 @@ BOOLEAN IsGpuLag()
     return FALSE;
 }
 
-
+double FrameTime;
 VOID RunFrameStatistics()
 {
     static double newTickCount = 0.0, lastTickCount = 0.0,
@@ -84,8 +84,9 @@ VOID RunFrameStatistics()
         inited = TRUE;
 
         EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &devMode);
-
+		Log(L"dmDisplayFrequency %i", devMode.dmDisplayFrequency);
         acceptableFrameTime = (double)1000 / (double)(devMode.dmDisplayFrequency - 1);
+		Log(L"acceptableFrameTime %f", acceptableFrameTime);
     }
 
     newTickCount = GetPerformanceCounter();
@@ -194,44 +195,44 @@ VOID RunFrameStatistics()
     {
         //reset the timer
         oldTick2 = newTickCount;
+		DebugRec();
     }
 
     FrameRate = (int) fps;
 
-    if (PushSharedMemory->FrameLimit)
-    {
-        double frameTimeMin = (double)1000 / (double)FrameLimit;
+	if (PushSharedMemory->FrameLimit)
+	{
+		double frameTimeMin = (double)1000 / (double)FrameLimit;
 
-        if (frameTime < frameTimeMin)
-        {
-            UINT64 cyclesStart, cyclesStop;
+		if (frameTime < frameTimeMin)
+		{
+			UINT64 cyclesStart, cyclesStop;
 
-            RenderThreadHandle = GetCurrentThread();
+			RenderThreadHandle = GetCurrentThread();
 
-            QueryThreadCycleTime(RenderThreadHandle, &cyclesStart);
+			QueryThreadCycleTime(RenderThreadHandle, &cyclesStart);
 
-            lastTickCount = newTickCount;
+			lastTickCount = newTickCount;
 
-            while (frameTime < frameTimeMin)
-            {
-                newTickCount = GetPerformanceCounter();
+			while (frameTime < frameTimeMin)
+			{
+				newTickCount = GetPerformanceCounter();
 
-                frameTime += (newTickCount - lastTickCount);
+				frameTime += (newTickCount - lastTickCount);
 
-                lastTickCount = newTickCount;
-            }
+				lastTickCount = newTickCount;
+			}
 
-            QueryThreadCycleTime(RenderThreadHandle, &cyclesStop);
+			QueryThreadCycleTime(RenderThreadHandle, &cyclesStop);
 
-            CyclesWaited += cyclesStop - cyclesStart;
-        }
+			CyclesWaited += cyclesStop - cyclesStart;
+		}
 
-        lastTickCount = newTickCount;
-    }
+		lastTickCount = newTickCount;
+	}
+
+	FrameTime = frameTime;
 }
-
-
-VOID InitializeKeyboardHook();
 
 
 VOID RnRender( OvOverlay* Overlay )
@@ -249,5 +250,8 @@ VOID RnRender( OvOverlay* Overlay )
     Osd_Draw( Overlay );
     MnuRender( Overlay );
     RunFrameStatistics();
+	//wchar_t bigbuff[260];
+	//swprintf(bigbuff, 260, L"FrameTime: %f", FrameTime);
+	//Overlay->DrawText(bigbuff);
     //Overlay->DrawText(L"u can draw anything in this render loop!\n");
 }

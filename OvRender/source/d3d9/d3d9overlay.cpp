@@ -18,6 +18,13 @@ UINT32 BackBufferCount;
 VOID Log(const wchar_t* Format, ...);
 
 
+VOID DebugRec()
+{
+	D3DRECT rec = { 1, 1, 25, 25 };
+	Dx9OvDevice->Clear(1, &rec, D3DCLEAR_TARGET, D3DCOLOR_ARGB(225, 225, 0, 0), 0, 0);
+}
+
+
 VOID ChangeVsync(BOOLEAN Setting)
 {
     if (Setting)
