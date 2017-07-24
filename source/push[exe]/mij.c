@@ -179,6 +179,7 @@ VOID SetProfile(WCHAR* GameName)
         options.CommonOption.mode = XInput;
 
     options.CommonOption.LED = 129;
+	options.CommonOption.AutoOff_timeout = 132;
 
     Memory_Copy(options.InputOption.Maping, controllerMapping, 96);
     NtDeviceIoControlFile(driverHandle, NULL, NULL, NULL, &isb, IOCTL_MIJ_SET_CONFIG_OPTIONS, &options, 256, NULL, 0);
