@@ -332,3 +332,22 @@ GAME_LIST Game_GetGames()
 
     return firstEntry;
 }
+
+
+VOID Game_GetPatchFile( PUSH_GAME* Game, WCHAR* Buffer )
+{
+    WCHAR *dot;
+    WCHAR batchFile[260];
+
+    String_Copy(batchFile, L"patches\\");
+    String_Concatenate(batchFile, Game->Name);
+
+    dot = String_FindLastChar(batchFile, '.');
+
+    if (dot)
+        String_Copy(dot, L".txt");
+    else
+        String_Concatenate(batchFile, L".txt");
+
+    String_Copy(Buffer, batchFile);
+}

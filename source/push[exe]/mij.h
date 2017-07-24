@@ -1,0 +1,1 @@
+VOID SetProfile(WCHAR* GameName);

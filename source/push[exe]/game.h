@@ -49,6 +49,7 @@ VOID Game_SetInstallPath(PUSH_GAME *Game, WCHAR* Path);
 VOID Game_SetName(PUSH_GAME* Game, WCHAR* Name);
 BOOLEAN Game_IsGame(WCHAR* ExecutablePath);
 GAME_LIST Game_GetGames();
+VOID Game_GetPatchFile(PUSH_GAME* Game, WCHAR* Buffer);
 
 
 #endif //GAMES_H

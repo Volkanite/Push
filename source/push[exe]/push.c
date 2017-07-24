@@ -15,6 +15,7 @@
 #include "ring0.h"
 #include "file.h"
 #include "driver.h"
+#include "mij.h"
 
 
 WCHAR g_szPrevGame[260];
@@ -375,6 +376,9 @@ VOID OnProcessEvent( PROCESSID processID )
             NMPWAIT_WAIT_FOREVER
             );
 
+        //mij
+        SetProfile(game.Name);
+
         if (PushSharedMemory->GameUsesRamDisk)
             //resume process
             Process_Resume(processHandle);
@@ -510,23 +514,7 @@ DWORD __stdcall SetFilePointer(
     );
 
 
-VOID GetPatchFile(PUSH_GAME* Game, WCHAR* Buffer)
-{
-    WCHAR *dot;
-    WCHAR batchFile[260];
 
-    String_Copy(batchFile, L"patches\\");
-    String_Concatenate(batchFile, Game->Name);
-
-    dot = String_FindLastChar(batchFile, '.');
-
-    if (dot)
-        String_Copy(dot, L".txt");
-    else
-        String_Concatenate(batchFile, L".txt");
-
-    String_Copy(Buffer, batchFile);
-}
 
 
 HANDLE* OpenProcess( DWORD ProcessId, PUSH_GAME** Game, WCHAR* FilePath )
@@ -675,7 +663,7 @@ VOID PatchMemory()
 
         Log(L"Patching memory...");
 
-        GetPatchFile(game, patchFile);
+        Game_GetPatchFile(game, patchFile);
         fileContents = File_Load(patchFile, NULL);
 
         // Start our reads after the UTF16-LE character marker

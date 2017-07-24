@@ -112,6 +112,7 @@
     <ClCompile Include="process.c" />
     <ClCompile Include="wow64.c" />
     <ClCompile Include="math.c" />
+    <ClCompile Include="mij.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\cache.h">
@@ -188,6 +189,7 @@
       <Filter>Hardware\CPU</Filter>
     </ClInclude>
     <ClInclude Include="wow64.h" />
+    <ClInclude Include="mij.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="push.ico">
