@@ -139,14 +139,14 @@ VOID GetSettingsFile(WCHAR* GameName, WCHAR* Buffer)
 }
 
 
-VOID SetProfile(WCHAR* GameName)
+VOID SetProfile( WCHAR* GameName )
 {
     HANDLE driverHandle;
     IO_STATUS_BLOCK isb;
     MOTIONINJOY_APP_OPTION options;
     wchar_t bigbuff[260];
     void* controllerMapping = NULL;
-    wchar_t* settingsFile;
+    wchar_t* settingsFile = NULL;
 
     GetControllerMappingFile(GameName, bigbuff);
 
@@ -155,6 +155,9 @@ VOID SetProfile(WCHAR* GameName)
     GetSettingsFile(GameName, bigbuff);
 
     settingsFile = File_Load(bigbuff, NULL);
+
+    if (!settingsFile)
+        return;
 
     // Start our reads after the UTF16-LE character marker
     settingsFile += 1;
@@ -179,7 +182,7 @@ VOID SetProfile(WCHAR* GameName)
         options.CommonOption.mode = XInput;
 
     options.CommonOption.LED = 129;
-	options.CommonOption.AutoOff_timeout = 132;
+    options.CommonOption.AutoOff_timeout = 132;
 
     Memory_Copy(options.InputOption.Maping, controllerMapping, 96);
     NtDeviceIoControlFile(driverHandle, NULL, NULL, NULL, &isb, IOCTL_MIJ_SET_CONFIG_OPTIONS, &options, 256, NULL, 0);
