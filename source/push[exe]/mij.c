@@ -70,7 +70,7 @@ typedef struct _MOTIONINJOY_APP_OPTION
 {
     BYTE Dummy[8];
     MOTIONINJOY_COMMON_OPTION CommonOption;
-    BYTE Dummy2[78];
+    BYTE Dummy2[77];
     MOTIONINJOY_INPUT_OPTION InputOption;
 }MOTIONINJOY_APP_OPTION;
 #pragma pack(pop)
@@ -185,6 +185,9 @@ VOID SetProfile( WCHAR* GameName )
     options.CommonOption.AutoOff_timeout = 132;
     options.CommonOption.Deadzone_LStick_X = 10;
     options.CommonOption.Deadzone_LStick_Y = 10;
+
+    options.InputOption.Duration = 100;
+    options.InputOption.Interval = 400;
 
     Memory_Copy(options.InputOption.Maping, controllerMapping, 96);
     NtDeviceIoControlFile(driverHandle, NULL, NULL, NULL, &isb, IOCTL_MIJ_SET_CONFIG_OPTIONS, &options, 256, NULL, 0);
