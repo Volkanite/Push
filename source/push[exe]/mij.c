@@ -183,6 +183,8 @@ VOID SetProfile( WCHAR* GameName )
 
     options.CommonOption.LED = 129;
     options.CommonOption.AutoOff_timeout = 132;
+    options.CommonOption.Deadzone_LStick_X = 10;
+    options.CommonOption.Deadzone_LStick_Y = 10;
 
     Memory_Copy(options.InputOption.Maping, controllerMapping, 96);
     NtDeviceIoControlFile(driverHandle, NULL, NULL, NULL, &isb, IOCTL_MIJ_SET_CONFIG_OPTIONS, &options, 256, NULL, 0);
