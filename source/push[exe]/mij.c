@@ -262,35 +262,38 @@ VOID SetProfile( WCHAR* GameName )
     IO_STATUS_BLOCK isb;
     MOTIONINJOY_APP_OPTION options;
     wchar_t bigbuff[260];
-    void* controllerMapping = NULL;
+    void* buttonMapping = NULL;
     wchar_t* settingsFile = NULL;
-    MOTIONINJOY_MACRO macro;
-    BOOLEAN setTestMacro = TRUE;
-
-    Memory_Clear(&macro, sizeof(MOTIONINJOY_MACRO));
-
-    macro.Duration = 800; //800 milli-seconds
-    Memory_Copy(macro.Command, SomeMacro, sizeof(macro.Command));
-
-    macro.Button_1[10] = 0x01;
-    macro.Button_2[10] = 0x02;
-    macro.Button_3[10] = 0x04;
-    macro.Button_4[10] = 0x08;
-    macro.Button_5[10] = 0x10;
-    macro.Button_6[10] = 0x20;
+    BOOLEAN setTestMacro = FALSE;
 
     if (setTestMacro)
+    {
+        MOTIONINJOY_MACRO macro;
+
+        Memory_Clear(&macro, sizeof(MOTIONINJOY_MACRO));
+
+        macro.Duration = 800; //800 milli-seconds
+        Memory_Copy(macro.Command, SomeMacro, sizeof(macro.Command));
+
+        macro.Button_1[10] = 0x01;
+        macro.Button_2[10] = 0x02;
+        macro.Button_3[10] = 0x04;
+        macro.Button_4[10] = 0x08;
+        macro.Button_5[10] = 0x10;
+        macro.Button_6[10] = 0x20;
+
         SetMacro(1, &macro);
+    } 
 
     GetControllerMappingFile(GameName, bigbuff);
 
-    controllerMapping = File_Load(bigbuff, NULL);
+    buttonMapping = File_Load(bigbuff, NULL);
 
     GetSettingsFile(GameName, bigbuff);
 
     settingsFile = File_Load(bigbuff, NULL);
 
-    if (!settingsFile)
+    if (!settingsFile || !buttonMapping)
         return;
 
     // Start our reads after the UTF16-LE character marker
@@ -323,7 +326,7 @@ VOID SetProfile( WCHAR* GameName )
     options.InputOption.Duration = 100;
     options.InputOption.Interval = 400;
 
-    Memory_Copy(options.InputOption.Maping, controllerMapping, 96);
+    Memory_Copy(options.InputOption.Maping, buttonMapping, 96);
 
     if (setTestMacro)
         options.InputOption.Maping[0] = 0x0800; //set triangle button to macro
