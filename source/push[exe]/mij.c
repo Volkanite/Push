@@ -88,9 +88,14 @@ typedef struct MOTIONINJOY_BUTTON_MACRO
 
 typedef struct MOTIONINJOY_MACRO
 {
+    // Duration of the macro. Standard is 800ms
     UINT32 Duration;
+
+    // One word for each button, each word holds which button shoud be pressed
     WORD Command[6];
-    BYTE Button_1[128];
+
+    // Intervals for each button?
+    BYTE Button_1[128]; 
     BYTE Button_2[128];
     BYTE Button_3[128];
     BYTE Button_4[128];
@@ -162,9 +167,24 @@ VOID GetSettingsFile(WCHAR* GameName, WCHAR* Buffer)
     String_Copy(Buffer, batchFile);
 }
 VOID SetMacro(UINT8 Count, MOTIONINJOY_MACRO* Macro);
-unsigned char rawData[12] = {
-    0x14, 0x02, 0x16, 0x02, 0x15, 0x02, 0x17, 0x02, 0x15, 0x02, 0x17, 0x02
+
+
+WORD SomeMacro[6] = {
+    0x0214, //D-Pad Up
+    0x0216, //D-Pad Down
+    0x0215, //D-Pad Right
+    0x0217, //D-Pad Left
+    0x0215, //D-Pad Right
+    0x0204  //Button 5
 };
+
+// 0x0204 = Button 5
+// 0x0214 = D-Pad Up
+// 0x0215 = D-Pad Right
+// 0x0216 = D-Pad Down
+// 0x0217 = D-Pad Left
+
+
 VOID SetProfile( WCHAR* GameName )
 {
     HANDLE driverHandle;
@@ -174,11 +194,12 @@ VOID SetProfile( WCHAR* GameName )
     void* controllerMapping = NULL;
     wchar_t* settingsFile = NULL;
     MOTIONINJOY_MACRO macro;
+    BOOLEAN setTestMacro = TRUE;
 
     Memory_Clear(&macro, sizeof(MOTIONINJOY_MACRO));
 
     macro.Duration = 800; //800 milli-seconds
-    Memory_Copy(macro.Command, rawData, sizeof(macro.Command));
+    Memory_Copy(macro.Command, SomeMacro, sizeof(macro.Command));
 
     macro.Button_1[10] = 0x01;
     macro.Button_2[10] = 0x02;
@@ -187,7 +208,8 @@ VOID SetProfile( WCHAR* GameName )
     macro.Button_5[10] = 0x10;
     macro.Button_6[10] = 0x20;
 
-    //SetMacro(1, &macro);
+    if (setTestMacro)
+        SetMacro(1, &macro);
 
     GetControllerMappingFile(GameName, bigbuff);
 
@@ -231,7 +253,10 @@ VOID SetProfile( WCHAR* GameName )
     options.InputOption.Interval = 400;
 
     Memory_Copy(options.InputOption.Maping, controllerMapping, 96);
-    //options.InputOption.Maping[0] = 0x0800; set triangle button to macro;
+
+    if (setTestMacro)
+        options.InputOption.Maping[0] = 0x0800; //set triangle button to macro
+
     NtDeviceIoControlFile(driverHandle, NULL, NULL, NULL, &isb, IOCTL_MIJ_SET_CONFIG_OPTIONS, &options, 256, NULL, 0);
     File_Close(driverHandle);
 }
