@@ -178,11 +178,82 @@ WORD SomeMacro[6] = {
     0x0204  //Button 5
 };
 
+// DirectInput
+// 0x0100 = Axis X+
+// 0x0101 = Axis X-
+// 0x0102 = Axis Y+
+// 0x0103 = Axis Y-
+// 0x0106 = Axis RX+
+// 0x0107 = Axis RX-
+// 0x0108 = Axis RY+
+// 0x0109 = Axis RY-
+// 0x0200 = Button 1
+// 0x0201 = Button 2
+// 0x0202 = Button 3
+// 0x0203 = Button 4
 // 0x0204 = Button 5
+// 0x0205 = Button 6
+// 0x0206 = Button 7
+// 0x0207 = Button 8
+// 0x0208 = Button 9
+// 0x0209 = Button 10
+// 0x020B = Button 12
+// 0x020C = Button 13
 // 0x0214 = D-Pad Up
 // 0x0215 = D-Pad Right
 // 0x0216 = D-Pad Down
 // 0x0217 = D-Pad Left
+// Keyboard
+// 0x0302 = A
+// 0x0307 = D
+// 0x0308 = E
+// 0x0315 = R
+// 0x0316 = S
+// 0x031A = W
+// 0x0329 = Escape
+// 0x032B = Tab
+// 0x032C = Space
+// 0x034D = End
+// 0x034F = Arrow Right
+// 0x0350 = Arrow Left
+// 0x0351 = Arrow Down
+// 0x0352 = Arrow Up
+// 0x03E4 = Right Ctrl
+// Mouse
+// 0x0400 = Mouse Move Right
+// 0x0401 = Mouse Move Left
+// 0x0402 = Mouse Move Down
+// 0x0403 = Mouse Move Up
+// 0x0404 = Mouse Wheel Up
+// 0x0405 = Mouse Wheel Down
+// 0x0500 = Mouse Left Button
+// 0x0501 = Mouse Right Button
+// XInput
+// 0x0600 = A Button
+// 0x0601 = B Button
+// 0x0602 = X Button
+// 0x0603 = Y Button
+// 0x0604 = Left Bumper
+// 0x0605 = Right Bumper
+// 0x0606 = Back Button
+// 0x0607 = Start Button
+// 0x0608 = Left Stick Button
+// 0x0609 = Right Stick Button
+// 0x060A = XBox Button
+// 0x060B = D-Pad Up
+// 0x060C = D-Pad Down
+// 0x060D = D-Pad Left
+// 0x060E = D-Pad Right
+// 0x0700 = Left Trigger
+// 0x0701 = Right Trigger
+// 0x0702 = Left Stick X+
+// 0x0703 = Left Stick X-
+// 0x0704 = Left Stick Y-
+// 0x0705 = Left Stick Y+
+// 0x0706 = Right Stick X+
+// 0x0707 = Right Stick X-
+// 0x0708 = Right Stick Y-
+// 0x0709 = Right Stick Y+
 
 
 VOID SetProfile( WCHAR* GameName )
