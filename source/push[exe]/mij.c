@@ -175,7 +175,7 @@ WORD SomeMacro[6] = {
     0x0215, //D-Pad Right
     0x0217, //D-Pad Left
     0x0215, //D-Pad Right
-    0x0204  //Button 5
+    0x0308  //E
 };
 
 // DirectInput
@@ -207,6 +207,7 @@ WORD SomeMacro[6] = {
 // 0x0302 = A
 // 0x0307 = D
 // 0x0308 = E
+// 0x0311 = N
 // 0x0315 = R
 // 0x0316 = S
 // 0x031A = W
@@ -218,6 +219,7 @@ WORD SomeMacro[6] = {
 // 0x0350 = Arrow Left
 // 0x0351 = Arrow Down
 // 0x0352 = Arrow Up
+// 0x03E1 = Left Shift
 // 0x03E4 = Right Ctrl
 // Mouse
 // 0x0400 = Mouse Move Right
