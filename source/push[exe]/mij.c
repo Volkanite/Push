@@ -94,13 +94,8 @@ typedef struct MOTIONINJOY_MACRO
     // One word for each button, each word holds which button shoud be pressed
     WORD Command[6];
 
-    // Intervals for each button?
-    BYTE Button_1[128]; 
-    BYTE Button_2[128];
-    BYTE Button_3[128];
-    BYTE Button_4[128];
-    BYTE Button_5[128];
-    BYTE Button_6[128];
+    // Intervals for each button
+    BYTE ButtonIntervals[128][6];
 }MOTIONINJOY_MACRO;
 #pragma pack(pop)
 
@@ -266,7 +261,7 @@ VOID SetProfile( WCHAR* GameName )
     wchar_t bigbuff[260];
     void* buttonMapping = NULL;
     wchar_t* settingsFile = NULL;
-    BOOLEAN setTestMacro = FALSE;
+    BOOLEAN setTestMacro = TRUE;
 
     if (setTestMacro)
     {
@@ -277,12 +272,12 @@ VOID SetProfile( WCHAR* GameName )
         macro.Duration = 800; //800 milli-seconds
         Memory_Copy(macro.Command, SomeMacro, sizeof(macro.Command));
 
-        macro.Button_1[10] = 0x01;
-        macro.Button_2[10] = 0x02;
-        macro.Button_3[10] = 0x04;
-        macro.Button_4[10] = 0x08;
-        macro.Button_5[10] = 0x10;
-        macro.Button_6[10] = 0x20;
+        macro.ButtonIntervals[0][10] = 0x01; //0ms
+        macro.ButtonIntervals[1][10] = 0x02; //100ms
+        macro.ButtonIntervals[2][10] = 0x04; //200ms
+        macro.ButtonIntervals[3][10] = 0x08; //300ms
+        macro.ButtonIntervals[4][10] = 0x10; //400ms
+        macro.ButtonIntervals[5][10] = 0x20; //500ms
 
         SetMacro(1, &macro);
     } 
@@ -369,32 +364,25 @@ VOID SetMacro( UINT8 Count, MOTIONINJOY_MACRO* Macro )
 
         Memory_Copy(macro.Command, Macro->Command, sizeof(macro.Command));
 
-        int sizzer = sizeof(MOTIONINJOY_BUTTON_MACRO);
+        // Fill button intervals
 
-        // Fill buttons
-        macro.ButtonIndex = 0;
-        Memory_Copy(macro.Button, Macro->Button_1, sizeof(macro.Button));
-        NtDeviceIoControlFile(driverHandle, NULL, NULL, NULL, &isb, IOCTL_MIJ_SET_CONFIG_MACRO, &macro, sizeof(MOTIONINJOY_BUTTON_MACRO), NULL, 0);
+        for (int i = 0; i < 6; i++)
+        {
+            macro.ButtonIndex = i;
 
-        macro.ButtonIndex = 1;
-        Memory_Copy(macro.Button, Macro->Button_2, sizeof(macro.Button));
-        NtDeviceIoControlFile(driverHandle, NULL, NULL, NULL, &isb, IOCTL_MIJ_SET_CONFIG_MACRO, &macro, sizeof(MOTIONINJOY_BUTTON_MACRO), NULL, 0);
-        
-        macro.ButtonIndex = 2;
-        Memory_Copy(macro.Button, Macro->Button_3, sizeof(macro.Button));
-        NtDeviceIoControlFile(driverHandle, NULL, NULL, NULL, &isb, IOCTL_MIJ_SET_CONFIG_MACRO, &macro, sizeof(MOTIONINJOY_BUTTON_MACRO), NULL, 0);
-        
-        macro.ButtonIndex = 3;
-        Memory_Copy(macro.Button, Macro->Button_4, sizeof(macro.Button));
-        NtDeviceIoControlFile(driverHandle, NULL, NULL, NULL, &isb, IOCTL_MIJ_SET_CONFIG_MACRO, &macro, sizeof(MOTIONINJOY_BUTTON_MACRO), NULL, 0);
-        
-        macro.ButtonIndex = 4;
-        Memory_Copy(macro.Button, Macro->Button_5, sizeof(macro.Button));
-        NtDeviceIoControlFile(driverHandle, NULL, NULL, NULL, &isb, IOCTL_MIJ_SET_CONFIG_MACRO, &macro, sizeof(MOTIONINJOY_BUTTON_MACRO), NULL, 0);
-        
-        macro.ButtonIndex = 5;
-        Memory_Copy(macro.Button, Macro->Button_6, sizeof(macro.Button));
-        NtDeviceIoControlFile(driverHandle, NULL, NULL, NULL, &isb, IOCTL_MIJ_SET_CONFIG_MACRO, &macro, sizeof(MOTIONINJOY_BUTTON_MACRO), NULL, 0);
+            Memory_Copy(macro.Button, Macro->ButtonIntervals[i], sizeof(macro.Button));
+            
+            NtDeviceIoControlFile(
+                driverHandle, 
+                NULL, NULL, NULL,
+                &isb, 
+                IOCTL_MIJ_SET_CONFIG_MACRO, 
+                &macro, 
+                sizeof(MOTIONINJOY_BUTTON_MACRO), 
+                NULL, 
+                0
+                );
+        }
 
         b++;
         Macro++;
