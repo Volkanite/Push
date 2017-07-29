@@ -320,6 +320,7 @@ typedef struct _PUSH_SHARED_MEMORY
     BOOLEAN                     ThreadOptimization;
     BOOLEAN                     LogFileIo;
     BOOLEAN                     AutoLogFileIo;
+    UCHAR                       ControllerTimeout;
 
     OSD_ITEM OsdItems[1];
 

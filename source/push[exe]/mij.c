@@ -1,4 +1,5 @@
 #include <sl.h>
+#include "push.h"
 
 
 #pragma pack(push,1)
@@ -261,7 +262,7 @@ VOID SetProfile( WCHAR* GameName )
     wchar_t bigbuff[260];
     void* buttonMapping = NULL;
     wchar_t* settingsFile = NULL;
-    BOOLEAN setTestMacro = TRUE;
+    BOOLEAN setTestMacro = FALSE;
 
     if (setTestMacro)
     {
@@ -316,7 +317,7 @@ VOID SetProfile( WCHAR* GameName )
         options.CommonOption.mode = XInput;
 
     options.CommonOption.LED = 129;
-    options.CommonOption.AutoOff_timeout = 132;
+    options.CommonOption.AutoOff_timeout = 0x80 | PushSharedMemory->ControllerTimeout;
     options.CommonOption.Deadzone_LStick_X = 10;
     options.CommonOption.Deadzone_LStick_Y = 10;
 

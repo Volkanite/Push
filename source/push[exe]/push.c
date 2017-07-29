@@ -1392,6 +1392,9 @@ INT32 __stdcall start( )
             Ini_GetString(L"Settings", L"MemoryClockMax", NULL, buffer, 5);
             PushSharedMemory->HarwareInformation.DisplayDevice.MemoryOverclock = _wtoi(buffer);
 
+            Ini_GetString(L"Settings", L"ControllerTimeout", NULL, buffer, 5);
+            PushSharedMemory->ControllerTimeout = _wtoi(buffer);
+
             Memory_Free(buffer);
         }
         else
