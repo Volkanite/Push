@@ -424,13 +424,14 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
 
             case BUTTON_ADDGAME:
                 {
-                    WCHAR filePath[260], path[260], *imageName, *slash, *games;
+                    WCHAR filePath[260], path[260], *imageName, *slash/*, *games*/;
                     OPENFILENAMEW ofn;
                     UINT8 i = 0;
                     WCHAR indexString[10];
                     PUSH_GAME game;
                     DWORD headerSum;
                     DWORD checkSum;
+                    GAME_LIST games;
 
                     String_Copy(filePath, L"");
                     Memory_Clear(&ofn, sizeof(OPENFILENAMEW));
@@ -457,15 +458,12 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
 
                     // Get free index.
 
-                    games = Memory_Allocate(512 * sizeof(WCHAR));
+                    games = Game_GetGames();
 
-                    Ini_GetString(L"Games", NULL, NULL, games, 512);
-
-                    if (games)
+                    while (games != NULL)
                     {
-                        // Get number of games
-                        for (i = 0; games[0] != '\0'; i++)
-                            games = String_FindLastChar(games, '\0') + 1;
+                        games = games->NextEntry;
+                        i++;
                     }
 
                     // Increment counter by 1, this is the new index
