@@ -424,13 +424,16 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
 
             case BUTTON_ADDGAME:
                 {
-                    WCHAR filePath[260] = L"", path[260], *imageName, *slash, *games;
-                    OPENFILENAMEW ofn = { 0 };
+                    WCHAR filePath[260], path[260], *imageName, *slash, *games;
+                    OPENFILENAMEW ofn;
                     UINT8 i = 0;
                     WCHAR indexString[10];
                     PUSH_GAME game;
                     DWORD headerSum;
                     DWORD checkSum;
+
+                    String_Copy(filePath, L"");
+                    Memory_Clear(&ofn, sizeof(OPENFILENAMEW));
 
                     ofn.lStructSize = sizeof(OPENFILENAMEW);
                     ofn.lpstrFilter = L"Executable (.EXE)\0*.exe\0";
