@@ -31,12 +31,27 @@ HK_IDXGISWAPCHAIN_CALLBACK HkIDXGISwapChain_PresentCallback;
 HK_IDXGISWAPCHAIN_CALLBACK HkIDXGISwapChain_ResizeBuffersCallback;
 
 
+VOID Log(const wchar_t* Format, ...);
+DWORD FindPattern(WCHAR* Module, char pattern[], char mask[]);
+DWORD64 FindPattern64(WCHAR* Module, char pattern[], char mask[]);
+void ReplaceVirtualMethod(void **VTable, int Function, void *Detour);
+
+
 HRESULT __stdcall IDXGISwapChain_PresentHook(
     IDXGISwapChain* SwapChain,
     UINT SyncInterval,
     UINT Flags
     )
 {
+    static BOOLEAN init = FALSE;
+
+    if (!init)
+    {
+        init = TRUE;
+
+        Log(L"Hook called @ IDXGISwapChain_Present");
+    }
+
     if (HkIDXGISwapChain_PresentCallback)
     {
         HkIDXGISwapChain_PresentCallback(SwapChain);
@@ -85,49 +100,41 @@ FakeWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 #define MASK_DXGIPRESENT_X64            "xxxxxxxxxxxx"
 #define PATT_IDXGISwapChain1_x86 "jhggh"
 
-VOID Log(const wchar_t* Format, ...);
-DWORD FindPattern(WCHAR* Module, char pattern[], char mask[]);
-DWORD64 FindPattern64(WCHAR* Module, char pattern[], char mask[]);
-void ReplaceVirtualMethod(void **VTable, int Function, void *Detour);
 
-
-VOID HookDxgi( IDXGISWAPCHAIN_HOOK* HookParameters )
+IDXGISwapChain* BuildDevice()
 {
     IDXGIFactory* factory;
     IDXGIAdapter *pAdapter;
-    IDXGISwapChain* pSwapChain;
+    IDXGISwapChain* swapChain;
     ID3D10Device *pDevice;
-    DXGI_MODE_DESC requestedMode; 
-    DXGI_SWAP_CHAIN_DESC scDesc;
     UINT CreateFlags = 0;
+    DXGI_MODE_DESC requestedMode;
+    DXGI_SWAP_CHAIN_DESC scDesc;
     HWND windowHandle;
     HRESULT hr;
-
-    HkIDXGISwapChain_PresentCallback = (HK_IDXGISWAPCHAIN_CALLBACK) HookParameters->PresentCallback;
-    HkIDXGISwapChain_ResizeBuffersCallback = (HK_IDXGISWAPCHAIN_CALLBACK) HookParameters->ResizeBuffersCallback;
 
     CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
     factory->EnumAdapters(0, &pAdapter);
 
     D3D10CreateDevice(
-        pAdapter, 
+        pAdapter,
         D3D10_DRIVER_TYPE_HARDWARE,
-        NULL, 
-        CreateFlags, 
-        D3D10_SDK_VERSION, 
+        NULL,
+        CreateFlags,
+        D3D10_SDK_VERSION,
         &pDevice
         );
-    
-    requestedMode.Width                   = 500; 
-    requestedMode.Height                  = 500; 
-    requestedMode.RefreshRate.Numerator   = 0; 
-    requestedMode.RefreshRate.Denominator = 0; 
-    requestedMode.Format                  = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB; 
-    requestedMode.ScanlineOrdering        = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED; 
-    requestedMode.Scaling                 = DXGI_MODE_SCALING_UNSPECIFIED;
+
+    requestedMode.Width = 500;
+    requestedMode.Height = 500;
+    requestedMode.RefreshRate.Numerator = 0;
+    requestedMode.RefreshRate.Denominator = 0;
+    requestedMode.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+    requestedMode.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+    requestedMode.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 
     // Create fake window
-    
+
     WNDCLASSEX windowClass = { 0 };
 
     windowClass.lpfnWndProc = FakeWndProc;
@@ -137,87 +144,95 @@ VOID HookDxgi( IDXGISWAPCHAIN_HOOK* HookParameters )
     RegisterClassExW(&windowClass);
 
     windowHandle = CreateWindowExW(
-                    0,
-                    L"JustGimmeADamnWindow",
-                    L"HwBtYouJustGimmeMyDamnWindow?",
-                    WS_SYSMENU,
-                    CW_USEDEFAULT,
-                    NULL,
-                    300,
-                    300,
-                    0,0,0,0
-                    );
+        0,
+        L"JustGimmeADamnWindow",
+        L"HwBtYouJustGimmeMyDamnWindow?",
+        WS_SYSMENU,
+        CW_USEDEFAULT,
+        NULL,
+        300,
+        300,
+        0, 0, 0, 0
+        );
 
     // Now create the thing
-    
-    scDesc.BufferDesc         = requestedMode; 
-    scDesc.SampleDesc.Count   = 1; 
-    scDesc.SampleDesc.Quality = 0; 
-    scDesc.BufferUsage        = DXGI_USAGE_BACK_BUFFER | DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    scDesc.BufferCount        = 2; 
-    scDesc.OutputWindow       = windowHandle;
-    scDesc.Windowed           = TRUE; 
-    scDesc.SwapEffect         = DXGI_SWAP_EFFECT_DISCARD; 
-    scDesc.Flags              = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-    hr = factory->CreateSwapChain(pDevice, &scDesc, &pSwapChain);
+    scDesc.BufferDesc = requestedMode;
+    scDesc.SampleDesc.Count = 1;
+    scDesc.SampleDesc.Quality = 0;
+    scDesc.BufferUsage = DXGI_USAGE_BACK_BUFFER | DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    scDesc.BufferCount = 2;
+    scDesc.OutputWindow = windowHandle;
+    scDesc.Windowed = TRUE;
+    scDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+    scDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
+    hr = factory->CreateSwapChain(pDevice, &scDesc, &swapChain);
 
     if (FAILED(hr))
     {
         Log(L"IDXGIFactory::CreateSwapChain failed!");
-        return;
+        return NULL;
     }
 
-    if (pSwapChain)
-    {
-        VOID **vmt;
+    return swapChain;
+}
 
-        vmt = (VOID**) pSwapChain;
-        vmt = (VOID**) vmt[0];
 
-        if (!HkIDXGISwapChain_Present)
-        {
-            //DetourXS *detour;
+VOID* FindDevice()
+{
+    VOID **vmt;
+
 #ifdef _M_IX86
-            DWORD base = (DWORD) LoadLibraryW(L"dxgi.dll");
-            DWORD swapchainvftable = base + 0x5070;
-            Log(L"vmt[8] 0x%X", vmt[8]);
-            base += 0x186320;
-            vmt = (VOID**)swapchainvftable;
-            Log(L"virtualMethodTable_dx 0x%llX", vmt);
-            Log(L"vmt[8].new 0x%X", vmt[8]);
+    DWORD base = (DWORD)LoadLibraryW(L"dxgi.dll");
+    DWORD swapchainvftable = base + 0x5070;
+
+    vmt = (VOID**)swapchainvftable;
+    Log(L"virtualMethodTable_dx 0x%llX", vmt);
+    Log(L"vmt[8].new 0x%X", vmt[8]);
+    return (VOID*)swapchainvftable;
 #else
-            DWORD64 pattern;
-            DWORD64 base = (DWORD64) LoadLibraryW(L"dxgi.dll");
-            //DebugBreak();
-            //pattern = FindPattern64(L"dxgi.dll", PATT_DXGIPRESENT_X64, MASK_DXGIPRESENT_X64);
+    DWORD64 pattern;
+    DWORD64 base = (DWORD64)LoadLibraryW(L"dxgi.dll");
 
-            // sometime stubbron code overwite normal funciton bytes, hence findPattrtn fails.
-            //if (!pattern)
-            //{
-                //pattern = base + 0x2B2F8;
-                
-            //}
-            pattern = base + 0x5AE0;
-            Log(L"vmt[8] 0x%llX", vmt[8]);
-            Log(L"pattern 0x%llX", pattern);
-            vmt = (VOID**)pattern;
-            Log(L"vmt[8].new 0x%llX", vmt[8]);
-            
+    pattern = base + 0x5AE0;
+    Log(L"pattern 0x%llX", pattern);
+    vmt = (VOID**)pattern;
+    Log(L"vmt[8].new 0x%llX", vmt[8]);
+    return (VOID*)pattern;
 #endif
-            // Backup
-            HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present)vmt[8];
-            HkIDXGISwapChain_ResizeBuffers = (TYPE_IDXGISwapChain_ResizeBuffers)vmt[13];
+}
 
-            //Overwrite
-            ReplaceVirtualMethod(vmt, 8, IDXGISwapChain_PresentHook);
-            ReplaceVirtualMethod(vmt, 13, IDXGISwapChain_ResizeBuffersHook);
 
-            /*detour = new DetourXS(vmt[8], IDXGISwapChain_PresentHook);
-            HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present)detour->GetTrampoline();
+VOID HookDxgi( IDXGISWAPCHAIN_HOOK* HookParameters )
+{
+    //IDXGISwapChain* swapChain;
+    VOID **vmt;
 
-            detour = new DetourXS(vmt[13], IDXGISwapChain_ResizeBuffersHook);
-            HkIDXGISwapChain_ResizeBuffers = (TYPE_IDXGISwapChain_ResizeBuffers)detour->GetTrampoline();*/
-        }
+    HkIDXGISwapChain_PresentCallback = (HK_IDXGISWAPCHAIN_CALLBACK) HookParameters->PresentCallback;
+    HkIDXGISwapChain_ResizeBuffersCallback = (HK_IDXGISWAPCHAIN_CALLBACK) HookParameters->ResizeBuffersCallback;
+
+    //swapChain = BuildDevice();
+    //vmt = (VOID**) swapChain;
+    //vmt = (VOID**) vmt[0];
+
+    vmt = (VOID**) FindDevice();
+
+    if (!HkIDXGISwapChain_Present)
+    {
+        // Backup
+        //HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present)vmt[8];
+        //HkIDXGISwapChain_ResizeBuffers = (TYPE_IDXGISwapChain_ResizeBuffers)vmt[13];
+    
+        //Overwrite
+        //ReplaceVirtualMethod(vmt, 8, IDXGISwapChain_PresentHook);
+        //ReplaceVirtualMethod(vmt, 13, IDXGISwapChain_ResizeBuffersHook);
+    
+        DetourXS *detour;
+        detour = new DetourXS(vmt[8], IDXGISwapChain_PresentHook);
+        HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present)detour->GetTrampoline();
+    
+        detour = new DetourXS(vmt[13], IDXGISwapChain_ResizeBuffersHook);
+        HkIDXGISwapChain_ResizeBuffers = (TYPE_IDXGISwapChain_ResizeBuffers)detour->GetTrampoline();
     }
 }

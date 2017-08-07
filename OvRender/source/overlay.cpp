@@ -37,8 +37,6 @@ VOID Log(const wchar_t* Format, ...);
 
 ULONG __stdcall CreateOverlay( LPVOID Param )
 {
-    Log(L"CreateOverlay(LPVOID Param)");
-
     EnterCriticalSection(&OvCriticalSection);
 
     OV_HOOK_PARAMS *hookParams = (OV_HOOK_PARAMS*) Param;
@@ -104,7 +102,6 @@ ULONG __stdcall CreateOverlay( LPVOID Param )
 VOID
 OvCreateOverlay( OV_RENDER RenderFunction )
 {
-    Log(L" OvCreateOverlay()");
     OV_HOOK_PARAMS hookParams = {0};
 
     hookParams.RenderFunction = RenderFunction;
@@ -122,8 +119,6 @@ VOID OvCreateOverlayEx( OV_HOOK_PARAMS* HookParameters )
         HEAP_ZERO_MEMORY,
         sizeof(OV_HOOK_PARAMS)
         );
-    
-    Log(L"OvCreateOverlayEx()");
     
     hookParams->RenderFunction = HookParameters->RenderFunction;
     hookParams->VsyncOverrideMode = HookParameters->VsyncOverrideMode;
