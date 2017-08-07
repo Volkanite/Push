@@ -46,25 +46,21 @@ ULONG __stdcall CreateOverlay( LPVOID Param )
 
     if (GetModuleHandleW(L"d3d8.dll"))
     {
-        Log(L"Found d3d8.dll");
         d3d8 = TRUE;
     }
 
     if (GetModuleHandleW(L"d3d9.dll"))
     {
-        Log(L"Found d3d9.dll");
         d3d9 = TRUE;
     }
 
     if (GetModuleHandleW(L"dxgi.dll"))
     {
-        Log(L"Found dxgi.dll");
         dxgi = TRUE;
     }
 
     if (GetModuleHandleW(L"ddraw.dll"))
     {
-        Log(L"Found ddraw.dll");
         ddraw = TRUE;
     }
 

@@ -55,7 +55,7 @@ HRESULT __stdcall IDXGISwapChain_PresentHook(
     if (HkIDXGISwapChain_PresentCallback)
     {
         HkIDXGISwapChain_PresentCallback(SwapChain);
-    }    
+    }
 
     return HkIDXGISwapChain_Present(SwapChain, SyncInterval, Flags);
 }
@@ -181,17 +181,13 @@ IDXGISwapChain* BuildDevice()
 
 VOID* FindDevice()
 {
-    VOID **vmt;
-
 #ifdef _M_IX86
     DWORD base = (DWORD)LoadLibraryW(L"dxgi.dll");
     DWORD swapchainvftable = base + 0x5070;
 
-    vmt = (VOID**)swapchainvftable;
-    Log(L"virtualMethodTable_dx 0x%llX", vmt);
-    Log(L"vmt[8].new 0x%X", vmt[8]);
     return (VOID*)swapchainvftable;
 #else
+    VOID **vmt;
     DWORD64 pattern;
     DWORD64 base = (DWORD64)LoadLibraryW(L"dxgi.dll");
 
@@ -227,11 +223,12 @@ VOID HookDxgi( IDXGISWAPCHAIN_HOOK* HookParameters )
         //Overwrite
         //ReplaceVirtualMethod(vmt, 8, IDXGISwapChain_PresentHook);
         //ReplaceVirtualMethod(vmt, 13, IDXGISwapChain_ResizeBuffersHook);
-    
+        
         DetourXS *detour;
+
         detour = new DetourXS(vmt[8], IDXGISwapChain_PresentHook);
         HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present)detour->GetTrampoline();
-    
+        
         detour = new DetourXS(vmt[13], IDXGISwapChain_ResizeBuffersHook);
         HkIDXGISwapChain_ResizeBuffers = (TYPE_IDXGISwapChain_ResizeBuffers)detour->GetTrampoline();
     }

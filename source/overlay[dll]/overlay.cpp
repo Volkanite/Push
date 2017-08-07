@@ -55,7 +55,6 @@ PushGetMaxThreadUsage()
 
 VOID CreateOverlay()
 {
-    Log(L"CreateOverlay()");
     OV_HOOK_PARAMS hookParams = { 0 };
 
     hookParams.RenderFunction = RnRender;
@@ -98,8 +97,6 @@ ULONG __stdcall ImageMonitorThread(LPVOID Params)
     while (PushImageEvent)
     {
         WaitForSingleObject(PushImageEvent, INFINITE);
-
-        Log(L"new image event!");
         CreateOverlay();
     }
 
