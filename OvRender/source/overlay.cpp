@@ -130,3 +130,86 @@ VOID OvCreateOverlayEx( OV_HOOK_PARAMS* HookParameters )
 
     CreateThread(0, 0, &CreateOverlay, hookParams, 0, 0);
 }
+
+
+DWORD FindPattern(WCHAR* Module, char pattern[], char mask[])
+{
+    HMODULE hModule = GetModuleHandle(Module);
+
+    BYTE* pszPatt = (BYTE*)pattern;
+
+    DWORD dwStart = (DWORD)hModule;
+
+    PIMAGE_DOS_HEADER pDosHeader = PIMAGE_DOS_HEADER(hModule);
+
+    PIMAGE_NT_HEADERS pNTHeader = PIMAGE_NT_HEADERS((LONG)hModule + pDosHeader->e_lfanew);
+
+    PIMAGE_OPTIONAL_HEADER pOptionalHeader = &pNTHeader->OptionalHeader;
+
+    DWORD dwLen = pOptionalHeader->SizeOfCode;
+
+    unsigned int i = NULL;
+
+    int iLen = strlen(mask) - 1;
+
+    for (DWORD dwRet = dwStart; dwRet < dwStart + dwLen; dwRet++)
+    {
+        if (*(BYTE*)dwRet == pszPatt[i] || mask[i] == '?')
+        {
+            if (mask[i + 1] == '\0')
+                return(dwRet - iLen);
+            i++;
+        }
+        else
+            i = NULL;
+    }
+    return NULL;
+}
+
+
+DWORD64 FindPattern64(WCHAR* Module, char pattern[], char mask[])
+{
+    HMODULE hModule = GetModuleHandle(Module);
+
+    BYTE* pszPatt = (BYTE*)pattern;
+
+    DWORD64 dwStart = (DWORD64)hModule;
+
+    PIMAGE_DOS_HEADER pDosHeader = PIMAGE_DOS_HEADER(hModule);
+
+    PIMAGE_NT_HEADERS64 pNTHeader = PIMAGE_NT_HEADERS64((DWORD64)hModule + pDosHeader->e_lfanew);
+
+    PIMAGE_OPTIONAL_HEADER64 pOptionalHeader = &pNTHeader->OptionalHeader;
+
+    DWORD dwLen = pOptionalHeader->SizeOfCode;
+
+    unsigned int i = NULL;
+
+    int iLen = strlen(mask) - 1;
+
+    for (DWORD64 dwRet = dwStart; dwRet < dwStart + dwLen; dwRet++)
+    {
+        if (*(BYTE*)dwRet == pszPatt[i] || mask[i] == '?')
+        {
+            if (mask[i + 1] == '\0')
+                return(dwRet - iLen);
+            i++;
+        }
+        else
+            i = NULL;
+    }
+    return NULL;
+}
+
+
+void ReplaceVirtualMethod(void **VTable, int Function, void *Detour)
+{
+    DWORD old;
+
+    if (!VTable) return;
+
+    VirtualProtect(&(VTable[Function]), sizeof(void*), PAGE_EXECUTE_READWRITE, &old);
+    VTable[Function] = Detour;
+    VirtualProtect(&(VTable[Function]), sizeof(void*), old, &old);
+}
+

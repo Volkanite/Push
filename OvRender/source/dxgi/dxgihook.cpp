@@ -79,6 +79,18 @@ FakeWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 
+#define PATT_DXGIPRESENT_X86            "\x8B\xFF\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x24\xA1\x00\x00\x00\x00\x33\xC4\x89\x44\x24\x20\x8B\x45\x10\x53"
+#define MASK_DXGIPRESENT_X86            "xxxxxxxxxxxx????xxxxxxxxxx"
+#define PATT_DXGIPRESENT_X64            "\x40\x55\x53\x56\x57\x41\x56\x48\x8D\x6C\x24\xC9"
+#define MASK_DXGIPRESENT_X64            "xxxxxxxxxxxx"
+#define PATT_IDXGISwapChain1_x86 "jhggh"
+
+VOID Log(const wchar_t* Format, ...);
+DWORD FindPattern(WCHAR* Module, char pattern[], char mask[]);
+DWORD64 FindPattern64(WCHAR* Module, char pattern[], char mask[]);
+void ReplaceVirtualMethod(void **VTable, int Function, void *Detour);
+
+
 VOID HookDxgi( IDXGISWAPCHAIN_HOOK* HookParameters )
 {
     IDXGIFactory* factory;
@@ -152,7 +164,7 @@ VOID HookDxgi( IDXGISWAPCHAIN_HOOK* HookParameters )
 
     if (FAILED(hr))
     {
-        OutputDebugStringW(L"[OVRENDER] IDXGIFactory::CreateSwapChain failed!");
+        Log(L"IDXGIFactory::CreateSwapChain failed!");
         return;
     }
 
@@ -165,13 +177,47 @@ VOID HookDxgi( IDXGISWAPCHAIN_HOOK* HookParameters )
 
         if (!HkIDXGISwapChain_Present)
         {
-            DetourXS *detour;
+            //DetourXS *detour;
+#ifdef _M_IX86
+            DWORD base = (DWORD) LoadLibraryW(L"dxgi.dll");
+            DWORD swapchainvftable = base + 0x5070;
+            Log(L"vmt[8] 0x%X", vmt[8]);
+            base += 0x186320;
+            vmt = (VOID**)swapchainvftable;
+            Log(L"virtualMethodTable_dx 0x%llX", vmt);
+            Log(L"vmt[8].new 0x%X", vmt[8]);
+#else
+            DWORD64 pattern;
+            DWORD64 base = (DWORD64) LoadLibraryW(L"dxgi.dll");
+            //DebugBreak();
+            //pattern = FindPattern64(L"dxgi.dll", PATT_DXGIPRESENT_X64, MASK_DXGIPRESENT_X64);
 
-            detour = new DetourXS(vmt[8], IDXGISwapChain_PresentHook);
+            // sometime stubbron code overwite normal funciton bytes, hence findPattrtn fails.
+            //if (!pattern)
+            //{
+                //pattern = base + 0x2B2F8;
+                
+            //}
+            pattern = base + 0x5AE0;
+            Log(L"vmt[8] 0x%llX", vmt[8]);
+            Log(L"pattern 0x%llX", pattern);
+            vmt = (VOID**)pattern;
+            Log(L"vmt[8].new 0x%llX", vmt[8]);
+            
+#endif
+            // Backup
+            HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present)vmt[8];
+            HkIDXGISwapChain_ResizeBuffers = (TYPE_IDXGISwapChain_ResizeBuffers)vmt[13];
+
+            //Overwrite
+            ReplaceVirtualMethod(vmt, 8, IDXGISwapChain_PresentHook);
+            ReplaceVirtualMethod(vmt, 13, IDXGISwapChain_ResizeBuffersHook);
+
+            /*detour = new DetourXS(vmt[8], IDXGISwapChain_PresentHook);
             HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present)detour->GetTrampoline();
 
             detour = new DetourXS(vmt[13], IDXGISwapChain_ResizeBuffersHook);
-            HkIDXGISwapChain_ResizeBuffers = (TYPE_IDXGISwapChain_ResizeBuffers)detour->GetTrampoline();
+            HkIDXGISwapChain_ResizeBuffers = (TYPE_IDXGISwapChain_ResizeBuffers)detour->GetTrampoline();*/
         }
     }
 }
