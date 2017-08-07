@@ -132,14 +132,20 @@ D3DPRESENT_PARAMETERS PresentParams;
 HOOK_METHOD D3D9Hook_HookMethod = HOOK_METHOD_DETOURXS;
 
 BOOLEAN D3D9Hook_ForceReset = FALSE;
-BOOLEAN D3D9Hook_ManualHook = FALSE;
-
 
 IDirect3DDevice9Ex* D3D9Hook_IDirect3DDevice9Ex;
 IDirect3DDevice9*   D3D9Hook_IDirect3DDevice9;
 
 
+typedef enum _PRESENT_ROUTINE{
+    IDirect3DDevice9_Present,
+    IDirect3DDevice9Ex_PresentEx,
+    IDirect3DSwapChain9_Present
+}PRESENT_ROUTINE;
+
+
 VOID ReplaceVirtualMethods(IDirect3DDevice9* Device);
+VOID Log(const wchar_t* Format, ...);
 
 
 HRESULT __stdcall IDirect3DDevice9_Present_Detour(
@@ -151,6 +157,14 @@ HRESULT __stdcall IDirect3DDevice9_Present_Detour(
     )
 {
     HRESULT result;
+    static BOOLEAN init = FALSE;
+
+    if (!init)
+    {
+        init = TRUE;
+
+        Log(L"Hook called @ IDirect3DDevice9_Present");
+    }
 
     Dx9Hook_Present( Device );
 
@@ -181,6 +195,14 @@ HRESULT __stdcall IDirect3DDevice9Ex_PresentEx_Detour(
     )
 {
     HRESULT result;
+    static BOOLEAN init = FALSE;
+
+    if (!init)
+    {
+        init = TRUE;
+
+        Log(L"Hook called @ IDirect3DDevice9Ex_PresentEx");
+    }
 
     Dx9Hook_Present( Device );
 
@@ -214,6 +236,14 @@ HRESULT __stdcall IDirect3DSwapChain9_Present_Detour(
     static IDirect3DDevice9 *device = NULL;
     static IDirect3DSwapChain9 *backupSwap = NULL;
     HRESULT result;
+    static BOOLEAN init = FALSE;
+
+    if (!init)
+    {
+        init = TRUE;
+
+        Log(L"Hook called @ IDirect3DSwapChain9_Present");
+    }
     
     if (!backupSwap || !device)
     {   
@@ -333,6 +363,8 @@ VOID ReplaceVirtualMethods( IDirect3DDevice9* Device )
     HRESULT result;
     IDirect3DSwapChain9* swapChain;
 
+    if (!Device) return;
+
     vmt = (VOID**)Device;
     vmt = (VOID**)vmt[0];
 
@@ -403,10 +435,7 @@ HRESULT __stdcall IDirect3D9_CreateDevice_Detour(
             D3D9Hook_IDirect3DSwapChain9_Present = (TYPE_IDirect3DSwapChain9_Present)vmt[3];
         }
 
-        if (!D3D9Hook_ManualHook)
-        {
-            ReplaceVirtualMethods( *ReturnedDeviceInterface );
-        }       
+        ReplaceVirtualMethods( *ReturnedDeviceInterface );   
     }
 
     return result;
@@ -420,6 +449,8 @@ VOID ApplyDetourXsHooks( IDirect3DDevice9Ex* Device )
     VOID **virtualMethodTable;
     IDirect3DSwapChain9 *swapChain;
 
+    Log(L"=> ApplyDetourXsHooks()");
+    
     virtualMethodTable = (VOID**)Device;
     virtualMethodTable = (VOID**)virtualMethodTable[0];
 
@@ -432,6 +463,12 @@ VOID ApplyDetourXsHooks( IDirect3DDevice9Ex* Device )
     detour = new DetourXS(virtualMethodTable[17], IDirect3DDevice9_Present_Detour);
     D3D9Hook_IDirect3DDevice9_Present = (TYPE_IDirect3DDevice9_Present)detour->GetTrampoline();
 
+    detour = new DetourXS(virtualMethodTable[121], IDirect3DDevice9Ex_PresentEx_Detour);
+    Dx9Hook_IDirect3DDevice9Ex_PresentEx = (TYPE_IDirect3DDevice9Ex_PresentEx)detour->GetTrampoline();
+
+    detour = new DetourXS(virtualMethodTable[132], Dx9Hook_IDirect3DDevice9Ex_ResetEx_Detour);
+    Dx9Hook_IDirect3DDevice9Ex_ResetEx = (TYPE_IDirect3DDevice9Ex_ResetEx)detour->GetTrampoline();
+
     result = Device->GetSwapChain(0, &swapChain);
 
     if (result == S_OK)
@@ -442,29 +479,13 @@ VOID ApplyDetourXsHooks( IDirect3DDevice9Ex* Device )
         detour = new DetourXS(virtualMethodTable[3], IDirect3DSwapChain9_Present_Detour);
         D3D9Hook_IDirect3DSwapChain9_Present = (TYPE_IDirect3DSwapChain9_Present)detour->GetTrampoline();
     }
-}
 
-
-VOID D3D9Hook_ApplyHooks()
-{
-    static BOOLEAN applied = FALSE;
-
-    if (applied) return;
-
-    if (D3D9Hook_HookMethod == HOOK_METHOD_VMT)
-    {
-        ReplaceVirtualMethods(D3D9Hook_IDirect3DDevice9);
-    }
-    else if (D3D9Hook_HookMethod == HOOK_METHOD_DETOURXS && D3D9Hook_ManualHook == TRUE)
-    {
-        ApplyDetourXsHooks(D3D9Hook_IDirect3DDevice9Ex);
-    }
-
-    applied = TRUE;
+    Log(L"<= ApplyDetourXsHooks()");
 }
 
 
 IDirect3D9Ex *d3d9ex;
+
 
 VOID Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
 {
@@ -520,19 +541,15 @@ VOID Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
     vmt = (VOID**) vmt[0];
 
     detour = new DetourXS(vmt[16], IDirect3D9_CreateDevice_Detour);
+
     Dx9Hook_IDirect3D9_CreateDevice = (TYPE_IDirect3D9_CreateDevice)detour->GetTrampoline();
 
-    vmt = (VOID**)D3D9Hook_IDirect3DDevice9Ex;
-    vmt = (VOID**) vmt[0];
-
-    if (D3D9Hook_HookMethod == HOOK_METHOD_DETOURXS && D3D9Hook_ManualHook == FALSE)
+    if (D3D9Hook_HookMethod == HOOK_METHOD_VMT)
+    {
+        //ReplaceVirtualMethods(D3D9Hook_IDirect3DDevice9Ex);
+    }
+    else if (D3D9Hook_HookMethod == HOOK_METHOD_DETOURXS)
     {
         ApplyDetourXsHooks(D3D9Hook_IDirect3DDevice9Ex);
     }
-
-    detour = new DetourXS(vmt[121], IDirect3DDevice9Ex_PresentEx_Detour);
-    Dx9Hook_IDirect3DDevice9Ex_PresentEx = (TYPE_IDirect3DDevice9Ex_PresentEx)detour->GetTrampoline();
-
-    detour = new DetourXS(vmt[132], Dx9Hook_IDirect3DDevice9Ex_ResetEx_Detour);
-    Dx9Hook_IDirect3DDevice9Ex_ResetEx = (TYPE_IDirect3DDevice9Ex_ResetEx)detour->GetTrampoline();
 }

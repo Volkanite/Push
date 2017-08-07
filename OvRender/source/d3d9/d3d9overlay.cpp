@@ -20,8 +20,8 @@ VOID Log(const wchar_t* Format, ...);
 
 VOID DebugRec()
 {
-	D3DRECT rec = { 1, 1, 25, 25 };
-	Dx9OvDevice->Clear(1, &rec, D3DCLEAR_TARGET, D3DCOLOR_ARGB(225, 225, 0, 0), 0, 0);
+    D3DRECT rec = { 1, 1, 25, 25 };
+    Dx9OvDevice->Clear(1, &rec, D3DCLEAR_TARGET, D3DCOLOR_ARGB(225, 225, 0, 0), 0, 0);
 }
 
 
@@ -203,6 +203,8 @@ Dx9Overlay::Dx9Overlay( OV_RENDER RenderFunction )
     hookParams.PresentCallback = Dx9Overlay_Present;
     hookParams.ResetCallback = Dx9Overlay_Reset;
     hookParams.CreateDeviceCallback = Dx9Overlay_CreateDevice;
+
+    Log(L"Dx9Overlay::Dx9Overlay( => )");
 
     Dx9Hook_Initialize(&hookParams);
 

@@ -395,16 +395,9 @@ DWORD Blue      = 0xFF00A4C5;
 
 SlOverlayMenu*  OvmMenu;
 
-VOID D3D9Hook_ApplyHooks();
-
 
 VOID MenuKeyboardHook( WPARAM Key )
 {
-    if (Key == VK_INSERT)
-    {
-        D3D9Hook_ApplyHooks();
-    }
-
     if (!OvmMenu)
         return;
 
