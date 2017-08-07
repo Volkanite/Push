@@ -31,10 +31,9 @@ Dx11Overlay::Dx11Overlay(
 }
 
 
-VOID
-Dx11Overlay::DrawText( WCHAR* Text )
+VOID Dx11Overlay::DrawText( WCHAR* Text )
 {
-    DrawText( Text, FALSE );
+    DrawText(Text, 0xFFFFFF00);
 }
 
 
