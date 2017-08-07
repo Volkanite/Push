@@ -130,10 +130,7 @@ DX9HOOK_RESET_CALLBACK      Dx9Hook_CreateDevice;
 HOOK_PARAMS hookParams;
 D3DPRESENT_PARAMETERS PresentParams;
 HOOK_METHOD D3D9Hook_HookMethod = HOOK_METHOD_DETOURXS;
-
 BOOLEAN D3D9Hook_ForceReset = FALSE;
-
-IDirect3DDevice9Ex* D3D9Hook_IDirect3DDevice9Ex;
 IDirect3DDevice9*   D3D9Hook_IDirect3DDevice9;
 
 
@@ -422,6 +419,7 @@ HRESULT __stdcall IDirect3D9_CreateDevice_Detour(
         D3D9Hook_IDirect3DDevice9_Reset = (TYPE_IDirect3DDevice9_Reset)vmt[16];
         D3D9Hook_IDirect3DDevice9_Present = (TYPE_IDirect3DDevice9_Present)vmt[17];
         D3D9Hook_IDirect3DDevice9_BeginStateBlock = (TYPE_IDirect3DDevice9_BeginStateBlock)vmt[60];
+        Log(L"loldump2: 0x%X", (DWORD)vmt[16]);
         
         D3D9Hook_IDirect3DDevice9 = *ReturnedDeviceInterface;
 
@@ -441,14 +439,50 @@ HRESULT __stdcall IDirect3D9_CreateDevice_Detour(
     return result;
 }
 
+#define PATT_D3D9SWAPCHAINPRESENT   "\x8B\xFF\x55\x8B\xEC\x8B\x45\x1C"
+#define MASK_D3D9SWAPCHAINPRESENT   "xxxxxxxx"
+
+
+DWORD FindPattern( WCHAR* Module, char pattern[], char mask[] )
+{
+    HMODULE hModule = GetModuleHandle(Module);
+
+    BYTE* pszPatt = (BYTE*)pattern;
+
+    DWORD dwStart = (DWORD)hModule;
+
+    PIMAGE_DOS_HEADER pDosHeader = PIMAGE_DOS_HEADER(hModule);
+
+    PIMAGE_NT_HEADERS pNTHeader = PIMAGE_NT_HEADERS((LONG)hModule + pDosHeader->e_lfanew);
+
+    PIMAGE_OPTIONAL_HEADER pOptionalHeader = &pNTHeader->OptionalHeader;
+
+    DWORD dwLen = pOptionalHeader->SizeOfCode;
+
+    unsigned int i = NULL;
+
+    int iLen = strlen(mask) - 1;
+
+    for (DWORD dwRet = dwStart; dwRet < dwStart + dwLen; dwRet++)
+    {
+        if (*(BYTE*)dwRet == pszPatt[i] || mask[i] == '?')
+        {
+            if (mask[i + 1] == '\0')
+                return(dwRet - iLen);
+            i++;
+        }
+        else
+            i = NULL;
+    }
+    return NULL;
+}
+
 
 VOID ApplyDetourXsHooks( IDirect3DDevice9Ex* Device )
 {
     DetourXS *detour;
-    HRESULT result;
     VOID **virtualMethodTable;
-    IDirect3DSwapChain9 *swapChain;
-
+    
     Log(L"=> ApplyDetourXsHooks()");
     
     virtualMethodTable = (VOID**)Device;
@@ -469,16 +503,33 @@ VOID ApplyDetourXsHooks( IDirect3DDevice9Ex* Device )
     detour = new DetourXS(virtualMethodTable[132], Dx9Hook_IDirect3DDevice9Ex_ResetEx_Detour);
     Dx9Hook_IDirect3DDevice9Ex_ResetEx = (TYPE_IDirect3DDevice9Ex_ResetEx)detour->GetTrampoline();
 
+#ifdef _M_IX86
+    DWORD pattern = FindPattern(L"d3d9.dll",PATT_D3D9SWAPCHAINPRESENT, MASK_D3D9SWAPCHAINPRESENT);
+
+    detour = new DetourXS((VOID*)pattern, IDirect3DSwapChain9_Present_Detour);
+    D3D9Hook_IDirect3DSwapChain9_Present = (TYPE_IDirect3DSwapChain9_Present)detour->GetTrampoline();
+
+    //vmt = (VOID**) d3d9ex;
+    //vmt = (VOID**) vmt[0];
+
+    //detour = new DetourXS(vmt[16], IDirect3D9_CreateDevice_Detour);
+
+    //Dx9Hook_IDirect3D9_CreateDevice = (TYPE_IDirect3D9_CreateDevice)detour->GetTrampoline();
+#else
+    HRESULT result;
+    IDirect3DSwapChain9 *swapChain;
+
     result = Device->GetSwapChain(0, &swapChain);
 
     if (result == S_OK)
     {
-        virtualMethodTable = (VOID**)swapChain;
-        virtualMethodTable = (VOID**)virtualMethodTable[0];
+    virtualMethodTable = (VOID**)swapChain;
+    virtualMethodTable = (VOID**)virtualMethodTable[0];
 
-        detour = new DetourXS(virtualMethodTable[3], IDirect3DSwapChain9_Present_Detour);
-        D3D9Hook_IDirect3DSwapChain9_Present = (TYPE_IDirect3DSwapChain9_Present)detour->GetTrampoline();
+    detour = new DetourXS(virtualMethodTable[3], IDirect3DSwapChain9_Present_Detour);
+    D3D9Hook_IDirect3DSwapChain9_Present = (TYPE_IDirect3DSwapChain9_Present)detour->GetTrampoline();
     }
+#endif
 
     Log(L"<= ApplyDetourXsHooks()");
 }
@@ -487,62 +538,88 @@ VOID ApplyDetourXsHooks( IDirect3DDevice9Ex* Device )
 IDirect3D9Ex *d3d9ex;
 
 
-VOID Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
+IDirect3DDevice9Ex* FindDevice(VOID)
 {
-    VOID *base = NULL, **vmt;
-    DetourXS *detour;
+    DWORD Base = (DWORD)LoadLibraryW(L"d3d9.dll");
+
+    for (DWORD i = 0; i < 0x128000; i++)
+    {
+        if ((*(BYTE *)(Base + i + 0x00)) == 0xC7
+            && (*(BYTE *)(Base + i + 0x01)) == 0x06
+            && (*(BYTE *)(Base + i + 0x06)) == 0x89
+            && (*(BYTE *)(Base + i + 0x07)) == 0x86
+            && (*(BYTE *)(Base + i + 0x0C)) == 0x89
+            && (*(BYTE *)(Base + i + 0x0D)) == 0x86)
+            return (IDirect3DDevice9Ex *)(Base + i + 2);
+    }
+    return NULL;
+}
+
+
+IDirect3DDevice9Ex* GetDevice()
+{
+    VOID *base = NULL;
     HRESULT result;
-    
     D3DDISPLAYMODE d3dDisplayMode;
     D3DPRESENT_PARAMETERS presentationParameters;
+    IDirect3DDevice9Ex* device;
+
+    // Get module handle
+    base = LoadLibraryW(L"d3d9.dll");
+
+    Dx9Hook_Direct3DCreate9Ex = (TYPE_Direct3DCreate9Ex)GetProcAddress(
+        (HMODULE)base,
+        "Direct3DCreate9Ex"
+        );
+
+    if (Dx9Hook_Direct3DCreate9Ex == NULL)
+        return NULL;
+
+    result = Dx9Hook_Direct3DCreate9Ex(D3D_SDK_VERSION, &d3d9ex);
+
+    if (FAILED(result))
+        return NULL;
+
+    ZeroMemory(&presentationParameters, sizeof(D3DPRESENT_PARAMETERS));
+
+    d3d9ex->GetAdapterDisplayMode(D3DADAPTER_DEFAULT, &d3dDisplayMode);
+
+    presentationParameters.Windowed = TRUE;
+    presentationParameters.SwapEffect = D3DSWAPEFFECT_DISCARD;
+    presentationParameters.BackBufferFormat = d3dDisplayMode.Format;
+
+    result = d3d9ex->CreateDeviceEx(
+        D3DADAPTER_DEFAULT,
+        D3DDEVTYPE_HAL,
+        GetDesktopWindow(),
+        D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_DISABLE_DRIVER_MANAGEMENT,
+        &presentationParameters,
+        NULL,
+        &device
+        );
+
+    if (FAILED(result))
+        return NULL;
+
+    return device;
+}
+
+
+VOID Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
+{
+    VOID *base = NULL/*, **vmt*/;
+    //DetourXS *detour;
+    IDirect3DDevice9Ex *device;
 
     Dx9Hook_Present = HookParams->PresentCallback;
     Dx9Hook_Reset = HookParams->ResetCallback;
     Dx9Hook_CreateDevice = HookParams->CreateDeviceCallback;
 
-    // Get module handle
-    base = LoadLibraryW(L"d3d9.dll");
-   
-    Dx9Hook_Direct3DCreate9Ex = (TYPE_Direct3DCreate9Ex)GetProcAddress(
-        (HMODULE)base, 
-        "Direct3DCreate9Ex"
-        );
-
-    if (Dx9Hook_Direct3DCreate9Ex == NULL)
-        return;
-
-    result = Dx9Hook_Direct3DCreate9Ex( D3D_SDK_VERSION, &d3d9ex );
-
-    if (FAILED(result))
-        return;
-
-    ZeroMemory(&presentationParameters, sizeof(D3DPRESENT_PARAMETERS));
-
-    d3d9ex->GetAdapterDisplayMode( D3DADAPTER_DEFAULT, &d3dDisplayMode );
-
-    presentationParameters.Windowed                 = TRUE;
-    presentationParameters.SwapEffect               = D3DSWAPEFFECT_DISCARD;
-    presentationParameters.BackBufferFormat         = d3dDisplayMode.Format;
-
-    result = d3d9ex->CreateDeviceEx(
-        D3DADAPTER_DEFAULT, 
-        D3DDEVTYPE_HAL, 
-        GetDesktopWindow(),
-        D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_DISABLE_DRIVER_MANAGEMENT,
-        &presentationParameters, 
-        NULL, 
-        &D3D9Hook_IDirect3DDevice9Ex
-        );
-
-    if (FAILED(result))
-        return;
-    
-    vmt = (VOID**) d3d9ex;
-    vmt = (VOID**) vmt[0];
-
-    detour = new DetourXS(vmt[16], IDirect3D9_CreateDevice_Detour);
-
-    Dx9Hook_IDirect3D9_CreateDevice = (TYPE_IDirect3D9_CreateDevice)detour->GetTrampoline();
+#ifdef _M_IX86
+    device = FindDevice();
+#else
+    device = GetDevice();
+#endif
 
     if (D3D9Hook_HookMethod == HOOK_METHOD_VMT)
     {
@@ -550,6 +627,6 @@ VOID Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
     }
     else if (D3D9Hook_HookMethod == HOOK_METHOD_DETOURXS)
     {
-        ApplyDetourXsHooks(D3D9Hook_IDirect3DDevice9Ex);
+        ApplyDetourXsHooks(device);
     }
 }
