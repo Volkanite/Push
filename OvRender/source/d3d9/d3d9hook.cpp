@@ -440,6 +440,12 @@ HRESULT __stdcall IDirect3D9_CreateDevice_Detour(
     return result;
 }
 
+
+#define PATT_CD3DHAL_VFTABLE        "\xC7\x06\x00\x00\x00\x00\x89\x86\x00\x00\x00\x00\x89\x86\x00\x00\x00\x00\x89\x86\x00\x00" \
+                                    "\x00\x00\x89\x86\x00\x00\x00\x00\x89\x86\x00\x00\x00\x00\x89\x86\x00\x00\x00\x00\x89\x86\x00" \
+                                    "\x00\x00\x00\x89\x86\x00\x00\x00\x00\x89\x86\x00\x00\x00\x00\x89\x86\x00\x00\x00\x00\x89\x86\x00" \
+                                    "\x00\x00\x00\x89\x86\x00\x00\x00\x00\x89\x86\x00\x00\x00\x00\x88\x86"
+#define MASK_CD3DHAL_VFTABLE        "xx????xx????xx????xx????xx????xx????xx????xx????xx????xx????xx????xx????xx????xx????xx"
 #define PATT_D3D9SWAPCHAINPRESENT   "\x8B\xFF\x55\x8B\xEC\x8B\x45\x1C"
 #define MASK_D3D9SWAPCHAINPRESENT   "xxxxxxxx"
 
@@ -541,19 +547,14 @@ IDirect3D9Ex *d3d9ex;
 
 IDirect3DDevice9Ex* FindDevice(VOID)
 {
-    DWORD Base = (DWORD)LoadLibraryW(L"d3d9.dll");
+    LoadLibraryW(L"d3d9.dll");
 
-    for (DWORD i = 0; i < 0x128000; i++)
-    {
-        if ((*(BYTE *)(Base + i + 0x00)) == 0xC7
-            && (*(BYTE *)(Base + i + 0x01)) == 0x06
-            && (*(BYTE *)(Base + i + 0x06)) == 0x89
-            && (*(BYTE *)(Base + i + 0x07)) == 0x86
-            && (*(BYTE *)(Base + i + 0x0C)) == 0x89
-            && (*(BYTE *)(Base + i + 0x0D)) == 0x86)
-            return (IDirect3DDevice9Ex *)(Base + i + 2);
-    }
-    return NULL;
+    DWORD pattern;
+        
+    pattern = FindPattern(L"d3d9.dll", PATT_CD3DHAL_VFTABLE, MASK_CD3DHAL_VFTABLE);
+    pattern += 2;
+
+    return (IDirect3DDevice9Ex*) pattern;
 }
 
 
