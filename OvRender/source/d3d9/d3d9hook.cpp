@@ -441,8 +441,10 @@ HRESULT __stdcall IDirect3D9_CreateDevice_Detour(
 }
 
 
-#define PATT_CD3DHAL_VFTABLE        "\xC7\x06\x00\x00\x00\x00\x8B\x00\x00\x00\x00\x00\xC7\x45\x00\x00\x00\x00\x00\x85\xFF\x0F"
-#define MASK_CD3DHAL_VFTABLE        "xx????x?????xx?????xxx"
+#define PATT_CD3DHAL_VFTABLE_x86    "\xC7\x06\x00\x00\x00\x00\x8B\x00\x00\x00\x00\x00\xC7\x45\x00\x00\x00\x00\x00\x85\xFF\x0F"
+#define MASK_CD3DHAL_VFTABLE_x86    "xx????x?????xx?????xxx"
+#define PATT_CD3DHAL_VFTABLE_x64    "\x48\x8D\x05\x36\x0C"
+#define MASK_CD3DHAL_VFTABLE_x64    "xxxxx"
 #define PATT_D3D9SWAPCHAINPRESENT   "\x8B\xFF\x55\x8B\xEC\x8B\x45\x1C"
 #define MASK_D3D9SWAPCHAINPRESENT   "xxxxxxxx"
 
@@ -482,6 +484,41 @@ DWORD FindPattern( WCHAR* Module, char pattern[], char mask[] )
 }
 
 
+DWORD64 FindPattern64(WCHAR* Module, char pattern[], char mask[])
+{
+    HMODULE hModule = GetModuleHandle(Module);
+
+    BYTE* pszPatt = (BYTE*)pattern;
+
+    DWORD64 dwStart = (DWORD64)hModule;
+
+    PIMAGE_DOS_HEADER pDosHeader = PIMAGE_DOS_HEADER(hModule);
+
+    PIMAGE_NT_HEADERS64 pNTHeader = PIMAGE_NT_HEADERS64(hModule + pDosHeader->e_lfanew);
+
+    PIMAGE_OPTIONAL_HEADER64 pOptionalHeader = &pNTHeader->OptionalHeader;
+
+    DWORD dwLen = pOptionalHeader->SizeOfCode;
+
+    unsigned int i = NULL;
+
+    int iLen = strlen(mask) - 1;
+
+    for (DWORD64 dwRet = dwStart; dwRet < dwStart + dwLen; dwRet++)
+    {
+        if (*(BYTE*)dwRet == pszPatt[i] || mask[i] == '?')
+        {
+            if (mask[i + 1] == '\0')
+                return(dwRet - iLen);
+            i++;
+        }
+        else
+            i = NULL;
+    }
+    return NULL;
+}
+
+
 VOID ApplyDetourXsHooks( IDirect3DDevice9Ex* Device )
 {
     DetourXS *detour;
@@ -490,7 +527,17 @@ VOID ApplyDetourXsHooks( IDirect3DDevice9Ex* Device )
     Log(L"=> ApplyDetourXsHooks()");
     
     virtualMethodTable = (VOID**)Device;
+    
+#ifdef _M_IX86
     virtualMethodTable = (VOID**)virtualMethodTable[0];
+    Log(L"virtualMethodTable2 0x%X", virtualMethodTable);
+#else
+    DWORD64 base = (DWORD64) LoadLibraryW(L"d3d9.dll");
+    Log(L"base: 0x%llX", base);
+    base += 0x186320;
+    virtualMethodTable = (VOID**)base;
+    Log(L"virtualMethodTable2 0x%llX", virtualMethodTable);
+#endif
 
     detour = new DetourXS(virtualMethodTable[3], IDirect3DDevice9_TestCooperativeLevel_Detour);
     D3D9Hook_IDirect3DDevice9_TestCooperativeLevel = (TYPE_IDirect3DDevice9_TestCooperativeLevel)detour->GetTrampoline();
@@ -519,20 +566,6 @@ VOID ApplyDetourXsHooks( IDirect3DDevice9Ex* Device )
     //detour = new DetourXS(vmt[16], IDirect3D9_CreateDevice_Detour);
 
     //Dx9Hook_IDirect3D9_CreateDevice = (TYPE_IDirect3D9_CreateDevice)detour->GetTrampoline();
-#else
-    HRESULT result;
-    IDirect3DSwapChain9 *swapChain;
-
-    result = Device->GetSwapChain(0, &swapChain);
-
-    if (result == S_OK)
-    {
-    virtualMethodTable = (VOID**)swapChain;
-    virtualMethodTable = (VOID**)virtualMethodTable[0];
-
-    detour = new DetourXS(virtualMethodTable[3], IDirect3DSwapChain9_Present_Detour);
-    D3D9Hook_IDirect3DSwapChain9_Present = (TYPE_IDirect3DSwapChain9_Present)detour->GetTrampoline();
-    }
 #endif
 
     Log(L"<= ApplyDetourXsHooks()");
@@ -546,10 +579,16 @@ IDirect3DDevice9Ex* FindDevice(VOID)
 {
     LoadLibraryW(L"d3d9.dll");
 
-    DWORD pattern;
-        
-    pattern = FindPattern(L"d3d9.dll", PATT_CD3DHAL_VFTABLE, MASK_CD3DHAL_VFTABLE);
+    DWORD64 pattern;
+
+#ifdef _M_IX86
+    pattern = FindPattern(L"d3d9.dll", PATT_CD3DHAL_VFTABLE_x86, MASK_CD3DHAL_VFTABLE_x86);
     pattern += 2;
+    Log(L"device: 0x%X", pattern);
+#else
+    pattern = FindPattern64(L"d3d9.dll", PATT_CD3DHAL_VFTABLE_x64, MASK_CD3DHAL_VFTABLE_x64);
+    Log(L"device: 0x%llX", pattern);
+#endif
 
     return (IDirect3DDevice9Ex*) pattern;
 }
@@ -612,11 +651,16 @@ VOID Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
     Dx9Hook_Reset = HookParams->ResetCallback;
     Dx9Hook_CreateDevice = HookParams->CreateDeviceCallback;
 
-#ifdef _M_IX86
+    // first use dirty signature scans
     device = FindDevice();
-#else
-    device = BuildDevice();
-#endif
+
+    // if signature scans fail then attempt to build the device
+    if (!device)
+        device = BuildDevice();
+    
+    // if all fails then no hooks for you.
+    if (!device)
+        return;
 
     if (D3D9Hook_HookMethod == HOOK_METHOD_VMT)
     {
