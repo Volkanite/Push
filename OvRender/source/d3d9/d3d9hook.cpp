@@ -18,7 +18,7 @@ typedef struct _HOOK_PARAMS
 
 typedef enum _HOOK_METHOD
 {
-    HOOK_METHOD_DETOURXS,
+    HOOK_METHOD_DETOUR,
     HOOK_METHOD_VMT,
 
 } HOOK_METHOD;
@@ -129,7 +129,7 @@ DX9HOOK_RESET_CALLBACK      Dx9Hook_CreateDevice;
 
 HOOK_PARAMS hookParams;
 D3DPRESENT_PARAMETERS PresentParams;
-HOOK_METHOD D3D9Hook_HookMethod = HOOK_METHOD_DETOURXS;
+HOOK_METHOD D3D9Hook_HookMethod = HOOK_METHOD_DETOUR;
 BOOLEAN D3D9Hook_ForceReset = FALSE;
 IDirect3DDevice9*   D3D9Hook_IDirect3DDevice9;
 
@@ -357,20 +357,27 @@ void ReplaceVirtualMethod(void **VTable, int Function, void *Detour)
 VOID ReplaceVirtualMethods( IDirect3DDevice9* Device )
 {
     VOID **vmt;
-    HRESULT result;
-    IDirect3DSwapChain9* swapChain;
+    //HRESULT result;
+    //IDirect3DSwapChain9* swapChain;
 
     if (!Device) return;
 
     vmt = (VOID**)Device;
     vmt = (VOID**)vmt[0];
 
+    // Backup
+    D3D9Hook_IDirect3DDevice9_TestCooperativeLevel = (TYPE_IDirect3DDevice9_TestCooperativeLevel)vmt[3];
+    D3D9Hook_IDirect3DDevice9_Reset = (TYPE_IDirect3DDevice9_Reset)vmt[16];
+    D3D9Hook_IDirect3DDevice9_Present = (TYPE_IDirect3DDevice9_Present)vmt[17];
+    //D3D9Hook_IDirect3DDevice9_BeginStateBlock = (TYPE_IDirect3DDevice9_BeginStateBlock)vmt[60];
+
+    //Overwrite
     ReplaceVirtualMethod(vmt, 3, IDirect3DDevice9_TestCooperativeLevel_Detour);
     ReplaceVirtualMethod(vmt, 16, IDirect3DDevice9_Reset_Detour);
     ReplaceVirtualMethod(vmt, 17, IDirect3DDevice9_Present_Detour);
-    ReplaceVirtualMethod(vmt, 60, IDirect3DDevice9_BeginStateBlock_Detour);
+    //ReplaceVirtualMethod(vmt, 60, IDirect3DDevice9_BeginStateBlock_Detour);
 
-    result = Device->GetSwapChain(0, &swapChain);
+    /*result = Device->GetSwapChain(0, &swapChain);
 
     if (result == S_OK)
     {
@@ -378,7 +385,7 @@ VOID ReplaceVirtualMethods( IDirect3DDevice9* Device )
         vmt = (VOID**)vmt[0];
 
         ReplaceVirtualMethod(vmt, 3, IDirect3DSwapChain9_Present_Detour);
-    }
+    }*/
 }
 
 
@@ -414,12 +421,6 @@ HRESULT __stdcall IDirect3D9_CreateDevice_Detour(
 
         vmt = (VOID**)*ReturnedDeviceInterface;
         vmt = (VOID**)vmt[0];
-
-        D3D9Hook_IDirect3DDevice9_TestCooperativeLevel = (TYPE_IDirect3DDevice9_TestCooperativeLevel)vmt[3];
-        D3D9Hook_IDirect3DDevice9_Reset = (TYPE_IDirect3DDevice9_Reset)vmt[16];
-        D3D9Hook_IDirect3DDevice9_Present = (TYPE_IDirect3DDevice9_Present)vmt[17];
-        D3D9Hook_IDirect3DDevice9_BeginStateBlock = (TYPE_IDirect3DDevice9_BeginStateBlock)vmt[60];
-        Log(L"loldump2: 0x%X", (DWORD)vmt[16]);
         
         D3D9Hook_IDirect3DDevice9 = *ReturnedDeviceInterface;
 
@@ -556,7 +557,7 @@ IDirect3DDevice9Ex* FindDevice(VOID)
 }
 
 
-IDirect3DDevice9Ex* GetDevice()
+IDirect3DDevice9Ex* BuildDevice()
 {
     VOID *base = NULL;
     HRESULT result;
@@ -607,8 +608,6 @@ IDirect3DDevice9Ex* GetDevice()
 
 VOID Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
 {
-    VOID *base = NULL/*, **vmt*/;
-    //DetourXS *detour;
     IDirect3DDevice9Ex *device;
 
     Dx9Hook_Present = HookParams->PresentCallback;
@@ -618,14 +617,14 @@ VOID Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
 #ifdef _M_IX86
     device = FindDevice();
 #else
-    device = GetDevice();
+    device = BuildDevice();
 #endif
 
     if (D3D9Hook_HookMethod == HOOK_METHOD_VMT)
     {
-        //ReplaceVirtualMethods(D3D9Hook_IDirect3DDevice9Ex);
+        ReplaceVirtualMethods(device);
     }
-    else if (D3D9Hook_HookMethod == HOOK_METHOD_DETOURXS)
+    else if (D3D9Hook_HookMethod == HOOK_METHOD_DETOUR)
     {
         ApplyDetourXsHooks(device);
     }
