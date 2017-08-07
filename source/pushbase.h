@@ -222,8 +222,6 @@ typedef struct _PUSH_HARDWARE_INFORMATION
         UINT8 MaxCoreUsage;
         UINT8 Temperature;
         INT32 tjmax;
-        CORE_LIST coreList;
-
     }Processor;
 
     struct
@@ -271,44 +269,37 @@ typedef VOID(*OSD_DYNAMIC_FORMAT)(
 
 typedef UINT16 OSDVALUE;
 
+
+#pragma pack(push,1)
 typedef struct _OSD_ITEM
 {
     UINT32 Flag;
     OSDVALUE Threshold;
-    WCHAR* DisplayFormat;
-    VOID* ValueSource;
     UINT8 ValueSize;
     UINT32 Value;
-    UINT32* ValueSource2;
     UINT32 Value2;
-
-    //For when formatting must happen at runtime
-    OSD_DYNAMIC_FORMAT DynamicFormat;
-
     UINT32 Color;
     WCHAR Text[20];
 
+    //LOCAL //fix
+    ULONG DisplayFormatPtr; // WCHAR* DisplayFormat;
+    ULONG DynamicFormatPtr; // OSD_DYNAMIC_FORMAT DynamicFormat; //For when formatting must happen at runtime
+    ULONG ValueSourcePtr;   // VOID* ValueSource;
+    ULONG ValueSource2Ptr;  // UINT32* ValueSource2;
+
 }OSD_ITEM;
+
+
 // Structure for shared memory
 
 typedef struct _PUSH_SHARED_MEMORY
 {
     //OSD
+    UINT32  OSDFlags;
+    UINT32  Overloads;
+    UINT8   NumberOfOsdItems;
 
-    //enable/disable OSD items
-    unsigned int    OSDFlags;
-
-    //OSD item threshholds
-    unsigned int    Overloads;
-
-    //
-    UINT8 NumberOfOsdItems;
-    OSD_ITEM* OsdItemsOffset;
-
-    PUSH_HARDWARE_INFORMATION HarwareInformation;
-
-    UCHAR   FrameLimit;
-
+    UCHAR                       FrameLimit;
     PUSH_VSYNC_OVERRIDE_MODE    VsyncOverrideMode;
     PUSH_KEYBOARD_HOOK_TYPE     KeyboardHookType;
     UCHAR                       DisableRepeatKeys;
@@ -316,15 +307,15 @@ typedef struct _PUSH_SHARED_MEMORY
     UCHAR                       KeepFps;
     UCHAR                       GameUsesRamDisk;
     long long                   performanceFrequency;
-    VOID*                       WindowHandle;
     BOOLEAN                     ThreadOptimization;
     BOOLEAN                     LogFileIo;
     BOOLEAN                     AutoLogFileIo;
     UCHAR                       ControllerTimeout;
-
-    OSD_ITEM OsdItems[1];
+    PUSH_HARDWARE_INFORMATION   HarwareInformation;
+    OSD_ITEM                    OsdItems[1];
 
 } PUSH_SHARED_MEMORY;
+#pragma pack(pop)
 
 
 #ifndef PROCESSID

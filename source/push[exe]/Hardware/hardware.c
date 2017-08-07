@@ -377,6 +377,8 @@ int __stdcall GetSystemMetrics(
 
 int MonitorWidth;
 int MonitorHeight;
+CORE_LIST coreList;
+
 
 VOID GetHardwareInfo()
 {
@@ -411,7 +413,7 @@ VOID GetHardwareInfo()
     //byte => megabytes
     PushSharedMemory->HarwareInformation.Memory.Total = (physicalPages * pageSize) / 1048576;
     
-    coreListEntry = &PushSharedMemory->HarwareInformation.Processor.coreList;
+    coreListEntry = &coreList;
 
     for (i = 0; i < PushSharedMemory->HarwareInformation.Processor.NumberOfCores; i++)
     {

@@ -32,9 +32,9 @@ VOID FormatTime( UINT32 Value, WCHAR* Buffer )
 
 
 VOID FormatDiskReadWriteRate( 
-	UINT32 Value, 
-	WCHAR* Buffer 
-	)
+    UINT32 Value, 
+    WCHAR* Buffer 
+    )
 {
     UINT32 rate;
     WCHAR *format;
@@ -76,17 +76,17 @@ VOID OSD_Refresh()
         switch (OsdItems[i].ValueSize)
         {
         case sizeof(UINT8) :
-            OsdItems[i].Value = OsdItems[i].ValueSource ? *(UINT8*)OsdItems[i].ValueSource : 0;
+            OsdItems[i].Value = OsdItems[i].ValueSourcePtr ? *(UINT8*)OsdItems[i].ValueSourcePtr : 0;
             break;
         case sizeof(UINT16) :
-            OsdItems[i].Value = OsdItems[i].ValueSource ? *(UINT16*)OsdItems[i].ValueSource : 0;
+            OsdItems[i].Value = OsdItems[i].ValueSourcePtr ? *(UINT16*)OsdItems[i].ValueSourcePtr : 0;
             break;
         case sizeof(UINT32) :
-            OsdItems[i].Value = OsdItems[i].ValueSource ? *(UINT32*)OsdItems[i].ValueSource : 0;
+            OsdItems[i].Value = OsdItems[i].ValueSourcePtr ? *(UINT32*)OsdItems[i].ValueSourcePtr : 0;
             break;
         }
 
-        OsdItems[i].Value2 = OsdItems[i].ValueSource2 ? *(UINT32*)OsdItems[i].ValueSource2 : 0;
+        OsdItems[i].Value2 = OsdItems[i].ValueSource2Ptr ? *(UINT32*)OsdItems[i].ValueSource2Ptr : 0;
 
         if (!OsdItems[i].Flag //draw if no flag, could be somebody just wants to display stuff on-screen
             || PushSharedMemory->OSDFlags & OsdItems[i].Flag //if it has a flag, is it set?
@@ -96,18 +96,22 @@ VOID OSD_Refresh()
 
             PushSharedMemory->OSDFlags |= OsdItems[i].Flag;
 
-            if (OsdItems[i].DisplayFormat || OsdItems[i].DynamicFormat)
+            if (OsdItems[i].DisplayFormatPtr || OsdItems[i].DynamicFormatPtr)
             {
-                if (OsdItems[i].DynamicFormat)
+                if (OsdItems[i].DynamicFormatPtr)
                 {
-                    OsdItems[i].DynamicFormat(OsdItems[i].Value2 ? OsdItems[i].Value2 : 0, OsdItems[i].Text);
+                    OSD_DYNAMIC_FORMAT dynamicFormat;
+
+                    dynamicFormat = (OSD_DYNAMIC_FORMAT) OsdItems[i].DynamicFormatPtr;
+
+                    dynamicFormat(OsdItems[i].Value2 ? OsdItems[i].Value2 : 0, OsdItems[i].Text);
                 }
-                else if (OsdItems[i].DisplayFormat)
+                else if (OsdItems[i].DisplayFormatPtr)
                 {
                     String_Format(
                         OsdItems[i].Text,
                         20,
-                        OsdItems[i].DisplayFormat,
+                        (WCHAR*) OsdItems[i].DisplayFormatPtr,
                         OsdItems[i].Value2 ? OsdItems[i].Value2 : OsdItems[i].Value
                         );
                 }
@@ -143,12 +147,12 @@ VOID OSD_AddItem(
         OsdItems = Memory_AllocateEx(sizeof(OSD_ITEM) * 21, HEAP_ZERO_MEMORY);
 
     OsdItems[items].Flag = Flag;
-    OsdItems[items].DisplayFormat = DisplayFormat;
-    OsdItems[items].ValueSource = ValueSource;
+    OsdItems[items].DisplayFormatPtr = DisplayFormat;
+    OsdItems[items].ValueSourcePtr = ValueSource;
     OsdItems[items].ValueSize = ValueSize;
-    OsdItems[items].ValueSource2 = ValueSource2;
+    OsdItems[items].ValueSource2Ptr = ValueSource2;
     OsdItems[items].Threshold = Threshold;
-    OsdItems[items].DynamicFormat = DynamicFormat;
+    OsdItems[items].DynamicFormatPtr = DynamicFormat;
 
     items++;
 }

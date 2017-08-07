@@ -1319,7 +1319,7 @@ INT32 __stdcall start( )
     Memory_Clear(PushSharedMemory, sizeof(PUSH_SHARED_MEMORY));
 
     //initialize window handle used by overlay
-    PushSharedMemory->WindowHandle = PushMainWindow->Handle;
+    //PushSharedMemory->WindowHandle = PushMainWindow->Handle;
 
     if (File_Exists(PUSH_SETTINGS_FILE))
     {
