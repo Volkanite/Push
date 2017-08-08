@@ -405,10 +405,11 @@ void Keyboard_Hook( PUSH_KEYBOARD_HOOK_TYPE HookType )
     case KEYBOARD_HOOK_RAW:
         if (!OverlayGetRawInputData)
         {
+#ifdef _M_IX86
             BYTE *functionStart = NULL;
             HMODULE moduleHandle;
             DWORD address = 0;
-            
+
             Log(L"KEYBOARD_HOOK_RAW::Create()");
 
             // Get the API address
@@ -419,6 +420,7 @@ void Keyboard_Hook( PUSH_KEYBOARD_HOOK_TYPE HookType )
             RawInputDetour = new DetourXS(functionStart, (BYTE*)GetRawInputDataHook);
 
             OverlayGetRawInputData = (TYPE_GetRawInputData)RawInputDetour->GetTrampoline();
+#endif 
         }
         break;
     default:
