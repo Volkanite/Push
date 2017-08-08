@@ -20,6 +20,7 @@ ADL_OVERDRIVE5_ODPARAMETERS_GET         ADL_Overdrive5_ODParameters_Get;
 ADL_OVERDRIVE5_ODPERFORMANCELEVELS_GET  ADL_Overdrive5_ODPerformanceLevels_Get;
 ADL_OVERDRIVE5_ODPERFORMANCELEVELS_SET  ADL_Overdrive5_ODPerformanceLevels_Set;
 ADL_OVERDRIVE5_FANSPEED_GET             ADL_Overdrive5_FanSpeed_Get;
+ADL_OVERDRIVE5_FANSPEED_SET             ADL_Overdrive5_FanSpeed_Set;
 ADL_OVERDRIVE5_FANSPEEDINFO_GET         ADL_Overdrive5_FanSpeedInfo_Get;
 
 
@@ -65,6 +66,9 @@ VOID Adl_Initialize()
 
     ADL_Overdrive5_FanSpeed_Get = (ADL_OVERDRIVE5_FANSPEED_GET)
         Module_GetProcedureAddress(adl, "ADL_Overdrive5_FanSpeed_Get");
+
+    ADL_Overdrive5_FanSpeed_Set = (ADL_OVERDRIVE5_FANSPEED_SET)
+        Module_GetProcedureAddress(adl, "ADL_Overdrive5_FanSpeed_Set");
 
     ADL_Overdrive5_FanSpeedInfo_Get = (ADL_OVERDRIVE5_FANSPEEDINFO_GET)
         Module_GetProcedureAddress(adl, "ADL_Overdrive5_FanSpeedInfo_Get");
@@ -275,4 +279,15 @@ VOID Adl_SetMaxClocks()
     ADL_Overdrive5_ODPerformanceLevels_Set(0, performanceLevels);
 
     Memory_Free(performanceLevels);
+}
+
+
+VOID Adl_SetFanDutyCycle( int DutyCycle )
+{
+    ADLFanSpeedValue fanSpeed;
+
+    fanSpeed.iSpeedType = ADL_DL_FANCTRL_SPEED_TYPE_PERCENT;
+    fanSpeed.iFanSpeed = DutyCycle;
+
+    ADL_Overdrive5_FanSpeed_Set(0, 0, &fanSpeed);
 }

@@ -20,11 +20,15 @@ WCHAR* PressOpt[] = { L">>", L">>" };
 WCHAR* GpuSpeedEngineOpt[] = { L"XXX MHz", L"XXX MHz" };
 WCHAR* GpuSpeedMemoryOpt[] = { L"XXX MHz", L"XXX MHz" };
 WCHAR* GpuVoltageOpt[] = { L"XXX mV", L"XXX mV" };
-WCHAR* FrameLimitOpt[] = { L"", L"" };
+WCHAR* GpuFanDutyCycleOpt[] = { L"XXX %", L"XXX %" };
+
 
 WCHAR GpuSpeedEngine[20];
 WCHAR GpuSpeedMemory[20];
 WCHAR GpuVoltage[20];
+WCHAR GpuFanDutyCycle[20];
+
+WCHAR* FrameLimitOpt[] = { L"", L"" };
 WCHAR FrameLimitText[20];
 
 BOOLEAN MnuInitialized;
@@ -50,6 +54,7 @@ extern UINT8 FrameLimit;
 #define FUNC_TERMINATE      OSD_LAST_ITEM+13
 #define FUNC_KEEP_FPS       OSD_LAST_ITEM+14
 #define FUNC_OC             OSD_LAST_ITEM+15
+#define FUNC_FAN            OSD_LAST_ITEM+16
 
 
 //Add menu items to menu
@@ -71,6 +76,10 @@ VOID UpdateGpuInformation()
     swprintf(GpuVoltage, 20, L"%i mV", PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax);
     GpuVoltageOpt[0] = GpuVoltage;
     GpuVoltageOpt[1] = GpuVoltage;
+
+    swprintf(GpuFanDutyCycle, 20, L"%i %%", PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle);
+    GpuFanDutyCycleOpt[0] = GpuFanDutyCycle;
+    GpuFanDutyCycleOpt[1] = GpuFanDutyCycle;
 }
 
 
@@ -123,6 +132,7 @@ VOID AddItems()
         Menu->AddItem(L"Engine Clock", GpuSpeedEngineOpt, &MenuGpu[3], FUNC_ECLOCK);
         Menu->AddItem(L"Memory Clock", GpuSpeedMemoryOpt, &MenuGpu[4], FUNC_MCLOCK);
         Menu->AddItem(L"Voltage", GpuVoltageOpt, &MenuGpu[5], FUNC_VOLTAGE);
+        Menu->AddItem(L"Fan Duty Cycle", GpuFanDutyCycleOpt, &MenuGpu[6], FUNC_FAN);
 
         //Init gpu information
         UpdateGpuInformation();
@@ -269,6 +279,20 @@ VOID ProcessOptions( MenuItems* Item )
         }
         break;
         }
+    }
+    break;
+
+    case FUNC_FAN:
+    {
+        PushSharedMemory->OSDFlags |= OSD_GPU_FAN_DC;
+
+        if (*Item->Var > 0)
+            PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle++;
+        else
+            PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle--;
+
+        UpdateGpuInformation();
+        CallPipe(L"UpdateFanSpeed", NULL);
     }
     break;
 

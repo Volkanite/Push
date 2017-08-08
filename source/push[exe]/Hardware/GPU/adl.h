@@ -13,4 +13,5 @@ VOID Adl_SetEngineClock(UINT16 EngineClock, UINT8 PerformanceLevel);
 VOID Adl_SetMemoryClock(UINT16 MemoryClock, UINT8 PerformanceLevel);
 VOID Adl_SetVoltage(UINT16 Voltage);
 VOID Adl_SetMaxClocks();
+VOID Adl_SetFanDutyCycle(int DutyCycle);
 

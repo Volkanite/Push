@@ -1156,6 +1156,10 @@ DWORD __stdcall PipeThread( VOID* Parameter )
 
                     PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax = Adl_GetEngineClockMax();
                 }
+                else if (String_Compare(buffer, L"UpdateFanSpeed") == 0)
+                {
+                    Adl_SetFanDutyCycle(PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle);
+                }
                 else if (String_CompareN(buffer, L"GetDiskResponseTime", 19) == 0)
                 {
                     UINT32 processId;
