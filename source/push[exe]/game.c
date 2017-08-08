@@ -103,14 +103,14 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
     if (!Win32Name)
         return;
 
-    Log(L"Game_Initialize(%s)", Win32Name);
+    //Log(L"Game_Initialize(%s)", Win32Name);
     
     Game->ExecutablePath = HeapedString(Win32Name);
     lastSlash = String_FindLastChar(Game->ExecutablePath, '\\');
     Game->ExecutableName = lastSlash + 1;
 
     Ini_GetString(L"Games", Game->ExecutablePath, NULL, Game->Id, sizeof(Game->Id) / sizeof(WCHAR));
-    Log(L"gameId: %s", Game->Id);
+    //Log(L"gameId: %s", Game->Id);
 
     if (String_Compare(Game->Id, L"") == 0)
     {
@@ -205,15 +205,19 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
         Game->Settings.PatchMemory = TRUE;
     }
 
+    Ini_ReadSubKey(L"Game Settings", Game->Id, L"FrameLimit", L"0", buffer, 260);
+    Game->Settings.FrameLimit = _wtoi(buffer);
+
     Ini_ReadSubKey(L"Game Settings", Game->Id, L"ForceVsync", NULL, buffer, 260);
 
     if (String_Compare(buffer, L"FORCE_ON") == 0)
     {
         Game->Settings.VsyncOverrideMode = PUSH_VSYNC_FORCE_ON;
     }
-        
     else if (String_Compare(buffer, L"FORCE_OFF") == 0)
+    {
         Game->Settings.VsyncOverrideMode = PUSH_VSYNC_FORCE_OFF;
+    }
 }
 
 

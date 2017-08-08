@@ -17,6 +17,7 @@ typedef struct _PUSH_GAME_SETTINGS
     BOOLEAN                     SwapWASD;
     BOOLEAN                     ForceMaxClocks;
     BOOLEAN                     PatchMemory;
+    UCHAR                       FrameLimit;
     PUSH_VSYNC_OVERRIDE_MODE    VsyncOverrideMode;
 
 } PUSH_GAME_SETTINGS;

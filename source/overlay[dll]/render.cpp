@@ -31,27 +31,27 @@ typedef enum _OVERCLOCK_UNIT
 }OVERCLOCK_UNIT;
 VOID Overclock(OVERCLOCK_UNIT Unit);
 extern "C" LONG __stdcall NtQueryPerformanceCounter(
-	LARGE_INTEGER* PerformanceCounter,
-	LARGE_INTEGER* PerformanceFrequency
-	);
+    LARGE_INTEGER* PerformanceCounter,
+    LARGE_INTEGER* PerformanceFrequency
+    );
 VOID StartCounter()
 {
-	LARGE_INTEGER perfCount;
-	LARGE_INTEGER frequency;
+    LARGE_INTEGER perfCount;
+    LARGE_INTEGER frequency;
 
-	NtQueryPerformanceCounter(&perfCount, &frequency);
+    NtQueryPerformanceCounter(&perfCount, &frequency);
 
-	PCFreq = (double)frequency.QuadPart / 1000.0;;
+    PCFreq = (double)frequency.QuadPart / 1000.0;;
 }
 
 
 double GetPerformanceCounter()
 {
-	LARGE_INTEGER li;
+    LARGE_INTEGER li;
 
-	NtQueryPerformanceCounter(&li, NULL);
+    NtQueryPerformanceCounter(&li, NULL);
 
-	return (double)li.QuadPart / PCFreq;
+    return (double)li.QuadPart / PCFreq;
 }
 
 
@@ -84,9 +84,12 @@ VOID RunFrameStatistics()
         inited = TRUE;
 
         EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &devMode);
-		Log(L"dmDisplayFrequency %i", devMode.dmDisplayFrequency);
+        Log(L"dmDisplayFrequency %i", devMode.dmDisplayFrequency);
         acceptableFrameTime = (double)1000 / (double)(devMode.dmDisplayFrequency - 1);
-		Log(L"acceptableFrameTime %f", acceptableFrameTime);
+        Log(L"acceptableFrameTime %f", acceptableFrameTime);
+
+        if (PushSharedMemory->FrameLimit > 1)
+            FrameLimit = PushSharedMemory->FrameLimit;
     }
 
     newTickCount = GetPerformanceCounter();
@@ -195,43 +198,43 @@ VOID RunFrameStatistics()
     {
         //reset the timer
         oldTick2 = newTickCount;
-		DebugRec();
+        DebugRec();
     }
 
     FrameRate = (int) fps;
 
-	if (PushSharedMemory->FrameLimit)
-	{
-		double frameTimeMin = (double)1000 / (double)FrameLimit;
+    if (PushSharedMemory->FrameLimit)
+    {
+        double frameTimeMin = (double)1000 / (double)FrameLimit;
 
-		if (frameTime < frameTimeMin)
-		{
-			UINT64 cyclesStart, cyclesStop;
+        if (frameTime < frameTimeMin)
+        {
+            UINT64 cyclesStart, cyclesStop;
 
-			RenderThreadHandle = GetCurrentThread();
+            RenderThreadHandle = GetCurrentThread();
 
-			QueryThreadCycleTime(RenderThreadHandle, &cyclesStart);
+            QueryThreadCycleTime(RenderThreadHandle, &cyclesStart);
 
-			lastTickCount = newTickCount;
+            lastTickCount = newTickCount;
 
-			while (frameTime < frameTimeMin)
-			{
-				newTickCount = GetPerformanceCounter();
+            while (frameTime < frameTimeMin)
+            {
+                newTickCount = GetPerformanceCounter();
 
-				frameTime += (newTickCount - lastTickCount);
+                frameTime += (newTickCount - lastTickCount);
 
-				lastTickCount = newTickCount;
-			}
+                lastTickCount = newTickCount;
+            }
 
-			QueryThreadCycleTime(RenderThreadHandle, &cyclesStop);
+            QueryThreadCycleTime(RenderThreadHandle, &cyclesStop);
 
-			CyclesWaited += cyclesStop - cyclesStart;
-		}
+            CyclesWaited += cyclesStop - cyclesStart;
+        }
 
-		lastTickCount = newTickCount;
-	}
+        lastTickCount = newTickCount;
+    }
 
-	FrameTime = frameTime;
+    FrameTime = frameTime;
 }
 
 
@@ -250,8 +253,8 @@ VOID RnRender( OvOverlay* Overlay )
     Osd_Draw( Overlay );
     MnuRender( Overlay );
     RunFrameStatistics();
-	//wchar_t bigbuff[260];
-	//swprintf(bigbuff, 260, L"FrameTime: %f", FrameTime);
-	//Overlay->DrawText(bigbuff);
+    //wchar_t bigbuff[260];
+    //swprintf(bigbuff, 260, L"FrameTime: %f", FrameTime);
+    //Overlay->DrawText(bigbuff);
     //Overlay->DrawText(L"u can draw anything in this render loop!\n");
 }
