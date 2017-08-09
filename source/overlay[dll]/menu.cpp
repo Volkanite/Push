@@ -14,21 +14,19 @@ MenuVars Diagnostics[5];
 MenuVars D3DTweaks[5];
 MenuVars Process[5];
 
-WCHAR* GroupOpt[] = {L"", L""};
+WCHAR* GroupOpt[] = {L">", L"<"};
 WCHAR* ItemOpt[] = {L"Off", L"On"};
 WCHAR* PressOpt[] = { L">>", L">>" };
-WCHAR* GpuSpeedEngineOpt[] = { L"XXX MHz", L"XXX MHz" };
-WCHAR* GpuSpeedMemoryOpt[] = { L"XXX MHz", L"XXX MHz" };
-WCHAR* GpuVoltageOpt[] = { L"XXX mV", L"XXX mV" };
-WCHAR* GpuFanDutyCycleOpt[] = { L"XXX %", L"XXX %" };
-
+WCHAR* GpuSpeedEngineOpt[] = { L"", L"" };
+WCHAR* GpuSpeedMemoryOpt[] = { L"", L"" };
+WCHAR* GpuVoltageOpt[] = { L"", L"" };
+WCHAR* GpuFanDutyCycleOpt[] = { L"", L"" };
+WCHAR* FrameLimitOpt[] = { L"", L"" };
 
 WCHAR GpuSpeedEngine[20];
 WCHAR GpuSpeedMemory[20];
 WCHAR GpuVoltage[20];
 WCHAR GpuFanDutyCycle[20];
-
-WCHAR* FrameLimitOpt[] = { L"", L"" };
 WCHAR FrameLimitText[20];
 
 BOOLEAN MnuInitialized;
@@ -94,7 +92,7 @@ VOID UpdateFrameLimitText()
 
 VOID AddItems()
 {
-    Menu->AddGroup(L"OSD >", GroupOpt, &MenuOsd[0]);
+    Menu->AddGroup(L"OSD", GroupOpt, &MenuOsd[0]);
 
     if (MenuOsd[0].Var)
     {
@@ -123,7 +121,7 @@ VOID AddItems()
         Menu->AddItem(L"Reset",                   PressOpt, &MenuOsd[i++], FUNC_RESET);
     }
 
-    Menu->AddGroup(L"GPU >", GroupOpt, &MenuGpu[0]);
+    Menu->AddGroup(L"GPU", GroupOpt, &MenuGpu[0]);
 
     if (MenuGpu[0].Var)
     {
@@ -138,7 +136,7 @@ VOID AddItems()
         UpdateGpuInformation();
     }
 
-    Menu->AddGroup(L"Diag >", GroupOpt, &Diagnostics[0]);
+    Menu->AddGroup(L"Diagnostics", GroupOpt, &Diagnostics[0]);
 
     if (Diagnostics[0].Var)
     {
@@ -146,7 +144,7 @@ VOID AddItems()
         Menu->AddItem(L"Auto-log", ItemOpt, &Diagnostics[2], FUNC_FILEAUTOLOG);
     }
 
-    Menu->AddGroup(L"D3D >", GroupOpt, &D3DTweaks[0]);
+    Menu->AddGroup(L"Direct3D", GroupOpt, &D3DTweaks[0]);
 
     if (D3DTweaks[0].Var)
     {
@@ -159,7 +157,7 @@ VOID AddItems()
         UpdateFrameLimitText();
     }
 
-    Menu->AddGroup(L"Proc >", GroupOpt, &Process[0]);
+    Menu->AddGroup(L"Process", GroupOpt, &Process[0]);
 
     if (Process[0].Var)
     {
@@ -557,13 +555,21 @@ SlOverlayMenu::Render( int X, int Y, OvOverlay* Overlay )
         }
 
         if (Items[i].Type == GROUP)
+        {
             Overlay->DrawText(Items[i].Title, X, Y, ColorOne);
 
+            if (Items[i].Options)
+                Overlay->DrawText(Items[i].Options[ValueTwo], 200, Y, ColorTwo);
+        }
+            
+
         if (Items[i].Type == ITEM)
+        {
             Overlay->DrawText(Items[i].Title, X + 20, Y, ColorOne);
 
-        if (Items[i].Options)
-            Overlay->DrawText(Items[i].Options[ValueTwo], OpX, Y, ColorTwo);
+            if (Items[i].Options)
+                Overlay->DrawText(Items[i].Options[ValueTwo], OpX, Y, ColorTwo);
+        }
 
         Y += HEIGHT;
     }
