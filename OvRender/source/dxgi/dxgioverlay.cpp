@@ -36,7 +36,7 @@ VOID DxgiOvInit( IDXGISwapChain* SwapChain )
 
     if (SUCCEEDED(SwapChain->GetDevice(__uuidof(ID3D11Device), (void **) &device11)))
     {
-        DxgiOvDx11Overlay = new Dx11Overlay(device11, DXGIOverlay->UserRenderFunction);
+        DxgiOvDx11Overlay = new Dx11Overlay(SwapChain, DXGIOverlay->UserRenderFunction);
     }
     else if (SUCCEEDED(SwapChain->GetDevice(__uuidof(ID3D10Device), (void **) &device10)))
     {

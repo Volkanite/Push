@@ -18,15 +18,24 @@ typedef struct _D3DLOCKED_RECT
 #include "d3d11font.h"
 
 
-Dx11Font* Dx11OvFont;
+Dx11Font        *Dx11OvFont;
+ID3D11Texture2D *BackBuffer;
+D3D11_TEXTURE2D_DESC rtv_desc;
 
 
 Dx11Overlay::Dx11Overlay(
-    ID3D11Device* Device,
+    IDXGISwapChain* SwapChain,
     OV_RENDER RenderFunction
     )
 {
-    Dx11OvFont = new Dx11Font( Device );
+    ID3D11Device *device;
+
+    SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&BackBuffer);
+    BackBuffer->GetDesc(&rtv_desc);
+    
+    SwapChain->GetDevice(__uuidof(ID3D11Device), (void **)&device);
+
+    Dx11OvFont = new Dx11Font( device );
     UserRenderFunction = RenderFunction;
 }
 

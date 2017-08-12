@@ -41,6 +41,10 @@ ID3D10Texture2D*                        m_texture10;
 ID3D11VertexShader*                     D3D11Font_VertexShader = NULL;
 ID3D11PixelShader*                      D3D11Font_PixelShader = NULL;
 ID3D11RasterizerState*                  RasterizerState;
+ID3D11RenderTargetView  *RenderTarget;
+extern ID3D11Texture2D *BackBuffer;
+extern D3D11_TEXTURE2D_DESC rtv_desc;
+
 BOOLEAN                                 Initialized;
 
 
@@ -289,6 +293,9 @@ BOOLEAN Dx11Font::InitD3D11Sprite( )
 
     HeapHandle = GetProcessHeap();
     Sprites = (Sprite*) RtlAllocateHeap(HeapHandle, 0, sizeof(Sprite));
+
+    device->CreateRenderTargetView(BackBuffer, NULL, &RenderTarget);
+
     Initialized = TRUE;
 
     return TRUE;
@@ -418,6 +425,7 @@ VOID Dx11Font::EndBatch( )
     deviceContext->PSGetShader(&pixelShader, NULL, 0);
 
     // Set new state
+    deviceContext->OMSetRenderTargets(1, &RenderTarget, NULL);
     deviceContext->RSSetState(RasterizerState);
     deviceContext->IASetInputLayout( inputLayout );
     deviceContext->IASetIndexBuffer(IB, DXGI_FORMAT_R16_UINT, 0 );
@@ -474,9 +482,15 @@ Dx11Font::DrawString()
 }
 
 
-VOID
-Dx11Font::Begin()
+VOID Dx11Font::Begin()
 {
+    D3D11_VIEWPORT vp2 = { 0 };
+    vp2.Width = (float)rtv_desc.Width;
+    vp2.Height = (float)rtv_desc.Height;
+    vp2.MaxDepth = 1.f;
+
+    deviceContext->RSSetViewports(1, &vp2);
+
     NumberOfSprites = 0;
 }
 

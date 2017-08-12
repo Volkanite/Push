@@ -363,30 +363,6 @@ VOID Draw( RECT* destinationRect, RECT* sourceRect, XMCOLOR color )
 }
 
 
-void renderer_draw_area(INT32 dx, INT32 dy, INT32 dw, INT32 dh, INT32 sx, INT32 sy, INT32 sw, INT32 sh, UINT32 Color)
-{
-    RECT rect;
-
-    rect.left = dx;
-    rect.top = dy;
-    rect.right = dx + dw;
-    rect.bottom = dy + dh;
-
-    RECT rect2;
-
-    rect.left = sx;
-    rect.top = sy;
-    rect.right = sx + sw;
-    rect.bottom = sy + sh;
-
-    XMCOLOR color;
-
-    color.c = Color;
-
-    Draw(&rect, &rect2, color);
-}
-
-
 VOID Font::AddString( WCHAR *text, DWORD Color )
 {
     UINT i, length = (UINT)wcslen(text);
