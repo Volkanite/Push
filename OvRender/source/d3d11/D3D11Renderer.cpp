@@ -408,6 +408,10 @@ VOID Dx11Font::EndBatch( )
     ID3D11RasterizerState* lastRasterizerState;
     ID3D11PixelShader *pixelShader;
     D3D11_VIEWPORT viewport = { 0 };
+    ID3D11BlendState*       m_pUILastBlendState;
+    float                   m_LastBlendFactor[4];
+    UINT                    m_LastBlendMask;
+    float blendFactor[4] = { 1.0f };
 
     viewport.Width = (float)BackBufferDescription.Width;
     viewport.Height = (float)BackBufferDescription.Height;
@@ -420,6 +424,7 @@ VOID Dx11Font::EndBatch( )
     offset = 0;
 
     // Save device state
+    deviceContext->OMGetBlendState(&m_pUILastBlendState, m_LastBlendFactor, &m_LastBlendMask);
     deviceContext->RSGetState(&lastRasterizerState);
     deviceContext->IAGetInputLayout(&lastInputLayout);
     deviceContext->IAGetIndexBuffer(&indexBuffer, &format, &indexBufferOffset);
@@ -429,6 +434,7 @@ VOID Dx11Font::EndBatch( )
 
     // Set new state
     deviceContext->RSSetViewports(1, &viewport);
+    deviceContext->OMSetBlendState(TransparentBS, blendFactor, 0xFFFFFFFF);
     deviceContext->OMSetRenderTargets(1, &RenderTarget, NULL);
     deviceContext->RSSetState(RasterizerState);
     deviceContext->IASetInputLayout( inputLayout );
@@ -458,6 +464,7 @@ VOID Dx11Font::EndBatch( )
     }
 
     // Restore device state
+    deviceContext->OMSetBlendState(m_pUILastBlendState, m_LastBlendFactor, m_LastBlendMask);
     deviceContext->RSSetState(lastRasterizerState);
     deviceContext->IASetInputLayout(lastInputLayout);
     deviceContext->IASetIndexBuffer(indexBuffer, format, indexBufferOffset);
@@ -474,15 +481,10 @@ VOID Dx11Font::EndBatch( )
 }
 
 
-VOID
-Dx11Font::DrawString()
+VOID Dx11Font::DrawString()
 {
-    float blendFactor[ 4 ] = { 1.0f };
-
-    deviceContext->OMSetBlendState(TransparentBS, blendFactor, 0xFFFFFFFF);
     BeginBatch( shaderResourceView );
     EndBatch( );
-    deviceContext->OMSetBlendState(0, blendFactor, 0xFFFFFFFF);
 }
 
 
