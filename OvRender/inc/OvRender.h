@@ -53,5 +53,8 @@ OvCreateOverlay( OV_RENDER RenderFunction );
 VOID
 OvCreateOverlayEx( OV_HOOK_PARAMS* HookParameters );
 
+extern UINT32 BackBufferWidth;
+extern UINT32 BackBufferHeight;
+
 
 #endif

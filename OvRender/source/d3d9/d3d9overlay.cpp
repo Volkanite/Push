@@ -11,8 +11,6 @@ Dx9Font* Dx9OvFont;
 extern Dx9Overlay* D3D9Overlay;
 IDirect3DDevice9* Dx9OvDevice;
 OV_WINDOW_MODE D3D9Hook_WindowMode;
-UINT32 BackBufferWidth;
-UINT32 BackBufferHeight;
 UINT32 BackBufferCount;
 
 VOID Log(const wchar_t* Format, ...);

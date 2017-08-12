@@ -42,10 +42,11 @@ ID3D11VertexShader*                     D3D11Font_VertexShader = NULL;
 ID3D11PixelShader*                      D3D11Font_PixelShader = NULL;
 ID3D11RasterizerState*                  RasterizerState;
 ID3D11RenderTargetView  *RenderTarget;
-extern ID3D11Texture2D *BackBuffer;
-extern D3D11_TEXTURE2D_DESC rtv_desc;
 
-BOOLEAN                                 Initialized;
+extern ID3D11Texture2D *BackBuffer;
+extern D3D11_TEXTURE2D_DESC BackBufferDescription;
+
+BOOLEAN Initialized;
 
 
 #define START_CHAR 33
@@ -485,8 +486,8 @@ Dx11Font::DrawString()
 VOID Dx11Font::Begin()
 {
     D3D11_VIEWPORT vp2 = { 0 };
-    vp2.Width = (float)rtv_desc.Width;
-    vp2.Height = (float)rtv_desc.Height;
+    vp2.Width = (float)BackBufferDescription.Width;
+    vp2.Height = (float)BackBufferDescription.Height;
     vp2.MaxDepth = 1.f;
 
     deviceContext->RSSetViewports(1, &vp2);

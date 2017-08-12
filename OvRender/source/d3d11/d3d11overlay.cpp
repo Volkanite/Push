@@ -18,9 +18,9 @@ typedef struct _D3DLOCKED_RECT
 #include "d3d11font.h"
 
 
-Dx11Font        *Dx11OvFont;
-ID3D11Texture2D *BackBuffer;
-D3D11_TEXTURE2D_DESC rtv_desc;
+Dx11Font            *Dx11OvFont;
+ID3D11Texture2D     *BackBuffer;
+D3D11_TEXTURE2D_DESC BackBufferDescription;
 
 
 Dx11Overlay::Dx11Overlay(
@@ -31,7 +31,10 @@ Dx11Overlay::Dx11Overlay(
     ID3D11Device *device;
 
     SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&BackBuffer);
-    BackBuffer->GetDesc(&rtv_desc);
+    BackBuffer->GetDesc(&BackBufferDescription);
+
+    BackBufferWidth = BackBufferDescription.Width;
+    BackBufferHeight = BackBufferDescription.Height;
     
     SwapChain->GetDevice(__uuidof(ID3D11Device), (void **)&device);
 
