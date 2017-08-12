@@ -19,8 +19,8 @@ typedef struct _D3DLOCKED_RECT
 
 
 Dx11Font            *Dx11OvFont;
-ID3D11Texture2D     *BackBuffer;
-D3D11_TEXTURE2D_DESC BackBufferDescription;
+ID3D11Texture2D *BackBuffer;
+ID3D11RenderTargetView  *RenderTarget;
 
 
 Dx11Overlay::Dx11Overlay(
@@ -29,17 +29,25 @@ Dx11Overlay::Dx11Overlay(
     )
 {
     ID3D11Device *device;
+    
+    D3D11_TEXTURE2D_DESC BackBufferDescription;
 
     SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&BackBuffer);
     BackBuffer->GetDesc(&BackBufferDescription);
 
     BackBufferWidth = BackBufferDescription.Width;
     BackBufferHeight = BackBufferDescription.Height;
-    
+
     SwapChain->GetDevice(__uuidof(ID3D11Device), (void **)&device);
+
+    device->CreateRenderTargetView(BackBuffer, NULL, &RenderTarget);
+
+    BackBuffer->Release();
 
     Dx11OvFont = new Dx11Font( device );
     UserRenderFunction = RenderFunction;
+
+    
 }
 
 

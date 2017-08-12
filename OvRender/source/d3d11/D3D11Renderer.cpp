@@ -41,10 +41,11 @@ ID3D10Texture2D*                        m_texture10;
 ID3D11VertexShader*                     D3D11Font_VertexShader = NULL;
 ID3D11PixelShader*                      D3D11Font_PixelShader = NULL;
 ID3D11RasterizerState*                  RasterizerState;
-ID3D11RenderTargetView  *RenderTarget;
 
-extern ID3D11Texture2D *BackBuffer;
-extern D3D11_TEXTURE2D_DESC BackBufferDescription;
+extern ID3D11RenderTargetView  *RenderTarget;
+
+extern UINT32 BackBufferWidth;
+extern UINT32 BackBufferHeight;
 
 BOOLEAN Initialized;
 
@@ -295,8 +296,6 @@ BOOLEAN Dx11Font::InitD3D11Sprite( )
     HeapHandle = GetProcessHeap();
     Sprites = (Sprite*) RtlAllocateHeap(HeapHandle, 0, sizeof(Sprite));
 
-    device->CreateRenderTargetView(BackBuffer, NULL, &RenderTarget);
-
     Initialized = TRUE;
 
     return TRUE;
@@ -412,9 +411,11 @@ VOID Dx11Font::EndBatch( )
     float                   m_LastBlendFactor[4];
     UINT                    m_LastBlendMask;
     float blendFactor[4] = { 1.0f };
+    ID3D11RenderTargetView *pRenderTargetViews[1];
+    ID3D11DepthStencilView *pDepthStencilView;
 
-    viewport.Width = (float)BackBufferDescription.Width;
-    viewport.Height = (float)BackBufferDescription.Height;
+    viewport.Width = (float)BackBufferWidth;
+    viewport.Height = (float)BackBufferHeight;
     viewport.MaxDepth = 1.f;
 
     ScreenWidth = viewport.Width;
@@ -425,6 +426,7 @@ VOID Dx11Font::EndBatch( )
 
     // Save device state
     deviceContext->OMGetBlendState(&m_pUILastBlendState, m_LastBlendFactor, &m_LastBlendMask);
+    deviceContext->OMGetRenderTargets(1, pRenderTargetViews, &pDepthStencilView);
     deviceContext->RSGetState(&lastRasterizerState);
     deviceContext->IAGetInputLayout(&lastInputLayout);
     deviceContext->IAGetIndexBuffer(&indexBuffer, &format, &indexBufferOffset);
@@ -465,6 +467,7 @@ VOID Dx11Font::EndBatch( )
 
     // Restore device state
     deviceContext->OMSetBlendState(m_pUILastBlendState, m_LastBlendFactor, m_LastBlendMask);
+    deviceContext->OMSetRenderTargets(1, pRenderTargetViews, pDepthStencilView);
     deviceContext->RSSetState(lastRasterizerState);
     deviceContext->IASetInputLayout(lastInputLayout);
     deviceContext->IASetIndexBuffer(indexBuffer, format, indexBufferOffset);
