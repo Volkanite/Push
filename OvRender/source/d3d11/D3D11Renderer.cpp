@@ -395,9 +395,8 @@ Dx11Font::DrawBatch(
 
 VOID Dx11Font::EndBatch( )
 {
-    UINT viewportCount = 1, stride, offset, spritesToDraw;
+    UINT stride, offset, spritesToDraw;
     UINT startIndex;
-    D3D11_VIEWPORT vp;
     ID3D11Buffer* vertexBuffer;
     UINT vertexBufferStride;
     UINT vertexBufferOffset;
@@ -408,11 +407,14 @@ VOID Dx11Font::EndBatch( )
     D3D11_PRIMITIVE_TOPOLOGY lastTopology;
     ID3D11RasterizerState* lastRasterizerState;
     ID3D11PixelShader *pixelShader;
+    D3D11_VIEWPORT viewport = { 0 };
 
-    deviceContext->RSGetViewports(&viewportCount, &vp);
+    viewport.Width = (float)BackBufferDescription.Width;
+    viewport.Height = (float)BackBufferDescription.Height;
+    viewport.MaxDepth = 1.f;
 
-    ScreenWidth  = vp.Width;
-    ScreenHeight = vp.Height;
+    ScreenWidth = viewport.Width;
+    ScreenHeight = viewport.Height;
 
     stride = sizeof( SpriteVertex );
     offset = 0;
@@ -426,6 +428,7 @@ VOID Dx11Font::EndBatch( )
     deviceContext->PSGetShader(&pixelShader, NULL, 0);
 
     // Set new state
+    deviceContext->RSSetViewports(1, &viewport);
     deviceContext->OMSetRenderTargets(1, &RenderTarget, NULL);
     deviceContext->RSSetState(RasterizerState);
     deviceContext->IASetInputLayout( inputLayout );
@@ -485,13 +488,6 @@ Dx11Font::DrawString()
 
 VOID Dx11Font::Begin()
 {
-    D3D11_VIEWPORT vp2 = { 0 };
-    vp2.Width = (float)BackBufferDescription.Width;
-    vp2.Height = (float)BackBufferDescription.Height;
-    vp2.MaxDepth = 1.f;
-
-    deviceContext->RSSetViewports(1, &vp2);
-
     NumberOfSprites = 0;
 }
 

@@ -129,7 +129,7 @@ VOID Dx9Overlay_Reset( D3DPRESENT_PARAMETERS* PresentationParameters )
     UpdatePresentationParameters(PresentationParameters);
 }
 
-
+int debugInt = 1;
 VOID Dx9OvRender( IDirect3DDevice9* Device )
 {
     IDirect3DSurface9 *renderTarget = NULL;
@@ -159,7 +159,20 @@ VOID Dx9OvRender( IDirect3DDevice9* Device )
 
     if (backBufferDesc.Width != 1 && backBufferDesc.Height != 1)
     {
+        D3DVIEWPORT9 viewportNew = { 0 };
+
+        viewportNew.Width = backBufferDesc.Width;
+        viewportNew.Height = backBufferDesc.Height;
+        viewportNew.MaxZ = 1.f;
+
+        Device->SetViewport(&viewportNew);
         Device->SetRenderTarget(0, backBuffer);
+
+        if (debugInt++ % 80 == 0)
+        {
+            Log(L"viewportOld: %i X %i", viewport.Width, viewport.Height);
+            Log(L"viewportNew: %i X %i", viewportNew.Width, viewportNew.Height);
+        }
     }
         
     // Render our stuff.
