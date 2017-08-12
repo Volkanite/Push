@@ -37,10 +37,6 @@ Font::Font()
     m_dwSpacing            = 0;
     ScreenWidth     = 0.0f ;
     ScreenHeight    = 0.0f ;
-    NumberOfSprites = 0;
-    SpriteListSize = 0;
-    Sprites = NULL;
-    HeapHandle = NULL;
 }
 
 
@@ -249,8 +245,13 @@ Font::GetTextExtent( TCHAR* strText, SIZE* pSize )
 }
 
 
-VOID
-Font::AddSprite( Sprite *sprite )
+UINT  NumberOfSprites;
+UINT  SpriteListSize;
+Sprite* Sprites;
+VOID*   HeapHandle;
+
+
+VOID AddSprite( Sprite *sprite )
 {
     if ( (NumberOfSprites + 1) * sizeof(Sprite) > SpriteListSize )
         // resize sprite list
@@ -348,7 +349,7 @@ Font::BuildSpriteQuad( Sprite *sprite, SpriteVertex v[ 4 ] )
 }
 
 
-VOID Font::Draw( RECT* destinationRect, RECT* sourceRect, XMCOLOR color )
+VOID Draw( RECT* destinationRect, RECT* sourceRect, XMCOLOR color )
 {
     Sprite sprite;
     sprite.SrcRect = *sourceRect;
@@ -359,6 +360,30 @@ VOID Font::Draw( RECT* destinationRect, RECT* sourceRect, XMCOLOR color )
     sprite.Scale = 1.0f;
 
     AddSprite(&sprite);
+}
+
+
+void renderer_draw_area(INT32 dx, INT32 dy, INT32 dw, INT32 dh, INT32 sx, INT32 sy, INT32 sw, INT32 sh, UINT32 Color)
+{
+    RECT rect;
+
+    rect.left = dx;
+    rect.top = dy;
+    rect.right = dx + dw;
+    rect.bottom = dy + dh;
+
+    RECT rect2;
+
+    rect.left = sx;
+    rect.top = sy;
+    rect.right = sx + sw;
+    rect.bottom = sy + sh;
+
+    XMCOLOR color;
+
+    color.c = Color;
+
+    Draw(&rect, &rect2, color);
 }
 
 

@@ -55,10 +55,6 @@ public:
     FLOAT   m_fTexCoords[ (NUMBER_OF_CHARACTERS+1) - 32 ][4];
     FLOAT   ScreenWidth;
     FLOAT   ScreenHeight;
-    UINT  NumberOfSprites;
-    UINT  SpriteListSize;
-    Sprite* Sprites;
-    VOID*   HeapHandle;
     int posX;
     int posY;
 
@@ -68,7 +64,7 @@ public:
     VOID AddSprite( Sprite *sprite );
     VOID BuildSpriteQuad( Sprite *sprite, SpriteVertex v[ 4 ] );
     VOID AddString(WCHAR *text, DWORD Color);
-    VOID Draw(RECT* destinationRect, RECT* sourceRect, XMCOLOR color);
+    //VOID Draw(RECT* destinationRect, RECT* sourceRect, XMCOLOR color);
     VOID DrawText(FLOAT sx, FLOAT sy, DWORD Color, WCHAR* Text);
 
     virtual DWORD GetMaxTextureWidth() = 0;
@@ -76,3 +72,7 @@ public:
     virtual VOID LockTexture( D3DLOCKED_RECT *pLockedRect ) = 0;
     virtual VOID UnlockTexture() = 0;
 };
+
+extern VOID*   HeapHandle;
+extern Sprite* Sprites;
+extern UINT  NumberOfSprites;
