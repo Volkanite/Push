@@ -51,6 +51,12 @@ Dx11Overlay::Dx11Overlay(
 }
 
 
+Dx11Overlay::~Dx11Overlay()
+{
+    RenderTarget->Release();
+}
+
+
 VOID Dx11Overlay::DrawText( WCHAR* Text )
 {
     DrawText(Text, 0xFFFFFF00);

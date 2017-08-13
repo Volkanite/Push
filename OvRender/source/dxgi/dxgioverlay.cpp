@@ -62,6 +62,12 @@ VOID IDXGISwapChain_PresentCallback( IDXGISwapChain* SwapChain )
 
 VOID IDXGISwapChain_ResizeBuffersCallback( IDXGISwapChain* SwapChain )
 {
+    if (DxgiOvDx11Overlay)
+    {
+        DxgiOvDx11Overlay->~Dx11Overlay();
+        DxgiOvDx11Overlay = NULL;
+    }
+
     DxgiOverlayInitialized = FALSE;
 }
 

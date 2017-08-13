@@ -5,6 +5,7 @@ class Dx11Overlay : public OvOverlay
 {
 public:
     Dx11Overlay( IDXGISwapChain* SwapChain, OV_RENDER RenderFunction );
+    ~Dx11Overlay();
 
     // Standard functions
     VOID DrawText( WCHAR* Text );
