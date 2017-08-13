@@ -11,7 +11,7 @@ SlOverlayMenu* Menu;
 MenuVars MenuOsd[30];
 MenuVars MenuGpu[10];
 MenuVars Diagnostics[5];
-MenuVars D3DTweaks[5];
+MenuVars D3DTweaks[10];
 MenuVars Process[5];
 
 WCHAR* GroupOpt[] = {L">", L"<"};
