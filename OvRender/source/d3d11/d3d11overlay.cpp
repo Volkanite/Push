@@ -53,7 +53,11 @@ Dx11Overlay::Dx11Overlay(
 
 Dx11Overlay::~Dx11Overlay()
 {
-    RenderTarget->Release();
+    if (RenderTarget)
+    {
+        RenderTarget->Release();
+        RenderTarget = 0;
+    }
 }
 
 

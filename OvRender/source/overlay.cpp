@@ -36,9 +36,6 @@ OvOverlay::Render()
 }
 
 
-VOID Log(const wchar_t* Format, ...);
-
-
 ULONG __stdcall CreateOverlay( LPVOID Param )
 {
     EnterCriticalSection(&OvCriticalSection);

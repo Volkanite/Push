@@ -481,6 +481,7 @@ VOID Dx11Font::EndBatch( )
     SAFE_RELEASE(vertexBuffer);
     SAFE_RELEASE(lastInputLayout);
     SAFE_RELEASE(pixelShader);
+    SAFE_RELEASE(pRenderTargetViews[0]);
 }
 
 
