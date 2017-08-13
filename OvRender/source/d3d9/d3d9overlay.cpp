@@ -129,7 +129,7 @@ VOID Dx9Overlay_Reset( D3DPRESENT_PARAMETERS* PresentationParameters )
     UpdatePresentationParameters(PresentationParameters);
 }
 
-int debugInt = 1;
+
 VOID Dx9OvRender( IDirect3DDevice9* Device )
 {
     IDirect3DSurface9 *renderTarget = NULL;
@@ -159,19 +159,13 @@ VOID Dx9OvRender( IDirect3DDevice9* Device )
 
     if (backBufferDesc.Width != 1 && backBufferDesc.Height != 1)
     {
-        D3DVIEWPORT9 viewportNew = { 0 };
-
-        viewportNew.Width = backBufferDesc.Width;
-        viewportNew.Height = backBufferDesc.Height;
-        viewportNew.MaxZ = 1.f;
-
-        Device->SetViewport(&viewportNew);
         Device->SetRenderTarget(0, backBuffer);
 
-        if (debugInt++ % 80 == 0)
+        // quick fix for black borders that don't update
+        if (viewport.Height < backBufferDesc.Height)
         {
-            Log(L"viewportOld: %i X %i", viewport.Width, viewport.Height);
-            Log(L"viewportNew: %i X %i", viewportNew.Width, viewportNew.Height);
+            D3DRECT rec = { 0, 0, backBufferDesc.Width, (backBufferDesc.Height - viewport.Height) / 2 };
+            Device->Clear(1, &rec, D3DCLEAR_TARGET, D3DCOLOR_ARGB(255, 0, 0, 0), 0, 0);
         }
     }
         
