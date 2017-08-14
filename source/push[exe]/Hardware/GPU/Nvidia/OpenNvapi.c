@@ -133,7 +133,9 @@ UINT8 OpenNvapi_GetTemperature()
 
 UINT8 OpenNvapi_GetLoad()
 {
-    NVAPI_PRIVATE_USAGE_DATA usageData = { 0 };
+    NVAPI_PRIVATE_USAGE_DATA usageData;
+
+    Memory_Clear(&usageData, sizeof(NVAPI_PRIVATE_USAGE_DATA));
     
     usageData.Header.Dummy1 = 0x4E564441;
     usageData.Header.Dummy2 = 0x10002;
