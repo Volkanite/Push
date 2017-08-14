@@ -2,12 +2,12 @@
 
 #include "..\gpu.h"
 #include "..\d3dkmt.h"
-
+#include "nvapi.h"
 
 #define NVAPI_PRIVATE_MEMORY_DATA_IOCTL 0x1000012
 #define NVAPI_PRIVATE_USAGE_DATA_IOCTL  0x7000060
 
-
+#pragma pack(push,1)
 typedef struct _NVAPI_PRIVATE_DATA_HEADER
 {
     DWORD Dummy1;
@@ -21,7 +21,8 @@ typedef struct _NVAPI_PRIVATE_DATA_HEADER
 typedef struct _NVAPI_PRIVATE_USAGE_DATA
 {
     NVAPI_PRIVATE_DATA_HEADER Header;
-    BYTE Dummy[164];
+	DWORD Dummy1[8];
+	UINT32 Usage[NVAPI_MAX_USAGES_PER_GPU];
 
 }NVAPI_PRIVATE_USAGE_DATA; //184 bytes
 
@@ -35,7 +36,7 @@ typedef struct _NVAPI_PRIVATE_MEMORY_DATA
     BYTE Dummy8[16];
 
 }NVAPI_PRIVATE_MEMORY_DATA; //76 bytes
-
+#pragma pack(pop)
 
 UINT16 OpenNvapi_GetEngineClock()
 {
@@ -146,11 +147,13 @@ UINT8 OpenNvapi_GetLoad()
     usageData.Header.Size = sizeof(NVAPI_PRIVATE_USAGE_DATA);
     usageData.Header.Dummy3 = 0x4E562A2A; 
     usageData.Header.ControlCode = NVAPI_PRIVATE_USAGE_DATA_IOCTL;
+	
+	usageData.Dummy1[7] = 0x100;
 
     D3DKMT_GetPrivateDriverData(
         &usageData,
         sizeof(NVAPI_PRIVATE_USAGE_DATA)
         );
 
-    return 0;
+	return usageData.Usage[NVAPI_USAGE_TARGET_GPU];
 }
