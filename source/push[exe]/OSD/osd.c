@@ -105,18 +105,31 @@ VOID OSD_Refresh()
                     dynamicFormat = (OSD_DYNAMIC_FORMAT) OsdItems[i].DynamicFormatPtr;
 
                     dynamicFormat(OsdItems[i].Value2 ? OsdItems[i].Value2 : 0, OsdItems[i].Text);
+
+                    String_Concatenate(OsdItems[i].Text, L"\n");
                 }
                 else if (OsdItems[i].DisplayFormatPtr)
                 {
-                    String_Format(
-                        OsdItems[i].Text,
-                        20,
+                    wchar_t buffer[260];
+                    int charactersWritten;
+
+                    charactersWritten = String_Format(
+                        buffer,
+                        260,
                         (WCHAR*) OsdItems[i].DisplayFormatPtr,
                         OsdItems[i].Value2 ? OsdItems[i].Value2 : OsdItems[i].Value
                         );
-                }
 
-                String_Concatenate(OsdItems[i].Text, L"\n");
+                    String_CopyN(OsdItems[i].Text, buffer, 20);
+
+                    OsdItems[i].Text[18] = L'\0';
+                    OsdItems[i].Text[19] = L'\n';
+
+                    if (charactersWritten > 18)
+                    {
+                        Log(L"OSD_ITEM::Text buffer is too small for %s", buffer);
+                    }
+                }
             }
 
             if (PushSharedMemory->Overloads & OsdItems[i].Flag)
