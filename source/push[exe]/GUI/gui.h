@@ -1,3 +1,6 @@
+#ifndef GUI_H
+#define GUI_H
+
 #include "push.h"
 
 
@@ -113,6 +116,8 @@ VOID CreateControl(
 #include "main.h"
 #include "copy.h"
 #include "cache.h"
+
+#endif //GUI_H
 
 
 

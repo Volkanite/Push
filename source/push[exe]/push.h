@@ -3,7 +3,6 @@
 
 #include <sl.h>
 #include <pushbase.h>
-#include <hardware.h>
 
 
 ///
@@ -218,5 +217,13 @@ extern TYPE__wtoi       _wtoi;
 extern TYPE_memcmp      ntdll_memcmp;
 extern TYPE_strcmp      ntdll_strcmp;
 
+#include <hardware.h>
+#include <gui.h>
+#include <ring0.h>
+#include <file.h>
+#include <ramdisk.h>
+#include <mij.h>
+#include <driver.h>
+#include <osd.h>
 
 #endif //PUSH_H

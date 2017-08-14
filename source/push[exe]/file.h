@@ -1,3 +1,6 @@
+#ifndef FILE_H
+#define FILE_H
+
 typedef enum{
 
     SCOPE_CACHE_ONLY,
@@ -50,3 +53,5 @@ VOID File_Rename(
     WCHAR* FilePath,
     WCHAR* NewFileName
     );
+
+#endif //FILE_H

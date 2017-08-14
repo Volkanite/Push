@@ -1,21 +1,4 @@
-#include <sl.h>
-#include <slresource.h>
-#include <slregistry.h>
-#include <pushbase.h>
-#include <gui.h>
-#include <osd.h>
-#include <slprocess.h>
-#include <sldebug.h>
-
-#include "push.h"
-#include "ramdisk.h"
-#include "Hardware\hardware.h"
-#include "Hardware\disk.h"
-#include "batch.h"
-#include "ring0.h"
-#include "file.h"
-#include "driver.h"
-#include "mij.h"
+#include <push.h>
 
 
 WCHAR g_szPrevGame[260];
@@ -1151,6 +1134,7 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                 else if (String_Compare(buffer, L"UpdateClocks") == 0)
                 {
                     Adl_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax, 2);
+					//GPU_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax);
                     Adl_SetMemoryClock(PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax, 2);
                     Adl_SetVoltage(PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax);
 

@@ -18,6 +18,7 @@
 #include <slprocess.h>
 #include <slclipboard.h>
 #include <slregistry.h>
+#include <slresource.h>
 
 #endif //SL_H
 

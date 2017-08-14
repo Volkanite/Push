@@ -1,3 +1,6 @@
+#include <disk.h>
+
+
 #define REGISTER_VENDORID   0x00
 #define REGISTER_CLASSCODE  0x08
 #define REGISTER_BAR0       0x10

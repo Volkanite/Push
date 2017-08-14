@@ -28,6 +28,6 @@ UINT8 GPU_GetLoad();
 UINT64 GPU_GetTotalMemory();
 UINT64 GPU_GetFreeMemory();
 
-extern BOOLEAN DiskMonitorInitialized;
+VOID GPU_SetEngineClock( int Frequency );
 
 #endif //GPU_H

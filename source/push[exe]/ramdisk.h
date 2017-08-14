@@ -1,3 +1,6 @@
+#ifndef RAMDISK_H
+#define RAMDISK_H
+
 //
 // Callback command types
 //
@@ -66,6 +69,8 @@ FindFreeDriveLetter();
 #ifdef __cplusplus
 }
 #endif
+
+#endif //RAMDISK_H
 
 
 
