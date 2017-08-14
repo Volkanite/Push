@@ -464,7 +464,8 @@ VOID RefreshHardwareInfo()
 {
     GPU_INFO gpuInfo;
     MC_TIMING_REPORT timingReport;
-
+    
+    Memory_Clear(&gpuInfo, sizeof(GPU_INFO));
     GPU_GetInfo(&gpuInfo);
 
     PushSharedMemory->HarwareInformation.Processor.Speed                = CPU_GetSpeed();
