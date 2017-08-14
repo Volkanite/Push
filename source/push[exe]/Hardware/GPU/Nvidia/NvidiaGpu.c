@@ -56,7 +56,8 @@ typedef enum _GPU_INTERFACE
 VOID NvidiaGpu_Initialize()
 {
     GPU_INTERFACE gpuInterface = GPU_INTERFACE_PURE;
-
+    
+    InitGeForce();
     Nvapi_Initialize();
     D3DKMTInitialize();
 }
@@ -90,6 +91,12 @@ UINT16 NvidiaGpu_GetMemoryClock()
 }
 
 
+UINT8 NvidiaGpu_GetTemperature()
+{
+    return ReadGpuRegister(0x20400);
+}
+
+
 UINT64 NvidiaGpu_GetTotalMemory()
 {
     return ReadGpuRegister(0x10020c);
@@ -99,15 +106,6 @@ UINT64 NvidiaGpu_GetTotalMemory()
 UINT64 NvidiaGpu_GetFreeMemory()
 {
     return OpenNvapi_GetFreeMemory();
-}
-
-
-UINT8 NvidiaGpu_GetTemperature()
-{
-    if (!InitGeForce())
-        return 0;
-
-    return NvtdGetTemperature();
 }
 
 
