@@ -50,6 +50,7 @@ VOID GPU_Initialize( ULONG PciAddress )
         break;
     case NVIDIA:
         GPU_VendorId = NVIDIA;
+        NvidiaGpu_Initialize();
         break;
     case INTEL:
         GPU_VendorId = INTEL;
@@ -116,7 +117,15 @@ UINT64 GPU_GetFreeMemory()
 
 UINT16 GPU_GetMaximumEngineClock()
 { 
-    return AmdGpu_GetEngineClockMax();
+    switch (GPU_VendorId)
+    {
+    case AMD:
+        return AmdGpu_GetEngineClockMax();
+    case NVIDIA:
+        return NvidiaGpu_GetEngineClockMax();
+    default:
+        return 0;
+    }
 }
 
 

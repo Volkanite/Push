@@ -143,7 +143,7 @@ UINT8 NvidiaGpu_GetLoad()
 }
 
 
-UINT16 NvidiaGpu_GetMaxEngineClock()
+UINT16 NvidiaGpu_GetEngineClockMax()
 {
     return Nvapi_GetMaxEngineClock();
 }
