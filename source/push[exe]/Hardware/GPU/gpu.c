@@ -82,7 +82,7 @@ VOID GPU_GetInfo( GPU_INFO* Info )
         break;
     case NVIDIA:
         Info->EngineClock = NvidiaGpu_GetEngineClock();
-		Info->MemoryClock = NvidiaGpu_GetMemoryClock();
+        Info->MemoryClock = NvidiaGpu_GetMemoryClock();
         Info->Load = NvidiaGpu_GetLoad();
         Info->Temperature = NvidiaGpu_GetTemperature();
         Info->FanSpeed = 0;
@@ -155,4 +155,43 @@ UINT8 GPU_GetLoad(){ return 0; }
 VOID GPU_ForceMaximumClocks()
 {
     AmdGpu_ForceMaximumClocks();
+}
+
+
+VOID GPU_SetEngineClock( int Frequency )
+{
+    switch (GPU_VendorId)
+    {
+    case AMD:
+        Adl_SetEngineClock(Frequency, 2);
+        break;
+    case NVIDIA:
+    default:;
+    }
+}
+
+
+VOID GPU_SetMemoryClock( int Frequency )
+{
+    switch (GPU_VendorId)
+    {
+    case AMD:
+        Adl_SetMemoryClock(Frequency, 2);
+        break;
+    case NVIDIA:
+    default:;
+    }
+}
+
+
+VOID GPU_SetVoltage( int Millivolts )
+{
+    switch (GPU_VendorId)
+    {
+    case AMD:
+        Adl_SetVoltage(Millivolts);
+        break;
+    case NVIDIA:
+    default:;
+    }
 }

@@ -15,4 +15,6 @@ UINT16 AmdGpu_GetVoltageMax();
 UINT64 AmdGpu_GetTotalMemory();
 UINT64 AmdGpu_GetFreeMemory();
 
+#include "adl.h"
+
 #endif //AMD_GPU_H
