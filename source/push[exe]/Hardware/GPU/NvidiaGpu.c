@@ -9,7 +9,7 @@
 #include "d3dkmt.h"
 
 
-BYTE GfCoreFamily = 0;
+BYTE CoreFamily;
 LONG    m_dwDiodeGainMul;
 LONG GetDiodeGainMul( DWORD coreFamily );
 BOOLEAN GfInitialized;
@@ -33,8 +33,8 @@ InitGeForce()
     if (GfInitialized)
         return TRUE;
 
-    GfCoreFamily = (ReadGpuRegister(0) >> 20) & 0xff;
-    //m_dwDiodeGainMul = GetDiodeGainMul(GfCoreFamily);
+    CoreFamily = (ReadGpuRegister(0) >> 20) & 0xff;
+
     GfInitialized = TRUE;
 
     NvtdInitialize();
@@ -85,6 +85,23 @@ float nv50_get_memory_speed()
 }
 
 
+int nva8_get_core_clock()
+{
+    UINT32 P = 0, N = 0, M = 0;
+    UINT32 coef;
+        
+    coef = ReadGpuRegister(0x4204);
+
+    M = (coef & 0x000000ff) >> 0;
+    N = (coef & 0x0000ff00) >> 8;
+    P = (coef & 0x003f0000) >> 16;
+
+    int freq = 405000 * N / (M * P);
+
+    return freq / 1000;
+}
+
+
 typedef enum _GPU_INTERFACE
 {
     GPU_INTERFACE_NVAPI,
@@ -106,7 +123,15 @@ VOID NvidiaGpu_Initialize()
 
 UINT16 NvidiaGpu_GetEngineClock()
 {
-    return nv50_get_gpu_speed();
+    switch (CoreFamily)
+    {
+    case 0xA8:
+        return nva8_get_core_clock();
+    default:
+        return nv50_get_gpu_speed();
+        break;
+    }
+    
 }
 
 
