@@ -75,10 +75,6 @@ VOID GPU_GetInfo( GPU_INFO* Info )
 
         total = GPU_GetTotalMemory();
         free = GPU_GetFreeMemory();
-        used = total - free;
-
-        Info->MemoryUsed = used / 1048576;
-        Info->MemoryUsage = 100 * ((float)used / (float)total);
         break;
     case NVIDIA:
         Info->EngineClock = NvidiaGpu_GetEngineClock();
@@ -87,11 +83,19 @@ VOID GPU_GetInfo( GPU_INFO* Info )
         Info->Temperature = NvidiaGpu_GetTemperature();
         Info->FanSpeed = 0;
         Info->FanDutyCycle = NvidiaGpu_GetFanSpeed();
+
+        total = NvidiaGpu_GetTotalMemory();
+        free = NvidiaGpu_GetFreeMemory();
         break;
     default:
         return;
         break;
     }
+
+    used = total - free;
+
+    Info->MemoryUsed = used / 1048576;
+    Info->MemoryUsage = 100 * ((float)used / (float)total);
 }
 
 
