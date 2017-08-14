@@ -214,6 +214,11 @@ VOID ProcessOptions( MenuItems* Item )
         PushSharedMemory->Overloads = 0;
         PushSharedMemory->OSDFlags = 0;
         PushSharedMemory->OSDFlags |= OSD_FPS;
+
+        for (int i = 1; i < 20; i++)
+        {
+            MenuOsd[i].Var = 0;
+        }
         break;
 
     case FUNC_FORCEMAX:
