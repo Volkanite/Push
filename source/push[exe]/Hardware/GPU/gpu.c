@@ -81,6 +81,11 @@ VOID GPU_GetInfo( GPU_INFO* Info )
         Info->MemoryUsage = 100 * ((float)used / (float)total);
         break;
     case NVIDIA:
+        Info->EngineClock = NvidiaGpu_GetEngineClock();
+        Info->Load = NvidiaGpu_GetLoad();
+        Info->Temperature = NvidiaGpu_GetTemperature();
+        Info->FanSpeed = 0;
+        Info->FanDutyCycle = NvidiaGpu_GetFanSpeed();
         break;
     default:
         return;
