@@ -32,20 +32,17 @@
     <ClCompile Include="Hardware\CPU\cpu.c" />
     <ClCompile Include="Hardware\CPU\intel.c" />
     <ClCompile Include="Hardware\disk.c" />
-    <ClCompile Include="Hardware\GPU\adl.c" />
-    <ClCompile Include="Hardware\GPU\AmdGpu.c" />
+    <ClCompile Include="Hardware\GPU\AMD\adl.c" />
+    <ClCompile Include="Hardware\GPU\AMD\AmdGpu.c" />
     <ClCompile Include="Hardware\GPU\d3dkmt.c" />
     <ClCompile Include="Hardware\GPU\gpu.c" />
-    <ClCompile Include="Hardware\GPU\IntelGpu.c" />
-    <ClCompile Include="Hardware\GPU\nvapi.c" />
-    <ClCompile Include="Hardware\GPU\NvidiaGpu.c" />
-    <ClCompile Include="Hardware\GPU\NvThermalDiode\Context.c">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
-    </ClCompile>
-    <ClCompile Include="Hardware\GPU\NvThermalDiode\NVThermalDiode.cpp">
-      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CompileAsC</CompileAs>
-    </ClCompile>
-    <ClCompile Include="Hardware\GPU\OpenNvapi.c" />
+    <ClCompile Include="Hardware\GPU\Nvidia\nv50.c" />
+    <ClCompile Include="Hardware\GPU\Nvidia\nva8.c" />
+    <ClCompile Include="Hardware\GPU\Nvidia\nvapi.c" />
+    <ClCompile Include="Hardware\GPU\Nvidia\NvidiaGpu.c" />
+    <ClCompile Include="Hardware\GPU\Nvidia\NvThermalDiode\Context.c" />
+    <ClCompile Include="Hardware\GPU\Nvidia\NvThermalDiode\NvThermalDiode.cpp" />
+    <ClCompile Include="Hardware\GPU\Nvidia\OpenNvapi.c" />
     <ClCompile Include="Hardware\hardware.c" />
     <ClCompile Include="ini.c" />
     <ClCompile Include="math.c" />
@@ -80,16 +77,17 @@
     <ClInclude Include="Hardware\CPU\cpu.h" />
     <ClInclude Include="hardware\cpu\intel.h" />
     <ClInclude Include="Hardware\disk.h" />
-    <ClInclude Include="Hardware\GPU\adl.h" />
-    <ClInclude Include="Hardware\GPU\AmdGpu.h" />
+    <ClInclude Include="Hardware\GPU\AMD\adl.h" />
+    <ClInclude Include="Hardware\GPU\AMD\AmdGpu.h" />
     <ClInclude Include="Hardware\GPU\d3dkmt.h" />
     <ClInclude Include="Hardware\GPU\gpu.h" />
-    <ClInclude Include="Hardware\GPU\IntelGpu.h" />
-    <ClInclude Include="Hardware\GPU\nvapi.h" />
-    <ClInclude Include="Hardware\GPU\NvidiaGpu.h" />
-    <ClInclude Include="Hardware\GPU\NvThermalDiode\Context.h" />
-    <ClInclude Include="Hardware\GPU\NvThermalDiode\NvThermalDiode.h" />
-    <ClInclude Include="Hardware\GPU\OpenNvapi.h" />
+    <ClInclude Include="Hardware\GPU\Nvidia\nv50.h" />
+    <ClInclude Include="Hardware\GPU\Nvidia\nva8.h" />
+    <ClInclude Include="Hardware\GPU\Nvidia\nvapi.h" />
+    <ClInclude Include="Hardware\GPU\Nvidia\NvidiaGpu.h" />
+    <ClInclude Include="Hardware\GPU\Nvidia\NvThermalDiode\Context.h" />
+    <ClInclude Include="Hardware\GPU\Nvidia\NvThermalDiode\NvThermalDiode.h" />
+    <ClInclude Include="Hardware\GPU\Nvidia\OpenNvapi.h" />
     <ClInclude Include="Hardware\hardware.h" />
     <ClInclude Include="Hardware\vendors.h" />
     <ClInclude Include="mij.h" />

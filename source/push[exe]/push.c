@@ -1026,7 +1026,7 @@ INTBOOL __stdcall ConnectNamedPipe(
         );
 
 
-#include "Hardware\GPU\adl.h"
+#include "Hardware\GPU\AMD\adl.h"
 #define PIPE_ACCEPT_REMOTE_CLIENTS 0x00000000
 #define _ADDRESSOF(v)   ( &(v) )
 #define _INTSIZEOF(n)   ( (sizeof(n) + sizeof(int) - 1) & ~(sizeof(int) - 1) )

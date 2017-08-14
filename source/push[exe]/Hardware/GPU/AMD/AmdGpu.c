@@ -1,9 +1,7 @@
-#include <sl.h>
 #include <push.h>
-#include <hardware.h>
 #include "adl.h"
 #include "AmdGpu.h"
-#include "d3dkmt.h"
+#include "..\d3dkmt.h"
 
 
 #define R6XX_CONFIG_MEMSIZE 0x5428

@@ -1,7 +1,7 @@
 #ifndef AMD_GPU_H
 #define AMD_GPU_H
 
-#include "gpu.h"
+#include "..\gpu.h"
 
 
 

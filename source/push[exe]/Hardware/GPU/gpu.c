@@ -4,9 +4,9 @@
 #include <ring0.h>
 
 #include "gpu.h"
-#include "amdgpu.h"
-#include "nvidiagpu.h"
-#include "IntelGpu.h"
+#include "AMD\AmdGpu.h"
+#include "Nvidia\NvidiaGpu.h"
+#include "Intel\IntelGpu.h"
 #include "GPU\d3dkmt.h"
 
 
@@ -82,6 +82,7 @@ VOID GPU_GetInfo( GPU_INFO* Info )
         break;
     case NVIDIA:
         Info->EngineClock = NvidiaGpu_GetEngineClock();
+		Info->MemoryClock = NvidiaGpu_GetMemoryClock();
         Info->Load = NvidiaGpu_GetLoad();
         Info->Temperature = NvidiaGpu_GetTemperature();
         Info->FanSpeed = 0;

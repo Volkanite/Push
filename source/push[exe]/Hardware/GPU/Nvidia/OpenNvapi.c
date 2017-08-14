@@ -1,7 +1,7 @@
-#include <sl.h>
+#include <push.h>
 
-#include "gpu.h"
-#include "d3dkmt.h"
+#include "..\gpu.h"
+#include "..\d3dkmt.h"
 
 
 #define NVAPI_PRIVATE_MEMORY_DATA_IOCTL 0x1000012

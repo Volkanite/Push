@@ -1,5 +1,5 @@
-#include <sl.h>
-#include "Hardware\GPU\adl.h"
+#include <push.h>
+#include "Hardware\GPU\AMD\adl.h"
 
 #define WS_EX_TOPMOST 0x00000008L
 #define WM_USER                         0x0400

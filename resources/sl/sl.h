@@ -1,3 +1,6 @@
+#ifndef SL_H
+#define SL_H
+
 #include <sltypes.h>
 #include <psdk\psdk.h>
 #include <native\native.h>
@@ -15,4 +18,6 @@
 #include <slprocess.h>
 #include <slclipboard.h>
 #include <slregistry.h>
+
+#endif //SL_H
 
