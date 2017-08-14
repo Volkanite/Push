@@ -68,22 +68,25 @@ UINT16 NvidiaGpu_GetEngineClock()
     {
     case 0xA8:
         return nva8_get_core_clock();
+    case 0x50:
+        return nv50_get_core_clock();
     default:
-        return nv50_get_gpu_speed();
-        break;
+        return 0;
     }
 }
 
 
 UINT16 NvidiaGpu_GetMemoryClock()
 {
-	switch (CoreFamily)
-	{
-	case 0xA8:
-		return nva8_get_memory_clock();
-	default:
-		return nv50_get_memory_speed();
-	}
+    switch (CoreFamily)
+    {
+    case 0xA8:
+        return nva8_get_memory_clock();
+    case 0x50:
+        return nv50_get_memory_clock();
+    default:
+        return 0;
+    }
 }
 
 

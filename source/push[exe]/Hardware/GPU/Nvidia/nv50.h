@@ -1,2 +1,2 @@
-float nv50_get_gpu_speed();
-float nv50_get_memory_speed();
+float nv50_get_core_clock();
+float nv50_get_memory_clock();

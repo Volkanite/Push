@@ -23,7 +23,7 @@ float GetClock_nv50(int base_freq, unsigned int pll, unsigned int pll2)
 }
 
 
-float nv50_get_gpu_speed()
+float nv50_get_core_clock()
 {
     int pll = ReadGpuRegister(0x4028);
     int pll2 = ReadGpuRegister(0x402c);
@@ -33,7 +33,7 @@ float nv50_get_gpu_speed()
 }
 
 
-float nv50_get_memory_speed()
+float nv50_get_memory_clock()
 {
     int pll = ReadGpuRegister(0x4008);
     int pll2 = ReadGpuRegister(0x400c);
