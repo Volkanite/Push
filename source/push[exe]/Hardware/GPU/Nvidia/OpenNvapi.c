@@ -81,7 +81,9 @@ VOID OpenNvapi_ForceMaximumClocks()
 
 UINT64 OpenNvapi_GetTotalMemory()
 {
-    NVAPI_PRIVATE_MEMORY_DATA memoryData = { 0 };
+    NVAPI_PRIVATE_MEMORY_DATA memoryData;
+
+    Memory_Clear(&memoryData, sizeof(NVAPI_PRIVATE_MEMORY_DATA));
 
     memoryData.Header.Dummy1 = 0x4E564441;
     memoryData.Header.Dummy2 = 0x10002;
@@ -101,7 +103,9 @@ UINT64 OpenNvapi_GetTotalMemory()
 
 UINT64 OpenNvapi_GetFreeMemory()
 {
-    NVAPI_PRIVATE_MEMORY_DATA memoryData = { 0 };
+    NVAPI_PRIVATE_MEMORY_DATA memoryData;
+
+    Memory_Clear(&memoryData, sizeof(NVAPI_PRIVATE_MEMORY_DATA));
     
     memoryData.Header.Dummy1 = 0x4E564441;
     memoryData.Header.Dummy2 = 0x10002;
