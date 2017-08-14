@@ -191,7 +191,7 @@ UINT32 OSD_Initialize()
     
     OSD_AddItem(
         OSD_GPU_VRAM,
-        L"VRAM : %i MB",
+        L"GPU : %i MB",
         &hardware->DisplayDevice.FrameBuffer.Load,
         sizeof(UINT8),
         &hardware->DisplayDevice.FrameBuffer.Used,
