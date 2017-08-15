@@ -17,6 +17,7 @@ UINT32 FrameRate;
 UINT8 FrameLimit = 80; //80 fps
 UINT64 CyclesWaited;
 HANDLE RenderThreadHandle;
+UINT32 DisplayFrequency;
 
 VOID DebugRec();
 VOID InitializeKeyboardHook();
@@ -57,8 +58,7 @@ double GetPerformanceCounter()
 
 BOOLEAN IsGpuLag()
 {
-    if (PushSharedMemory->HarwareInformation.DisplayDevice.Load > 95
-        && PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock >= PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax)
+    if (PushSharedMemory->HarwareInformation.DisplayDevice.Load > 95)
     {
         return TRUE;
     }
@@ -66,7 +66,9 @@ BOOLEAN IsGpuLag()
     return FALSE;
 }
 
+
 double FrameTime;
+int debugInt = 1;
 VOID RunFrameStatistics()
 {
     static double newTickCount = 0.0, lastTickCount = 0.0,
@@ -84,9 +86,9 @@ VOID RunFrameStatistics()
         inited = TRUE;
 
         EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &devMode);
-        Log(L"dmDisplayFrequency %i", devMode.dmDisplayFrequency);
+
+        DisplayFrequency = devMode.dmDisplayFrequency;
         acceptableFrameTime = (double)1000 / (double)(devMode.dmDisplayFrequency - 1);
-        Log(L"acceptableFrameTime %f", acceptableFrameTime);
 
         if (PushSharedMemory->FrameLimit > 1)
             FrameLimit = PushSharedMemory->FrameLimit;
@@ -116,29 +118,6 @@ VOID RunFrameStatistics()
             PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage = PushGetMaxThreadUsage();
         //}
 
-        WCHAR buffer[100];
-
-        swprintf(buffer, 100, L"GetDiskResponseTime %i", GetCurrentProcessId());
-        CallPipe(buffer, &DiskResponseTime);
-
-        if (!DisableAutoOverclock && IsGpuLag())
-        {
-            if (PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax < PushSharedMemory->HarwareInformation.DisplayDevice.EngineOverclock)
-                Overclock(OC_ENGINE);
-
-            if (PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax < PushSharedMemory->HarwareInformation.DisplayDevice.MemoryOverclock)
-                Overclock(OC_MEMORY);
-
-            Log(L"E-Clk %i, E-ClkMax %i, E-OC %i, M-Clk %i, M-ClkMax %i, M-OC %i",
-                PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock,
-                PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax,
-                PushSharedMemory->HarwareInformation.DisplayDevice.EngineOverclock,
-                PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock,
-                PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax,
-                PushSharedMemory->HarwareInformation.DisplayDevice.MemoryOverclock
-                );
-        }
-
         RenderThreadHandle = GetCurrentThread();
     }
 
@@ -156,16 +135,6 @@ VOID RunFrameStatistics()
             PushSharedMemory->Overloads |= OSD_MTU;
 
         if (IsGpuLag()) PushSharedMemory->Overloads |= OSD_GPU_LOAD;
-
-        if ((PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock < PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax
-            || PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock < PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax)
-            && PushSharedMemory->HarwareInformation.DisplayDevice.Load > 90)
-        {
-            PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
-            PushSharedMemory->OSDFlags |= OSD_GPU_M_CLK;
-            PushSharedMemory->Overloads |= OSD_GPU_E_CLK;
-            PushSharedMemory->Overloads |= OSD_GPU_M_CLK;
-        }
 
         if (PushSharedMemory->HarwareInformation.Memory.Used > PushSharedMemory->HarwareInformation.Memory.Total)
             PushSharedMemory->Overloads |= OSD_RAM;
@@ -199,6 +168,24 @@ VOID RunFrameStatistics()
         //reset the timer
         oldTick2 = newTickCount;
         DebugRec();
+
+        // Lazy overclock
+        if (debugInt++ % DisplayFrequency == 0)
+        {
+            if (!DisableAutoOverclock && IsGpuLag())
+            {
+                PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
+                PushSharedMemory->OSDFlags |= OSD_GPU_M_CLK;
+                PushSharedMemory->Overloads |= OSD_GPU_E_CLK;
+                PushSharedMemory->Overloads |= OSD_GPU_M_CLK;
+
+                if (PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax < PushSharedMemory->HarwareInformation.DisplayDevice.EngineOverclock)
+                    Overclock(OC_ENGINE);
+
+                if (PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax < PushSharedMemory->HarwareInformation.DisplayDevice.MemoryOverclock)
+                    Overclock(OC_MEMORY);
+            }
+        }
     }
 
     FrameRate = (int) fps;
