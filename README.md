@@ -33,13 +33,7 @@ Help
 ----
 - [How to compile](https://github.com/Volkanite/Push/wiki/How-to-compile) <br>
 - [Ini settings](https://github.com/Volkanite/Push/wiki/ini-settings) <br>
-- [Description of on screen display items](https://github.com/Volkanite/Push/wiki/OSD-items) <br>
-
-Credits
--------
-
-- OvRender (https://github.com/Volkanite/OvRender)
-- DetourXS (https://github.com/DominicTobias/detourxs)
+- [Description of on screen display items](https://github.com/Volkanite/Push/wiki/OSD-items)
 
 Notes
 -----
