@@ -240,8 +240,6 @@ VOID RnRender( OvOverlay* Overlay )
     Osd_Draw( Overlay );
     MnuRender( Overlay );
     RunFrameStatistics();
-    //wchar_t bigbuff[260];
-    //swprintf(bigbuff, 260, L"FrameTime: %f", FrameTime);
-    //Overlay->DrawText(bigbuff);
+    
     //Overlay->DrawText(L"u can draw anything in this render loop!\n");
 }

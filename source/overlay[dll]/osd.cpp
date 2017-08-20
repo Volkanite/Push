@@ -3,12 +3,15 @@
 #include <stdio.h>
 
 #include "overlay.h"
-#include <OvRender.h>
+#include "osd.h"
+
 
 extern UINT32 BackBufferWidth;
 extern UINT32 BackBufferHeight;
 extern UINT32 BackBufferCount;
-BOOLEAN ShowGraphicsApi;
+extern double FrameTime;
+
+OSD_VARS Variables;
 
 
 /**
@@ -62,7 +65,7 @@ VOID Osd_Draw( OvOverlay* Overlay )
         }
     }
 
-    if (ShowGraphicsApi)
+    if (Variables.GraphicsApi)
     {
         switch (GraphicsApi)
         {
@@ -85,5 +88,12 @@ VOID Osd_Draw( OvOverlay* Overlay )
             Overlay->DrawText(L"API: D3D11");
             break;
         }
+    }
+
+    if (Variables.FrameTime)
+    {
+        wchar_t bigbuff[260];
+        swprintf(bigbuff, 260, L"FrameTime: %f", FrameTime);
+        Overlay->DrawText(bigbuff);
     }
 }

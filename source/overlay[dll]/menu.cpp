@@ -4,6 +4,7 @@
 #include <overlay.h>
 
 #include "kbhook.h"
+#include "osd.h"
 
 
 SlOverlayMenu* Menu;
@@ -36,7 +37,8 @@ extern OV_WINDOW_MODE D3D9Hook_WindowMode;
 extern BOOLEAN D3D9Hook_ForceReset;
 extern BOOLEAN DisableAutoOverclock;
 extern UINT8 FrameLimit;
-extern BOOLEAN ShowGraphicsApi;
+extern OSD_VARS Variables;
+
 
 #define ID_RESET            OSD_LAST_ITEM+1
 #define ID_FORCEMAX         OSD_LAST_ITEM+2
@@ -55,6 +57,7 @@ extern BOOLEAN ShowGraphicsApi;
 #define ID_OC               OSD_LAST_ITEM+15
 #define ID_FAN              OSD_LAST_ITEM+16
 #define ID_API              OSD_LAST_ITEM+17
+#define ID_FRAMETIME        OSD_LAST_ITEM+18
 
 
 //Add menu items to menu
@@ -118,6 +121,7 @@ VOID AddItems()
         Menu->AddItem(L"Frame Buffer count",      ItemOpt, &MenuOsd[i++], OSD_BUFFERS);
         Menu->AddItem(L"Resolution",              ItemOpt, &MenuOsd[i++], OSD_RESOLUTION);
         Menu->AddItem(L"Resfresh Rate",           ItemOpt, &MenuOsd[i++], OSD_REFRESH_RATE);
+        Menu->AddItem(L"Frame Time",              ItemOpt, &MenuOsd[i++], ID_FRAMETIME);
         Menu->AddItem(L"API",                     ItemOpt, &MenuOsd[i++], ID_API);
         Menu->AddItem(L"Time",                    ItemOpt, &MenuOsd[i++], OSD_TIME);
         Menu->AddItem(L"FPS",                     ItemOpt, &MenuOsd[i++], ID_KEEP_FPS);
@@ -380,11 +384,18 @@ VOID ProcessOptions( MenuItems* Item )
         }
         break;
 
+    case ID_FRAMETIME:
+        if (*Item->Var > 0)
+            Variables.FrameTime = TRUE;
+        else
+            Variables.FrameTime = FALSE;
+        break;
+
     case ID_API:
         if (*Item->Var > 0)
-            ShowGraphicsApi = TRUE;
+            Variables.GraphicsApi = TRUE;
         else
-            ShowGraphicsApi = FALSE;
+            Variables.GraphicsApi = FALSE;
         break;
 
     case ID_TERMINATE:
