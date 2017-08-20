@@ -199,6 +199,8 @@ VOID Dx9Overlay_Present( IDirect3DDevice9* Device )
         }
 
         initialized = TRUE;
+
+        GraphicsApi = API_D3D9;
     }
 }
 

@@ -22,6 +22,17 @@ typedef enum OV_WINDOW_MODE
 
 } OV_WINDOW_MODE;
 
+typedef enum OV_GRAPHICS_API
+{
+    API_OGL,
+    API_DDRAW,
+    API_D3D8,
+    API_D3D9,
+    API_D3D10,
+    API_D3D11
+    
+} OV_GRAPHICS_API;
+
 typedef struct OV_HOOK_PARAMS{
     OV_RENDER               RenderFunction;
     OV_VSYNC_OVERRIDE_MODE  VsyncOverrideMode;
@@ -57,6 +68,7 @@ VOID Log(const wchar_t* Format, ...);
 
 extern UINT32 BackBufferWidth;
 extern UINT32 BackBufferHeight;
+extern OV_GRAPHICS_API GraphicsApi;
 
 
 #endif

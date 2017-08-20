@@ -14,6 +14,7 @@ DDrawOverlay*   DirectDrawOverlay;
 
 UINT32 BackBufferWidth;
 UINT32 BackBufferHeight;
+OV_GRAPHICS_API GraphicsApi;
 
 extern CRITICAL_SECTION OvCriticalSection;
 

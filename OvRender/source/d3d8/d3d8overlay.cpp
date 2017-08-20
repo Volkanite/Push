@@ -20,6 +20,8 @@ VOID IDirect3DDevice8_PresentCallback(
 
         Dx8OvFont->InitDeviceObjects();
         Dx8OvFont->RestoreDeviceObjects();
+
+        GraphicsApi = API_D3D8;
     }
 
     OvDx8Overlay->Render();

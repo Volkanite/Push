@@ -8,6 +8,7 @@
 extern UINT32 BackBufferWidth;
 extern UINT32 BackBufferHeight;
 extern UINT32 BackBufferCount;
+BOOLEAN ShowGraphicsApi;
 
 
 /**
@@ -58,6 +59,31 @@ VOID Osd_Draw( OvOverlay* Overlay )
             || (osdItem->Threshold && osdItem->Value > osdItem->Threshold)) //is the item's value > it's threshold?
         {
             Overlay->DrawText(osdItem->Text, osdItem->Color);
+        }
+    }
+
+    if (ShowGraphicsApi)
+    {
+        switch (GraphicsApi)
+        {
+        case API_OGL:
+            Overlay->DrawText(L"API: OGL");
+            break;
+        case API_DDRAW:
+            Overlay->DrawText(L"API: DDRAW");
+            break;
+        case API_D3D8:
+            Overlay->DrawText(L"API: D3D8");
+            break;
+        case API_D3D9:
+            Overlay->DrawText(L"API: D3D9");
+            break;
+        case API_D3D10:
+            Overlay->DrawText(L"API: D3D10");
+            break;
+        case API_D3D11:
+            Overlay->DrawText(L"API: D3D11");
+            break;
         }
     }
 }

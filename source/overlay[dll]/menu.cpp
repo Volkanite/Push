@@ -36,23 +36,25 @@ extern OV_WINDOW_MODE D3D9Hook_WindowMode;
 extern BOOLEAN D3D9Hook_ForceReset;
 extern BOOLEAN DisableAutoOverclock;
 extern UINT8 FrameLimit;
+extern BOOLEAN ShowGraphicsApi;
 
-#define FUNC_RESET          OSD_LAST_ITEM+1
-#define FUNC_FORCEMAX       OSD_LAST_ITEM+2
-#define FUNC_ECLOCK         OSD_LAST_ITEM+3
-#define FUNC_MCLOCK         OSD_LAST_ITEM+4
-#define FUNC_VOLTAGE        OSD_LAST_ITEM+5
-#define FUNC_FILELOGGING    OSD_LAST_ITEM+6
-#define FUNC_FILEAUTOLOG    OSD_LAST_ITEM+7
-#define FUNC_WINDOWED       OSD_LAST_ITEM+8
-#define FUNC_KEEPACTIVE     OSD_LAST_ITEM+9
-#define FUNC_FRAMELIMITER   OSD_LAST_ITEM+10
-#define FUNC_FRAMELIMIT     OSD_LAST_ITEM+11
-#define FUNC_VSYNC          OSD_LAST_ITEM+12
-#define FUNC_TERMINATE      OSD_LAST_ITEM+13
-#define FUNC_KEEP_FPS       OSD_LAST_ITEM+14
-#define FUNC_OC             OSD_LAST_ITEM+15
-#define FUNC_FAN            OSD_LAST_ITEM+16
+#define ID_RESET            OSD_LAST_ITEM+1
+#define ID_FORCEMAX         OSD_LAST_ITEM+2
+#define ID_ECLOCK           OSD_LAST_ITEM+3
+#define ID_MCLOCK           OSD_LAST_ITEM+4
+#define ID_VOLTAGE          OSD_LAST_ITEM+5
+#define ID_FILELOGGING      OSD_LAST_ITEM+6
+#define ID_FILEAUTOLOG      OSD_LAST_ITEM+7
+#define ID_WINDOWED         OSD_LAST_ITEM+8
+#define ID_KEEPACTIVE       OSD_LAST_ITEM+9
+#define ID_FRAMELIMITER     OSD_LAST_ITEM+10
+#define ID_FRAMELIMIT       OSD_LAST_ITEM+11
+#define ID_VSYNC            OSD_LAST_ITEM+12
+#define ID_TERMINATE        OSD_LAST_ITEM+13
+#define ID_KEEP_FPS         OSD_LAST_ITEM+14
+#define ID_OC               OSD_LAST_ITEM+15
+#define ID_FAN              OSD_LAST_ITEM+16
+#define ID_API              OSD_LAST_ITEM+17
 
 
 //Add menu items to menu
@@ -116,21 +118,22 @@ VOID AddItems()
         Menu->AddItem(L"Frame Buffer count",      ItemOpt, &MenuOsd[i++], OSD_BUFFERS);
         Menu->AddItem(L"Resolution",              ItemOpt, &MenuOsd[i++], OSD_RESOLUTION);
         Menu->AddItem(L"Resfresh Rate",           ItemOpt, &MenuOsd[i++], OSD_REFRESH_RATE);
+        Menu->AddItem(L"API",                     ItemOpt, &MenuOsd[i++], ID_API);
         Menu->AddItem(L"Time",                    ItemOpt, &MenuOsd[i++], OSD_TIME);
-        Menu->AddItem(L"FPS",                     ItemOpt, &MenuOsd[i++], FUNC_KEEP_FPS);
-        Menu->AddItem(L"Reset",                   PressOpt, &MenuOsd[i++], FUNC_RESET);
+        Menu->AddItem(L"FPS",                     ItemOpt, &MenuOsd[i++], ID_KEEP_FPS);
+        Menu->AddItem(L"Reset",                   PressOpt, &MenuOsd[i++], ID_RESET);
     }
 
     Menu->AddGroup(L"GPU", GroupOpt, &MenuGpu[0]);
 
     if (MenuGpu[0].Var)
     {
-        Menu->AddItem(L"Force Max Clocks", ItemOpt, &MenuGpu[1], FUNC_FORCEMAX);
-        Menu->AddItem(L"Auto-Overclock", ItemOpt, &MenuGpu[2], FUNC_OC);
-        Menu->AddItem(L"Engine Clock", GpuSpeedEngineOpt, &MenuGpu[3], FUNC_ECLOCK);
-        Menu->AddItem(L"Memory Clock", GpuSpeedMemoryOpt, &MenuGpu[4], FUNC_MCLOCK);
-        Menu->AddItem(L"Voltage", GpuVoltageOpt, &MenuGpu[5], FUNC_VOLTAGE);
-        Menu->AddItem(L"Fan Duty Cycle", GpuFanDutyCycleOpt, &MenuGpu[6], FUNC_FAN);
+        Menu->AddItem(L"Force Max Clocks", ItemOpt, &MenuGpu[1], ID_FORCEMAX);
+        Menu->AddItem(L"Auto-Overclock", ItemOpt, &MenuGpu[2], ID_OC);
+        Menu->AddItem(L"Engine Clock", GpuSpeedEngineOpt, &MenuGpu[3], ID_ECLOCK);
+        Menu->AddItem(L"Memory Clock", GpuSpeedMemoryOpt, &MenuGpu[4], ID_MCLOCK);
+        Menu->AddItem(L"Voltage", GpuVoltageOpt, &MenuGpu[5], ID_VOLTAGE);
+        Menu->AddItem(L"Fan Duty Cycle", GpuFanDutyCycleOpt, &MenuGpu[6], ID_FAN);
 
         //Init gpu information
         UpdateGpuInformation();
@@ -140,19 +143,19 @@ VOID AddItems()
 
     if (Diagnostics[0].Var)
     {
-        Menu->AddItem(L"File Logging", ItemOpt, &Diagnostics[1], FUNC_FILELOGGING);
-        Menu->AddItem(L"Auto-log", ItemOpt, &Diagnostics[2], FUNC_FILEAUTOLOG);
+        Menu->AddItem(L"File Logging", ItemOpt, &Diagnostics[1], ID_FILELOGGING);
+        Menu->AddItem(L"Auto-log", ItemOpt, &Diagnostics[2], ID_FILEAUTOLOG);
     }
 
     Menu->AddGroup(L"Direct3D", GroupOpt, &D3DTweaks[0]);
 
     if (D3DTweaks[0].Var)
     {
-        Menu->AddItem(L"Windowed", ItemOpt, &D3DTweaks[1], FUNC_WINDOWED);
-        Menu->AddItem(L"Keep active", ItemOpt, &D3DTweaks[2], FUNC_KEEPACTIVE);
-        Menu->AddItem(L"Frame Limiter", ItemOpt, &D3DTweaks[3], FUNC_FRAMELIMITER);
-        Menu->AddItem(L"Frame Limit", FrameLimitOpt, &D3DTweaks[4], FUNC_FRAMELIMIT);
-        Menu->AddItem(L"Vsync", ItemOpt, &D3DTweaks[5], FUNC_VSYNC);
+        Menu->AddItem(L"Windowed", ItemOpt, &D3DTweaks[1], ID_WINDOWED);
+        Menu->AddItem(L"Keep active", ItemOpt, &D3DTweaks[2], ID_KEEPACTIVE);
+        Menu->AddItem(L"Frame Limiter", ItemOpt, &D3DTweaks[3], ID_FRAMELIMITER);
+        Menu->AddItem(L"Frame Limit", FrameLimitOpt, &D3DTweaks[4], ID_FRAMELIMIT);
+        Menu->AddItem(L"Vsync", ItemOpt, &D3DTweaks[5], ID_VSYNC);
 
         UpdateFrameLimitText();
     }
@@ -161,7 +164,7 @@ VOID AddItems()
 
     if (Process[0].Var)
     {
-        Menu->AddItem(L"Terminate", ItemOpt, &Process[1], FUNC_TERMINATE);
+        Menu->AddItem(L"Terminate", ItemOpt, &Process[1], ID_TERMINATE);
     }
 }
 
@@ -203,14 +206,14 @@ VOID ProcessOptions( MenuItems* Item )
 {
     switch (*Item->Id)
     {
-    case FUNC_KEEP_FPS:
+    case ID_KEEP_FPS:
         if (*Item->Var > 0)
             PushSharedMemory->KeepFps = TRUE;
         else
             PushSharedMemory->KeepFps = FALSE;
         break;
 
-    case FUNC_RESET:
+    case ID_RESET:
         PushSharedMemory->Overloads = 0;
         PushSharedMemory->OSDFlags = 0;
         PushSharedMemory->OSDFlags |= OSD_FPS;
@@ -221,7 +224,7 @@ VOID ProcessOptions( MenuItems* Item )
         }
         break;
 
-    case FUNC_FORCEMAX:
+    case ID_FORCEMAX:
         CallPipe(L"ForceMaxClocks", NULL);
 
         PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
@@ -230,7 +233,7 @@ VOID ProcessOptions( MenuItems* Item )
         PushSharedMemory->Overloads &= ~OSD_GPU_M_CLK;
         break;
 
-    case FUNC_ECLOCK:
+    case ID_ECLOCK:
         {
             DisableAutoOverclock = TRUE;
 
@@ -254,7 +257,7 @@ VOID ProcessOptions( MenuItems* Item )
         }
         break;
 
-    case FUNC_MCLOCK:
+    case ID_MCLOCK:
         {
             if (*Item->Var > 0)
             {
@@ -263,7 +266,7 @@ VOID ProcessOptions( MenuItems* Item )
         }
         break;
 
-    case FUNC_VOLTAGE:
+    case ID_VOLTAGE:
     {
         switch (*Item->Var)
         {
@@ -285,7 +288,7 @@ VOID ProcessOptions( MenuItems* Item )
     }
     break;
 
-    case FUNC_FAN:
+    case ID_FAN:
     {
         PushSharedMemory->OSDFlags |= OSD_GPU_FAN_DC;
 
@@ -299,28 +302,28 @@ VOID ProcessOptions( MenuItems* Item )
     }
     break;
 
-    case FUNC_OC:
+    case ID_OC:
         if (*Item->Var > 0)
             DisableAutoOverclock = FALSE;
         else
             DisableAutoOverclock = TRUE;
         break;
 
-    case FUNC_FILELOGGING:
+    case ID_FILELOGGING:
         if (*Item->Var > 0)
             PushSharedMemory->LogFileIo = TRUE;
         else
             PushSharedMemory->LogFileIo = FALSE;
         break;
 
-    case FUNC_FILEAUTOLOG:
+    case ID_FILEAUTOLOG:
         if (*Item->Var > 0)
             PushSharedMemory->AutoLogFileIo = TRUE;
         else
             PushSharedMemory->AutoLogFileIo = FALSE;
         break;
 
-    case FUNC_WINDOWED:
+    case ID_WINDOWED:
         if (*Item->Var > 0)
         {
             D3D9Hook_WindowMode = WINDOW_WINDOWED;
@@ -333,14 +336,14 @@ VOID ProcessOptions( MenuItems* Item )
         }
         break;
 
-    case FUNC_KEEPACTIVE:
+    case ID_KEEPACTIVE:
         if (*Item->Var > 0)
         {
             Keyboard_Hook(KEYBOARD_HOOK_SUBCLASS);
         }
         break;
 
-    case FUNC_FRAMELIMITER:
+    case ID_FRAMELIMITER:
         if (*Item->Var > 0)
         {
             PushSharedMemory->FrameLimit = TRUE;
@@ -351,7 +354,7 @@ VOID ProcessOptions( MenuItems* Item )
         }
         break;
 
-    case FUNC_FRAMELIMIT:
+    case ID_FRAMELIMIT:
         {
             if (*Item->Var == 0)
             {
@@ -366,7 +369,7 @@ VOID ProcessOptions( MenuItems* Item )
         }
         break;
 
-    case FUNC_VSYNC:
+    case ID_VSYNC:
         if (*Item->Var > 0)
         {
             ChangeVsync(TRUE);
@@ -377,7 +380,14 @@ VOID ProcessOptions( MenuItems* Item )
         }
         break;
 
-    case FUNC_TERMINATE:
+    case ID_API:
+        if (*Item->Var > 0)
+            ShowGraphicsApi = TRUE;
+        else
+            ShowGraphicsApi = FALSE;
+        break;
+
+    case ID_TERMINATE:
         if (*Item->Var > 0)
         {
             TerminateProcess(GetCurrentProcess(), 0);
