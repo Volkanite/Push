@@ -9,5 +9,5 @@ VOID Osd_Draw(OvOverlay* Overlay);
 typedef struct _OSD_VARS
 {
     BOOLEAN GraphicsApi;
-    BOOLEAN FrameTime;
+    UCHAR FrameTime;
 }OSD_VARS;

@@ -9,8 +9,10 @@
 extern UINT32 BackBufferWidth;
 extern UINT32 BackBufferHeight;
 extern UINT32 BackBufferCount;
-extern double FrameTime;
 
+extern double FrameTime;
+extern double FrameTimeTotal;
+extern UINT32 Frames;
 OSD_VARS Variables;
 
 
@@ -92,8 +94,18 @@ VOID Osd_Draw( OvOverlay* Overlay )
 
     if (Variables.FrameTime)
     {
-        wchar_t bigbuff[260];
-        swprintf(bigbuff, 260, L"FrameTime: %f", FrameTime);
-        Overlay->DrawText(bigbuff);
+        wchar_t buffer[100];
+
+        switch (Variables.FrameTime)
+        {
+        case 1:
+            swprintf(buffer, 100, L"FrameTime: %.2f", FrameTime);
+            Overlay->DrawText(buffer);
+            break;
+        case 2:
+            swprintf(buffer, 100, L"FrameTime: %.2f", (double)(FrameTimeTotal / (double) Frames));
+            Overlay->DrawText(buffer);
+            break;
+        }
     }
 }

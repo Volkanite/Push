@@ -6,18 +6,20 @@
 #include <stdio.h>
 
 
-//UINT8 PushRefreshRate = 60;
-//UINT8 AcceptableFps = 55;
 BOOLEAN g_SetOSDRefresh = TRUE;
 BOOLEAN g_FontInited = FALSE;
 BOOLEAN IsStableFramerate;
 BOOLEAN DisableAutoOverclock;
 UINT16 DiskResponseTime;
-UINT32 FrameRate;
-UINT8 FrameLimit = 80; //80 fps
 UINT64 CyclesWaited;
 HANDLE RenderThreadHandle;
 UINT32 DisplayFrequency;
+double FrameTime;
+double FrameTimeTotal;
+UINT32 Frames;
+UINT32 FrameRate;
+UINT8 FrameLimit = 80; //80 fps
+int debugInt = 1;
 
 VOID DebugRec();
 VOID InitializeKeyboardHook();
@@ -67,17 +69,16 @@ BOOLEAN IsGpuLag()
 }
 
 
-double FrameTime;
-int debugInt = 1;
 VOID RunFrameStatistics()
 {
-    static double newTickCount = 0.0, lastTickCount = 0.0,
+    static double newTickCount = 0.0, lastTickCount_FrameLimiter = 0.0,
                   oldTick = 0.0, delta = 0.0,
                   oldTick2 = 0.0, frameTime = 0.0,
                   fps = 0.0, acceptableFrameTime = 0.0;
 
-    static UINT32 frames = 0;
+    
     static BOOLEAN inited = FALSE;
+    static UINT32 frames = 0;
 
     if (!inited)
     {
@@ -92,13 +93,16 @@ VOID RunFrameStatistics()
 
         if (PushSharedMemory->FrameLimit > 1)
             FrameLimit = PushSharedMemory->FrameLimit;
+
+        newTickCount = oldTick = lastTickCount_FrameLimiter = GetPerformanceCounter();
     }
 
     newTickCount = GetPerformanceCounter();
     delta = newTickCount - oldTick;
-    frameTime = newTickCount- lastTickCount;
+    frameTime = newTickCount - lastTickCount_FrameLimiter;
 
     frames++;
+    Frames++;
 
     if (delta > 1000)
     {
@@ -188,8 +192,6 @@ VOID RunFrameStatistics()
         }
     }
 
-    FrameRate = (int) fps;
-
     if (PushSharedMemory->FrameLimit)
     {
         double frameTimeMin = (double)1000 / (double)FrameLimit;
@@ -202,15 +204,15 @@ VOID RunFrameStatistics()
 
             QueryThreadCycleTime(RenderThreadHandle, &cyclesStart);
 
-            lastTickCount = newTickCount;
+            lastTickCount_FrameLimiter = newTickCount;
 
             while (frameTime < frameTimeMin)
             {
                 newTickCount = GetPerformanceCounter();
 
-                frameTime += (newTickCount - lastTickCount);
+                frameTime += (newTickCount - lastTickCount_FrameLimiter);
 
-                lastTickCount = newTickCount;
+                lastTickCount_FrameLimiter = newTickCount;
             }
 
             QueryThreadCycleTime(RenderThreadHandle, &cyclesStop);
@@ -218,10 +220,12 @@ VOID RunFrameStatistics()
             CyclesWaited += cyclesStop - cyclesStart;
         }
 
-        lastTickCount = newTickCount;
+        lastTickCount_FrameLimiter = newTickCount;
     }
 
     FrameTime = frameTime;
+    FrameRate = (int)fps;
+    FrameTimeTotal += frameTime;
 }
 
 

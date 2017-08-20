@@ -17,6 +17,7 @@ MenuVars Process[5];
 
 WCHAR* GroupOpt[] = {L">", L"<"};
 WCHAR* ItemOpt[] = {L"Off", L"On"};
+WCHAR* ItemOptExt[] = { L"Off", L"On", L"Avg"};
 WCHAR* PressOpt[] = { L">>", L">>" };
 WCHAR* GpuSpeedEngineOpt[] = { L"", L"" };
 WCHAR* GpuSpeedMemoryOpt[] = { L"", L"" };
@@ -121,7 +122,7 @@ VOID AddItems()
         Menu->AddItem(L"Frame Buffer count",      ItemOpt, &MenuOsd[i++], OSD_BUFFERS);
         Menu->AddItem(L"Resolution",              ItemOpt, &MenuOsd[i++], OSD_RESOLUTION);
         Menu->AddItem(L"Resfresh Rate",           ItemOpt, &MenuOsd[i++], OSD_REFRESH_RATE);
-        Menu->AddItem(L"Frame Time",              ItemOpt, &MenuOsd[i++], ID_FRAMETIME);
+        Menu->AddItem(L"Frame Time",              ItemOptExt, &MenuOsd[i++], ID_FRAMETIME, 3);
         Menu->AddItem(L"API",                     ItemOpt, &MenuOsd[i++], ID_API);
         Menu->AddItem(L"Time",                    ItemOpt, &MenuOsd[i++], OSD_TIME);
         Menu->AddItem(L"FPS",                     ItemOpt, &MenuOsd[i++], ID_KEEP_FPS);
@@ -385,10 +386,7 @@ VOID ProcessOptions( MenuItems* Item )
         break;
 
     case ID_FRAMETIME:
-        if (*Item->Var > 0)
-            Variables.FrameTime = TRUE;
-        else
-            Variables.FrameTime = FALSE;
+        Variables.FrameTime = *Item->Var;
         break;
 
     case ID_API:
