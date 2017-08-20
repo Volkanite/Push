@@ -573,14 +573,9 @@ VOID Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
     Dx9Hook_Reset = HookParams->ResetCallback;
     Dx9Hook_CreateDevice = HookParams->CreateDeviceCallback;
 
-    // first use dirty signature scans
-    device = FindDevice();
-
-    // if signature scans fail then attempt to build the device
-    if (!device)
-        device = BuildDevice();
+    device = BuildDevice();
     
-    // if all fails then no hooks for you.
+    // if fail then no hooks for you.
     if (!device)
         return;
 
