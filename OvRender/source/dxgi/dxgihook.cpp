@@ -202,17 +202,15 @@ VOID* FindDevice()
 
 VOID HookDxgi( IDXGISWAPCHAIN_HOOK* HookParameters )
 {
-    //IDXGISwapChain* swapChain;
+    IDXGISwapChain* swapChain;
     VOID **vmt;
 
     HkIDXGISwapChain_PresentCallback = (HK_IDXGISWAPCHAIN_CALLBACK) HookParameters->PresentCallback;
     HkIDXGISwapChain_ResizeBuffersCallback = (HK_IDXGISWAPCHAIN_CALLBACK) HookParameters->ResizeBuffersCallback;
 
-    //swapChain = BuildDevice();
-    //vmt = (VOID**) swapChain;
-    //vmt = (VOID**) vmt[0];
-
-    vmt = (VOID**) FindDevice();
+    swapChain = BuildDevice();
+    vmt = (VOID**) swapChain;
+    vmt = (VOID**) vmt[0];
 
     if (!HkIDXGISwapChain_Present)
     {
