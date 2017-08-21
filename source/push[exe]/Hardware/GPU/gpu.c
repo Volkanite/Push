@@ -158,7 +158,14 @@ UINT8 GPU_GetLoad(){ return 0; }
 
 VOID GPU_ForceMaximumClocks()
 {
-    AmdGpu_ForceMaximumClocks();
+    switch (GPU_VendorId)
+    {
+    case AMD:
+        AmdGpu_ForceMaximumClocks();
+        break;
+    case NVIDIA:
+    default:;
+    }
 }
 
 
