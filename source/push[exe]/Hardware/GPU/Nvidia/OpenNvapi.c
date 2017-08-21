@@ -21,8 +21,8 @@ typedef struct _NVAPI_PRIVATE_DATA_HEADER
 typedef struct _NVAPI_PRIVATE_USAGE_DATA
 {
     NVAPI_PRIVATE_DATA_HEADER Header;
-	DWORD Dummy1[8];
-	UINT32 Usage[NVAPI_MAX_USAGES_PER_GPU];
+    DWORD Dummy1[8];
+    UINT32 Usage[NVAPI_MAX_USAGES_PER_GPU];
 
 }NVAPI_PRIVATE_USAGE_DATA; //184 bytes
 
@@ -80,23 +80,29 @@ VOID OpenNvapi_ForceMaximumClocks()
 }
 
 
+VOID OpenNvapi_GetMemoryInfo( NVAPI_PRIVATE_MEMORY_DATA* MemoryData )
+{
+    Memory_Clear(MemoryData, sizeof(NVAPI_PRIVATE_MEMORY_DATA));
+
+    MemoryData->Header.Dummy1 = 0x4E564441;
+    MemoryData->Header.Dummy2 = 0x10002;
+    MemoryData->Header.Size = sizeof(NVAPI_PRIVATE_MEMORY_DATA);
+    MemoryData->Header.Dummy3 = 0x4E562A2A;
+    MemoryData->Header.ControlCode = NVAPI_PRIVATE_MEMORY_DATA_IOCTL;
+    MemoryData->Dummy8[15] = 0xB4;
+
+    D3DKMT_GetPrivateDriverData(
+        MemoryData,
+        sizeof(NVAPI_PRIVATE_MEMORY_DATA)
+        );
+}
+
+
 UINT64 OpenNvapi_GetTotalMemory()
 {
     NVAPI_PRIVATE_MEMORY_DATA memoryData;
 
-    Memory_Clear(&memoryData, sizeof(NVAPI_PRIVATE_MEMORY_DATA));
-
-    memoryData.Header.Dummy1 = 0x4E564441;
-    memoryData.Header.Dummy2 = 0x10002;
-    memoryData.Header.Size = sizeof(NVAPI_PRIVATE_MEMORY_DATA);
-    memoryData.Header.Dummy3 = 0x4E562A2A;
-    memoryData.Header.ControlCode = NVAPI_PRIVATE_MEMORY_DATA_IOCTL;
-    memoryData.Dummy8[15] = 0xB4;
-
-    D3DKMT_GetPrivateDriverData(
-        &memoryData,
-        sizeof(NVAPI_PRIVATE_MEMORY_DATA)
-        );
+    OpenNvapi_GetMemoryInfo(&memoryData);
 
     return memoryData.Total * 1024; //kilobytes -> bytes
 }
@@ -106,27 +112,9 @@ UINT64 OpenNvapi_GetFreeMemory()
 {
     NVAPI_PRIVATE_MEMORY_DATA memoryData;
 
-    Memory_Clear(&memoryData, sizeof(NVAPI_PRIVATE_MEMORY_DATA));
-    
-    memoryData.Header.Dummy1 = 0x4E564441;
-    memoryData.Header.Dummy2 = 0x10002;
-    memoryData.Header.Size = sizeof(NVAPI_PRIVATE_MEMORY_DATA);
-    memoryData.Header.Dummy3 = 0x4E562A2A;
-    memoryData.Header.ControlCode = NVAPI_PRIVATE_MEMORY_DATA_IOCTL;
-    memoryData.Dummy8[15] = 0xB4;
-
-    D3DKMT_GetPrivateDriverData(
-        &memoryData,
-        sizeof(NVAPI_PRIVATE_MEMORY_DATA)
-        );
+    OpenNvapi_GetMemoryInfo(&memoryData);
 
     return memoryData.Free * 1024; //kilobytes -> bytes
-}
-
-
-VOID OpenNvapi_GetMemoryInformation()
-{
-
 }
 
 
@@ -147,13 +135,13 @@ UINT8 OpenNvapi_GetLoad()
     usageData.Header.Size = sizeof(NVAPI_PRIVATE_USAGE_DATA);
     usageData.Header.Dummy3 = 0x4E562A2A; 
     usageData.Header.ControlCode = NVAPI_PRIVATE_USAGE_DATA_IOCTL;
-	
-	usageData.Dummy1[7] = 0x100;
+    
+    usageData.Dummy1[7] = 0x100;
 
     D3DKMT_GetPrivateDriverData(
         &usageData,
         sizeof(NVAPI_PRIVATE_USAGE_DATA)
         );
 
-	return usageData.Usage[NVAPI_USAGE_TARGET_GPU];
+    return usageData.Usage[NVAPI_USAGE_TARGET_GPU];
 }
