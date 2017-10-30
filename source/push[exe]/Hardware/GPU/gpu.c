@@ -87,6 +87,10 @@ VOID GPU_GetInfo( GPU_INFO* Info )
         total = NvidiaGpu_GetTotalMemory();
         free = NvidiaGpu_GetFreeMemory();
         break;
+    case INTEL:
+        //Intel has vendor specific way?
+        Info->Load = D3DKMT_GetGpuUsage();
+        break;
     default:
         return;
         break;
