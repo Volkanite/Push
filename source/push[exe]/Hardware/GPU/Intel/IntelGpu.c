@@ -17,7 +17,9 @@ UINT16 IntelGpu_GetFanSpeed();
 VOID IntelGpu_ForceMaximumClocks();
 
 
-#define GT_PERF_STATUS 0x5948
+#define GT_PERF_STATUS  0x5948
+#define MC_BIOS_REQ     0x5E00
+
 #define GT_FREQUENCY_MULTIPLIER 50
 
 
@@ -41,7 +43,11 @@ UINT16 IntelGpu_GetEngineClock()
 
 UINT16 IntelGpu_GetMemoryClock()
 {
-    return 0;
+    UINT32 frequency = 0;
+
+    frequency = ReadGpuRegister(MC_BIOS_REQ);
+
+    return frequency * 133;
 }
 
 
