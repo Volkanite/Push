@@ -18,6 +18,7 @@ VOID IntelGpu_ForceMaximumClocks();
 
 
 #define GT_PERF_STATUS  0x5948
+#define GT_TEMP_STATUS  0x5980
 #define MC_BIOS_REQ     0x5E00
 
 #define GT_FREQUENCY_MULTIPLIER 50
@@ -65,7 +66,11 @@ UINT64 IntelGpu_GetFreeMemory()
 
 UINT8 IntelGpu_GetTemperature()
 {
-    return 0;
+    UINT32 temperature;
+
+    temperature = ReadGpuRegister(GT_TEMP_STATUS);
+
+    return temperature;
 }
 
 

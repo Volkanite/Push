@@ -93,6 +93,7 @@ VOID GPU_GetInfo( GPU_INFO* Info )
 
         Info->EngineClock = IntelGpu_GetEngineClock();
         Info->MemoryClock = IntelGpu_GetMemoryClock();
+        Info->Temperature = IntelGpu_GetTemperature();
         break;
     default:
         return;
