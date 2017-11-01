@@ -246,20 +246,38 @@ VOID InitGpuHardware()
         sizeof(PushSharedMemory->HarwareInformation.DisplayDevice.VendorId)
         );
 
-    if (PushSharedMemory->HarwareInformation.DisplayDevice.VendorId == NVIDIA)
+    switch (PushSharedMemory->HarwareInformation.DisplayDevice.VendorId)
+    {
+    case NVIDIA:
+    case INTEL:
         bar = REGISTER_BAR0;
-    else if (PushSharedMemory->HarwareInformation.DisplayDevice.VendorId == AMD)
+        break;
+    case AMD:
         bar = REGISTER_BAR2;
-    else
+        break;
+    default:
         return;
+        break;
+    }
 
     PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress = GetBarAddress(bar);
+    UINT32 size = GetBarSize(PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress);
 
-    HwMmio = R0MapPhysicalMemory(
-        PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress,
-        GetBarSize(PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress)
-                );
+    if (PushSharedMemory->HarwareInformation.DisplayDevice.VendorId == INTEL)
+    {
+        DWORD mchBar = 0xFED10000;
+        
+        // 16-Byte alligned address;
+        mchBar = (mchBar & 0x0fffffff0);
+
+        PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress = 0xFED10000;
+
+        size = 0x6000;
+    }
+
+    HwMmio = R0MapPhysicalMemory(PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress, size);
 }
+
 
 typedef struct _MC_TIMING_REPORT
 {

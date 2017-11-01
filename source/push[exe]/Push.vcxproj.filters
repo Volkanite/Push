@@ -28,6 +28,9 @@
     <Filter Include="Hardware\GPU\AMD">
       <UniqueIdentifier>{15280883-a32c-4c97-9c79-bdff84203fce}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Hardware\GPU\Intel">
+      <UniqueIdentifier>{bc3c079b-1d08-4a50-b1d5-b656ce99b1e5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="OSD\local.c">
@@ -122,6 +125,9 @@
     <ClCompile Include="Hardware\GPU\AMD\AmdGpu.c">
       <Filter>Hardware\GPU\AMD</Filter>
     </ClCompile>
+    <ClCompile Include="Hardware\GPU\Intel\IntelGpu.c">
+      <Filter>Hardware\GPU\Intel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\cache.h">
@@ -201,6 +207,9 @@
     </ClInclude>
     <ClInclude Include="Hardware\GPU\AMD\AmdGpu.h">
       <Filter>Hardware\GPU\AMD</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\GPU\Intel\IntelGpu.h">
+      <Filter>Hardware\GPU\Intel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

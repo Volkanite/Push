@@ -1,1 +1,3 @@
-#include "gpu.h"
+#include "..\gpu.h"
+
+UINT16 IntelGpu_GetEngineClock();

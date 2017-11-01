@@ -90,6 +90,7 @@ VOID GPU_GetInfo( GPU_INFO* Info )
     case INTEL:
         //Intel has vendor specific way?
         Info->Load = D3DKMT_GetGpuUsage();
+        Info->EngineClock = IntelGpu_GetEngineClock();
         break;
     default:
         return;
