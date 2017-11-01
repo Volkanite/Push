@@ -96,6 +96,8 @@ VOID CPU_Intialize()
     if (strncmp(name, "GenuineIntel", 12) == 0)
     {
         Vendor = INTEL;
+
+        IntelCPU_Initialize();
     }
     else if (strncmp(name, "AuthenticAMD", 12) == 0)
     {

@@ -4,8 +4,22 @@
 #include "cpu.h"
 
 
-#define IA32_PERF_STATUS    0x0198
-#define IA32_THERM_STATUS   0x019C
+#define IA32_PERF_STATUS        0x0198
+#define IA32_THERM_STATUS       0x019C
+#define IA32_TEMPERATURE_TARGET 0x01A2
+
+
+float TjMax;
+
+
+VOID IntelCPU_Initialize()
+{
+    DWORD eax;
+
+    eax = CPU_ReadMsr(IA32_TEMPERATURE_TARGET);
+
+    TjMax = (eax >> 16) & 0xFF;
+}
 
 
 UINT8 Intel_GetTemperature()
@@ -14,12 +28,12 @@ UINT8 Intel_GetTemperature()
     INT32 i= 0;
 
 
-    for (i = 0; i < 4; i++)
+    for (i = 0; i < PushSharedMemory->HarwareInformation.Processor.NumberOfCores; i++)
     {
         DWORD eax;
         DWORD mask          = 0;
         float deltaT;   
-        float tjMax;        
+               
         float tSlope;   
         float coreTemp; 
         void *hThread       = NULL;
@@ -32,10 +46,9 @@ UINT8 Intel_GetTemperature()
         
         SetThreadAffinityMask(hThread, mask);
 
-        deltaT  = ((eax & 0x007F0000) >> 16);
-        tjMax       = 100.0;
+        deltaT  = ((eax & 0x007F0000) >> 16);       
         tSlope  = 1.0;
-        coreTemp    = tjMax - tSlope * deltaT;
+        coreTemp    = TjMax - tSlope * deltaT;
 
         if((INT32) coreTemp > retTemp)
         {
