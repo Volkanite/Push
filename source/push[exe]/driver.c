@@ -134,101 +134,14 @@ VOID Driver_Load()
 
         if (status == STATUS_INVALID_IMAGE_HASH)
         {
-            INT32 msgId;
-
-            // Prompt user to enable test-signing.
-            msgId = MessageBoxW(
+            // Inform user that driver loading failed.
+            MessageBoxW(
                 NULL,
                 L"The driver failed to load because it isn't signed. "
-                L"It is required for Push to work correctly. "
-                L"Do you want to enable test-signing to be able to use driver functions?",
+                L"It is required for Push to work correctly. ",
                 L"Driver Signing",
-                MB_ICONQUESTION | MB_YESNO
+                NULL
                 );
-
-            if (msgId == IDYES)
-            {
-                HANDLE keyHandle;
-                DWORD size = 255;
-                WCHAR buffer[255];
-                BYTE value = 0x01;
-                UNICODE_STRING valueName;
-                SYSTEM_BOOT_ENVIRONMENT_INFORMATION bootEnvironmentInformation;
-                UINT32 returnLength;
-                UNICODE_STRING guidAsUnicodeString;
-                WCHAR guidAsWideChar[40];
-                ULONG bufferLength = 20;
-                OBJECT_ATTRIBUTES objectAttributes;
-                UNICODE_STRING keyName;
-                ULONG disposition;
-
-                // Get boot GUID.
-
-                NtQuerySystemInformation(
-                    SystemBootEnvironmentInformation,
-                    &bootEnvironmentInformation,
-                    sizeof(SYSTEM_BOOT_ENVIRONMENT_INFORMATION),
-                    &returnLength
-                    );
-
-                RtlStringFromGUID(
-                    &bootEnvironmentInformation.BootIdentifier,
-                    &guidAsUnicodeString
-                    );
-
-                String_CopyN(guidAsWideChar, guidAsUnicodeString.Buffer, 39);
-
-                guidAsWideChar[39] = L'\0';
-
-                String_Format(
-                    buffer,
-                    255,
-                    L"\\Registry\\Machine\\BCD00000000\\Objects\\%s\\Elements",
-                    guidAsWideChar
-                    );
-
-                // Change key permissions to allow us to create sub keys.
-                StripPermissions(buffer);
-
-                // Enable test-signing mode.
-
-                String_Concatenate(buffer, L"\\16000049");
-
-                // Change key permissions (if it already exists) to allow us to set values.
-                StripPermissions(buffer);
-
-                UnicodeString_Init(&keyName, buffer);
-                UnicodeString_Init(&valueName, L"Element");
-
-                objectAttributes.Length = sizeof(OBJECT_ATTRIBUTES);
-                objectAttributes.RootDirectory = NULL;
-                objectAttributes.ObjectName = &keyName;
-                objectAttributes.Attributes = OBJ_CASE_INSENSITIVE;
-                objectAttributes.SecurityDescriptor = NULL;
-                objectAttributes.SecurityQualityOfService = NULL;
-
-                // Create(NtCreateKey) the key not open(NtOpenKey) it because the key isn't
-                // always there.
-                NtCreateKey(
-                    &keyHandle,
-                    KEY_WRITE,
-                    &objectAttributes,
-                    0,
-                    NULL,
-                    0,
-                    &disposition
-                    );
-
-                NtSetValueKey(keyHandle, &valueName, 0, REG_BINARY, &value, sizeof(BYTE));
-                NtClose(keyHandle);
-
-                MessageBoxW(
-                    NULL,
-                    L"Restart your computer to load driver",
-                    L"Restart required",
-                    NULL
-                    );
-            }
         }
     }
 }
