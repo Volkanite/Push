@@ -340,7 +340,7 @@ VOID OnProcessEvent( PROCESSID processID )
         PushSharedMemory->DisableRepeatKeys = game.Settings.DisableRepeatKeys;
         PushSharedMemory->SwapWASD = game.Settings.SwapWASD;
         PushSharedMemory->VsyncOverrideMode = game.Settings.VsyncOverrideMode;
-        
+
         if (game.Settings.FrameLimit > 1)
         {
             PushSharedMemory->FrameLimit = game.Settings.FrameLimit;
@@ -439,9 +439,9 @@ VOID Inject( HANDLE ProcessHandle )
         _LoadLibraryW = Module_GetProcedureAddress((VOID*)kernel32Base, "LoadLibraryW");
 
         NtCreateThreadEx(
-            &_threadHandle, 
-            THREAD_ALL_ACCESS, 
-            NULL, 
+            &_threadHandle,
+            THREAD_ALL_ACCESS,
+            NULL,
             ProcessHandle,
             _LoadLibraryW,
             remoteMemory,
@@ -659,6 +659,7 @@ VOID PatchMemory()
 
         for (i = 0; i < 4; i++)
         {
+            wchar_t *nextLine;
             String_CopyN(szAddr, fileContents, 8);
             szAddr[8] = L'\0';
 
@@ -688,7 +689,7 @@ VOID PatchMemory()
             Process_WriteMemory(processHandle, (VOID*)dwAddr, &dwValue, sizeof(DWORD));
 
             // Try to find new line character
-            wchar_t *nextLine = String_FindFirstChar(fileContents, L'\n');
+            nextLine = String_FindFirstChar(fileContents, L'\n');
             fileContents = nextLine + 1;
         }
     }
@@ -1043,10 +1044,10 @@ DWORD __stdcall PipeThread( VOID* Parameter )
     LARGE_INTEGER timeOut;
 
     /*pipeHandle = CreateNamedPipeW(
-        L"\\\\.\\pipe\\Push", 
-        PIPE_ACCESS_DUPLEX, 
-        PIPE_WAIT | PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_ACCEPT_REMOTE_CLIENTS, 
-        1, 
+        L"\\\\.\\pipe\\Push",
+        PIPE_ACCESS_DUPLEX,
+        PIPE_WAIT | PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_ACCEPT_REMOTE_CLIENTS,
+        1,
         1024 * 16,
         1024 * 16,
         NMPWAIT_USE_DEFAULT_WAIT,
@@ -1088,14 +1089,14 @@ DWORD __stdcall PipeThread( VOID* Parameter )
             IO_STATUS_BLOCK isb;
 
             while (NtReadFile(
-                pipeHandle, 
-                NULL, 
-                NULL, 
-                NULL, 
-                &isb, 
-                buffer, 
-                sizeof(buffer) - 1, 
-                NULL, 
+                pipeHandle,
+                NULL,
+                NULL,
+                NULL,
+                &isb,
+                buffer,
+                sizeof(buffer) - 1,
+                NULL,
                 NULL
                 ) == STATUS_SUCCESS)
             {
@@ -1105,7 +1106,7 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                 if (String_Compare(buffer, L"ForceMaxClocks") == 0)
                 {
                     Hardware_ForceMaxClocks();
-                } 
+                }
                 else if (String_CompareN(buffer, L"Overclock", 8) == 0)
                 {
                     switch (buffer[10])
@@ -1241,7 +1242,7 @@ INT32 __stdcall start( )
     LDR_DATA_TABLE_ENTRY *module;
     SECTION_BASIC_INFORMATION sectionInfo;
     LARGE_INTEGER newSectionSize;
-    
+
     InitializeCRT();
 
     threadEnvironmentBlock = NtCurrentTeb();
@@ -1253,17 +1254,17 @@ INT32 __stdcall start( )
     // Check if already running
     hMutex = CreateMutexW(0, FALSE, L"PushOneInstance");
 
-    if (threadEnvironmentBlock->LastErrorValue == ERROR_ALREADY_EXISTS 
+    if (threadEnvironmentBlock->LastErrorValue == ERROR_ALREADY_EXISTS
         || threadEnvironmentBlock->LastErrorValue == ERROR_ACCESS_DENIED)
     {
         MessageBoxW(0, L"Only one instance!", 0,0);
         ExitProcess(0);
     }
-    
+
 
     //create image event
     eventHandle = NULL;
-    
+
     UnicodeString_Init(&eventSource, L"Global\\" PUSH_IMAGE_EVENT_NAME);
 
     objAttrib.Length = sizeof(OBJECT_ATTRIBUTES);
@@ -1277,9 +1278,9 @@ INT32 __stdcall start( )
 
     // populate file name and path
     module = (LDR_DATA_TABLE_ENTRY*)threadEnvironmentBlock->ProcessEnvironmentBlock->Ldr->InLoadOrderModuleList.Flink;
-    
+
     Memory_Copy(PushFilePath, module->FullDllName.Buffer, module->FullDllName.Length);
-    
+
     PushFilePath[module->FullDllName.Length] = L'\0';
 
     // Start Driver.
@@ -1294,7 +1295,7 @@ INT32 __stdcall start( )
 
     // Create section.
     sectionSize = sizeof(PUSH_SHARED_MEMORY) + OSD_GetSize();
-        
+
     PushSharedMemory = (PUSH_SHARED_MEMORY*)Memory_MapViewOfSection(PUSH_SECTION_NAME, sectionSize, &sectionHandle);
 
     if (!PushSharedMemory)
@@ -1319,7 +1320,7 @@ INT32 __stdcall start( )
         // Check if file is UTF-16LE.
         buffer = (WCHAR*) File_Load(PUSH_SETTINGS_FILE, NULL);
         marker = buffer[0];
-        
+
         Memory_Free(buffer);
 
         if (marker == 0xFEFF)

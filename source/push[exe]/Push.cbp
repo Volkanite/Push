@@ -72,16 +72,19 @@
 			<Add directory="../../source" />
 			<Add directory="../../resources/sl" />
 			<Add directory="../../resources/ADL" />
+			<Add directory="../../resources/RTSS" />
 			<Add directory="OSD" />
 		</Compiler>
 		<Linker>
-			<Add library="sl" />
+			<Add option='/ENTRY:&quot;start&quot;' />
 			<Add library="ntdll" />
 			<Add library="imagehlp" />
 			<Add library="advapi32" />
 			<Add library="setupapi" />
 			<Add library="gdi32" />
-			<Add library="inject64" />
+			<Add library="ole32" />
+			<Add library="kernel32" />
+			<Add library="user32" />
 			<Add directory="../_resources/ddk/lib" />
 			<Add directory="../_resources/sl/lib" />
 			<Add directory="../../resources/sl/lib/i386" />
@@ -89,32 +92,146 @@
 		<ExtraCommands>
 			<Add after="mt.exe -manifest Push.exe.manifest -outputresource:..\..\bin\Push.exe;#1" />
 		</ExtraCommands>
-		<Unit filename="GUI/cache.cpp" />
+		<Unit filename="GUI/cache.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="GUI/cache.h" />
-		<Unit filename="GUI/copy.cpp" />
+		<Unit filename="GUI/copy.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="GUI/copy.h" />
-		<Unit filename="GUI/gui.cpp">
+		<Unit filename="GUI/gui.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="GUI/gui.h" />
-		<Unit filename="GUI/main.cpp" />
+		<Unit filename="GUI/main.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="GUI/main.h" />
 		<Unit filename="Hardware/ATI/radeon.h" />
-		<Unit filename="Hardware/CPU/intel.cpp" />
+		<Unit filename="Hardware/CPU/amd.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Hardware/CPU/cpu.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Hardware/CPU/intel.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="Hardware/CPU/intel.h" />
-		<Unit filename="Hardware/GPU/AmdGpu.cpp" />
-		<Unit filename="Hardware/GPU/GenericGpu.cpp" />
+		<Unit filename="Hardware/GPU/AMD/AmdGpu.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Hardware/GPU/AMD/adl.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="Hardware/GPU/GenericGpu.h" />
-		<Unit filename="Hardware/GPU/IntelGpu.cpp" />
 		<Unit filename="Hardware/GPU/IntelGpu.h" />
-		<Unit filename="Hardware/GPU/NvThermalDiode/Context.cpp" />
+		<Unit filename="Hardware/GPU/Intel/IntelGpu.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="Hardware/GPU/NvThermalDiode/Context.h" />
-		<Unit filename="Hardware/GPU/NvThermalDiode/NvThermalDiode.cpp" />
 		<Unit filename="Hardware/GPU/NvThermalDiode/NvThermalDiode.h" />
-		<Unit filename="push.cpp" />
+		<Unit filename="Hardware/GPU/Nvidia/NvThermalDiode/NvThermalDiode.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Hardware/GPU/Nvidia/NvidiaGpu.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Hardware/GPU/Nvidia/OpenNvapi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Hardware/GPU/Nvidia/nv50.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Hardware/GPU/Nvidia/nva8.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Hardware/GPU/Nvidia/nvapi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Hardware/GPU/d3dkmt.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Hardware/GPU/gpu.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Hardware/disk.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Hardware/hardware.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="OSD/osd.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="OSD/rtss.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="batch.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="driver.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="folder.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="game.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="ini.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="listview.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="memory.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="mij.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="module.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="overclock.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="process.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="push.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="ramdisk.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="registry.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="resource.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="ring0.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="slgui.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="string.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="wow64.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Extensions>
 			<code_completion />
 			<debugger />
+			<envvars />
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

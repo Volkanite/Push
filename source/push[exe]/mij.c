@@ -281,7 +281,7 @@ VOID SetProfile( WCHAR* GameName )
         macro.ButtonIntervals[5][10] = 0x20; //500ms
 
         SetMacro(1, &macro);
-    } 
+    }
 
     GetControllerMappingFile(GameName, bigbuff);
 
@@ -306,7 +306,7 @@ VOID SetProfile( WCHAR* GameName )
         FILE_SYNCHRONOUS_IO_NONALERT,
         NULL
         );
-    
+
     Memory_Clear(&options, sizeof(MOTIONINJOY_APP_OPTION));
 
     if (settingsFile[0] == '0')
@@ -360,6 +360,8 @@ VOID SetMacro( UINT8 Count, MOTIONINJOY_MACRO* Macro )
 
     while ((int)b < ((Count > 6) ? 6 : Count))
     {
+        int i;
+
         macro.MacroIndex = b;
         macro.Duration = Macro->Duration;
 
@@ -367,20 +369,20 @@ VOID SetMacro( UINT8 Count, MOTIONINJOY_MACRO* Macro )
 
         // Fill button intervals
 
-        for (int i = 0; i < 6; i++)
+        for (i = 0; i < 6; i++)
         {
             macro.ButtonIndex = i;
 
             Memory_Copy(macro.Button, Macro->ButtonIntervals[i], sizeof(macro.Button));
-            
+
             NtDeviceIoControlFile(
-                driverHandle, 
+                driverHandle,
                 NULL, NULL, NULL,
-                &isb, 
-                IOCTL_MIJ_SET_CONFIG_MACRO, 
-                &macro, 
-                sizeof(MOTIONINJOY_BUTTON_MACRO), 
-                NULL, 
+                &isb,
+                IOCTL_MIJ_SET_CONFIG_MACRO,
+                &macro,
+                sizeof(MOTIONINJOY_BUTTON_MACRO),
+                NULL,
                 0
                 );
         }

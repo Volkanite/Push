@@ -203,10 +203,10 @@ unsigned long long GetNextArgument(unsigned long * ulCurrentArg, unsigned long u
 #pragma warning( disable : 4409)
 
 unsigned long CallFunction64(
-    unsigned long long ulAddress, 
-    unsigned long ulOrdinal, 
-    unsigned long long * pulArgs, 
-    unsigned long ulArgCount, 
+    unsigned long long ulAddress,
+    unsigned long ulOrdinal,
+    unsigned long long * pulArgs,
+    unsigned long ulArgCount,
     unsigned char ucType
     )
 {
@@ -357,21 +357,26 @@ unsigned long long GetProcAddress64(unsigned long long ulModule, char *szFunctio
     {
         char szName[256];
         IMAGE_EXPORT_DIRECTORY Exports;
+        unsigned long ulVA;
+        unsigned long ulSize;
+        unsigned long i;
 
         Memory_Clear(szName, sizeof(szName));
         Memory_Clear(&Exports, sizeof(IMAGE_EXPORT_DIRECTORY));
 
-        unsigned long ulVA = NtHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
-        unsigned long ulSize = NtHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].Size;
-        unsigned long i = 0;
+        ulVA = NtHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
+        ulSize = NtHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].Size;
+        i = 0;
+
         memcpy64((unsigned long long)&Exports, ulModule + ulVA, sizeof(IMAGE_EXPORT_DIRECTORY));
+
         for (i; i < Exports.NumberOfNames; i++)
         {
             unsigned long long ulNameOffset = 0;
             memcpy64((unsigned long long)&ulNameOffset, Exports.AddressOfNames + ulModule + (i * 4), sizeof(unsigned long));
             ulNameOffset += ulModule;
             memcpy64((unsigned long long)szName, ulNameOffset, strlen64(ulNameOffset));
-            
+
             if (!ntdll_memcmp(szFunction, szName, ntdll_strlen(szFunction)))
             {
                 unsigned long long ulAddressOffset = 0;

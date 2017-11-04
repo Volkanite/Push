@@ -38,9 +38,9 @@ UINT32 GetRamUsed()
     UINT64 committedPages; //force allmul() on x86
 
     NtQuerySystemInformation(
-        SystemBasicPerformanceInformation, 
-        &performanceInfo, 
-        sizeof(SYSTEM_BASIC_PERFORMANCE_INFORMATION), 
+        SystemBasicPerformanceInformation,
+        &performanceInfo,
+        sizeof(SYSTEM_BASIC_PERFORMANCE_INFORMATION),
         NULL
         );
 
@@ -123,7 +123,7 @@ DWORD FindPciDeviceByClass( BYTE baseClass, BYTE subClass, BYTE programIf, BYTE 
     DWORD count = 0;
     DWORD pciAddress = 0xFFFFFFFF;
     DWORD conf[3] = {0};
-    DWORD error = 0;    
+    DWORD error = 0;
     BOOLEAN multiFuncFlag = FALSE;
     BYTE type = 0;
 
@@ -149,7 +149,7 @@ DWORD FindPciDeviceByClass( BYTE baseClass, BYTE subClass, BYTE programIf, BYTE 
                 if (R0ReadPciConfig(pciAddress, 0, (BYTE*)conf, sizeof(conf)))
                 {
                     if(func == 0) // Is Multi Function Device
-                    { 
+                    {
                         if (R0ReadPciConfig(pciAddress, 0x0E, (BYTE*)&type, sizeof(type)))
                         {
                             if(type & 0x80)
@@ -158,7 +158,7 @@ DWORD FindPciDeviceByClass( BYTE baseClass, BYTE subClass, BYTE programIf, BYTE 
                             }
                         }
                     }
-                    if((conf[2] & 0xFFFFFF00) == 
+                    if((conf[2] & 0xFFFFFF00) ==
                             (((DWORD)baseClass << 24) |
                             ((DWORD)subClass << 16) |
                             ((DWORD)programIf << 8))
@@ -236,6 +236,7 @@ GetBarSize(
 VOID InitGpuHardware()
 {
     DWORD bar;
+    UINT32 size;
 
     PushSharedMemory->HarwareInformation.DisplayDevice.pciAddress = FindPciDeviceByClass(0x03, 0x00, 0x00, 0);
 
@@ -261,12 +262,12 @@ VOID InitGpuHardware()
     }
 
     PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress = GetBarAddress(bar);
-    UINT32 size = GetBarSize(PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress);
+    size = GetBarSize(PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress);
 
     if (PushSharedMemory->HarwareInformation.DisplayDevice.VendorId == INTEL)
     {
         DWORD mchBar = 0xFED10000;
-        
+
         // 16-Byte alligned address;
         mchBar = (mchBar & 0x0fffffff0);
 
@@ -404,7 +405,7 @@ VOID GetHardwareInfo()
     int monitorCount;
     CORE_LIST *coreListEntry;
     HANDLE gdi32;
-    
+
     //use 64 bits to force allmul() on 32 bit builds
     UINT64 physicalPages;
     UINT64 pageSize;
@@ -424,13 +425,13 @@ VOID GetHardwareInfo()
     NtQuerySystemInformation(SystemBasicInformation, &HwInfoSystemBasicInformation, sizeof(SYSTEM_BASIC_INFORMATION), 0);
 
     PushSharedMemory->HarwareInformation.Processor.NumberOfCores = HwInfoSystemBasicInformation.NumberOfProcessors;
-    
+
     physicalPages = HwInfoSystemBasicInformation.NumberOfPhysicalPages;
     pageSize = HwInfoSystemBasicInformation.PageSize;
 
     //byte => megabytes
     PushSharedMemory->HarwareInformation.Memory.Total = (physicalPages * pageSize) / 1048576;
-    
+
     coreListEntry = &coreList;
 
     for (i = 0; i < PushSharedMemory->HarwareInformation.Processor.NumberOfCores; i++)
@@ -469,7 +470,7 @@ VOID GetHardwareInfo()
 }
 
 
-#define STATUS_GRAPHICS_DDCCI_VCP_NOT_SUPPORTED ((NTSTATUS)0xC01E0584L)    
+#define STATUS_GRAPHICS_DDCCI_VCP_NOT_SUPPORTED ((NTSTATUS)0xC01E0584L)
 
 #define VCP_BRIGHTNESS              0x10
 #define VCP_HORIZONTAL_FREQUENCY    0xAC
@@ -482,7 +483,7 @@ VOID RefreshHardwareInfo()
 {
     GPU_INFO gpuInfo;
     MC_TIMING_REPORT timingReport;
-    
+
     Memory_Clear(&gpuInfo, sizeof(GPU_INFO));
     GPU_GetInfo(&gpuInfo);
 
@@ -501,7 +502,7 @@ VOID RefreshHardwareInfo()
     PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle     = gpuInfo.FanDutyCycle;
     PushSharedMemory->HarwareInformation.Memory.Used                    = GetRamUsed();
     PushSharedMemory->HarwareInformation.Memory.Load                    = GetRamUsage();
-    
+
     if (DiskMonitorInitialized)
         PushSharedMemory->HarwareInformation.Disk.ReadWriteRate             = GetDiskReadWriteRate();
 
