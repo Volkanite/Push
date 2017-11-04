@@ -8,6 +8,7 @@
 		<Build>
 			<Target title="Debug Win32">
 				<Option output="../../bin/Push" prefix_auto="1" extension_auto="1" />
+				<Option object_output="../../build" />
 				<Option type="0" />
 				<Option compiler="msvc10" />
 				<Compiler>
@@ -51,6 +52,7 @@
 			</Target>
 			<Target title="Release Win32">
 				<Option output="../../bin/Push" prefix_auto="1" extension_auto="1" />
+				<Option object_output="../../build/Push/Release32" />
 				<Option type="0" />
 				<Option compiler="msvc10" />
 			</Target>
