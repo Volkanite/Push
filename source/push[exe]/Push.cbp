@@ -207,6 +207,9 @@
 		<Unit filename="push.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="push.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
 		<Unit filename="ramdisk.c">
 			<Option compilerVar="CC" />
 		</Unit>
