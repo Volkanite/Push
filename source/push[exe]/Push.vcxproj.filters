@@ -110,9 +110,6 @@
     <ClCompile Include="Hardware\GPU\Nvidia\NvThermalDiode\Context.c">
       <Filter>Hardware\GPU\Nvidia\NvThermalDiode</Filter>
     </ClCompile>
-    <ClCompile Include="Hardware\GPU\Nvidia\NvThermalDiode\NvThermalDiode.cpp">
-      <Filter>Hardware\GPU\Nvidia\NvThermalDiode</Filter>
-    </ClCompile>
     <ClCompile Include="Hardware\GPU\d3dkmt.c">
       <Filter>Hardware\GPU</Filter>
     </ClCompile>
@@ -127,6 +124,9 @@
     </ClCompile>
     <ClCompile Include="Hardware\GPU\Intel\IntelGpu.c">
       <Filter>Hardware\GPU\Intel</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\Nvidia\NvThermalDiode\NvThermalDiode.c">
+      <Filter>Hardware\GPU\Nvidia\NvThermalDiode</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

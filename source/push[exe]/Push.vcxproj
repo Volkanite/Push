@@ -42,7 +42,7 @@
     <ClCompile Include="Hardware\GPU\Nvidia\nvapi.c" />
     <ClCompile Include="Hardware\GPU\Nvidia\NvidiaGpu.c" />
     <ClCompile Include="Hardware\GPU\Nvidia\NvThermalDiode\Context.c" />
-    <ClCompile Include="Hardware\GPU\Nvidia\NvThermalDiode\NvThermalDiode.cpp" />
+    <ClCompile Include="Hardware\GPU\Nvidia\NvThermalDiode\NvThermalDiode.c" />
     <ClCompile Include="Hardware\GPU\Nvidia\OpenNvapi.c" />
     <ClCompile Include="Hardware\hardware.c" />
     <ClCompile Include="ini.c" />
