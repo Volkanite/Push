@@ -418,7 +418,7 @@ VOID GetHardwareInfo()
     PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax = GPU_GetMaximumMemoryClock();
     PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax = GPU_GetMaximumVoltage();
 
-    if (SlIniReadBoolean(L"Settings", L"GpuUsageD3DKMT", FALSE))
+    if (Ini_ReadBoolean(L"Settings", L"GpuUsageD3DKMT", FALSE, L".\\" PUSH_SETTINGS_FILE))
         PushGpuLoadD3DKMT = TRUE;
 
     // Get the number of processors in the system

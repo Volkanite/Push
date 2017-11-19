@@ -530,14 +530,14 @@ VOID PROFILE_ReleaseFile(void)
 BOOLEAN
 PROFILE_Open( WCHAR* Filename, BOOLEAN WriteAccess )
 {
-	WCHAR buffer[260];
-	WCHAR* dummy;
+    WCHAR buffer[260];
+    WCHAR* dummy;
     WCHAR* dummy2;
     VOID* fileHandle = INVALID_HANDLE_VALUE;
-	FILETIME LastWriteTime = {0};
+    FILETIME LastWriteTime = {0};
     int i,j;
     PROFILE *tempProfile;
-	NTSTATUS status;
+    NTSTATUS status;
 
     /* First time around */
 
@@ -550,7 +550,7 @@ PROFILE_Open( WCHAR* Filename, BOOLEAN WriteAccess )
           MRUProfile[i]->section=NULL;
           MRUProfile[i]->FileName=NULL;
 
-		Memory_Clear(&MRUProfile[i]->LastWriteTime, sizeof(FILETIME));
+        Memory_Clear(&MRUProfile[i]->LastWriteTime, sizeof(FILETIME));
        }
 
     if (!Filename)
@@ -1178,7 +1178,7 @@ BOOLEAN SlIniWriteString( WCHAR* section, WCHAR* entry, WCHAR* string )
 }
 
 
-DWORD Ini_GetString( wchar_t* section, wchar_t* entry, wchar_t* def_val, wchar_t* Buffer, DWORD Length )
+DWORD Ini_GetString( wchar_t* section, wchar_t* entry, wchar_t* def_val, wchar_t* Buffer, DWORD Length, wchar_t* FileName )
 {
     int     ret;
     WCHAR*  defval_tmp = NULL;
@@ -1206,7 +1206,7 @@ DWORD Ini_GetString( wchar_t* section, wchar_t* entry, wchar_t* def_val, wchar_t
 
     RtlEnterCriticalSection( &PROFILE_CritSect );
 
-    if (PROFILE_Open(L".\\" PUSH_SETTINGS_FILE, FALSE))
+    if (PROFILE_Open(FileName, FALSE))
     {
         if (section == NULL)
             ret = PROFILE_GetSectionNames(Buffer, Length);
@@ -1259,22 +1259,22 @@ VOID SlIniWriteSubKey( WCHAR *Section, WCHAR *pszMasterKey, WCHAR *pszSubKey, WC
 }
 
 
-BOOLEAN SlIniReadBoolean(WCHAR* Section, WCHAR* Key, BOOLEAN DefaultValue)
+BOOLEAN Ini_ReadBoolean( WCHAR* Section, WCHAR* Key, BOOLEAN DefaultValue, WCHAR* FileName )
 {
     WCHAR result[255], defaultValue[255];
     BOOLEAN bResult;
 
     String_Format(defaultValue, 255, L"%ls", DefaultValue? L"True" : L"False");
-    Ini_GetString(Section, Key, defaultValue, result, 255);
+    Ini_GetString(Section, Key, defaultValue, result, 255, FileName);
 
     bResult =  (String_Compare(result, L"True") == 0 ||
-		String_Compare(result, L"true") == 0) ? TRUE : FALSE;
+        String_Compare(result, L"true") == 0) ? TRUE : FALSE;
 
     return bResult;
 }
 
 
-VOID Ini_ReadSubKey( WCHAR *section, WCHAR* MasterKey, WCHAR *subKey, WCHAR* DefaultString, WCHAR* Buffer, DWORD Length )
+VOID Ini_ReadSubKey( WCHAR *section, WCHAR* MasterKey, WCHAR *subKey, WCHAR* DefaultString, WCHAR* Buffer, DWORD Length, WCHAR* FileName )
 {
     WCHAR key[260];
 
@@ -1287,30 +1287,5 @@ VOID Ini_ReadSubKey( WCHAR *section, WCHAR* MasterKey, WCHAR *subKey, WCHAR* Def
     String_Concatenate(key, L").");
     String_Concatenate(key, subKey);
 
-    Ini_GetString(section, key, DefaultString, Buffer, Length);
-}
-
-
-BOOLEAN Ini_ReadSubKeyBoolean( WCHAR* Section, WCHAR* MasterKey, WCHAR* subKey, BOOLEAN DefaultValue )
-{
-    WCHAR result[255], defaultValue[255];
-    WCHAR key[260];
-    BOOLEAN bResult;
-
-    if (!MasterKey)
-        return FALSE;
-
-    String_Copy(key, L"(");
-
-    String_Concatenate(key, MasterKey);
-    String_Concatenate(key, L").");
-    String_Concatenate(key, subKey);
-
-    String_Format(defaultValue, 255, L"%ls", DefaultValue? L"True" : L"False");
-    Ini_GetString(Section, key, defaultValue, result, 255);
-
-    bResult =  (String_Compare(result, L"True") == 0 ||
-		String_Compare(result, L"true") == 0) ? TRUE : FALSE;
-
-    return bResult;
+    Ini_GetString(section, key, DefaultString, Buffer, Length, FileName);
 }

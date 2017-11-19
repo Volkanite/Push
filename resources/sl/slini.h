@@ -21,10 +21,11 @@ SlIniReadFloat(
 extern "C" {
 #endif
 
-BOOLEAN SlIniReadBoolean(
+BOOLEAN Ini_ReadBoolean(
     WCHAR* section,
     WCHAR* key,
-    BOOLEAN defaultValue
+    BOOLEAN defaultValue,
+    WCHAR* FileName
     );
 
 DWORD Ini_GetString(
@@ -32,7 +33,8 @@ DWORD Ini_GetString(
     wchar_t* entry, 
     wchar_t* def_val, 
     wchar_t* Buffer, 
-    DWORD Length
+    DWORD Length,
+    wchar_t* FileName
     );
 
 VOID Ini_ReadSubKey(
@@ -41,14 +43,8 @@ VOID Ini_ReadSubKey(
     WCHAR* subKey,
     WCHAR* DefaultString,
     WCHAR* Buffer,
-    DWORD Length
-    );
-
-BOOLEAN Ini_ReadSubKeyBoolean(
-    WCHAR *section,
-    WCHAR *masterKey,
-    WCHAR *subKey,
-    BOOLEAN defaultValue
+    DWORD Length,
+    WCHAR* FileName
     );
 
 VOID SlIniWriteInteger(

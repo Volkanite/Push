@@ -453,7 +453,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
 
                     imageName = String_FindLastChar(filePath, '\\') + 1;
 
-                    if (SlIniReadBoolean(L"Games", imageName, FALSE))
+                    if (Ini_ReadBoolean(L"Games", imageName, FALSE, L".\\" PUSH_SETTINGS_FILE))
                         imageName = filePath;
 
                     // Get free index.

@@ -28,6 +28,7 @@ typedef struct _PUSH_GAME
     WCHAR* ExecutablePath;
     WCHAR* Name;
     WCHAR* InstallPath;
+    WCHAR* SettingsFile;
     WCHAR Id[3];
     DWORD CheckSum;
     PUSH_GAME_SETTINGS Settings;

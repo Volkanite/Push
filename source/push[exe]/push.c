@@ -642,55 +642,74 @@ VOID PatchMemory()
 
     if (game && game->Settings.PatchMemory)
     {
-        wchar_t patchFile[260];
-        wchar_t szAddr[9], szValue[5];
+        wchar_t szValue[16];
+        wchar_t *addresses;
         DWORD dwAddr;
         DWORD dwValue;
-        wchar_t *fileContents;
         int i;
+        INT32 count = 0;
+        INT32 bufferSize = 512;
+        DWORD returnValue;
 
         Log(L"Patching memory...");
 
-        Game_GetPatchFile(game, patchFile);
-        fileContents = File_Load(patchFile, NULL);
+        addresses = (WCHAR*)Memory_Allocate(4);
 
-        // Start our reads after the UTF16-LE character marker
-        fileContents += 1;
-
-        for (i = 0; i < 4; i++)
+        do
         {
-            wchar_t *nextLine;
-            String_CopyN(szAddr, fileContents, 8);
-            szAddr[8] = L'\0';
+            count++;
 
-            fileContents += 9;
+            addresses = (WCHAR*)Memory_ReAllocate(
+                addresses,
+                bufferSize * 2 * count
+                );
 
-            if (fileContents[0] == '{')
+            returnValue = Ini_GetString(
+                L"Patches",
+                0, 0,
+                addresses,
+                bufferSize * count,
+                game->SettingsFile
+                );
+
+            if (!returnValue)
             {
-                if (String_CompareN(fileContents, L"{DISPLAYWIDTH}", 14) == 0)
-                {
-                    dwValue = MonitorWidth;
-                }
-                else if (String_CompareN(fileContents, L"{DISPLAYHEIGHT}", 15) == 0)
-                {
-                    dwValue = MonitorHeight;
-                }
-            }
-            else
-            {
-                String_CopyN(szValue, fileContents, 4);
-                szValue[4] = L'\0';
-                dwValue = _wtoi(szValue);
+                Memory_Free(addresses);
+                return;
             }
 
-            dwAddr = wcstol(szAddr, NULL, 16);
+        } while ((returnValue == ((bufferSize * count) - 1))
+            || (returnValue == ((bufferSize * count) - 2)));
 
-            Log(L"PatchMemory(0x%x, %u)", dwAddr, dwValue);
-            Process_WriteMemory(processHandle, (VOID*)dwAddr, &dwValue, sizeof(DWORD));
+        if (addresses)
+        {
+            for (i = 0; addresses[0] != '\0'; i++)
+            {
+                Ini_GetString(L"Patches", addresses, NULL, szValue, 16, game->SettingsFile);
 
-            // Try to find new line character
-            nextLine = String_FindFirstChar(fileContents, L'\n');
-            fileContents = nextLine + 1;
+                if (szValue[0] == '{')
+                {
+                    if (String_CompareN(szValue, L"{DISPLAYWIDTH}", 14) == 0)
+                    {
+                        dwValue = MonitorWidth;
+                    }
+                    else if (String_CompareN(szValue, L"{DISPLAYHEIGHT}", 15) == 0)
+                    {
+                        dwValue = MonitorHeight;
+                    }
+                }
+                else
+                {
+                    dwValue = _wtoi(szValue);
+                }
+
+                dwAddr = wcstol(addresses, NULL, 16);
+
+                Log(L"PatchMemory(0x%x, %u)", dwAddr, dwValue);
+                Process_WriteMemory(processHandle, (VOID*)dwAddr, &dwValue, sizeof(DWORD));
+
+                addresses = String_FindLastChar(addresses, '\0') + 1;
+            }
         }
     }
 }
@@ -1330,23 +1349,23 @@ INT32 __stdcall start( )
 
             buffer = Memory_Allocate(10 * sizeof(WCHAR));
 
-            if (SlIniReadBoolean(L"Settings", L"FrameLimit", FALSE))
+            if (Ini_ReadBoolean(L"Settings", L"FrameLimit", FALSE, L".\\" PUSH_SETTINGS_FILE))
                 PushSharedMemory->FrameLimit = TRUE;
 
-            if (SlIniReadBoolean(L"Settings", L"ThreadOptimization", FALSE))
+            if (Ini_ReadBoolean(L"Settings", L"ThreadOptimization", FALSE, L".\\" PUSH_SETTINGS_FILE))
                 PushSharedMemory->ThreadOptimization = TRUE;
 
-            if (SlIniReadBoolean(L"Settings", L"KeepFps", FALSE))
+            if (Ini_ReadBoolean(L"Settings", L"KeepFps", FALSE, L".\\" PUSH_SETTINGS_FILE))
                 PushSharedMemory->KeepFps = TRUE;
 
-            Ini_GetString(L"Settings", L"OverlayInterface", NULL, buffer, 5);
+            Ini_GetString(L"Settings", L"OverlayInterface", NULL, buffer, 5, L".\\" PUSH_SETTINGS_FILE);
 
             if (String_Compare(buffer, L"PURE") == 0)
                 PushOverlayInterface = OVERLAY_INTERFACE_PURE;
             else if (String_Compare(buffer, L"RTSS") == 0)
                 PushOverlayInterface = OVERLAY_INTERFACE_RTSS;
 
-            Ini_GetString(L"Settings", L"KeyboardHookType", L"AUTO", buffer, 10);
+            Ini_GetString(L"Settings", L"KeyboardHookType", L"AUTO", buffer, 10, L".\\" PUSH_SETTINGS_FILE);
 
             if (String_Compare(buffer, L"AUTO") == 0)
             {
@@ -1377,13 +1396,13 @@ INT32 __stdcall start( )
                 PushSharedMemory->KeyboardHookType = KEYBOARD_HOOK_AUTO;
             }
 
-            Ini_GetString(L"Settings", L"EngineClockMax", NULL, buffer, 5);
+            Ini_GetString(L"Settings", L"EngineClockMax", NULL, buffer, 5, L".\\" PUSH_SETTINGS_FILE);
             PushSharedMemory->HarwareInformation.DisplayDevice.EngineOverclock = _wtoi(buffer);
 
-            Ini_GetString(L"Settings", L"MemoryClockMax", NULL, buffer, 5);
+            Ini_GetString(L"Settings", L"MemoryClockMax", NULL, buffer, 5, L".\\" PUSH_SETTINGS_FILE);
             PushSharedMemory->HarwareInformation.DisplayDevice.MemoryOverclock = _wtoi(buffer);
 
-            Ini_GetString(L"Settings", L"ControllerTimeout", NULL, buffer, 5);
+            Ini_GetString(L"Settings", L"ControllerTimeout", NULL, buffer, 5, L".\\" PUSH_SETTINGS_FILE);
             PushSharedMemory->ControllerTimeout = _wtoi(buffer);
 
             Memory_Free(buffer);
