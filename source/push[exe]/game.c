@@ -199,10 +199,10 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
         Game->Settings.PatchMemory = TRUE;
     }
 
-    Ini_ReadSubKey(L"Settings", Game->Id, L"FrameLimit", L"0", buffer, 260, gameFile);
+    Ini_GetString(L"Settings", L"FrameLimit", L"0", buffer, 260, gameFile);
     Game->Settings.FrameLimit = _wtoi(buffer);
 
-    Ini_ReadSubKey(L"Settings", Game->Id, L"ForceVsync", NULL, buffer, 260, gameFile);
+    Ini_GetString(L"Settings", L"ForceVsync", NULL, buffer, 260, gameFile);
 
     if (String_Compare(buffer, L"FORCE_ON") == 0)
     {
