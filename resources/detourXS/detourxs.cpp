@@ -30,7 +30,7 @@ BOOL DetourXS::Create(const LPVOID lpFuncOrig, const LPVOID lpFuncDetour)
     LPBYTE addrToWriteJmp;
 
     // Already created, need to Destroy() first
-    if(m_Created == TRUE)
+    if(m_Created == TRUE || lpFuncOrig == NULL)
     {
         return FALSE;
     }
