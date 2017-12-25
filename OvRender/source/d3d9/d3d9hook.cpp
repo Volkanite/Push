@@ -477,10 +477,20 @@ VOID ApplyDetourXsHooks( IDirect3DDevice9Ex* Device )
     Dx9Hook_IDirect3DDevice9Ex_ResetEx = (TYPE_IDirect3DDevice9Ex_ResetEx)detour->GetTrampoline();
 
 #ifdef _M_IX86
-    DWORD pattern = FindPattern(L"d3d9.dll",PATT_D3D9SWAPCHAINPRESENT, MASK_D3D9SWAPCHAINPRESENT);
 
-    detour = new DetourXS((VOID*)pattern, IDirect3DSwapChain9_Present_Detour);
-    D3D9Hook_IDirect3DSwapChain9_Present = (TYPE_IDirect3DSwapChain9_Present)detour->GetTrampoline();
+    IDirect3DSwapChain9 *swapChain;
+    HRESULT result;
+
+    result = Device->GetSwapChain(0, &swapChain);
+
+    if (result == S_OK)
+    {
+        virtualMethodTable = (VOID**)swapChain;
+        virtualMethodTable = (VOID**)virtualMethodTable[0];
+
+        detour = new DetourXS((VOID*)virtualMethodTable[3], IDirect3DSwapChain9_Present_Detour);
+        D3D9Hook_IDirect3DSwapChain9_Present = (TYPE_IDirect3DSwapChain9_Present)detour->GetTrampoline();
+    }
 
     //vmt = (VOID**) d3d9ex;
     //vmt = (VOID**) vmt[0];
