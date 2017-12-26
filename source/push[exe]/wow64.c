@@ -667,6 +667,17 @@ typedef enum _PROCESSINFOCLASS
     ProcessQuotaLimits
 }PROCESSINFOCLASS;
 #define STATUS_SUCCESS                  ((NTSTATUS)0x00000000L)
+NTSTATUS __stdcall NtDelayExecution(
+    BOOLEAN Alertable,
+    LARGE_INTEGER* DelayInterval
+    );
+NTSleep(UINT32 Milliseconds)
+{
+    LARGE_INTEGER interval;
+
+    interval.QuadPart = Milliseconds * -10000LL;
+    NtDelayExecution(FALSE, &interval);
+}
 
 
 VOID* GetRemoteProcessEnvironmentBlock(HANDLE ProcessHandle, PEB_64* ProcessEnvironmentBlock)
@@ -689,7 +700,17 @@ VOID* GetRemoteProcessEnvironmentBlock(HANDLE ProcessHandle, PEB_64* ProcessEnvi
         "NtWow64ReadVirtualMemory64"
         );
 
-    if (bytes > 0 && NtWow64ReadVirtualMemory64(ProcessHandle, info.PebBaseAddress, ProcessEnvironmentBlock, sizeof(PEB_64), 0) == STATUS_SUCCESS)
+    ProcessEnvironmentBlock->Ldr = 0;
+
+    //sometimes it takes a while for Ldr to be filled.
+    while (ProcessEnvironmentBlock->Ldr == 0)
+    {
+        status = NtWow64ReadVirtualMemory64(ProcessHandle, info.PebBaseAddress, ProcessEnvironmentBlock, sizeof(PEB_64), 0);
+        
+        NTSleep(500);
+    }
+
+    if (bytes > 0 && status == STATUS_SUCCESS)
         return info.PebBaseAddress;
 
     return 0;
