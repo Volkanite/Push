@@ -710,6 +710,8 @@ typedef struct _PEB_LDR_DATA_64
 }PEB_LDR_DATA_64;
 typedef unsigned long long  uint64_t;
 typedef uint64_t ptr_t;
+
+
 NTSTATUS __stdcall NtReadVirtualMemory(
     HANDLE ProcessHandle,
     VOID* BaseAddress,
@@ -717,18 +719,6 @@ NTSTATUS __stdcall NtReadVirtualMemory(
     SIZE_T BufferSize,
     SIZE_T* NumberOfBytesRead
     );
-NTSTATUS ReadProcessMemoryMy(
-    HANDLE ProcessHandle,
-    ptr_t lpBaseAddress,
-    VOID* lpBuffer,
-    size_t nSize,
-    DWORD64 *lpBytes /*= nullptr */
-    )
-{
-    return NtReadVirtualMemory(ProcessHandle, (VOID*)lpBaseAddress, lpBuffer, nSize, (SIZE_T*)lpBytes);
-}
-
-//#define FIELD_OFFSET(type, field)    ((LONG)(UINT_B)&(((type *)0)->field))
 
 
 typedef struct _LDR_DATA_TABLE_ENTRY_BASE_64
@@ -761,13 +751,13 @@ DWORD64 GetRemoteModuleHandle(HANDLE ProcessHandle, WCHAR* ModuleName)
 
     GetRemoteProcessEnvironmentBlock(ProcessHandle, &peb);
 
-    if (ReadProcessMemoryMy(ProcessHandle, peb.Ldr, &ldr, sizeof(ldr), 0) == STATUS_SUCCESS)
+    if (NtReadVirtualMemory(ProcessHandle, (VOID*)peb.Ldr, &ldr, sizeof(ldr), 0) == STATUS_SUCCESS)
     {
         DWORD head;
 
         for (head = ldr.InLoadOrderModuleList.Flink;
             head != (peb.Ldr + FIELD_OFFSET(PEB_LDR_DATA_64, InLoadOrderModuleList));
-            ReadProcessMemoryMy(ProcessHandle, (ptr_t)(head), &head, sizeof(head), 0))
+            NtReadVirtualMemory(ProcessHandle, (VOID*)head, &head, sizeof(head), 0))
         {
             wchar_t localPath[260];
             LDR_DATA_TABLE_ENTRY_BASE_64 localdata;
@@ -775,8 +765,8 @@ DWORD64 GetRemoteModuleHandle(HANDLE ProcessHandle, WCHAR* ModuleName)
             Memory_Clear(localPath, sizeof(localPath));
             Memory_Clear(&localdata, sizeof(LDR_DATA_TABLE_ENTRY_BASE_64));
 
-            ReadProcessMemoryMy(ProcessHandle, head, &localdata, sizeof(localdata), 0);
-            ReadProcessMemoryMy(ProcessHandle, localdata.BaseDllName.Buffer, localPath, localdata.FullDllName.Length, 0);
+            NtReadVirtualMemory(ProcessHandle, (VOID*)head, &localdata, sizeof(localdata), 0);
+            NtReadVirtualMemory(ProcessHandle, (VOID*)localdata.BaseDllName.Buffer, localPath, localdata.FullDllName.Length, 0);
 
             if (String_Compare(localPath, ModuleName) == 0)
             {
@@ -803,7 +793,7 @@ NTSTATUS Read(HANDLE ProcessHandle, ptr_t dwAddress, size_t dwSize, VOID* pResul
     // Simple read
     if (!handleHoles)
     {
-        return ReadProcessMemoryMy(ProcessHandle, dwAddress, pResult, dwSize, &dwRead);
+        return NtReadVirtualMemory(ProcessHandle, (VOID*)dwAddress, pResult, dwSize, (SIZE_T*)&dwRead);
     }
 
     return STATUS_SUCCESS;
