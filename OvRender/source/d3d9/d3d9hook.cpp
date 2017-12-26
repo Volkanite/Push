@@ -449,17 +449,7 @@ VOID ApplyDetourXsHooks( IDirect3DDevice9Ex* Device )
     Log(L"=> ApplyDetourXsHooks()");
     
     virtualMethodTable = (VOID**)Device;
-    
-#ifdef _M_IX86
     virtualMethodTable = (VOID**)virtualMethodTable[0];
-    Log(L"virtualMethodTable2 0x%X", virtualMethodTable);
-#else
-    DWORD64 base = (DWORD64) LoadLibraryW(L"d3d9.dll");
-    Log(L"base: 0x%llX", base);
-    base += 0x186320;
-    virtualMethodTable = (VOID**)base;
-    Log(L"virtualMethodTable2 0x%llX", virtualMethodTable);
-#endif
 
     detour = new DetourXS(virtualMethodTable[3], IDirect3DDevice9_TestCooperativeLevel_Detour);
     D3D9Hook_IDirect3DDevice9_TestCooperativeLevel = (TYPE_IDirect3DDevice9_TestCooperativeLevel)detour->GetTrampoline();
