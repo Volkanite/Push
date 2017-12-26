@@ -712,13 +712,7 @@ typedef unsigned long long  uint64_t;
 typedef uint64_t ptr_t;
 
 
-NTSTATUS __stdcall NtReadVirtualMemory(
-    HANDLE ProcessHandle,
-    VOID* BaseAddress,
-    VOID* Buffer,
-    SIZE_T BufferSize,
-    SIZE_T* NumberOfBytesRead
-    );
+
 
 
 typedef struct _LDR_DATA_TABLE_ENTRY_BASE_64
@@ -741,23 +735,29 @@ typedef struct _LDR_DATA_TABLE_ENTRY_BASE_64
 }LDR_DATA_TABLE_ENTRY_BASE_64;
 
 
-DWORD64 GetRemoteModuleHandle(HANDLE ProcessHandle, WCHAR* ModuleName)
+NTSTATUS NtReadVirtualMemory64(HANDLE ProcessHandle, DWORD64 BaseAddress, PVOID Buffer, SIZE_T BufferSize);
+
+
+DWORD64 GetRemoteModuleHandle( HANDLE ProcessHandle, WCHAR* ModuleName )
 {
     PEB_64 peb;
     PEB_LDR_DATA_64 ldr;
+    NTSTATUS status = 0;
 
     Memory_Clear(&peb, sizeof(PEB_64));
     Memory_Clear(&ldr, sizeof(PEB_LDR_DATA_64));
 
     GetRemoteProcessEnvironmentBlock(ProcessHandle, &peb);
 
-    if (NtReadVirtualMemory(ProcessHandle, (VOID*)peb.Ldr, &ldr, sizeof(ldr), 0) == STATUS_SUCCESS)
+    status = NtReadVirtualMemory64(ProcessHandle, peb.Ldr, &ldr, sizeof(ldr));
+
+    if (status == STATUS_SUCCESS)
     {
         DWORD head;
 
         for (head = ldr.InLoadOrderModuleList.Flink;
             head != (peb.Ldr + FIELD_OFFSET(PEB_LDR_DATA_64, InLoadOrderModuleList));
-            NtReadVirtualMemory(ProcessHandle, (VOID*)head, &head, sizeof(head), 0))
+            NtReadVirtualMemory64(ProcessHandle, head, &head, sizeof(head)))
         {
             wchar_t localPath[260];
             LDR_DATA_TABLE_ENTRY_BASE_64 localdata;
@@ -765,8 +765,8 @@ DWORD64 GetRemoteModuleHandle(HANDLE ProcessHandle, WCHAR* ModuleName)
             Memory_Clear(localPath, sizeof(localPath));
             Memory_Clear(&localdata, sizeof(LDR_DATA_TABLE_ENTRY_BASE_64));
 
-            NtReadVirtualMemory(ProcessHandle, (VOID*)head, &localdata, sizeof(localdata), 0);
-            NtReadVirtualMemory(ProcessHandle, (VOID*)localdata.BaseDllName.Buffer, localPath, localdata.FullDllName.Length, 0);
+            NtReadVirtualMemory64(ProcessHandle, head, &localdata, sizeof(localdata));
+            NtReadVirtualMemory64(ProcessHandle, localdata.BaseDllName.Buffer, localPath, localdata.FullDllName.Length);
 
             if (String_Compare(localPath, ModuleName) == 0)
             {
@@ -782,22 +782,20 @@ DWORD64 GetRemoteModuleHandle(HANDLE ProcessHandle, WCHAR* ModuleName)
 #define IMAGE_NUMBEROF_DIRECTORY_ENTRIES    16
 
 
-
 NTSTATUS Read(HANDLE ProcessHandle, ptr_t dwAddress, size_t dwSize, VOID* pResult, BOOLEAN handleHoles)
 {
-    DWORD64 dwRead = 0;
-
     if (dwAddress == 0)
         return 0;
 
     // Simple read
     if (!handleHoles)
     {
-        return NtReadVirtualMemory(ProcessHandle, (VOID*)dwAddress, pResult, dwSize, (SIZE_T*)&dwRead);
+        return NtReadVirtualMemory64(ProcessHandle, dwAddress, pResult, dwSize);
     }
 
     return STATUS_SUCCESS;
 }
+
 
 #define IMAGE_DOS_SIGNATURE                 0x5A4D      // MZ
 #define IMAGE_NT_SIGNATURE                  0x00004550  // PE00
@@ -899,6 +897,36 @@ DWORD64 GetRemoteProcAddress(HANDLE ProcessHandle, DWORD64 BaseAddress, const ch
     }
 
     return 0;
+}
+
+
+NTSTATUS NtReadVirtualMemory64( HANDLE ProcessHandle, DWORD64 BaseAddress, PVOID Buffer, SIZE_T BufferSize )
+{
+    DWORD64 ulModule = GetModuleHandle64(L"ntdll.dll");
+    NTSTATUS status;
+    DWORD64 bytesRead = NULL;
+
+    if (ulModule)
+    {
+        DWORD64 _NtReadVirtualMemory = GetProcAddress64(ulModule, "NtReadVirtualMemory");
+
+        if (_NtReadVirtualMemory)
+        {
+            DWORD64 parameters[5];
+
+            Memory_Clear(parameters, sizeof(parameters));
+
+            parameters[0] = (DWORD64)ProcessHandle;     // _In_ HANDLE ProcessHandle
+            parameters[1] = (DWORD64)BaseAddress;       // _In_opt_ PVOID BaseAddress
+            parameters[2] = (DWORD64)Buffer;            // _Out_ PVOID Buffer
+            parameters[3] = (DWORD64)BufferSize;        // _In_ SIZE_T BufferSize
+            parameters[4] = (DWORD64)&bytesRead;        // _Out_opt_ PSIZE_T NumberOfBytesRead
+
+            status = CallFunction64(_NtReadVirtualMemory, 0, parameters, 5, 0);
+        }
+    }
+
+    return status;
 }
 
 
