@@ -736,6 +736,7 @@ typedef struct _LDR_DATA_TABLE_ENTRY_BASE_64
 
 
 NTSTATUS NtReadVirtualMemory64(HANDLE ProcessHandle, DWORD64 BaseAddress, PVOID Buffer, SIZE_T BufferSize);
+WCHAR* __stdcall StrStrIW(WCHAR*, WCHAR*);
 
 
 DWORD64 GetRemoteModuleHandle( HANDLE ProcessHandle, WCHAR* ModuleName )
@@ -768,7 +769,7 @@ DWORD64 GetRemoteModuleHandle( HANDLE ProcessHandle, WCHAR* ModuleName )
             NtReadVirtualMemory64(ProcessHandle, head, &localdata, sizeof(localdata));
             NtReadVirtualMemory64(ProcessHandle, localdata.BaseDllName.Buffer, localPath, localdata.FullDllName.Length);
 
-            if (String_Compare(localPath, ModuleName) == 0)
+            if (StrStrIW(localPath, ModuleName))
             {
                 return localdata.DllBase;
             }
