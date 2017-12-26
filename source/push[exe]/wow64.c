@@ -753,7 +753,7 @@ DWORD64 GetRemoteModuleHandle( HANDLE ProcessHandle, WCHAR* ModuleName )
 
     if (status == STATUS_SUCCESS)
     {
-        DWORD head;
+        DWORD64 head;
 
         for (head = ldr.InLoadOrderModuleList.Flink;
             head != (peb.Ldr + FIELD_OFFSET(PEB_LDR_DATA_64, InLoadOrderModuleList));
