@@ -161,12 +161,14 @@ LPVOID DetourXS::RecurseJumps(LPVOID lpAddr)
     {
         LPVOID lpDest = nullptr;
 
-    #ifdef _M_IX86
-        lpDest = reinterpret_cast<LPVOID>( *reinterpret_cast<PDWORD>(lpbAddr + 1) + reinterpret_cast<DWORD>(lpbAddr) + relativeJmpSize );
-    #else
-        lpDest = reinterpret_cast<LPVOID>( *reinterpret_cast<PDWORD>(lpbAddr + 1) + reinterpret_cast<DWORD>(lpbAddr) + relativeJmpSize 
-            + (reinterpret_cast<DWORD_PTR>(GetModuleHandle(NULL)) & 0xFFFFFFFF00000000) );
-    #endif
+        #ifdef _M_IX86
+            lpDest = reinterpret_cast<LPVOID>(*reinterpret_cast<PDWORD>(lpbAddr + 1) + reinterpret_cast<DWORD>(lpbAddr)+relativeJmpSize);
+        #else
+            lpDest = reinterpret_cast<LPVOID>(*reinterpret_cast<PDWORD>(lpbAddr + 1) + reinterpret_cast<DWORD64>(lpbAddr)+relativeJmpSize);
+            DWORD64 basefixed = ((DWORD64)lpbAddr & 0xFFFFFFFF00000000);
+            DWORD disp = reinterpret_cast<DWORD>(lpDest);
+            lpDest = (LPVOID)(basefixed + disp);
+        #endif
 
         return RecurseJumps(lpDest);
     }
