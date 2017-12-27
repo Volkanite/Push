@@ -427,12 +427,24 @@ VOID Inject( HANDLE ProcessHandle )
         DWORD64 _LoadLibraryW;
 
         kernel32Base = GetRemoteModuleHandle(ProcessHandle, L"kernel32.dll");
+
+		if (!kernel32Base)
+		{
+			Log(L"Failed to get kernel32.dll base address");
+			return;
+		}
+
         _LoadLibraryW = GetRemoteProcAddress(ProcessHandle, kernel32Base, "LoadLibraryW");
 
-        if (!_LoadLibraryW)
-            return;
+		if (!_LoadLibraryW)
+		{
+			Log(L"Failed to get address of LoadLibraryW");
+			return;
+		}
 
         threadHandle = NtCreateThreadEx64(ProcessHandle, _LoadLibraryW, (DWORD)remoteMemory);
+
+		Log(L"threadHandle: 0x%llX", threadHandle);
     }
     else
     {
