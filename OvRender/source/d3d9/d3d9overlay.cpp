@@ -155,7 +155,9 @@ VOID Dx9OvRender( IDirect3DDevice9* Device )
     // Set backbuffer as new render target.
     
     Device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &backBuffer);
-    backBuffer->GetDesc(&backBufferDesc);
+
+    if (backBuffer)
+        backBuffer->GetDesc(&backBufferDesc);
 
     if (backBufferDesc.Width != 1 && backBufferDesc.Height != 1)
     {
@@ -178,9 +180,11 @@ VOID Dx9OvRender( IDirect3DDevice9* Device )
     Device->SetViewport(&viewport);
 
     // Cleanup.
+    if (backBuffer)
+        backBuffer->Release();
 
-    backBuffer->Release();
-    renderTarget->Release();
+    if (renderTarget)
+        renderTarget->Release();
 }
 
 

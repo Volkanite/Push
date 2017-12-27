@@ -273,9 +273,12 @@ HRESULT Dx9Font::DrawText( FLOAT sx, FLOAT sy, DWORD dwColor, TCHAR* strText, DW
     FLOAT fStartX = sx;
 
     // Fill vertex buffer
-    FONT2DVERTEX* pVertices = NULL;
+    FONT2DVERTEX* vertices = NULL;
     DWORD         dwNumTriangles = 0;
-    m_pVB->Lock( 0, 0, (void**)&pVertices, D3DLOCK_DISCARD );
+    m_pVB->Lock( 0, 0, (void**)&vertices, D3DLOCK_DISCARD );
+
+    if (vertices == NULL)
+        return D3D_OK;
 
     while( *strText )
     {
@@ -300,12 +303,12 @@ HRESULT Dx9Font::DrawText( FLOAT sx, FLOAT sy, DWORD dwColor, TCHAR* strText, DW
 
         if( c != _T(' ') )
         {
-            *pVertices++ = InitFont2DVertex( D3DXVECTOR4(sx+0-0.5f,sy+h-0.5f,0.9f,1.0f), dwColor, tx1, ty2 );
-            *pVertices++ = InitFont2DVertex( D3DXVECTOR4(sx+0-0.5f,sy+0-0.5f,0.9f,1.0f), dwColor, tx1, ty1 );
-            *pVertices++ = InitFont2DVertex( D3DXVECTOR4(sx+w-0.5f,sy+h-0.5f,0.9f,1.0f), dwColor, tx2, ty2 );
-            *pVertices++ = InitFont2DVertex( D3DXVECTOR4(sx+w-0.5f,sy+0-0.5f,0.9f,1.0f), dwColor, tx2, ty1 );
-            *pVertices++ = InitFont2DVertex( D3DXVECTOR4(sx+w-0.5f,sy+h-0.5f,0.9f,1.0f), dwColor, tx2, ty2 );
-            *pVertices++ = InitFont2DVertex( D3DXVECTOR4(sx+0-0.5f,sy+0-0.5f,0.9f,1.0f), dwColor, tx1, ty1 );
+            *vertices++ = InitFont2DVertex( D3DXVECTOR4(sx+0-0.5f,sy+h-0.5f,0.9f,1.0f), dwColor, tx1, ty2 );
+            *vertices++ = InitFont2DVertex( D3DXVECTOR4(sx+0-0.5f,sy+0-0.5f,0.9f,1.0f), dwColor, tx1, ty1 );
+            *vertices++ = InitFont2DVertex( D3DXVECTOR4(sx+w-0.5f,sy+h-0.5f,0.9f,1.0f), dwColor, tx2, ty2 );
+            *vertices++ = InitFont2DVertex( D3DXVECTOR4(sx+w-0.5f,sy+0-0.5f,0.9f,1.0f), dwColor, tx2, ty1 );
+            *vertices++ = InitFont2DVertex( D3DXVECTOR4(sx+w-0.5f,sy+h-0.5f,0.9f,1.0f), dwColor, tx2, ty2 );
+            *vertices++ = InitFont2DVertex( D3DXVECTOR4(sx+0-0.5f,sy+0-0.5f,0.9f,1.0f), dwColor, tx1, ty1 );
             dwNumTriangles += 2;
 
             if( dwNumTriangles*3 > (MAX_NUM_VERTICES-6) )
@@ -313,8 +316,10 @@ HRESULT Dx9Font::DrawText( FLOAT sx, FLOAT sy, DWORD dwColor, TCHAR* strText, DW
                 // Unlock, render, and relock the vertex buffer
                 m_pVB->Unlock();
                 m_pd3dDevice->DrawPrimitive( D3DPT_TRIANGLELIST, 0, dwNumTriangles );
-                pVertices = NULL;
-                m_pVB->Lock( 0, 0, (void**)&pVertices, D3DLOCK_DISCARD );
+                
+                vertices = NULL;
+                
+                m_pVB->Lock( 0, 0, (void**)&vertices, D3DLOCK_DISCARD );
                 dwNumTriangles = 0L;
             }
         }
