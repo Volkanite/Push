@@ -199,6 +199,8 @@ BOOL __stdcall DllMain(
     {
     case DLL_PROCESS_ATTACH:
         {
+            Log(L"Dropship arrived successfully.");
+
             PushSharedMemory = (PUSH_SHARED_MEMORY *)OpenSection(
                 PUSH_SECTION_NAME, 
                 sizeof(PUSH_SHARED_MEMORY)
