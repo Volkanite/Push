@@ -754,6 +754,13 @@ typedef struct _LDR_DATA_TABLE_ENTRY_BASE_64
 
 
 WCHAR* __stdcall StrStrIW(WCHAR*, WCHAR*);
+VOID* Memory_Allocate(DWORD Size);
+
+#define IMAGE_NUMBEROF_DIRECTORY_ENTRIES    16
+#define IMAGE_DOS_SIGNATURE                 0x5A4D      // MZ
+#define IMAGE_NT_SIGNATURE                  0x00004550  // PE00
+#define IMAGE_NT_OPTIONAL_HDR32_MAGIC      0x10b
+#define IMAGE_DIRECTORY_ENTRY_EXPORT          0   // Export Directory
 
 
 DWORD64 GetRemoteModuleHandle( HANDLE ProcessHandle, WCHAR* ModuleName )
@@ -795,15 +802,6 @@ DWORD64 GetRemoteModuleHandle( HANDLE ProcessHandle, WCHAR* ModuleName )
 
     return 0;
 }
-
-
-#define IMAGE_NUMBEROF_DIRECTORY_ENTRIES    16
-#define IMAGE_DOS_SIGNATURE                 0x5A4D      // MZ
-#define IMAGE_NT_SIGNATURE                  0x00004550  // PE00
-#define IMAGE_NT_OPTIONAL_HDR32_MAGIC      0x10b
-#define IMAGE_DIRECTORY_ENTRY_EXPORT          0   // Export Directory
-
-VOID* Memory_Allocate(DWORD Size);
 
 
 DWORD64 GetRemoteProcAddress(HANDLE ProcessHandle, DWORD64 BaseAddress, const char* name_ord)
