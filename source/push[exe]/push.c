@@ -428,23 +428,23 @@ VOID Inject( HANDLE ProcessHandle )
 
         kernel32Base = GetRemoteModuleHandle(ProcessHandle, L"kernel32.dll");
 
-		if (!kernel32Base)
-		{
-			Log(L"Failed to get kernel32.dll base address");
-			return;
-		}
+        if (!kernel32Base)
+        {
+            Log(L"Failed to get kernel32.dll base address");
+            return;
+        }
 
         _LoadLibraryW = GetRemoteProcAddress(ProcessHandle, kernel32Base, "LoadLibraryW");
 
-		if (!_LoadLibraryW)
-		{
-			Log(L"Failed to get address of LoadLibraryW");
-			return;
-		}
+        if (!_LoadLibraryW)
+        {
+            Log(L"Failed to get address of LoadLibraryW");
+            return;
+        }
 
         threadHandle = NtCreateThreadEx64(ProcessHandle, _LoadLibraryW, (DWORD)remoteMemory);
 
-		Log(L"threadHandle: 0x%llX", threadHandle);
+        Log(L"threadHandle: 0x%llX", threadHandle);
     }
     else
     {
@@ -642,92 +642,6 @@ HANDLE* OpenProcess( DWORD ProcessId, PUSH_GAME** Game, WCHAR* FilePath )
     }
 
     return processHandle;
-}
-
-
-extern int MonitorWidth;
-extern int MonitorHeight;
-
-
-VOID PatchMemory()
-{
-    PUSH_GAME *game = NULL;
-    HANDLE processHandle = NULL;
-
-    processHandle = OpenProcess(GameProcessId, &game, NULL);
-
-    if (game && game->Settings.PatchMemory)
-    {
-        wchar_t szValue[16];
-        wchar_t *addresses;
-        DWORD dwAddr;
-        DWORD dwValue;
-        int i;
-        INT32 count = 0;
-        INT32 bufferSize = 512;
-        DWORD returnValue;
-
-        Log(L"Patching memory...");
-
-        addresses = (WCHAR*)Memory_Allocate(4);
-
-        do
-        {
-            count++;
-
-            addresses = (WCHAR*)Memory_ReAllocate(
-                addresses,
-                bufferSize * 2 * count
-                );
-
-            returnValue = Ini_GetString(
-                L"Patches",
-                0, 0,
-                addresses,
-                bufferSize * count,
-                game->SettingsFile
-                );
-
-            if (!returnValue)
-            {
-                Memory_Free(addresses);
-                return;
-            }
-
-        } while ((returnValue == ((bufferSize * count) - 1))
-            || (returnValue == ((bufferSize * count) - 2)));
-
-        if (addresses)
-        {
-            for (i = 0; addresses[0] != '\0'; i++)
-            {
-                Ini_GetString(L"Patches", addresses, NULL, szValue, 16, game->SettingsFile);
-
-                if (szValue[0] == '{')
-                {
-                    if (String_CompareN(szValue, L"{DISPLAYWIDTH}", 14) == 0)
-                    {
-                        dwValue = MonitorWidth;
-                    }
-                    else if (String_CompareN(szValue, L"{DISPLAYHEIGHT}", 15) == 0)
-                    {
-                        dwValue = MonitorHeight;
-                    }
-                }
-                else
-                {
-                    dwValue = _wtoi(szValue);
-                }
-
-                dwAddr = wcstol(addresses, NULL, 16);
-
-                Log(L"PatchMemory(0x%x, %u)", dwAddr, dwValue);
-                Process_WriteMemory(processHandle, (VOID*)dwAddr, &dwValue, sizeof(DWORD));
-
-                addresses = String_FindLastChar(addresses, '\0') + 1;
-            }
-        }
-    }
 }
 
 
@@ -1186,10 +1100,6 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                     responseTime = GetDiskResponseTime(processId);
 
                     File_Write(pipeHandle, &responseTime, 2);
-                }
-                else if (String_Compare(buffer, L"Patch") == 0)
-                {
-                    PatchMemory();
                 }
             }
         }

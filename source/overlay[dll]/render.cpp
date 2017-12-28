@@ -237,7 +237,6 @@ VOID RnRender( OvOverlay* Overlay )
     {
         rendering = TRUE;
 
-        CallPipe(L"Patch", NULL);
         InitializeKeyboardHook();
     }
 
