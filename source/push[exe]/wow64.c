@@ -733,9 +733,6 @@ typedef unsigned long long  uint64_t;
 typedef uint64_t ptr_t;
 
 
-
-
-
 typedef struct _LDR_DATA_TABLE_ENTRY_BASE_64
 {
     LIST_ENTRY_64 InLoadOrderLinks;
@@ -756,7 +753,6 @@ typedef struct _LDR_DATA_TABLE_ENTRY_BASE_64
 }LDR_DATA_TABLE_ENTRY_BASE_64;
 
 
-NTSTATUS NtReadVirtualMemory64(HANDLE ProcessHandle, DWORD64 BaseAddress, PVOID Buffer, SIZE_T BufferSize);
 WCHAR* __stdcall StrStrIW(WCHAR*, WCHAR*);
 
 
@@ -771,7 +767,7 @@ DWORD64 GetRemoteModuleHandle( HANDLE ProcessHandle, WCHAR* ModuleName )
 
     GetRemoteProcessEnvironmentBlock(ProcessHandle, &peb);
 
-    status = NtReadVirtualMemory64(ProcessHandle, peb.Ldr, &ldr, sizeof(ldr));
+    status = NtWow64ReadVirtualMemory64(ProcessHandle, peb.Ldr, &ldr, sizeof(ldr), 0);
 
     if (status == STATUS_SUCCESS)
     {
@@ -779,7 +775,7 @@ DWORD64 GetRemoteModuleHandle( HANDLE ProcessHandle, WCHAR* ModuleName )
 
         for (head = ldr.InLoadOrderModuleList.Flink;
             head != (peb.Ldr + FIELD_OFFSET(PEB_LDR_DATA_64, InLoadOrderModuleList));
-            NtReadVirtualMemory64(ProcessHandle, head, &head, sizeof(head)))
+            NtWow64ReadVirtualMemory64(ProcessHandle, head, &head, sizeof(head), 0))
         {
             wchar_t localPath[260];
             LDR_DATA_TABLE_ENTRY_BASE_64 localdata;
@@ -787,8 +783,8 @@ DWORD64 GetRemoteModuleHandle( HANDLE ProcessHandle, WCHAR* ModuleName )
             Memory_Clear(localPath, sizeof(localPath));
             Memory_Clear(&localdata, sizeof(LDR_DATA_TABLE_ENTRY_BASE_64));
 
-            NtReadVirtualMemory64(ProcessHandle, head, &localdata, sizeof(localdata));
-            NtReadVirtualMemory64(ProcessHandle, localdata.BaseDllName.Buffer, localPath, localdata.FullDllName.Length);
+            NtWow64ReadVirtualMemory64(ProcessHandle, head, &localdata, sizeof(localdata), 0);
+            NtWow64ReadVirtualMemory64(ProcessHandle, localdata.BaseDllName.Buffer, localPath, localdata.FullDllName.Length, 0);
 
             if (StrStrIW(localPath, ModuleName))
             {
@@ -802,30 +798,12 @@ DWORD64 GetRemoteModuleHandle( HANDLE ProcessHandle, WCHAR* ModuleName )
 
 
 #define IMAGE_NUMBEROF_DIRECTORY_ENTRIES    16
-
-
-NTSTATUS Read(HANDLE ProcessHandle, ptr_t dwAddress, size_t dwSize, VOID* pResult, BOOLEAN handleHoles)
-{
-    if (dwAddress == 0)
-        return 0;
-
-    // Simple read
-    if (!handleHoles)
-    {
-        return NtReadVirtualMemory64(ProcessHandle, dwAddress, pResult, dwSize);
-    }
-
-    return STATUS_SUCCESS;
-}
-
-
 #define IMAGE_DOS_SIGNATURE                 0x5A4D      // MZ
 #define IMAGE_NT_SIGNATURE                  0x00004550  // PE00
 #define IMAGE_NT_OPTIONAL_HDR32_MAGIC      0x10b
 #define IMAGE_DIRECTORY_ENTRY_EXPORT          0   // Export Directory
 
 VOID* Memory_Allocate(DWORD Size);
-
 
 
 DWORD64 GetRemoteProcAddress(HANDLE ProcessHandle, DWORD64 BaseAddress, const char* name_ord)
@@ -851,12 +829,12 @@ DWORD64 GetRemoteProcAddress(HANDLE ProcessHandle, DWORD64 BaseAddress, const ch
         return 0;
     }
 
-    Read(ProcessHandle, BaseAddress, sizeof(hdrDos), &hdrDos, FALSE);
+    NtWow64ReadVirtualMemory64(ProcessHandle, BaseAddress, &hdrDos, sizeof(hdrDos), 0);
 
     if (hdrDos.e_magic != IMAGE_DOS_SIGNATURE)
         return 0;
 
-    Read(ProcessHandle, BaseAddress + hdrDos.e_lfanew, sizeof(IMAGE_NT_HEADERS64), &hdrNt32, FALSE);
+    NtWow64ReadVirtualMemory64(ProcessHandle, BaseAddress + hdrDos.e_lfanew, &hdrNt32, sizeof(IMAGE_NT_HEADERS64), 0);
 
     if (phdrNt32->Signature != IMAGE_NT_SIGNATURE)
         return 0;
@@ -876,7 +854,7 @@ DWORD64 GetRemoteProcAddress(HANDLE ProcessHandle, DWORD64 BaseAddress, const ch
 
         pExpData = Memory_Allocate(expSize);
 
-        Read(ProcessHandle, BaseAddress + expBase, expSize, pExpData, FALSE);
+        NtWow64ReadVirtualMemory64(ProcessHandle, BaseAddress + expBase, pExpData, expSize, 0);
 
         pAddressOfOrds = (WORD*)(
             pExpData->AddressOfNameOrdinals + (size_t)(pExpData)-expBase);
@@ -919,36 +897,6 @@ DWORD64 GetRemoteProcAddress(HANDLE ProcessHandle, DWORD64 BaseAddress, const ch
     }
 
     return 0;
-}
-
-
-NTSTATUS NtReadVirtualMemory64( HANDLE ProcessHandle, DWORD64 BaseAddress, PVOID Buffer, SIZE_T BufferSize )
-{
-    DWORD64 ulModule = GetModuleHandle64(L"ntdll.dll");
-    NTSTATUS status;
-    DWORD64 bytesRead = NULL;
-
-    if (ulModule)
-    {
-        DWORD64 _NtReadVirtualMemory = GetProcAddress64(ulModule, "NtReadVirtualMemory");
-
-        if (_NtReadVirtualMemory)
-        {
-            DWORD64 parameters[5];
-
-            Memory_Clear(parameters, sizeof(parameters));
-
-            parameters[0] = (DWORD64)ProcessHandle;     // _In_ HANDLE ProcessHandle
-            parameters[1] = (DWORD64)BaseAddress;       // _In_opt_ PVOID BaseAddress
-            parameters[2] = (DWORD64)Buffer;            // _Out_ PVOID Buffer
-            parameters[3] = (DWORD64)BufferSize;        // _In_ SIZE_T BufferSize
-            parameters[4] = (DWORD64)&bytesRead;        // _Out_opt_ PSIZE_T NumberOfBytesRead
-
-            status = CallFunction64(_NtReadVirtualMemory, 0, parameters, 5, 0);
-        }
-    }
-
-    return status;
 }
 
 
