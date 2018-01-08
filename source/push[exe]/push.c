@@ -660,6 +660,13 @@ VOID OnImageEvent( PROCESSID ProcessId )
 
     processHandle = OpenProcess(ProcessId, &game, filePath);
 
+    if (!processHandle)
+    {
+        Log(L"Failed to get handle for PID %i", ProcessId);
+
+        return;
+    }
+
     if (game && game->Settings.DisableOverlay)
     {
         Log(L"Skipping injection on %s", game->ExecutableName);
