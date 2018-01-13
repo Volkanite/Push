@@ -645,7 +645,7 @@ HANDLE* OpenProcess( DWORD ProcessId, PUSH_GAME** Game, WCHAR* FilePath )
 }
 
 
-VOID OnImageEvent( DWORD ProcessId )
+VOID CreateOverlay( DWORD ProcessId )
 {
     VOID *processHandle = 0;
     wchar_t filePath[260];
@@ -779,7 +779,7 @@ DWORD __stdcall RetrieveImageEvent( VOID* Parameter )
         TRUE
         );
 
-    OnImageEvent(imageInfo.processID);
+    CreateOverlay(imageInfo.processID);
     NtClose(ov.hEvent);
 
     return 0;
@@ -1201,7 +1201,7 @@ VOID ProcessEnum( SYSTEM_PROCESS_INFORMATION* ProcessInformation )
                 ProcessInformation->ImageName.Buffer, 
                 ProcessInformation->ImageName.Length) == 0)
         {
-            OnImageEvent((DWORD)ProcessInformation->UniqueProcessId);
+            CreateOverlay((DWORD)ProcessInformation->UniqueProcessId);
         }
 
         gameList = gameList->NextEntry;
