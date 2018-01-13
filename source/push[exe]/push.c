@@ -518,14 +518,9 @@ DWORD __stdcall SetFilePointer(
     );
 
 
-
-
-
-HANDLE* OpenProcess( DWORD ProcessId, PUSH_GAME** Game, WCHAR* FilePath )
+HANDLE OpenProcess( DWORD ProcessId )
 {
-    VOID *processHandle = 0;
-    NTSTATUS status;
-    wchar_t filePath[260];
+    HANDLE processHandle = 0;
 
     processHandle = Process_Open(
         ProcessId,
@@ -623,24 +618,6 @@ HANDLE* OpenProcess( DWORD ProcessId, PUSH_GAME** Game, WCHAR* FilePath )
         return NULL;
     }
 
-    status = Process_GetFileNameByHandle(processHandle, filePath);
-
-    if (FilePath)
-    {
-        String_Copy(FilePath, filePath);
-    }
-
-    if (Game_IsGame(filePath))
-    {
-        PUSH_GAME *game;
-
-        game = Memory_AllocateEx(sizeof(PUSH_GAME), HEAP_ZERO_MEMORY);
-
-        Game_Initialize(filePath, game);
-
-        *Game = game;
-    }
-
     return processHandle;
 }
 
@@ -658,13 +635,22 @@ VOID CreateOverlay( DWORD ProcessId )
 
     lastProcessId = ProcessId;
 
-    processHandle = OpenProcess(ProcessId, &game, filePath);
+    processHandle = OpenProcess(ProcessId);
 
     if (!processHandle)
     {
         Log(L"Failed to get handle for PID %i", ProcessId);
 
         return;
+    }
+
+    Process_GetFileNameByHandle(processHandle, filePath);
+
+    if (Game_IsGame(filePath))
+    {
+        game = Memory_AllocateEx(sizeof(PUSH_GAME), HEAP_ZERO_MEMORY);
+
+        Game_Initialize(filePath, game);
     }
 
     if (game && game->Settings.DisableOverlay)
