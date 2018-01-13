@@ -92,6 +92,61 @@ VOID Process_Close( HANDLE ProcessHandle )
 }
 
 
+VOID Process_EnumProcesses( ENUM_PROCESSES_CALLBACK Callback )
+{
+    UINT_B ProcThrdInfoSize = 0;
+    UINT32 ProcOffset = 0;
+    VOID *ProcThrdInfo = 0;
+    LONG status = 0;
+    SYSTEM_PROCESS_INFORMATION *processInfo;
+
+    for (;;)
+    {
+        ProcThrdInfoSize += 0x10000;
+
+        NtAllocateVirtualMemory((VOID*)-1,
+            &ProcThrdInfo,
+            0,
+            &ProcThrdInfoSize,
+            0x1000,   //MEM_COMMIT
+            0x04);    //PAGE_READWRITE
+
+        status = NtQuerySystemInformation(SystemProcessInformation,
+            ProcThrdInfo,
+            (UINT32)ProcThrdInfoSize,
+            NULL);
+
+        if (status == 0xC0000004)
+        {
+            NtFreeVirtualMemory((VOID*)-1,
+                &ProcThrdInfo,
+                (UINT32*)&ProcThrdInfoSize,
+                0x8000); //MEM_RELEASE
+            ProcThrdInfo = NULL;
+        }
+        else
+        {
+
+            break;
+        }
+    }
+
+    processInfo = (SYSTEM_PROCESS_INFORMATION*)ProcThrdInfo;
+
+    do
+    {
+        processInfo = (SYSTEM_PROCESS_INFORMATION*)((UINT_B)processInfo + ProcOffset);
+
+        Callback(processInfo);
+
+        ProcOffset = processInfo->NextEntryOffset;
+
+    } while (ProcOffset != 0);
+
+    return;
+}
+
+
 UINT32 Process_GetId( WCHAR* ProcessName, DWORD Ignore )
 {
     UINT_B ProcThrdInfoSize = 0;

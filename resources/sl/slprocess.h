@@ -1,3 +1,7 @@
+typedef VOID(*ENUM_PROCESSES_CALLBACK)(
+    SYSTEM_PROCESS_INFORMATION* ProcessInformation
+    );
+
 VOID Process_Create(WCHAR* ImagePath, WCHAR* Args, WCHAR* WorkingDirectory);
 VOID* Process_Open(UINT32 processID, DWORD rights);
 VOID Process_Close(HANDLE ProcessHandle);
@@ -9,3 +13,4 @@ VOID Process_WriteMemory(HANDLE ProcessHandle, VOID* BaseAddress, VOID* Buffer, 
 VOID Process_Suspend(HANDLE ProcessHandle);
 VOID Process_Resume(HANDLE ProcessHandle);
 BOOLEAN Process_IsWow64(HANDLE ProcessHandle);
+VOID Process_EnumProcesses( ENUM_PROCESSES_CALLBACK Callback );

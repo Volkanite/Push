@@ -645,7 +645,7 @@ HANDLE* OpenProcess( DWORD ProcessId, PUSH_GAME** Game, WCHAR* FilePath )
 }
 
 
-VOID OnImageEvent( PROCESSID ProcessId )
+VOID OnImageEvent( DWORD ProcessId )
 {
     VOID *processHandle = 0;
     wchar_t filePath[260];
@@ -1181,6 +1181,36 @@ typedef struct _LDR_DATA_TABLE_ENTRY
 } LDR_DATA_TABLE_ENTRY, *PLDR_DATA_TABLE_ENTRY;
 
 
+VOID ProcessEnum( SYSTEM_PROCESS_INFORMATION* ProcessInformation )
+{
+    GAME_LIST gameList;
+    PUSH_GAME* game;
+    UINT8 i;
+
+    i = 0;
+
+    gameList = Game_GetGames();
+
+    while (gameList != NULL)
+    {
+        game = gameList->Game;
+
+        if (ProcessInformation->ImageName.Length 
+            && String_CompareN(
+                game->ExecutableName, 
+                ProcessInformation->ImageName.Buffer, 
+                ProcessInformation->ImageName.Length) == 0)
+        {
+            OnImageEvent((DWORD)ProcessInformation->UniqueProcessId);
+        }
+
+        gameList = gameList->NextEntry;
+
+        i++;
+    }
+}
+
+
 INT32 __stdcall start( )
 {
     HANDLE sectionHandle, *hMutex;
@@ -1371,6 +1401,9 @@ INT32 __stdcall start( )
     {
         Log(L"Shared memory too small!");
     }
+
+    // Check for running games
+    Process_EnumProcesses(ProcessEnum);
 
     // Activate process monitoring
 
