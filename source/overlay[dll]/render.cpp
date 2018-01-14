@@ -9,6 +9,7 @@
 BOOLEAN g_SetOSDRefresh = TRUE;
 BOOLEAN g_FontInited = FALSE;
 BOOLEAN IsStableFramerate;
+BOOLEAN IsStableFrametime;
 BOOLEAN DisableAutoOverclock;
 UINT16 DiskResponseTime;
 UINT64 CyclesWaited;
@@ -171,7 +172,7 @@ VOID RunFrameStatistics()
     {
         //reset the timer
         oldTick2 = newTickCount;
-        DebugRec();
+        IsStableFrametime = FALSE;
 
         // Lazy overclock
         if (debugInt++ % DisplayFrequency == 0)
@@ -190,6 +191,10 @@ VOID RunFrameStatistics()
                     Overclock(OC_MEMORY);
             }
         }
+    }
+    else
+    {
+        IsStableFrametime = TRUE;
     }
 
     if (PushSharedMemory->FrameLimit)

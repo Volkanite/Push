@@ -14,6 +14,7 @@ extern double FrameTime;
 extern double FrameTimeTotal;
 extern UINT32 Frames;
 OSD_VARS Variables;
+extern BOOLEAN IsStableFrametime;
 
 
 /**
@@ -112,9 +113,20 @@ VOID Osd_Draw( OvOverlay* Overlay )
     if (!IsStableFramerate || PushSharedMemory->KeepFps)
     {
         wchar_t buffer[100];
+        DWORD color;
 
         osdItem->Value = FrameRate;
         swprintf(buffer, 20, L"%i", FrameRate);
-        Overlay->DrawText(buffer);
+
+        if (IsStableFrametime)
+        {
+            color = 0xFFFFFF00;
+        }
+        else
+        {
+            color = 0xFFFF0000;
+        }
+
+        Overlay->DrawText(buffer, color);
     }
 }
