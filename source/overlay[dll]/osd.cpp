@@ -32,7 +32,7 @@ VOID Osd_Draw( OvOverlay* Overlay )
         //Process specific.
         switch (osdItem->Flag)
         {
-        case OSD_FPS:
+        /*case OSD_FPS:
             {
                 if (!IsStableFramerate || PushSharedMemory->KeepFps)
                 {
@@ -44,7 +44,7 @@ VOID Osd_Draw( OvOverlay* Overlay )
                     continue;
                 }
             }
-            break;
+            break;*/
         case OSD_RESOLUTION:
             swprintf(osdItem->Text, 20, L"MON : %i x %i", BackBufferWidth, BackBufferHeight);
             break;
@@ -107,5 +107,14 @@ VOID Osd_Draw( OvOverlay* Overlay )
             Overlay->DrawText(buffer);
             break;
         }
+    }
+
+    if (!IsStableFramerate || PushSharedMemory->KeepFps)
+    {
+        wchar_t buffer[100];
+
+        osdItem->Value = FrameRate;
+        swprintf(buffer, 20, L"%i", FrameRate);
+        Overlay->DrawText(buffer);
     }
 }

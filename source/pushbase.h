@@ -280,8 +280,9 @@ typedef struct _OSD_ITEM
     UINT32 Value2;
     UINT32 Color;
     WCHAR Text[20];
+    WCHAR Description[40];
 
-    //LOCAL //fix
+    //LOCAL //fix //pointers can only reside locally (push.exe)?
     ULONG DisplayFormatPtr; // WCHAR* DisplayFormat;
     ULONG DynamicFormatPtr; // OSD_DYNAMIC_FORMAT DynamicFormat; //For when formatting must happen at runtime
     ULONG ValueSourcePtr;   // VOID* ValueSource;

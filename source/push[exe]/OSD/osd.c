@@ -148,6 +148,7 @@ VOID OSD_Refresh()
 
 VOID OSD_AddItem(
     DWORD Flag,
+    WCHAR* Description,
     WCHAR* DisplayFormat,
     VOID* ValueSource,
     UINT8 ValueSize,
@@ -167,6 +168,8 @@ VOID OSD_AddItem(
     OsdItems[items].Threshold = Threshold;
     OsdItems[items].DynamicFormatPtr = DynamicFormat;
 
+    String_CopyN(OsdItems[items].Description, Description, 40);
+
     items++;
 }
 
@@ -181,27 +184,26 @@ UINT32 OSD_Initialize()
 {
     PUSH_HARDWARE_INFORMATION* hardware = &PushSharedMemory->HarwareInformation;
 
-    OSD_AddItem(OSD_GPU_LOAD, L"GPU : %i %%", &hardware->DisplayDevice.Load, sizeof(UINT8), NULL, 90, NULL);
-    OSD_AddItem(OSD_GPU_TEMP, L"GPU : %i °C", &hardware->DisplayDevice.Temperature, sizeof(UINT8), NULL, 75, NULL);
-    OSD_AddItem(OSD_GPU_E_CLK, L"GPU : %i MHz", &hardware->DisplayDevice.EngineClock, sizeof(UINT32), NULL, 0, NULL);
-    OSD_AddItem(OSD_GPU_M_CLK, L"GPU : %i MHz", &hardware->DisplayDevice.MemoryClock, sizeof(UINT32), NULL, 0, NULL);
-    OSD_AddItem(OSD_GPU_VOLTAGE, L"GPU : %i mV", &hardware->DisplayDevice.Voltage, sizeof(UINT32), NULL, 0, NULL);
-    OSD_AddItem(OSD_GPU_FAN_RPM, L"GPU : %i RPM", &hardware->DisplayDevice.FanSpeed, sizeof(UINT32), NULL, 0, NULL);
-    OSD_AddItem(OSD_GPU_FAN_DC, L"GPU : %i %%", &hardware->DisplayDevice.FanDutyCycle, sizeof(UINT8), NULL, 90, NULL);
-    OSD_AddItem(OSD_GPU_VRAM, L"GPU : %i MB", &hardware->DisplayDevice.FrameBuffer.Load, sizeof(UINT8), &hardware->DisplayDevice.FrameBuffer.Used, 90, NULL);
-    OSD_AddItem(OSD_RAM, L"RAM : %i MB", &hardware->Memory.Load, sizeof(UINT8), &hardware->Memory.Used, 90, NULL);
-    OSD_AddItem(OSD_CPU_SPEED, L"CPU : %i MHz", &hardware->Processor.Speed, sizeof(UINT16), NULL, 0, NULL);
-    OSD_AddItem(OSD_CPU_TEMP, L"CPU : %i °C", &hardware->Processor.Temperature, sizeof(UINT8), NULL, 75, NULL);
-    OSD_AddItem(OSD_CPU_LOAD, L"CPU : %i %%", &hardware->Processor.Load, sizeof(UINT8), NULL, 95, NULL);
-    OSD_AddItem(OSD_MCU, L"CPUc : %i %%", &hardware->Processor.MaxCoreUsage, sizeof(UINT8), NULL, 0, NULL);
-    OSD_AddItem(OSD_MTU, L"CPUt : %i %%", &hardware->Processor.MaxThreadUsage, sizeof(UINT8), NULL, 0, NULL);
-    OSD_AddItem(OSD_DISK_RWRATE, NULL, NULL, sizeof(UINT8), NULL, 0, FormatDiskReadWriteRate);
-    OSD_AddItem(OSD_DISK_RESPONSE, L"DSK : %i ms", NULL, sizeof(UINT8), NULL, 4000, NULL);
-    OSD_AddItem(OSD_TIME, NULL, NULL, sizeof(UINT8), NULL, 0, FormatTime);
-    OSD_AddItem(OSD_BUFFERS, NULL, NULL, sizeof(UINT8), NULL, 0, NULL);
-    OSD_AddItem(OSD_RESOLUTION, NULL, NULL, sizeof(UINT8), 0, 0, NULL);
-    OSD_AddItem(OSD_REFRESH_RATE, L"MON : %i Hz", &hardware->Display.RefreshRate, sizeof(UINT8), NULL, 0, NULL);
-    OSD_AddItem(OSD_FPS, 0, 0, sizeof(UINT8), 0, 0, 0);
+    OSD_AddItem(OSD_GPU_LOAD, L"GPU Core utilization", L"GPU : %i %%", &hardware->DisplayDevice.Load, sizeof(UINT8), NULL, 90, NULL);
+    OSD_AddItem(OSD_GPU_TEMP, L"GPU Core temperature", L"GPU : %i °C", &hardware->DisplayDevice.Temperature, sizeof(UINT8), NULL, 75, NULL);
+    OSD_AddItem(OSD_GPU_E_CLK, L"GPU Engine Clock", L"GPU : %i MHz", &hardware->DisplayDevice.EngineClock, sizeof(UINT32), NULL, 0, NULL);
+    OSD_AddItem(OSD_GPU_M_CLK, L"GPU Memory Clock", L"GPU : %i MHz", &hardware->DisplayDevice.MemoryClock, sizeof(UINT32), NULL, 0, NULL);
+    OSD_AddItem(OSD_GPU_VOLTAGE, L"GPU Voltage", L"GPU : %i mV", &hardware->DisplayDevice.Voltage, sizeof(UINT32), NULL, 0, NULL);
+    OSD_AddItem(OSD_GPU_FAN_RPM, L"GPU Fan Speed", L"GPU : %i RPM", &hardware->DisplayDevice.FanSpeed, sizeof(UINT32), NULL, 0, NULL);
+    OSD_AddItem(OSD_GPU_FAN_DC, L"GPU Fan Duty Cycle", L"GPU : %i %%", &hardware->DisplayDevice.FanDutyCycle, sizeof(UINT8), NULL, 90, NULL);
+    OSD_AddItem(OSD_GPU_VRAM, L"GPU VRAM usage", L"GPU : %i MB", &hardware->DisplayDevice.FrameBuffer.Load, sizeof(UINT8), &hardware->DisplayDevice.FrameBuffer.Used, 90, NULL);
+    OSD_AddItem(OSD_RAM, L"RAM usage", L"RAM : %i MB", &hardware->Memory.Load, sizeof(UINT8), &hardware->Memory.Used, 90, NULL);
+    OSD_AddItem(OSD_CPU_SPEED, L"CPU Speed", L"CPU : %i MHz", &hardware->Processor.Speed, sizeof(UINT16), NULL, 0, NULL);
+    OSD_AddItem(OSD_CPU_TEMP, L"CPU temperature", L"CPU : %i °C", &hardware->Processor.Temperature, sizeof(UINT8), NULL, 75, NULL);
+    OSD_AddItem(OSD_CPU_LOAD, L"CPU utilization", L"CPU : %i %%", &hardware->Processor.Load, sizeof(UINT8), NULL, 95, NULL);
+    OSD_AddItem(OSD_MCU, L"Max core usage", L"CPUc : %i %%", &hardware->Processor.MaxCoreUsage, sizeof(UINT8), NULL, 0, NULL);
+    OSD_AddItem(OSD_MTU, L"Max thread usage", L"CPUt : %i %%", &hardware->Processor.MaxThreadUsage, sizeof(UINT8), NULL, 0, NULL);
+    OSD_AddItem(OSD_DISK_RWRATE, L"Disk read-write rate", NULL, NULL, sizeof(UINT8), NULL, 0, FormatDiskReadWriteRate);
+    OSD_AddItem(OSD_DISK_RESPONSE, L"Disk response time", L"DSK : %i ms", NULL, sizeof(UINT8), NULL, 4000, NULL);
+    OSD_AddItem(OSD_TIME, L"Time", NULL, NULL, sizeof(UINT8), NULL, 0, FormatTime);
+    OSD_AddItem(OSD_BUFFERS, L"Frame Buffer count", NULL, NULL, sizeof(UINT8), NULL, 0, NULL);
+    OSD_AddItem(OSD_RESOLUTION, L"Resolution", NULL, NULL, sizeof(UINT8), 0, 0, NULL);
+    OSD_AddItem(OSD_REFRESH_RATE, L"Resfresh Rate", L"MON : %i Hz", &hardware->Display.RefreshRate, sizeof(UINT8), NULL, 0, NULL);
 
     return sizeof(OSD_ITEM) * items;
 }

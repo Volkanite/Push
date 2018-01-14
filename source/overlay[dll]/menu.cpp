@@ -103,30 +103,20 @@ VOID AddItems()
     if (MenuOsd[0].Var)
     {
         UINT8 i = 1;
+        OSD_ITEM *osdItem;
 
-        Menu->AddItem(L"GPU Core utilization",    ItemOpt, &MenuOsd[i++], OSD_GPU_LOAD);
-        Menu->AddItem(L"GPU Core temperature",    ItemOpt, &MenuOsd[i++], OSD_GPU_TEMP);
-        Menu->AddItem(L"GPU Engine Clock",        ItemOpt, &MenuOsd[i++], OSD_GPU_E_CLK);
-        Menu->AddItem(L"GPU Memory Clock",        ItemOpt, &MenuOsd[i++], OSD_GPU_M_CLK);
-        Menu->AddItem(L"GPU VRAM usage",          ItemOpt, &MenuOsd[i++], OSD_GPU_VRAM);
-        Menu->AddItem(L"GPU Fan Speed",           ItemOpt, &MenuOsd[i++], OSD_GPU_FAN_RPM);
-        Menu->AddItem(L"GPU Fan Duty Cycle",      ItemOpt, &MenuOsd[i++], OSD_GPU_FAN_DC);
-        Menu->AddItem(L"CPU Speed",               ItemOpt, &MenuOsd[i++], OSD_CPU_SPEED);
-        Menu->AddItem(L"CPU utilization",         ItemOpt, &MenuOsd[i++], OSD_CPU_LOAD);
-        Menu->AddItem(L"CPU temperature",         ItemOpt, &MenuOsd[i++], OSD_CPU_TEMP);
-        Menu->AddItem(L"RAM usage",               ItemOpt, &MenuOsd[i++], OSD_RAM);
-        Menu->AddItem(L"Max core usage",          ItemOpt, &MenuOsd[i++], OSD_MCU);
-        Menu->AddItem(L"Max thread usage",        ItemOpt, &MenuOsd[i++], OSD_MTU);
-        Menu->AddItem(L"Disk read-write rate",    ItemOpt, &MenuOsd[i++], OSD_DISK_RWRATE);
-        Menu->AddItem(L"Disk response time",      ItemOpt, &MenuOsd[i++], OSD_DISK_RESPONSE);
-        Menu->AddItem(L"Frame Buffer count",      ItemOpt, &MenuOsd[i++], OSD_BUFFERS);
-        Menu->AddItem(L"Resolution",              ItemOpt, &MenuOsd[i++], OSD_RESOLUTION);
-        Menu->AddItem(L"Resfresh Rate",           ItemOpt, &MenuOsd[i++], OSD_REFRESH_RATE);
-        Menu->AddItem(L"Frame Time",              ItemOptExt, &MenuOsd[i++], ID_FRAMETIME, 3);
-        Menu->AddItem(L"API",                     ItemOpt, &MenuOsd[i++], ID_API);
-        Menu->AddItem(L"Time",                    ItemOpt, &MenuOsd[i++], OSD_TIME);
-        Menu->AddItem(L"FPS",                     ItemOpt, &MenuOsd[i++], ID_KEEP_FPS);
-        Menu->AddItem(L"Reset",                   PressOpt, &MenuOsd[i++], ID_RESET);
+        // Add OSD items to menu.
+        osdItem = (OSD_ITEM*)PushSharedMemory->OsdItems;
+
+        for (i = 1; i < PushSharedMemory->NumberOfOsdItems; i++, osdItem++)
+        {
+            Menu->AddItem(osdItem->Description, ItemOpt, &MenuOsd[i], osdItem->Flag);
+        }
+
+        Menu->AddItem(L"Frame Time", ItemOptExt, &MenuOsd[i++], ID_FRAMETIME, 3);
+        Menu->AddItem(L"API", ItemOpt, &MenuOsd[i++], ID_API);
+        Menu->AddItem(L"FPS", ItemOpt, &MenuOsd[i++], ID_KEEP_FPS);
+        Menu->AddItem(L"Reset", PressOpt, &MenuOsd[i++], ID_RESET);
     }
 
     Menu->AddGroup(L"GPU", GroupOpt, &MenuGpu[0]);
