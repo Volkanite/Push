@@ -188,23 +188,13 @@ UINT32 OSD_Initialize()
     OSD_AddItem(OSD_GPU_VOLTAGE, L"GPU : %i mV", &hardware->DisplayDevice.Voltage, sizeof(UINT32), NULL, 0, NULL);
     OSD_AddItem(OSD_GPU_FAN_RPM, L"GPU : %i RPM", &hardware->DisplayDevice.FanSpeed, sizeof(UINT32), NULL, 0, NULL);
     OSD_AddItem(OSD_GPU_FAN_DC, L"GPU : %i %%", &hardware->DisplayDevice.FanDutyCycle, sizeof(UINT8), NULL, 90, NULL);
-    
-    OSD_AddItem(
-        OSD_GPU_VRAM,
-        L"GPU : %i MB",
-        &hardware->DisplayDevice.FrameBuffer.Load,
-        sizeof(UINT8),
-        &hardware->DisplayDevice.FrameBuffer.Used,
-        90,
-        NULL
-        );
-    
+    OSD_AddItem(OSD_GPU_VRAM, L"GPU : %i MB", &hardware->DisplayDevice.FrameBuffer.Load, sizeof(UINT8), &hardware->DisplayDevice.FrameBuffer.Used, 90, NULL);
     OSD_AddItem(OSD_RAM, L"RAM : %i MB", &hardware->Memory.Load, sizeof(UINT8), &hardware->Memory.Used, 90, NULL);
     OSD_AddItem(OSD_CPU_SPEED, L"CPU : %i MHz", &hardware->Processor.Speed, sizeof(UINT16), NULL, 0, NULL);
-    //OSD_AddItem(OSD_CPU_LOAD, L"CPU : %i %%", &hardware->Processor.Load, sizeof(UINT8), NULL, 95, NULL, TRUE);
     OSD_AddItem(OSD_CPU_TEMP, L"CPU : %i °C", &hardware->Processor.Temperature, sizeof(UINT8), NULL, 75, NULL);
-    //OSD_AddItem(OSD_MCU, L"CPUm : %i %%", &hardware->Processor.MaxCoreUsage, sizeof(UINT8), NULL, 0, NULL, TRUE);
-    OSD_AddItem(OSD_MTU, L"CPU : %i %%", &hardware->Processor.MaxThreadUsage, sizeof(UINT8), NULL, 0, NULL);
+    OSD_AddItem(OSD_CPU_LOAD, L"CPU : %i %%", &hardware->Processor.Load, sizeof(UINT8), NULL, 95, NULL);
+    OSD_AddItem(OSD_MCU, L"CPUc : %i %%", &hardware->Processor.MaxCoreUsage, sizeof(UINT8), NULL, 0, NULL);
+    OSD_AddItem(OSD_MTU, L"CPUt : %i %%", &hardware->Processor.MaxThreadUsage, sizeof(UINT8), NULL, 0, NULL);
     OSD_AddItem(OSD_DISK_RWRATE, NULL, NULL, sizeof(UINT8), NULL, 0, FormatDiskReadWriteRate);
     OSD_AddItem(OSD_DISK_RESPONSE, L"DSK : %i ms", NULL, sizeof(UINT8), NULL, 4000, NULL);
     OSD_AddItem(OSD_TIME, NULL, NULL, sizeof(UINT8), NULL, 0, FormatTime);

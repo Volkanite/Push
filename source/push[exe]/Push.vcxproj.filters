@@ -128,6 +128,9 @@
     <ClCompile Include="Hardware\GPU\Nvidia\NvThermalDiode\NvThermalDiode.c">
       <Filter>Hardware\GPU\Nvidia\NvThermalDiode</Filter>
     </ClCompile>
+    <ClCompile Include="Hardware\CPU\os_cpu.c">
+      <Filter>Hardware\CPU</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\cache.h">
@@ -210,6 +213,9 @@
     </ClInclude>
     <ClInclude Include="Hardware\GPU\Intel\IntelGpu.h">
       <Filter>Hardware\GPU\Intel</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\CPU\os_cpu.h">
+      <Filter>Hardware\CPU</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

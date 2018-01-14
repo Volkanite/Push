@@ -6,6 +6,7 @@
 #include "disk.h"
 #include "hardware.h"
 #include "GPU\gpu.h"
+#include "CPU\os_cpu.h"
 
 
 UINT64                      g_hNVPMContext;
@@ -485,11 +486,12 @@ VOID RefreshHardwareInfo()
     MC_TIMING_REPORT timingReport;
 
     Memory_Clear(&gpuInfo, sizeof(GPU_INFO));
+    PhpUpdateCpuInformation();
     GPU_GetInfo(&gpuInfo);
 
     PushSharedMemory->HarwareInformation.Processor.Speed                = CPU_GetSpeed();
-    //PushSharedMemory->HarwareInformation.Processor.Load                 = GetCpuLoad();
-    //PushSharedMemory->HarwareInformation.Processor.MaxCoreUsage         = GetMaxCoreLoad();
+    PushSharedMemory->HarwareInformation.Processor.Load                 = GetCpuLoad();
+    PushSharedMemory->HarwareInformation.Processor.MaxCoreUsage         = GetMaxCoreLoad();
     PushSharedMemory->HarwareInformation.Processor.Temperature          = GetCpuTemp();
     PushSharedMemory->HarwareInformation.DisplayDevice.Load             = gpuInfo.Load;
     PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock      = gpuInfo.EngineClock;

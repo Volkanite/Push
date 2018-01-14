@@ -31,6 +31,7 @@
     <ClCompile Include="Hardware\CPU\amd.c" />
     <ClCompile Include="Hardware\CPU\cpu.c" />
     <ClCompile Include="Hardware\CPU\intel.c" />
+    <ClCompile Include="Hardware\CPU\os_cpu.c" />
     <ClCompile Include="Hardware\disk.c" />
     <ClCompile Include="Hardware\GPU\AMD\adl.c" />
     <ClCompile Include="Hardware\GPU\AMD\AmdGpu.c" />
@@ -77,6 +78,7 @@
     <ClInclude Include="Hardware\CPU\amd.h" />
     <ClInclude Include="Hardware\CPU\cpu.h" />
     <ClInclude Include="hardware\cpu\intel.h" />
+    <ClInclude Include="Hardware\CPU\os_cpu.h" />
     <ClInclude Include="Hardware\disk.h" />
     <ClInclude Include="Hardware\GPU\AMD\adl.h" />
     <ClInclude Include="Hardware\GPU\AMD\AmdGpu.h" />
