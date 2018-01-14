@@ -15,6 +15,7 @@ extern double FrameTimeTotal;
 extern UINT32 Frames;
 OSD_VARS Variables;
 extern BOOLEAN IsStableFrametime;
+extern BOOLEAN IsLimitedFrametime;
 
 
 /**
@@ -121,6 +122,11 @@ VOID Osd_Draw( OvOverlay* Overlay )
         if (IsStableFrametime)
         {
             color = 0xFFFFFF00;
+
+            if (IsLimitedFrametime)
+            {
+                color = 0xFFFFA500;
+            }
         }
         else
         {

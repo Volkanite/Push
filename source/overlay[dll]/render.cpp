@@ -10,6 +10,7 @@ BOOLEAN g_SetOSDRefresh = TRUE;
 BOOLEAN g_FontInited = FALSE;
 BOOLEAN IsStableFramerate;
 BOOLEAN IsStableFrametime;
+BOOLEAN IsLimitedFrametime;
 BOOLEAN DisableAutoOverclock;
 UINT16 DiskResponseTime;
 UINT64 CyclesWaited;
@@ -73,9 +74,9 @@ BOOLEAN IsGpuLag()
 VOID RunFrameStatistics()
 {
     static double newTickCount = 0.0, lastTickCount_FrameLimiter = 0.0,
-                  oldTick = 0.0, delta = 0.0,
-                  oldTick2 = 0.0, frameTime = 0.0,
-                  fps = 0.0, acceptableFrameTime = 0.0;
+        oldTick = 0.0, delta = 0.0,
+        oldTick2 = 0.0, frameTime = 0.0,
+        fps = 0.0, acceptableFrameTime = 0.0, lastTickCount;
 
     
     static BOOLEAN inited = FALSE;
@@ -100,10 +101,20 @@ VOID RunFrameStatistics()
 
     newTickCount = GetPerformanceCounter();
     delta = newTickCount - oldTick;
-    frameTime = newTickCount - lastTickCount_FrameLimiter;
+
+    IsLimitedFrametime = FALSE;
 
     frames++;
     Frames++;
+
+    if (PushSharedMemory->FrameLimit)
+    {
+        frameTime = newTickCount - lastTickCount_FrameLimiter;
+    }
+    else
+    {
+        frameTime = newTickCount - lastTickCount;
+    }
 
     if (delta > 1000)
     {
@@ -205,6 +216,8 @@ VOID RunFrameStatistics()
         {
             UINT64 cyclesStart, cyclesStop;
 
+            IsLimitedFrametime = TRUE;
+
             RenderThreadHandle = GetCurrentThread();
 
             QueryThreadCycleTime(RenderThreadHandle, &cyclesStart);
@@ -228,6 +241,7 @@ VOID RunFrameStatistics()
         lastTickCount_FrameLimiter = newTickCount;
     }
 
+    lastTickCount = newTickCount;
     FrameTime = frameTime;
     FrameRate = (int)fps;
     FrameTimeTotal += frameTime;
