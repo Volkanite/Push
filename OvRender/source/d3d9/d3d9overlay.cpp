@@ -12,7 +12,9 @@ extern Dx9Overlay* D3D9Overlay;
 IDirect3DDevice9* Dx9OvDevice;
 OV_WINDOW_MODE D3D9Hook_WindowMode;
 UINT32 BackBufferCount;
+BOOLEAN TakeScreenShot;
 
+HRESULT MakeScreenShot(bool bHalfSize);
 VOID Log(const wchar_t* Format, ...);
 
 
@@ -192,7 +194,17 @@ VOID Dx9Overlay_Present( IDirect3DDevice9* Device )
 {
     static BOOLEAN initialized = FALSE;
 
+    // Screenshot here (before we render) to exclude menu
+
     Dx9OvRender(Device);
+
+    // Screenshot here (after we render) to include our menu
+
+    if (TakeScreenShot)
+    {
+        MakeScreenShot(false);
+        TakeScreenShot = false;
+    }
 
     if (!initialized)
     { 

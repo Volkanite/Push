@@ -59,14 +59,14 @@ extern OSD_VARS Variables;
 #define ID_FAN              OSD_LAST_ITEM+16
 #define ID_API              OSD_LAST_ITEM+17
 #define ID_FRAMETIME        OSD_LAST_ITEM+18
-#define ID_SCREENSHOT		OSD_LAST_ITEM+19
+#define ID_SCREENSHOT       OSD_LAST_ITEM+19
 
 
 //Add menu items to menu
 #include <stdio.h>
 #include <wchar.h>
 VOID ChangeVsync(BOOLEAN Setting);
-HRESULT MakeScreenShot(bool bHalfSize);
+extern BOOLEAN TakeScreenShot;
 
 
 VOID UpdateGpuInformation()
@@ -153,7 +153,7 @@ VOID AddItems()
         Menu->AddItem(L"Frame Limiter", ItemOpt, &D3DTweaks[3], ID_FRAMELIMITER);
         Menu->AddItem(L"Frame Limit", FrameLimitOpt, &D3DTweaks[4], ID_FRAMELIMIT);
         Menu->AddItem(L"Vsync", ItemOpt, &D3DTweaks[5], ID_VSYNC);
-		Menu->AddItem(L"Screenshot", PressOpt, &D3DTweaks[6], ID_SCREENSHOT);
+        Menu->AddItem(L"Screenshot", PressOpt, &D3DTweaks[6], ID_SCREENSHOT);
 
         UpdateFrameLimitText();
     }
@@ -378,12 +378,12 @@ VOID ProcessOptions( MenuItems* Item )
         }
         break;
 
-	case ID_SCREENSHOT:
-		if (*Item->Var > 0)
-		{
-			MakeScreenShot(false);
-		}
-		break;
+    case ID_SCREENSHOT:
+        if (*Item->Var > 0)
+        {
+            TakeScreenShot = TRUE;
+        }
+        break;
 
     case ID_FRAMETIME:
         Variables.FrameTime = *Item->Var;
