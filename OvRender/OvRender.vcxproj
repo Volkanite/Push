@@ -21,6 +21,7 @@
     <ClCompile Include="source\d3d9\d3d9font.cpp" />
     <ClCompile Include="source\d3d9\d3d9hook.cpp" />
     <ClCompile Include="source\d3d9\d3d9overlay.cpp" />
+    <ClCompile Include="source\d3d9\d3d9record.cpp" />
     <ClCompile Include="source\ddraw\ddrawhook.cpp" />
     <ClCompile Include="source\ddraw\ddrawoverlay.cpp" />
     <ClCompile Include="source\dxgi\dxgihook.cpp" />

@@ -69,6 +69,9 @@
     <ClCompile Include="source\d3d11\D3D11Renderer.cpp">
       <Filter>d3d11</Filter>
     </ClCompile>
+    <ClCompile Include="source\d3d9\d3d9record.cpp">
+      <Filter>d3d9</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\font.h" />
