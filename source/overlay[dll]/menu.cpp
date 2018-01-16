@@ -60,6 +60,7 @@ extern OSD_VARS Variables;
 #define ID_API              OSD_LAST_ITEM+17
 #define ID_FRAMETIME        OSD_LAST_ITEM+18
 #define ID_SCREENSHOT       OSD_LAST_ITEM+19
+#define ID_RECORD           OSD_LAST_ITEM+20
 
 
 //Add menu items to menu
@@ -67,6 +68,8 @@ extern OSD_VARS Variables;
 #include <wchar.h>
 VOID ChangeVsync(BOOLEAN Setting);
 extern BOOLEAN TakeScreenShot;
+extern BOOLEAN StartRecording;
+extern BOOLEAN StopRecording;
 
 
 VOID UpdateGpuInformation()
@@ -154,6 +157,7 @@ VOID AddItems()
         Menu->AddItem(L"Frame Limit", FrameLimitOpt, &D3DTweaks[4], ID_FRAMELIMIT);
         Menu->AddItem(L"Vsync", ItemOpt, &D3DTweaks[5], ID_VSYNC);
         Menu->AddItem(L"Screenshot", PressOpt, &D3DTweaks[6], ID_SCREENSHOT);
+        Menu->AddItem(L"Record", ItemOpt, &D3DTweaks[7], ID_RECORD);
 
         UpdateFrameLimitText();
     }
@@ -382,6 +386,17 @@ VOID ProcessOptions( MenuItems* Item )
         if (*Item->Var > 0)
         {
             TakeScreenShot = TRUE;
+        }
+        break;
+
+    case ID_RECORD:
+        if (*Item->Var > 0)
+        {
+            StartRecording = TRUE;
+        }
+        else
+        {
+            StopRecording = TRUE;
         }
         break;
 

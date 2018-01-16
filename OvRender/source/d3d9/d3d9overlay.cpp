@@ -13,8 +13,14 @@ IDirect3DDevice9* Dx9OvDevice;
 OV_WINDOW_MODE D3D9Hook_WindowMode;
 UINT32 BackBufferCount;
 BOOLEAN TakeScreenShot;
+BOOLEAN StartRecording;
+BOOLEAN StopRecording;
+BOOLEAN Recording;
 
 HRESULT MakeScreenShot(bool bHalfSize);
+bool RecordFrame();
+void CloseAVI();
+DWORD InitializeAviFile();
 VOID Log(const wchar_t* Format, ...);
 
 
@@ -204,6 +210,32 @@ VOID Dx9Overlay_Present( IDirect3DDevice9* Device )
     {
         MakeScreenShot(false);
         TakeScreenShot = false;
+    }
+
+    if (StartRecording)
+    {
+        StartRecording = FALSE;
+        Recording = TRUE;
+        InitializeAviFile();
+        
+    }
+    else if (StopRecording)
+    {
+        StopRecording = FALSE;
+        Recording = FALSE;
+        CloseAVI();
+    }
+
+    if (Recording)
+    {
+        BOOLEAN result = RecordFrame();
+
+        if (!result)
+        {
+            Log(L"Dx9Overlay_Present: Failed to record frame");
+        }
+
+        DebugRec(); //Put this after RecordFrame() to exclude it from recorded video.
     }
 
     if (!initialized)
