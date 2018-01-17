@@ -634,14 +634,15 @@ struct AVI_FILE_HEADER
 #define streamtypeMIDI      mmioFOURCC('m', 'i', 'd', 's')
 #define streamtypeTEXT          mmioFOURCC('t', 'x', 't', 's')
 
-#define RECORD_FRAMERATE    60.0f
+#define RECORD_FRAMERATE    25.0f
+LONG nSizeComp;
 
 
 int InitFileHeader(AVI_FILE_HEADER& afh)
 {
     // build the AVI file header structure
 
-    Log(L"CAVIFile:InitFileHeader framerate=%g", (float)5.0f);
+    Log(L"CAVIFile:InitFileHeader framerate=%g", RECORD_FRAMERATE);
     ZeroMemory(&afh, sizeof(afh));
 
     afh.fccRiff = FOURCC_RIFF; // "RIFF"
@@ -691,7 +692,7 @@ int InitFileHeader(AVI_FILE_HEADER& afh)
 
     // fill-in MainAVIHeader
     afh.m_AviHeader.dwMicroSecPerFrame = (DWORD)(1000000.0 / RECORD_FRAMERATE);
-    afh.m_AviHeader.dwMaxBytesPerSec = (DWORD)(8 * RECORD_FRAMERATE);
+    afh.m_AviHeader.dwMaxBytesPerSec = (DWORD)(nSizeComp * RECORD_FRAMERATE);
     afh.m_AviHeader.dwTotalFrames = m_dwTotalFrames;
     afh.m_AviHeader.dwStreams = 1;
     afh.m_AviHeader.dwFlags = 0x10; // uses index
@@ -900,7 +901,7 @@ ULONG __stdcall CloseAVI( LPVOID Params )
 }
 
 
-DWORD WriteVideoFrame( CVideoFrame& frame )
+DWORD WriteVideoFrame( CVideoFrame& frame, int FrameDups )
 {
     if (AviFileHandle == INVALID_HANDLE_VALUE)
     {
@@ -909,7 +910,7 @@ DWORD WriteVideoFrame( CVideoFrame& frame )
     }
 
     //const void* pCompBuf;
-    LONG nSizeComp = frame.get_SizeBytes();
+    nSizeComp = frame.get_SizeBytes();
     BOOL bIsKey = false;
 
     DWORD dwBytesWrittenTotal = 0;
@@ -928,38 +929,129 @@ DWORD WriteVideoFrame( CVideoFrame& frame )
 
     // write video frame
     DWORD dwBytesWritten = 0;
-    ::WriteFile(AviFileHandle, dwTags, sizeof(dwTags), &dwBytesWritten, NULL);
-    
-    if (dwBytesWritten != sizeof(dwTags))
+
+    for (int i = 0; i < FrameDups; i++)
     {
-        DWORD error = GetLastError();
-        Log(L"CAVIFile:WriteVideoFrame:WriteFile FAIL=0x%x", error);
-        return error;
+        ::WriteFile(AviFileHandle, dwTags, sizeof(dwTags), &dwBytesWritten, NULL);
+
+        if (dwBytesWritten != sizeof(dwTags))
+        {
+            DWORD error = GetLastError();
+            Log(L"CAVIFile:WriteVideoFrame:WriteFile FAIL=0x%x", error);
+            return error;
+        }
+
+        dwBytesWrittenTotal += dwBytesWritten;
+
+        ::WriteFile(AviFileHandle, frame.m_pPixels, (DWORD)nSizeComp, &dwBytesWritten, NULL);
+        dwBytesWrittenTotal += dwBytesWritten;
+
+        if (nSizeComp & 1) // pad to even size.
+        {
+            BYTE bPad;
+            ::WriteFile(AviFileHandle, &bPad, 1, &dwBytesWritten, NULL);
+            m_dwMoviChunkSize++;
+            dwBytesWrittenTotal++;
+        }
+
+        m_dwTotalFrames++;
+        m_dwMoviChunkSize += sizeof(dwTags) + nSizeComp;
     }
-
-    dwBytesWrittenTotal += dwBytesWritten;
-
-    ::WriteFile(AviFileHandle, frame.m_pPixels, (DWORD)nSizeComp, &dwBytesWritten, NULL);
-    dwBytesWrittenTotal += dwBytesWritten;
-
-    if (nSizeComp & 1) // pad to even size.
-    {
-        BYTE bPad;
-        ::WriteFile(AviFileHandle, &bPad, 1, &dwBytesWritten, NULL);
-        m_dwMoviChunkSize++;
-        dwBytesWrittenTotal++;
-    }
-
-    m_dwTotalFrames++;
-    m_dwMoviChunkSize += sizeof(dwTags) + nSizeComp;
 
     //return dwBytesWrittenTotal;   // ASSUME not negative -> error
     return ERROR_SUCCESS;
 }
 
 
+LONGLONG GetPerformanceCounter()
+{
+    // Get high performance time counter. now
+    LARGE_INTEGER count;
+    ::QueryPerformanceCounter(&count);
+    return count.QuadPart;
+}
+
+
+LONGLONG m_tLastCount;  // when was CheckFrameRate() called?
+DWORD m_dwFreqUnits;        // the units/sec of the TIMEFAST_t timer.
+float m_fLeftoverWeight;
+
+
+bool InitFreqUnits()
+{
+    // record the freq of the timer.
+    LARGE_INTEGER freq = { 0, 0 };
+    if (::QueryPerformanceFrequency(&freq))
+    {
+        Log(L"QueryPerformanceFrequency hi=%u, lo=%u", freq.HighPart, freq.LowPart);
+    }
+    else
+    {
+        Log(L"QueryPerformanceFrequency FAILED!");
+        m_dwFreqUnits = 0;
+        return false;   // this cant work!
+    }
+    m_dwFreqUnits = freq.LowPart;
+    m_tLastCount = 0;
+    return true;
+}
+
+
+double CheckFrameWeight(__int64 iTimeDiff)
+{
+    double fTargetFrameRate;
+
+    fTargetFrameRate = RECORD_FRAMERATE;
+
+    double fFrameRateCur = (double)m_dwFreqUnits / (double)iTimeDiff;
+
+    if (fFrameRateCur <= 0)
+    {
+        return 0;
+    }
+
+    return fTargetFrameRate / fFrameRateCur;
+}
+
+
+DWORD CheckFrameRate()
+{
+    // Called during frame present
+    // determine whether this frame needs to be grabbed when recording.
+    // RETURN:
+    //  dwFrameDups = number of frames to record to match my desired frame rate.
+
+    // How long since the last frame?
+    LONGLONG tNow = GetPerformanceCounter();
+    __int64 iTimeDiff = (__int64)(tNow - m_tLastCount);
+
+    if (m_tLastCount == 0 || iTimeDiff <= 0)    // first frame i've seen?
+    {
+        m_tLastCount = tNow;
+        return 1;   // always take the first frame.
+    }
+
+    m_tLastCount = tNow;
+    double fFrameWeight = CheckFrameWeight(iTimeDiff);
+
+    fFrameWeight += m_fLeftoverWeight;
+    DWORD dwFrameDups = (DWORD)(fFrameWeight);
+    m_fLeftoverWeight = fFrameWeight - dwFrameDups;
+
+    return dwFrameDups;
+}
+
+
 bool RecordFrame()
 {
+    // determine whether this frame needs to be grabbed when recording. or just skipped.
+    // skipping frames helps when framerate is above target framerate. as the video will play slow if we don't skip frames.
+    // duplicate frames helps when framerate is below target framerate. duplicate frames makes up for missed frames.
+    // as the video will play extra fast if we don't duplicate frames.
+    DWORD dwFrameDups = CheckFrameRate();
+    if (dwFrameDups <= 0)   // i want this frame?
+        return true; 
+
     // allocate buffer for pixel data
     CVideoFrame frame;
     frame.AllocPadXY(BackBufferWidth, BackBufferHeight);
@@ -974,7 +1066,7 @@ bool RecordFrame()
     }
 
     // write to disk
-    DWORD result = WriteVideoFrame(frame);
+    DWORD result = WriteVideoFrame(frame, dwFrameDups);
 
     if (result != ERROR_SUCCESS)
     {

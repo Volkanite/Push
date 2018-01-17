@@ -12,6 +12,7 @@ extern Dx9Overlay* D3D9Overlay;
 IDirect3DDevice9* Dx9OvDevice;
 OV_WINDOW_MODE D3D9Hook_WindowMode;
 UINT32 BackBufferCount;
+
 BOOLEAN TakeScreenShot;
 BOOLEAN StartRecording;
 BOOLEAN StopRecording;
@@ -21,6 +22,8 @@ HRESULT MakeScreenShot(bool bHalfSize);
 bool RecordFrame();
 ULONG __stdcall CloseAVI(LPVOID Params);
 DWORD InitializeAviFile();
+bool InitFreqUnits();
+
 VOID Log(const wchar_t* Format, ...);
 
 
@@ -217,6 +220,7 @@ VOID Dx9Overlay_Present( IDirect3DDevice9* Device )
         StartRecording = FALSE;
         Recording = TRUE;
 
+        InitFreqUnits();
         InitializeAviFile();
         
     }
