@@ -859,14 +859,13 @@ void CAVIIndex::FlushIndexChunk(HANDLE hFile)
 }
 
 
-void CloseAVI()
+ULONG __stdcall CloseAVI( LPVOID Params )
 {
-    // finish sequence compression
     if (AviFileHandle == INVALID_HANDLE_VALUE)
-        return;
+        return 1;
 
     // flush the buffers
-    ::FlushFileBuffers(AviFileHandle);
+    FlushFileBuffers(AviFileHandle);
 
     // read the avi-header. So i can make my changes to it.
     AVI_FILE_HEADER afh;
@@ -874,27 +873,28 @@ void CloseAVI()
 
     // save update header back with my changes.
     DWORD dwBytesWritten = 0;
-    ::SetFilePointer(AviFileHandle, 0, NULL, FILE_BEGIN);
-    ::WriteFile(AviFileHandle, &afh, sizeof(afh), &dwBytesWritten, NULL);
+    SetFilePointer(AviFileHandle, 0, NULL, FILE_BEGIN);
+    WriteFile(AviFileHandle, &afh, sizeof(afh), &dwBytesWritten, NULL);
 
     // update movi chunk size
-    ::SetFilePointer(AviFileHandle, AVI_MOVILIST_OFFSET + 4, NULL, FILE_BEGIN);
-    ::WriteFile(AviFileHandle, &m_dwMoviChunkSize, sizeof(m_dwMoviChunkSize), &dwBytesWritten, NULL);
+    SetFilePointer(AviFileHandle, AVI_MOVILIST_OFFSET + 4, NULL, FILE_BEGIN);
+    WriteFile(AviFileHandle, &m_dwMoviChunkSize, sizeof(m_dwMoviChunkSize), &dwBytesWritten, NULL);
 
     // write some padding (if necessary) so that index always align at 16 bytes boundary
-    ::SetFilePointer(AviFileHandle, 0, NULL, FILE_END);
+    SetFilePointer(AviFileHandle, 0, NULL, FILE_END);
+    
     if (iPadFile > 0)
     {
         BYTE zero = 0;
-        ::WriteFile(AviFileHandle, &zero, 1, &dwBytesWritten, NULL);
+        WriteFile(AviFileHandle, &zero, 1, &dwBytesWritten, NULL);
     }
 
     m_Index.FlushIndexChunk(AviFileHandle);
 
-    //m_VideoCodec.DestroyCodec();  // leave m_v.lpbiOut->bmiHeader.biCompression til now
-
     // close file
     CloseHandle(AviFileHandle);
+
+    return 0;
 }
 
 

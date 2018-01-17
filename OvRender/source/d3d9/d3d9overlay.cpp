@@ -19,7 +19,7 @@ BOOLEAN Recording;
 
 HRESULT MakeScreenShot(bool bHalfSize);
 bool RecordFrame();
-void CloseAVI();
+ULONG __stdcall CloseAVI(LPVOID Params);
 DWORD InitializeAviFile();
 VOID Log(const wchar_t* Format, ...);
 
@@ -216,6 +216,7 @@ VOID Dx9Overlay_Present( IDirect3DDevice9* Device )
     {
         StartRecording = FALSE;
         Recording = TRUE;
+
         InitializeAviFile();
         
     }
@@ -223,7 +224,8 @@ VOID Dx9Overlay_Present( IDirect3DDevice9* Device )
     {
         StopRecording = FALSE;
         Recording = FALSE;
-        CloseAVI();
+
+        CreateThread(0, 0, &CloseAVI, 0, 0, 0);
     }
 
     if (Recording)
