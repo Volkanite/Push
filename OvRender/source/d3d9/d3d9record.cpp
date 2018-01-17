@@ -736,6 +736,62 @@ int InitFileHeader(AVI_FILE_HEADER& afh)
 
 #include <stdio.h>
 #define PUSH_VERSION "r43"
+
+
+void CAVIIndex::DeleteIndexBlock(CAVIIndexBlock* pIndex)
+{
+    HANDLE hHeap = ::GetProcessHeap();
+    ::HeapFree(hHeap, 0, pIndex->m_pEntry); // release index
+    ::HeapFree(hHeap, 0, pIndex); // release index
+}
+
+
+void CAVIIndex::FlushIndexChunk(HANDLE hFile)
+{
+    // release memory that index took
+    // m_pIndexCur = Last;
+
+    DWORD dwBytesWritten;
+    if (hFile != INVALID_HANDLE_VALUE)
+    {
+        // write index
+        DWORD dwTags[2];
+        dwTags[0] = ckidAVINEWINDEX;    // MAKEFOURCC('i', 'd', 'x', '1')
+        dwTags[1] = get_ChunkSize();
+        ::WriteFile(hFile, dwTags, sizeof(dwTags), &dwBytesWritten, NULL);
+    }
+
+    int iCount = 0;
+    CAVIIndexBlock* p = m_pIndexFirst;
+    if (p)
+    {
+        DWORD dwTotal = m_dwFramesTotal;
+        while (p != NULL)
+        {
+            DWORD dwFrames = (p == m_pIndexCur) ?
+                (m_dwFramesTotal % AVIINDEX_QTY) : AVIINDEX_QTY;
+            dwTotal -= dwFrames;
+            if (hFile != INVALID_HANDLE_VALUE)
+            {
+                ::WriteFile(hFile, p->m_pEntry, dwFrames*sizeof(AVIINDEXENTRY),
+                    &dwBytesWritten, NULL);
+            }
+            CAVIIndexBlock* q = p->m_pNext;
+            DeleteIndexBlock(p);
+            p = q;
+            iCount++;
+        }
+        Log(L"CAVIIndex::FlushIndex() %d", iCount);
+    }
+
+    m_dwFramesTotal = 0;
+    m_pIndexFirst = NULL;
+    m_pIndexCur = NULL;
+    m_dwIndexCurFrames = 0;
+    m_dwIndexBlocks = 0;
+}
+
+
 DWORD InitializeAviFile()
 {
     AviFileHandle = INVALID_HANDLE_VALUE;
@@ -802,60 +858,6 @@ DWORD InitializeAviFile()
     }
 
     return ERROR_SUCCESS;
-}
-
-
-void CAVIIndex::DeleteIndexBlock(CAVIIndexBlock* pIndex)
-{
-    HANDLE hHeap = ::GetProcessHeap();
-    ::HeapFree(hHeap, 0, pIndex->m_pEntry); // release index
-    ::HeapFree(hHeap, 0, pIndex); // release index
-}
-
-
-void CAVIIndex::FlushIndexChunk(HANDLE hFile)
-{
-    // release memory that index took
-    // m_pIndexCur = Last;
-
-    DWORD dwBytesWritten;
-    if (hFile != INVALID_HANDLE_VALUE)
-    {
-        // write index
-        DWORD dwTags[2];
-        dwTags[0] = ckidAVINEWINDEX;    // MAKEFOURCC('i', 'd', 'x', '1')
-        dwTags[1] = get_ChunkSize();
-        ::WriteFile(hFile, dwTags, sizeof(dwTags), &dwBytesWritten, NULL);
-    }
-
-    int iCount = 0;
-    CAVIIndexBlock* p = m_pIndexFirst;
-    if (p)
-    {
-        DWORD dwTotal = m_dwFramesTotal;
-        while (p != NULL)
-        {
-            DWORD dwFrames = (p == m_pIndexCur) ?
-                (m_dwFramesTotal % AVIINDEX_QTY) : AVIINDEX_QTY;
-            dwTotal -= dwFrames;
-            if (hFile != INVALID_HANDLE_VALUE)
-            {
-                ::WriteFile(hFile, p->m_pEntry, dwFrames*sizeof(AVIINDEXENTRY),
-                    &dwBytesWritten, NULL);
-            }
-            CAVIIndexBlock* q = p->m_pNext;
-            DeleteIndexBlock(p);
-            p = q;
-            iCount++;
-        }
-        Log(L"CAVIIndex::FlushIndex() %d", iCount);
-    }
-
-    m_dwFramesTotal = 0;
-    m_pIndexFirst = NULL;
-    m_pIndexCur = NULL;
-    m_dwIndexCurFrames = 0;
-    m_dwIndexBlocks = 0;
 }
 
 
