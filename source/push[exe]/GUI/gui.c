@@ -99,6 +99,11 @@ LONG __stdcall TrayIconProc(
 
             GetCursorPos(&pos);
 
+            // https://msdn.microsoft.com/en-us/library/windows/desktop/ms648002(v=vs.85).aspx
+            // the current window must be the foreground window before the application calls TrackPopupMenu. 
+            // Otherwise, the menu will not disappear when the user clicks outside of the menu.
+            SetForegroundWindow(PushMainWindow->Handle);
+
             TrackPopupMenu(
                 hSubMenu,
                 0,
@@ -167,7 +172,7 @@ VOID Tray_Minimize(
 {
     WNDCLASSEX windowClass;
 
-	Memory_Clear(&windowClass, sizeof(WNDCLASSEX));
+    Memory_Clear(&windowClass, sizeof(WNDCLASSEX));
 
     windowClass.Size = sizeof(WNDCLASSEX);
     windowClass.Style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
