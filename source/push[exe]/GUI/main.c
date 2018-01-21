@@ -230,6 +230,11 @@ BuildGameFilesList(
 }
 
 
+#define WIDE2(x) L##x
+#define WIDE1(x) WIDE2(x)
+#define __WDATE__ WIDE1(__DATE__)
+
+
 VOID MwCreateMainWindow()
 {
     WINDOW pageWindow;
@@ -264,7 +269,7 @@ VOID MwCreateMainWindow()
     Tray_Minimize(
         PushMainWindow->Handle,
         Gui_IconImageHandle,
-        L"Push",
+        L"Push " PUSH_VERSION L" built: " __WDATE__,
         IDM_RESTORE,
         &Gui_InvisibleWindowHandle,
         &Gui_TrayIconHandle
@@ -405,18 +410,6 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
             case BUTTON_RESET_GPU:
                 PushSharedMemory->Overloads = 0;
                 break;
-            case BUTTON_TRAY:
-            {
-                Tray_Minimize(
-                    PushMainWindow->Handle,
-                    Gui_IconImageHandle,
-                    L"Push",
-                    IDM_RESTORE,
-                    &Gui_InvisibleWindowHandle,
-                    &Gui_TrayIconHandle
-                    );
-            }
-            break;
 
             case BUTTON_STOPRAMDISK:
                 RemoveRamDisk();

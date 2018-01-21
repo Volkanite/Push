@@ -37,6 +37,11 @@
 #define PUSH_SETTINGS_FILE                          L"push.ini"
 
 ///
+/// Push version information
+///
+#define PUSH_VERSION                                L"r43"
+
+///
 /// Base value for the IOCTL's.
 ///
 #define FILE_DEVICE_PUSH             0x8000
