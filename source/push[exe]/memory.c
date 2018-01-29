@@ -2,9 +2,8 @@
 #include <push.h>
 
 
+HANDLE HeapHandle;
 UINT32 BytesAllocated;
-extern ULONG PushSessionId;
-extern VOID* PushHeapHandle;
 
 
 SIZE_T __stdcall RtlSizeHeap(
@@ -41,7 +40,7 @@ VOID* BaseGetNamedObjectDirectory()
         baseNamedObjectDirectoryName,
         29,
         L"\\Sessions\\%u\\BaseNamedObjects",
-        PushSessionId
+        NtCurrentTeb()->ProcessEnvironmentBlock->SessionId
         );
 
     UnicodeString_Init(&bnoString, baseNamedObjectDirectoryName);
@@ -131,7 +130,10 @@ VOID* Memory_Allocate( UINT_B Size )
     //Log(L"Allocating %i bytes, BytesAllocated: %i", Size, BytesAllocated);
 #endif
 
-    return RtlAllocateHeap(PushHeapHandle, 0, Size);
+    if (!HeapHandle)
+        HeapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
+
+    return RtlAllocateHeap(HeapHandle, 0, Size);
 }
 
 
@@ -139,13 +141,20 @@ VOID* Memory_AllocateEx( UINT_B Size, DWORD Flags )
 {
     BytesAllocated += Size;
 
-    return RtlAllocateHeap(PushHeapHandle, Flags, Size);
+    if (!HeapHandle)
+        HeapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
+
+
+    return RtlAllocateHeap(HeapHandle, Flags, Size);
 }
 
 
 VOID* Memory_ReAllocate( VOID* Memory, SIZE_T Size )
 {
-    return RtlReAllocateHeap(PushHeapHandle, HEAP_GENERATE_EXCEPTIONS, Memory, Size);
+    if (!HeapHandle)
+        HeapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
+
+    return RtlReAllocateHeap(HeapHandle, HEAP_GENERATE_EXCEPTIONS, Memory, Size);
 }
 
 
@@ -168,7 +177,10 @@ VOID Memory_Free( VOID* Heap )
     //BytesAllocated -= size;
 #endif
 
-    RtlFreeHeap(PushHeapHandle, 0, Heap);
+    if (!HeapHandle)
+        HeapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
+
+    RtlFreeHeap(HeapHandle, 0, Heap);
 }
 
 
