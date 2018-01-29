@@ -31,14 +31,15 @@
     <Filter Include="Hardware\GPU\Intel">
       <UniqueIdentifier>{bc3c079b-1d08-4a50-b1d5-b656ce99b1e5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="sl">
+      <UniqueIdentifier>{2c2a715c-fe93-479f-b252-9c88f08a211a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="OSD\local.c">
       <Filter>OSD</Filter>
     </ClCompile>
     <ClCompile Include="batch.c" />
-    <ClCompile Include="driver.c" />
-    <ClCompile Include="file.c" />
     <ClCompile Include="game.c" />
     <ClCompile Include="push.c" />
     <ClCompile Include="ramdisk.c" />
@@ -80,15 +81,10 @@
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="string.c" />
-    <ClCompile Include="memory.c" />
-    <ClCompile Include="registry.c" />
     <ClCompile Include="resource.c" />
     <ClCompile Include="ini.c" />
     <ClCompile Include="listview.c" />
-    <ClCompile Include="folder.c" />
     <ClCompile Include="slgui.c" />
-    <ClCompile Include="module.c" />
-    <ClCompile Include="process.c" />
     <ClCompile Include="wow64.c" />
     <ClCompile Include="math.c" />
     <ClCompile Include="mij.c" />
@@ -130,6 +126,27 @@
     </ClCompile>
     <ClCompile Include="Hardware\CPU\os_cpu.c">
       <Filter>Hardware\CPU</Filter>
+    </ClCompile>
+    <ClCompile Include="process.c">
+      <Filter>sl</Filter>
+    </ClCompile>
+    <ClCompile Include="memory.c">
+      <Filter>sl</Filter>
+    </ClCompile>
+    <ClCompile Include="module.c">
+      <Filter>sl</Filter>
+    </ClCompile>
+    <ClCompile Include="file.c">
+      <Filter>sl</Filter>
+    </ClCompile>
+    <ClCompile Include="registry.c">
+      <Filter>sl</Filter>
+    </ClCompile>
+    <ClCompile Include="driver.c">
+      <Filter>sl</Filter>
+    </ClCompile>
+    <ClCompile Include="folder.c">
+      <Filter>sl</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
