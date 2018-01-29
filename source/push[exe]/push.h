@@ -108,7 +108,7 @@ VOID PushGetImageInfo(
 
 VOID Log(const wchar_t* Format, ...);
 VOID Push_FormatTime(WCHAR* Buffer);
-VOID* PushBaseGetNamedObjectDirectory();
+VOID* BaseGetNamedObjectDirectory();
 
 
 typedef struct _PS_ATTRIBUTE

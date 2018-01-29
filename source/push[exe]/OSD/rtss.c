@@ -24,7 +24,7 @@ VOID Initialize()
     UnicodeString_Init(&sectionName, L"RTSSSharedMemoryV2");
 
     objAttrib.Length = sizeof(OBJECT_ATTRIBUTES);
-    objAttrib.RootDirectory = PushBaseGetNamedObjectDirectory();
+    objAttrib.RootDirectory = BaseGetNamedObjectDirectory();
     objAttrib.ObjectName = &sectionName;
     objAttrib.Attributes = OBJ_OPENIF;
     objAttrib.SecurityDescriptor = NULL;
@@ -49,10 +49,10 @@ VOID RTSS_Update( OSD_ITEM* OsdItems )
     WCHAR osdText[256];
     CHAR ansiText[256];
     BOOLEAN stuffToDraw = FALSE;
-	DWORD dwPass;
-	DWORD dwEntry;
+    DWORD dwPass;
+    DWORD dwEntry;
 
-	osdItem = OsdItems;
+    osdItem = OsdItems;
 
     for (i = 0; i < PushSharedMemory->NumberOfOsdItems; i++, osdItem++)
     {

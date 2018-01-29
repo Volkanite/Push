@@ -777,55 +777,6 @@ NTSTATUS __stdcall NtOpenEvent(
     DWORD DesiredAccess,
     OBJECT_ATTRIBUTES* ObjectAttributes
     );
-VOID* BaseNamedObjectDirectory = NULL;
-NTSTATUS __stdcall NtOpenDirectoryObject(VOID**  FileHandle,
-    DWORD   DesiredAccess,
-    OBJECT_ATTRIBUTES*  ObjectAttributes
-    );
-#define DIRECTORY_QUERY   0x0001
-#define DIRECTORY_TRAVERSE   0x0002
-#define DIRECTORY_CREATE_OBJECT   0x0004
-#define DIRECTORY_CREATE_SUBDIRECTORY   0x0008
-
-
-VOID* PushBaseGetNamedObjectDirectory()
-{
-    OBJECT_ATTRIBUTES objAttrib;
-    UNICODE_STRING bnoString;
-    LONG Status;
-    WCHAR baseNamedObjectDirectoryName[29];
-
-    String_Format(
-        baseNamedObjectDirectoryName,
-        29,
-        L"\\Sessions\\%u\\BaseNamedObjects",
-        PushSessionId
-        );
-
-    UnicodeString_Init(&bnoString, baseNamedObjectDirectoryName);
-
-    if (!BaseNamedObjectDirectory)
-    {
-
-        objAttrib.Length = sizeof(OBJECT_ATTRIBUTES);
-        objAttrib.RootDirectory = NULL;
-        objAttrib.Attributes = OBJ_CASE_INSENSITIVE;
-        objAttrib.ObjectName = &bnoString;
-        objAttrib.SecurityDescriptor = NULL;
-        objAttrib.SecurityQualityOfService = NULL;
-
-        Status = NtOpenDirectoryObject(
-            &BaseNamedObjectDirectory,
-            DIRECTORY_CREATE_OBJECT |
-            DIRECTORY_CREATE_SUBDIRECTORY |
-            DIRECTORY_QUERY |
-            DIRECTORY_TRAVERSE,
-            &objAttrib
-            );
-    }
-
-    return BaseNamedObjectDirectory;
-}
 
 
 HANDLE OpenEvent( WCHAR* EventName )
@@ -837,7 +788,7 @@ HANDLE OpenEvent( WCHAR* EventName )
     UnicodeString_Init(&eventName, EventName);
 
     objAttrib.Length = sizeof(OBJECT_ATTRIBUTES);
-    objAttrib.RootDirectory = PushBaseGetNamedObjectDirectory();
+    objAttrib.RootDirectory = BaseGetNamedObjectDirectory();
     objAttrib.ObjectName = &eventName;
     objAttrib.Attributes = 0;
     objAttrib.SecurityDescriptor = NULL;
@@ -1236,7 +1187,7 @@ INT32 __stdcall start( )
     UnicodeString_Init(&eventSource, L"Global\\" PUSH_IMAGE_EVENT_NAME);
 
     objAttrib.Length = sizeof(OBJECT_ATTRIBUTES);
-    objAttrib.RootDirectory = PushBaseGetNamedObjectDirectory();
+    objAttrib.RootDirectory = BaseGetNamedObjectDirectory();
     objAttrib.ObjectName = &eventSource;
     objAttrib.Attributes = OBJ_OPENIF;
     objAttrib.SecurityDescriptor = NULL;

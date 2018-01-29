@@ -13,9 +13,61 @@ SIZE_T __stdcall RtlSizeHeap(
     VOID* BaseAddress
     );
 
+NTSTATUS __stdcall NtOpenDirectoryObject(VOID**  FileHandle,
+    DWORD   DesiredAccess,
+    OBJECT_ATTRIBUTES*  ObjectAttributes
+    );
 
 #define SEC_COMMIT   0x8000000
 #define HEAP_GENERATE_EXCEPTIONS        0x00000004
+
+#define DIRECTORY_QUERY                 0x0001
+#define DIRECTORY_TRAVERSE              0x0002
+#define DIRECTORY_CREATE_OBJECT         0x0004
+#define DIRECTORY_CREATE_SUBDIRECTORY   0x0008
+
+
+VOID* BaseNamedObjectDirectory = NULL;
+
+
+VOID* BaseGetNamedObjectDirectory()
+{
+    OBJECT_ATTRIBUTES objAttrib;
+    UNICODE_STRING bnoString;
+    LONG Status;
+    WCHAR baseNamedObjectDirectoryName[29];
+
+    String_Format(
+        baseNamedObjectDirectoryName,
+        29,
+        L"\\Sessions\\%u\\BaseNamedObjects",
+        PushSessionId
+        );
+
+    UnicodeString_Init(&bnoString, baseNamedObjectDirectoryName);
+
+    if (!BaseNamedObjectDirectory)
+    {
+
+        objAttrib.Length = sizeof(OBJECT_ATTRIBUTES);
+        objAttrib.RootDirectory = NULL;
+        objAttrib.Attributes = OBJ_CASE_INSENSITIVE;
+        objAttrib.ObjectName = &bnoString;
+        objAttrib.SecurityDescriptor = NULL;
+        objAttrib.SecurityQualityOfService = NULL;
+
+        Status = NtOpenDirectoryObject(
+            &BaseNamedObjectDirectory,
+            DIRECTORY_CREATE_OBJECT |
+            DIRECTORY_CREATE_SUBDIRECTORY |
+            DIRECTORY_QUERY |
+            DIRECTORY_TRAVERSE,
+            &objAttrib
+            );
+    }
+
+    return BaseNamedObjectDirectory;
+}
 
 
 VOID* Memory_MapViewOfSection( WCHAR* FileName, DWORD Size, HANDLE* SectionHandle )
@@ -30,7 +82,7 @@ VOID* Memory_MapViewOfSection( WCHAR* FileName, DWORD Size, HANDLE* SectionHandl
     UnicodeString_Init(&sectionName, FileName);
 
     objAttrib.Length = sizeof(OBJECT_ATTRIBUTES);
-    objAttrib.RootDirectory = PushBaseGetNamedObjectDirectory();
+    objAttrib.RootDirectory = BaseGetNamedObjectDirectory();
     objAttrib.Attributes = OBJ_OPENIF;
     objAttrib.ObjectName = &sectionName;
     objAttrib.SecurityDescriptor = NULL;
