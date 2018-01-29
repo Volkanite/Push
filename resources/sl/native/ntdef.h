@@ -1,0 +1,1 @@
+#define OBJ_OPENIF 0x00000080

@@ -1,13 +1,10 @@
 #include <sl.h>
-//#include <stdio.h>
-#include "push.h"
+#include <push.h>
 
 
 UINT32 BytesAllocated;
 extern ULONG PushSessionId;
-
-
-
+extern VOID* PushHeapHandle;
 
 
 SIZE_T __stdcall RtlSizeHeap(
@@ -104,7 +101,7 @@ VOID Memory_Free( VOID* Heap )
 {
     if (!Heap)
     {
-        Log(L"Why are you trying to free memory that doesn't exist!?");
+        //Log(L"Why are you trying to free memory that doesn't exist!?");
 
         return;
     }
@@ -131,13 +128,13 @@ VOID Memory_Copy( VOID* Destination, VOID* Source, UINT32 Length )
 
 VOID Memory_Clear( VOID* Region, UINT32 Size )
 {
-	Memory_ClearEx(Region, 0, Size);
+    Memory_ClearEx(Region, 0, Size);
 }
 
 
 VOID Memory_ClearEx(VOID* Region, DWORD Val, UINT32 Size)
 {
-	memset(Region, Val, Size);
+    memset(Region, Val, Size);
 }
 
 

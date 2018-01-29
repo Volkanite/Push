@@ -110,13 +110,7 @@ VOID Log(const wchar_t* Format, ...);
 VOID Push_FormatTime(WCHAR* Buffer);
 VOID* PushBaseGetNamedObjectDirectory();
 
-#define OBJ_OPENIF   0x00000080L
 
-typedef enum _SECTION_INHERIT
-{
-    ViewShare = 1,
-    ViewUnmap = 2
-} SECTION_INHERIT;
 typedef struct _PS_ATTRIBUTE
 {
     ULONG_PTR Attribute;
@@ -133,20 +127,6 @@ typedef struct _PS_ATTRIBUTE_LIST
     SIZE_T TotalLength;
     PS_ATTRIBUTE Attributes[1];
 } PS_ATTRIBUTE_LIST, *PPS_ATTRIBUTE_LIST;
-
-
-NTSTATUS __stdcall NtMapViewOfSection(
-    VOID* SectionHandle,
-    VOID* ProcessHandle,
-    VOID** BaseAddress,
-    UINT_B ZeroBits,
-    UINT_B CommitSize,
-    LARGE_INTEGER* SectionOffset,
-    SIZE_T* ViewSize,
-    SECTION_INHERIT InheritDisposition,
-    ULONG AllocationType,
-    ULONG Win32Protect
-    );
 
 NTSTATUS __stdcall NtCreateThreadEx(
     HANDLE* ThreadHandle,

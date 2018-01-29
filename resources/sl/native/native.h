@@ -12,3 +12,4 @@
 #include "ntregapi.h"
 #include "ntmmapi.h"
 #include "ntldr.h"
+#include "ntdef.h"
