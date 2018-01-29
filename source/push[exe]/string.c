@@ -1,5 +1,5 @@
 #include <sl.h>
-#include "push.h"
+#include <push.h>
 
 
 //like wcslen
@@ -175,7 +175,7 @@ INT32 String_Format( wchar_t* String, UINT32 Count, const wchar_t* Format, ... )
     va_list _Arglist;
     int _Ret;
     va_start(_Arglist, Format);
-	_Ret = vswprintf_s(String, Count, Format, _Arglist);
+    _Ret = vswprintf_s(String, Count, Format, _Arglist);
     va_end(_Arglist);
     return _Ret;
 #endif // GCC
