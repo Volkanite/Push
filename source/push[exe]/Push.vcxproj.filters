@@ -127,25 +127,25 @@
     <ClCompile Include="Hardware\CPU\os_cpu.c">
       <Filter>Hardware\CPU</Filter>
     </ClCompile>
-    <ClCompile Include="process.c">
+    <ClCompile Include="sl\driver.c">
       <Filter>sl</Filter>
     </ClCompile>
-    <ClCompile Include="memory.c">
+    <ClCompile Include="sl\file.c">
       <Filter>sl</Filter>
     </ClCompile>
-    <ClCompile Include="module.c">
+    <ClCompile Include="sl\folder.c">
       <Filter>sl</Filter>
     </ClCompile>
-    <ClCompile Include="file.c">
+    <ClCompile Include="sl\memory.c">
       <Filter>sl</Filter>
     </ClCompile>
-    <ClCompile Include="registry.c">
+    <ClCompile Include="sl\module.c">
       <Filter>sl</Filter>
     </ClCompile>
-    <ClCompile Include="driver.c">
+    <ClCompile Include="sl\process.c">
       <Filter>sl</Filter>
     </ClCompile>
-    <ClCompile Include="folder.c">
+    <ClCompile Include="sl\registry.c">
       <Filter>sl</Filter>
     </ClCompile>
   </ItemGroup>
