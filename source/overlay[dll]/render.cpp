@@ -70,6 +70,21 @@ BOOLEAN IsGpuLag()
     return FALSE;
 }
 
+#define TSAMP 60
+double garb[TSAMP];
+int addint = 0;
+
+double GetAverageFrameTime()
+{
+
+    UINT32 i;
+    double total = 0;
+
+    for (i = 0; i < TSAMP; i++)
+        total += garb[i];
+
+    return total / TSAMP;
+}
 
 VOID RunFrameStatistics()
 {
@@ -115,6 +130,12 @@ VOID RunFrameStatistics()
     {
         frameTime = newTickCount - lastTickCount;
     }
+
+    garb[addint] = frameTime;
+    addint++;
+
+    if (addint == TSAMP)
+        addint = 0;
 
     if (delta > 1000)
     {

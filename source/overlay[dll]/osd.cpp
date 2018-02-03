@@ -16,7 +16,7 @@ extern UINT32 Frames;
 OSD_VARS Variables;
 extern BOOLEAN IsStableFrametime;
 extern BOOLEAN IsLimitedFrametime;
-
+double GetAverageFrameTime();
 
 /**
 * Draws all on-screen display items.
@@ -105,7 +105,7 @@ VOID Osd_Draw( OvOverlay* Overlay )
             Overlay->DrawText(buffer);
             break;
         case 2:
-            swprintf(buffer, 100, L"FrameTime: %.2f", (double)(FrameTimeTotal / (double) Frames));
+            swprintf(buffer, 100, L"FrameTime: %.2f", GetAverageFrameTime());
             Overlay->DrawText(buffer);
             break;
         }
