@@ -17,7 +17,7 @@ UINT64 CyclesWaited;
 HANDLE RenderThreadHandle;
 UINT32 DisplayFrequency;
 double FrameTime;
-double FrameTimeTotal;
+double FrameTimeAvg;
 UINT32 Frames;
 UINT32 FrameRate;
 UINT8 FrameLimit = 80; //80 fps
@@ -137,6 +137,8 @@ VOID RunFrameStatistics()
     if (addint == TSAMP)
         addint = 0;
 
+    FrameTimeAvg = GetAverageFrameTime();
+
     if (delta > 1000)
     {
         // Every second.
@@ -200,7 +202,7 @@ VOID RunFrameStatistics()
     else
         IsStableFramerate = FALSE;
 
-    if (frameTime > acceptableFrameTime)
+    if (FrameTimeAvg > acceptableFrameTime)
     {
         //reset the timer
         oldTick2 = newTickCount;
@@ -265,7 +267,6 @@ VOID RunFrameStatistics()
     lastTickCount = newTickCount;
     FrameTime = frameTime;
     FrameRate = (int)fps;
-    FrameTimeTotal += frameTime;
 }
 
 

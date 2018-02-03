@@ -10,13 +10,11 @@ extern UINT32 BackBufferWidth;
 extern UINT32 BackBufferHeight;
 extern UINT32 BackBufferCount;
 
-extern double FrameTime;
-extern double FrameTimeTotal;
-extern UINT32 Frames;
+extern double FrameTimeAvg;
 OSD_VARS Variables;
 extern BOOLEAN IsStableFrametime;
 extern BOOLEAN IsLimitedFrametime;
-double GetAverageFrameTime();
+
 
 /**
 * Draws all on-screen display items.
@@ -101,11 +99,8 @@ VOID Osd_Draw( OvOverlay* Overlay )
         switch (Variables.FrameTime)
         {
         case 1:
-            swprintf(buffer, 100, L"FrameTime: %.2f", FrameTime);
-            Overlay->DrawText(buffer);
-            break;
         case 2:
-            swprintf(buffer, 100, L"FrameTime: %.2f", GetAverageFrameTime());
+            swprintf(buffer, 100, L"FrameTime: %.2f", FrameTimeAvg);
             Overlay->DrawText(buffer);
             break;
         }
