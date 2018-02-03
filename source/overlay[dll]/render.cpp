@@ -111,8 +111,11 @@ VOID RunFrameStatistics()
         acceptableFrameTime = (double)1000 / (double)(devMode.dmDisplayFrequency - 1);
 
         if (PushSharedMemory->FrameLimit > 1)
+        {
             FrameLimit = PushSharedMemory->FrameLimit;
-
+            acceptableFrameTime = 1000.0f / (double)(FrameLimit - 1);
+        }
+            
         newTickCount = oldTick = lastTickCount_FrameLimiter = GetPerformanceCounter();
     }
 
