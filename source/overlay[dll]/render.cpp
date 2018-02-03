@@ -83,6 +83,12 @@ double GetAverageFrameTime()
     return total / TSAMP;
 }
 
+#include <math.h>
+bool approximatelyEqual(double a, double b, double epsilon)
+{
+    return fabs(a - b) < epsilon;
+}
+
 
 VOID RunFrameStatistics()
 {
@@ -112,10 +118,10 @@ VOID RunFrameStatistics()
 
     newTickCount = GetPerformanceCounter();
     delta = newTickCount - oldTick;
-	frameTime = newTickCount - lastTickCount;
-	lastTickCount = newTickCount;
+    frameTime = newTickCount - lastTickCount;
+    lastTickCount = newTickCount;
 
-	IsLimitedFrametime = FALSE;
+    IsLimitedFrametime = FALSE;
 
     garb[addint] = frameTime;
     addint++;
@@ -125,15 +131,15 @@ VOID RunFrameStatistics()
 
     FrameTimeAvg = GetAverageFrameTime();
 
-	static double OldfFPS = 0.0f;
-	FrameRate = 1000.0f / FrameTimeAvg;
+    static double OldfFPS = 0.0f;
+    FrameRate = 1000.0f / FrameTimeAvg;
 
-	FrameRate = FrameRate * 0.1 + OldfFPS * 0.9;
-	//FrameRate = FrameRate * 0.01 + OldfFPS * 0.99; even slower damping
+    FrameRate = FrameRate * 0.1 + OldfFPS * 0.9;
+    //FrameRate = FrameRate * 0.01 + OldfFPS * 0.99; even slower damping
 
-	OldfFPS = FrameRate;
+    OldfFPS = FrameRate;
 
-	// Every second.
+    // Every second.
     if (delta > 1000)
     {
         oldTick = newTickCount;
@@ -195,7 +201,6 @@ VOID RunFrameStatistics()
     {
         //reset the timer
         oldTick2 = newTickCount;
-        IsStableFrametime = FALSE;
 
         // Lazy overclock
         if (debugInt++ % DisplayFrequency == 0)
@@ -215,22 +220,28 @@ VOID RunFrameStatistics()
             }
         }
     }
+
+    double frameTimeDamped = 1000.0f / FrameRate;
+
+    if (frameTimeDamped > acceptableFrameTime)
+        IsStableFrametime = FALSE;
     else
-    {
         IsStableFrametime = TRUE;
-    }
 
     if (PushSharedMemory->FrameLimit)
     {
         double frameTimeMin = (double)1000 / (double)FrameLimit;
 
-		frameTime = newTickCount - lastTickCount_FrameLimiter;
+        frameTime = newTickCount - lastTickCount_FrameLimiter;
+
+        if (approximatelyEqual(frameTimeDamped, frameTimeMin, 0.100))
+        {
+            IsLimitedFrametime = TRUE;
+        }
 
         if (frameTime < frameTimeMin)
         {
             UINT64 cyclesStart, cyclesStop;
-
-            IsLimitedFrametime = TRUE;
 
             RenderThreadHandle = GetCurrentThread();
 
