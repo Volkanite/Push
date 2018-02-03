@@ -100,7 +100,7 @@ VOID Osd_Draw( OvOverlay* Overlay )
         {
         case 1:
         case 2:
-            swprintf(buffer, 100, L"FrameTime: %.2f", FrameTimeAvg);
+            swprintf(buffer, 100, L"FrameTime: %.1f", FrameTimeAvg);
             Overlay->DrawText(buffer);
             break;
         }
@@ -112,7 +112,8 @@ VOID Osd_Draw( OvOverlay* Overlay )
         DWORD color;
 
         osdItem->Value = FrameRate;
-        swprintf(buffer, 20, L"%i", FrameRate);
+        //swprintf(buffer, 20, L"%i", FrameRate);
+		swprintf(buffer, 100, L"%.0f", FrameRate);
 
         if (IsStableFrametime)
         {

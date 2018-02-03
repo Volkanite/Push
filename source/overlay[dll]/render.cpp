@@ -6,7 +6,6 @@
 #include <stdio.h>
 
 
-BOOLEAN g_SetOSDRefresh = TRUE;
 BOOLEAN g_FontInited = FALSE;
 BOOLEAN IsStableFramerate;
 BOOLEAN IsStableFrametime;
@@ -16,10 +15,8 @@ UINT16 DiskResponseTime;
 UINT64 CyclesWaited;
 HANDLE RenderThreadHandle;
 UINT32 DisplayFrequency;
-double FrameTime;
 double FrameTimeAvg;
-UINT32 Frames;
-UINT32 FrameRate;
+double FrameRate;
 UINT8 FrameLimit = 80; //80 fps
 int debugInt = 1;
 
@@ -86,16 +83,15 @@ double GetAverageFrameTime()
     return total / TSAMP;
 }
 
+
 VOID RunFrameStatistics()
 {
     static double newTickCount = 0.0, lastTickCount_FrameLimiter = 0.0,
         oldTick = 0.0, delta = 0.0,
-        oldTick2 = 0.0, frameTime = 0.0,
-        fps = 0.0, acceptableFrameTime = 0.0, lastTickCount;
+        oldTick2 = 0.0, frameTime = 0.0, acceptableFrameTime = 0.0, lastTickCount;
 
     
     static BOOLEAN inited = FALSE;
-    static UINT32 frames = 0;
 
     if (!inited)
     {
@@ -116,20 +112,10 @@ VOID RunFrameStatistics()
 
     newTickCount = GetPerformanceCounter();
     delta = newTickCount - oldTick;
+	frameTime = newTickCount - lastTickCount;
+	lastTickCount = newTickCount;
 
-    IsLimitedFrametime = FALSE;
-
-    frames++;
-    Frames++;
-
-    if (PushSharedMemory->FrameLimit)
-    {
-        frameTime = newTickCount - lastTickCount_FrameLimiter;
-    }
-    else
-    {
-        frameTime = newTickCount - lastTickCount;
-    }
+	IsLimitedFrametime = FALSE;
 
     garb[addint] = frameTime;
     addint++;
@@ -139,15 +125,18 @@ VOID RunFrameStatistics()
 
     FrameTimeAvg = GetAverageFrameTime();
 
+	static double OldfFPS = 0.0f;
+	FrameRate = 1000.0f / FrameTimeAvg;
+
+	FrameRate = FrameRate * 0.1 + OldfFPS * 0.9;
+	//FrameRate = FrameRate * 0.01 + OldfFPS * 0.99; even slower damping
+
+	OldfFPS = FrameRate;
+
+	// Every second.
     if (delta > 1000)
     {
-        // Every second.
-
-        double dummy = delta / 1000.0f;
-        fps         = frames / dummy;
         oldTick = newTickCount;
-        frames      = 0;
-        g_SetOSDRefresh = TRUE;
 
         //if (PushSharedMemory->ThreadOptimization || PushSharedMemory->OSDFlags & OSD_MTU)
         //{
@@ -235,6 +224,8 @@ VOID RunFrameStatistics()
     {
         double frameTimeMin = (double)1000 / (double)FrameLimit;
 
+		frameTime = newTickCount - lastTickCount_FrameLimiter;
+
         if (frameTime < frameTimeMin)
         {
             UINT64 cyclesStart, cyclesStop;
@@ -263,10 +254,6 @@ VOID RunFrameStatistics()
 
         lastTickCount_FrameLimiter = newTickCount;
     }
-
-    lastTickCount = newTickCount;
-    FrameTime = frameTime;
-    FrameRate = (int)fps;
 }
 
 
