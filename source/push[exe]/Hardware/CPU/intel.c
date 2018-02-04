@@ -7,24 +7,21 @@
 #define MSR_CORE_THREAD_COUNT   0x0035
 #define IA32_PERF_STATUS        0x0198
 #define IA32_THERM_STATUS       0x019C
-#define IA32_TEMPERATURE_TARGET 0x01A2
-#define TURBO_RATIO_LIMIT       0x01AD
+#define MSR_TEMPERATURE_TARGET  0x01A2
+#define MSR_TURBO_RATIO_LIMIT   0x01AD
 
 
-float TjMax;
 int CoreCount;
+float TjMax;
+
 int GetCoreCount();
+float GetTjMax();
 
 
 VOID IntelCPU_Initialize()
 {
-    DWORD eax;
-
-    eax = CPU_ReadMsr(IA32_TEMPERATURE_TARGET);
-
-    TjMax = (eax >> 16) & 0xFF;
-
     CoreCount = GetCoreCount();
+    TjMax = GetTjMax();
 }
 
 
@@ -48,6 +45,28 @@ int GetCoreCount()
     cores = (eax >> 16) & 0xFFFF;
 
     return cores;
+}
+
+
+/*
+* MSR_TEMPERATURE_TARGET MSR (0x1A2) Bits 31:0 [Scope: Thread]
+* Temperature Target
+*
+* 23:16 [Temperature Target] - The minimum temperature at which PROCHOT# will be asserted.
+* The value is degree C.
+*
+*/
+
+float GetTjMax()
+{
+    DWORD eax;
+    float tjMax;
+
+    eax = CPU_ReadMsr(MSR_TEMPERATURE_TARGET);
+
+    tjMax = (eax >> 16) & 0xFF;
+
+    return tjMax;
 }
 
 
@@ -122,7 +141,7 @@ UINT16 Intel_GetSpeed()
 
 
 /*
-* TURBO_RATIO_LIMIT MSR (0x1AD) Bits 31:0 [Scope: Package]
+* MSR_TURBO_RATIO_LIMIT MSR (0x1AD) Bits 31:0 [Scope: Package]
 * Indicates the factory configured values for of 1-core, 2-core, 3-core and 4-core 
 * turbo ratio limits for all processors.
 *
@@ -136,7 +155,7 @@ UINT16 Intel_GetMaxSpeed()
     unsigned __int32 multiplier;
     unsigned __int16 coreClock;
 
-    eax = CPU_ReadMsr(TURBO_RATIO_LIMIT);
+    eax = CPU_ReadMsr(MSR_TURBO_RATIO_LIMIT);
 
     multiplier = (eax & 0xff);
     coreClock = (float)(multiplier * 100.0f);
