@@ -94,10 +94,11 @@ VOID RunFrameStatistics()
 {
     static double newTickCount = 0.0, lastTickCount_FrameLimiter = 0.0,
         oldTick = 0.0, delta = 0.0,
-        oldTick2 = 0.0, frameTime = 0.0, acceptableFrameTime = 0.0, lastTickCount;
+        oldTickFrameRateStable = 0.0, frameTime = 0.0, acceptableFrameTime = 0.0, lastTickCount;
 
     
     static BOOLEAN inited = FALSE;
+    static BOOLEAN beginThreadDiagnostics = FALSE;
 
     if (!inited)
     {
@@ -180,7 +181,7 @@ VOID RunFrameStatistics()
             PushSharedMemory->OSDFlags |= OSD_DISK_RESPONSE;
         }
 
-        if (PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage >= 99)
+        if (beginThreadDiagnostics && PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage >= 99)
         {
             PushSharedMemory->Overloads |= OSD_MTU;
             PushSharedMemory->OSDFlags |= OSD_MTU;
@@ -194,7 +195,7 @@ VOID RunFrameStatistics()
     if (FrameTimeAvg > acceptableFrameTime)
     {
         //reset the timer
-        oldTick2 = newTickCount;
+        oldTickFrameRateStable = newTickCount;
 
         // Lazy overclock
         if (debugInt++ % DisplayFrequency == 0)
@@ -215,11 +216,19 @@ VOID RunFrameStatistics()
         }
     }
 
-    if (newTickCount - oldTick2 > 30000)
+    if (newTickCount - oldTickFrameRateStable > 30000)
         //frame rate has been stable for at least 30 seconds.
         IsStableFramerate = TRUE;
     else
         IsStableFramerate = FALSE;
+
+    if (newTickCount - oldTickFrameRateStable > 1000)
+    {
+        //frame rate has been stable for at least 1 second.
+        //we put this here to let the game go through it's usual startup routines which normally issues a false positive on thread diagnostics.
+        //this tells the diagnostics to hold off until frameTimeAvg (average frame-time) is stable.
+        beginThreadDiagnostics = TRUE;
+    }
 
     double frameTimeDamped = 1000.0f / FrameRate;
 
