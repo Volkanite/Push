@@ -23,6 +23,14 @@ VOID IntelCPU_Initialize()
 }
 
 
+/*
+* IA32_THERM_STATUS MSR (0x19C) Bits 31:0 indicates the
+* processor temperature.
+*
+* 15:0 - Current Temperature Status Value
+*
+*/
+
 UINT8 Intel_GetTemperature()
 {
     INT32 retTemp = 0;
