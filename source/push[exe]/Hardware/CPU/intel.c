@@ -24,8 +24,9 @@ VOID IntelCPU_Initialize()
 
 
 /*
-* IA32_THERM_STATUS MSR (0x19C) Bits 31:0 indicates the
-* processor temperature.
+* IA32_THERM_STATUS MSR (0x19C) Bits 31:0 [Scope: Core]
+* Contains status information about the processor's thermal sensor and automatic
+* thermal monitoring facilities.
 *
 * 15:0 - Current Temperature Status Value
 *
@@ -70,8 +71,8 @@ UINT8 Intel_GetTemperature()
 
 
 /*
-* IA32_PERF_STATUS MSR (0x198) Bits 31:0 indicates the
-* processor speed.
+* IA32_PERF_STATUS MSR (0x198) Bits 31:0 [Scope: Core]
+* Indicates the processor speed.
 *
 * 15:0 - Current Performance State Value
 *
@@ -93,9 +94,9 @@ UINT16 Intel_GetSpeed()
 
 
 /*
-* TURBO_RATIO_LIMIT MSR (0x1AD) Bits 31:0 indicates the
-* factory configured values for of 1-core, 2-core, 3-core
-* and 4-core turbo ratio limits for all processors.
+* TURBO_RATIO_LIMIT MSR (0x1AD) Bits 31:0 [Scope: Package]
+* Indicates the factory configured values for of 1-core, 2-core, 3-core and 4-core 
+* turbo ratio limits for all processors.
 *
 * 7:0 - Maximum turbo ratio limit of 1 core active.
 *
