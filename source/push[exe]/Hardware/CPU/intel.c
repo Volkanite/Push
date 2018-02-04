@@ -7,6 +7,7 @@
 #define IA32_PERF_STATUS        0x0198
 #define IA32_THERM_STATUS       0x019C
 #define IA32_TEMPERATURE_TARGET 0x01A2
+#define TURBO_RATIO_LIMIT       0x01AD
 
 
 float TjMax;
@@ -60,6 +61,14 @@ UINT8 Intel_GetTemperature()
 }
 
 
+/*
+* IA32_PERF_STATUS MSR (0x198) Bits 31:0 indicates the
+* processor speed.
+*
+* 15:0 - Current Performance State Value
+*
+*/
+
 UINT16 Intel_GetSpeed()
 {
     DWORD eax;
@@ -69,6 +78,30 @@ UINT16 Intel_GetSpeed()
     eax = CPU_ReadMsr(IA32_PERF_STATUS);
 
     multiplier = (eax >> 8) & 0xff;
+    coreClock = (float)(multiplier * 100.0f);
+
+    return coreClock;
+}
+
+
+/*
+* TURBO_RATIO_LIMIT MSR (0x1AD) Bits 31:0 indicates the
+* factory configured values for of 1-core, 2-core, 3-core
+* and 4-core turbo ratio limits for all processors.
+*
+* 7:0 - Maximum turbo ratio limit of 1 core active.
+*
+*/
+
+UINT16 Intel_GetMaxSpeed()
+{
+    DWORD eax;
+    unsigned __int32 multiplier;
+    unsigned __int16 coreClock;
+
+    eax = CPU_ReadMsr(TURBO_RATIO_LIMIT);
+
+    multiplier = (eax & 0xff);
     coreClock = (float)(multiplier * 100.0f);
 
     return coreClock;

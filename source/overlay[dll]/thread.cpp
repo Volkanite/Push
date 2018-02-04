@@ -188,6 +188,8 @@ ThreadMonitor::ThreadMonitor()
         (UINT32*)&bufferSize, 
         MEM_RELEASE
         );
+
+    MaxMhz = PushSharedMemory->HarwareInformation.Processor.MhzMax;
 }
 
 
@@ -297,7 +299,6 @@ UINT8 ThreadMonitor::GetMaxThreadUsage()
     MaxThreadCyclesDelta -= CyclesWaited;
     CyclesWaited = 0;
     
-    MaxMhz = PushSharedMemory->HarwareInformation.Processor.MhzMax;
     threadUsage = ((FLOAT)MaxThreadCyclesDelta / (FLOAT)(MaxMhz * 1000000)) * 100;
 
     //clip calculated thread usage to [0-100] range to filter calculation non-ideality

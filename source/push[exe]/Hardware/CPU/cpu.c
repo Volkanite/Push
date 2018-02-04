@@ -159,3 +159,17 @@ UINT16 CPU_GetSpeed()
         break;
     }
 }
+
+
+UINT16 CPU_GetMaxSpeed()
+{
+    switch (Vendor)
+    {
+    case AMD:
+        return AMD_GetSpeed();
+        break;
+    default:
+        return Intel_GetMaxSpeed();
+        break;
+    }
+}

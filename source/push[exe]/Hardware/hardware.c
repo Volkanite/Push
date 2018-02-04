@@ -426,7 +426,6 @@ VOID GetHardwareInfo()
     NtQuerySystemInformation(SystemBasicInformation, &HwInfoSystemBasicInformation, sizeof(SYSTEM_BASIC_INFORMATION), 0);
 
     PushSharedMemory->HarwareInformation.Processor.NumberOfCores = HwInfoSystemBasicInformation.NumberOfProcessors;
-    PushSharedMemory->HarwareInformation.Processor.MhzMax = 0;
 
     physicalPages = HwInfoSystemBasicInformation.NumberOfPhysicalPages;
     pageSize = HwInfoSystemBasicInformation.PageSize;
@@ -453,6 +452,7 @@ VOID GetHardwareInfo()
     }
 
     CPU_Intialize();
+    PushSharedMemory->HarwareInformation.Processor.MhzMax = CPU_GetMaxSpeed();
 
     gdi32 = Module_Load(L"gdi32.dll");
 
@@ -505,9 +505,6 @@ VOID RefreshHardwareInfo()
     PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle     = gpuInfo.FanDutyCycle;
     PushSharedMemory->HarwareInformation.Memory.Used                    = GetRamUsed();
     PushSharedMemory->HarwareInformation.Memory.Load                    = GetRamUsage();
-
-    if (PushSharedMemory->HarwareInformation.Processor.MhzCurrent > PushSharedMemory->HarwareInformation.Processor.MhzMax)
-        PushSharedMemory->HarwareInformation.Processor.MhzMax = PushSharedMemory->HarwareInformation.Processor.MhzCurrent;
 
     if (DiskMonitorInitialized)
         PushSharedMemory->HarwareInformation.Disk.ReadWriteRate             = GetDiskReadWriteRate();
