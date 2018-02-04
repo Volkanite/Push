@@ -4,6 +4,7 @@
 #include "cpu.h"
 
 
+#define MSR_CORE_THREAD_COUNT   0x0035
 #define IA32_PERF_STATUS        0x0198
 #define IA32_THERM_STATUS       0x019C
 #define IA32_TEMPERATURE_TARGET 0x01A2
@@ -11,6 +12,8 @@
 
 
 float TjMax;
+int CoreCount;
+int GetCoreCount();
 
 
 VOID IntelCPU_Initialize()
@@ -20,6 +23,31 @@ VOID IntelCPU_Initialize()
     eax = CPU_ReadMsr(IA32_TEMPERATURE_TARGET);
 
     TjMax = (eax >> 16) & 0xFF;
+
+    CoreCount = GetCoreCount();
+}
+
+
+/*
+* MSR_CORE_THREAD_COUNT MSR (0x35) Bits 31:0 [Scope: Package]
+* Configured State of Enabled Processor Core Count and Logical Processor Count
+*
+* 31:16 [CORE_COUNT] - The number of processor cores that are currently enabled (by
+* either factory configuration or BIOS configuration) in the physical
+* package.
+*
+*/
+
+int GetCoreCount()
+{
+    DWORD eax;
+    unsigned __int8 cores;
+
+    eax = CPU_ReadMsr(MSR_CORE_THREAD_COUNT);
+
+    cores = (eax >> 16) & 0xFFFF;
+
+    return cores;
 }
 
 
@@ -38,7 +66,7 @@ UINT8 Intel_GetTemperature()
     INT32 i= 0;
 
 
-    for (i = 0; i < PushSharedMemory->HarwareInformation.Processor.NumberOfCores; i++)
+    for (i = 0; i < CoreCount; i++)
     {
         DWORD eax;
         DWORD mask          = 0;
