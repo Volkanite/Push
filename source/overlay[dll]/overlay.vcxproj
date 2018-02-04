@@ -93,7 +93,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>dxgi.lib;d3d10.lib;gdiplus.lib;sl.lib;ntdll.lib;OvRender.lib;PowrProf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxgi.lib;d3d10.lib;gdiplus.lib;sl.lib;ntdll.lib;OvRender.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>msvcrtd.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
@@ -128,7 +128,7 @@
       <ImportLibrary>$(TEMP)\overlay\overlay.lib</ImportLibrary>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <LinkStatus>false</LinkStatus>
-      <AdditionalDependencies>dxgi.lib;d3d10.lib;gdiplus.lib;sl.lib;ntdll.lib;OvRender.lib;PowrProf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxgi.lib;d3d10.lib;gdiplus.lib;sl.lib;ntdll.lib;OvRender.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>

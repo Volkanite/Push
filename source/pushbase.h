@@ -221,7 +221,8 @@ typedef struct _PUSH_HARDWARE_INFORMATION
     struct
     {
         UINT8 NumberOfCores;
-        UINT16 Speed; //Mhz
+        UINT16 MhzCurrent;
+        UINT16 MhzMax;
         UINT8 Load;
         UINT8 MaxThreadUsage;
         UINT8 MaxCoreUsage;

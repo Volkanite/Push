@@ -426,6 +426,7 @@ VOID GetHardwareInfo()
     NtQuerySystemInformation(SystemBasicInformation, &HwInfoSystemBasicInformation, sizeof(SYSTEM_BASIC_INFORMATION), 0);
 
     PushSharedMemory->HarwareInformation.Processor.NumberOfCores = HwInfoSystemBasicInformation.NumberOfProcessors;
+    PushSharedMemory->HarwareInformation.Processor.MhzMax = 0;
 
     physicalPages = HwInfoSystemBasicInformation.NumberOfPhysicalPages;
     pageSize = HwInfoSystemBasicInformation.PageSize;
@@ -489,7 +490,7 @@ VOID RefreshHardwareInfo()
     PhpUpdateCpuInformation();
     GPU_GetInfo(&gpuInfo);
 
-    PushSharedMemory->HarwareInformation.Processor.Speed                = CPU_GetSpeed();
+    PushSharedMemory->HarwareInformation.Processor.MhzCurrent           = CPU_GetSpeed();
     PushSharedMemory->HarwareInformation.Processor.Load                 = GetCpuLoad();
     PushSharedMemory->HarwareInformation.Processor.MaxCoreUsage         = GetMaxCoreLoad();
     PushSharedMemory->HarwareInformation.Processor.Temperature          = GetCpuTemp();
@@ -504,6 +505,9 @@ VOID RefreshHardwareInfo()
     PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle     = gpuInfo.FanDutyCycle;
     PushSharedMemory->HarwareInformation.Memory.Used                    = GetRamUsed();
     PushSharedMemory->HarwareInformation.Memory.Load                    = GetRamUsage();
+
+    if (PushSharedMemory->HarwareInformation.Processor.MhzCurrent > PushSharedMemory->HarwareInformation.Processor.MhzMax)
+        PushSharedMemory->HarwareInformation.Processor.MhzMax = PushSharedMemory->HarwareInformation.Processor.MhzCurrent;
 
     if (DiskMonitorInitialized)
         PushSharedMemory->HarwareInformation.Disk.ReadWriteRate             = GetDiskReadWriteRate();

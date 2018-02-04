@@ -138,7 +138,6 @@ VOID RunFrameStatistics()
     FrameRate = 1000.0f / FrameTimeAvg;
 
     FrameRate = FrameRate * 0.1 + OldfFPS * 0.9;
-    //FrameRate = FrameRate * 0.01 + OldfFPS * 0.99; even slower damping
 
     OldfFPS = FrameRate;
 
@@ -168,9 +167,6 @@ VOID RunFrameStatistics()
         if (PushSharedMemory->HarwareInformation.Processor.MaxCoreUsage > 95)
             PushSharedMemory->Overloads |= OSD_MCU;
 
-        if (PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage > 95)
-            PushSharedMemory->Overloads |= OSD_MTU;
-
         if (IsGpuLag()) PushSharedMemory->Overloads |= OSD_GPU_LOAD;
 
         if (PushSharedMemory->HarwareInformation.Memory.Used > PushSharedMemory->HarwareInformation.Memory.Total)
@@ -184,22 +180,17 @@ VOID RunFrameStatistics()
             PushSharedMemory->OSDFlags |= OSD_DISK_RESPONSE;
         }
 
-        if (PushSharedMemory->AutoLogFileIo)
-            PushSharedMemory->LogFileIo = TRUE;
-
-        if (PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage > 95)
+        if (PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage >= 99)
         {
             PushSharedMemory->Overloads |= OSD_MTU;
             PushSharedMemory->OSDFlags |= OSD_MTU;
         }
+
+        if (PushSharedMemory->AutoLogFileIo)
+            PushSharedMemory->LogFileIo = TRUE;
     }
 
-    if (newTickCount - oldTick2 > 30000)
-        //frame rate has been stable for at least 30 seconds.
-        IsStableFramerate = TRUE;
-    else
-        IsStableFramerate = FALSE;
-
+    //lazier check than (frameTime > acceptableFrameTime)
     if (FrameTimeAvg > acceptableFrameTime)
     {
         //reset the timer
@@ -223,6 +214,12 @@ VOID RunFrameStatistics()
             }
         }
     }
+
+    if (newTickCount - oldTick2 > 30000)
+        //frame rate has been stable for at least 30 seconds.
+        IsStableFramerate = TRUE;
+    else
+        IsStableFramerate = FALSE;
 
     double frameTimeDamped = 1000.0f / FrameRate;
 

@@ -16,28 +16,14 @@ typedef struct _THREAD_LIST {
     THREAD_LIST_ENTRY*  NextEntry;
 
 } THREAD_LIST_ENTRY, *THREAD_LIST;
-typedef struct _PROCESSOR_POWER_INFORMATION {
-    ULONG Number;
-    ULONG MaxMhz;
-    ULONG CurrentMhz;
-    ULONG MhzLimit;
-    ULONG MaxIdleState;
-    ULONG CurrentIdleState;
-} PROCESSOR_POWER_INFORMATION, *PPROCESSOR_POWER_INFORMATION;
+
 
 THREAD_LIST_ENTRY* TmThreadList = 0;
 VOID* TmHeapHandle;
 ULONG MaxMhz;
 extern UINT64 CyclesWaited;
 
-#define ProcessorInformation 11
-extern "C" NTSTATUS __stdcall CallNtPowerInformation(
-    UINT32 InformationLevel,
-    VOID*                   lpInputBuffer,
-    ULONG                   nInputBufferSize,
-    VOID*                   lpOutputBuffer,
-    ULONG                   nOutputBufferSize
-    );
+
 #ifdef _WIN64
 #include <intrin.h>
 
@@ -193,7 +179,7 @@ ThreadMonitor::ThreadMonitor()
     for(n = 0; n < processEntry->NumberOfThreads; n++)
     {
         AddToThreadList( (UINT16) threads[n].ClientId.UniqueThread );
-        printf("adding thread %u to list\n", (UINT16) threads[n].ClientId.UniqueThread);
+        //Log(L"adding thread %u to list\n", (UINT16) threads[n].ClientId.UniqueThread);
     }
 
     NtFreeVirtualMemory(
@@ -202,26 +188,6 @@ ThreadMonitor::ThreadMonitor()
         (UINT32*)&bufferSize, 
         MEM_RELEASE
         );
-
-    SYSTEM_BASIC_INFORMATION basicInfo;
-    PPROCESSOR_POWER_INFORMATION ppi;
-
-    NtQuerySystemInformation(
-        SystemBasicInformation, 
-        &basicInfo, 
-        sizeof(SYSTEM_BASIC_INFORMATION), 
-        0
-        );
-
-    const int size = basicInfo.NumberOfProcessors * sizeof(PROCESSOR_POWER_INFORMATION);
-    ppi = (PPROCESSOR_POWER_INFORMATION) RtlAllocateHeap(
-        NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap,
-        HEAP_ZERO_MEMORY,
-        size
-        );
-
-    CallNtPowerInformation(ProcessorInformation, 0, 0, ppi, size);
-    MaxMhz = ppi->MaxMhz;
 }
 
 
@@ -331,6 +297,7 @@ UINT8 ThreadMonitor::GetMaxThreadUsage()
     MaxThreadCyclesDelta -= CyclesWaited;
     CyclesWaited = 0;
     
+    MaxMhz = PushSharedMemory->HarwareInformation.Processor.MhzMax;
     threadUsage = ((FLOAT)MaxThreadCyclesDelta / (FLOAT)(MaxMhz * 1000000)) * 100;
 
     //clip calculated thread usage to [0-100] range to filter calculation non-ideality
