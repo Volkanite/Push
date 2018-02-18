@@ -25,6 +25,7 @@ WCHAR* GpuSpeedMemoryOpt[] = { L"", L"" };
 WCHAR* GpuVoltageOpt[] = { L"", L"" };
 WCHAR* GpuFanDutyCycleOpt[] = { L"", L"" };
 WCHAR* FrameLimitOpt[] = { L"", L"" };
+WCHAR* FontSizeOpt[] = { L"", L"" };
 
 WCHAR* FontOpt[] = { L"Verdana", L"BatangChe", L"Consolas", L"Courier", L"DejaVu Sans Mono", L"DFKai-SB", L"DotumChe", L"FangSong",
                      L"GulimChe", L"GungsuhChe", L"KaiTi", L"Liberation Mono", L"Lucida Console", L"MingLiU", L"Miriam Fixed", 
@@ -36,11 +37,13 @@ WCHAR GpuSpeedMemory[20];
 WCHAR GpuVoltage[20];
 WCHAR GpuFanDutyCycle[20];
 WCHAR FrameLimitText[20];
+WCHAR FontSizeText[20];
 
 BOOLEAN MnuInitialized;
 HANDLE MenuProcessHeap;
 
-BOOLEAN BoldFont;
+BOOLEAN FontBold;
+UINT32 FontSize;
 
 extern OV_WINDOW_MODE D3D9Hook_WindowMode;
 extern BOOLEAN D3D9Hook_ForceReset;
@@ -74,13 +77,14 @@ extern BOOLEAN StopRecording;
 #define ID_RECORD           OSD_LAST_ITEM+20
 #define ID_FONT             OSD_LAST_ITEM+21
 #define ID_BOLD             OSD_LAST_ITEM+22
+#define ID_SIZE             OSD_LAST_ITEM+23
 
 
-//Add menu items to menu
 #include <stdio.h>
 #include <wchar.h>
+
 VOID ChangeVsync(BOOLEAN Setting);
-VOID SetFont(WCHAR* FontName, BOOLEAN Bold);
+VOID SetFont(WCHAR* FontName, BOOLEAN Bold, UINT32 Size);
 
 
 VOID UpdateGpuInformation()
@@ -103,12 +107,12 @@ VOID UpdateGpuInformation()
 }
 
 
-VOID UpdateFrameLimitText()
+VOID UpdateIntegralText( WCHAR* Buffer, UINT32 Value, WCHAR** OptBuffer )
 {
-    swprintf(FrameLimitText, 20, L"%i", FrameLimit);
+    swprintf(Buffer, 20, L"%i", Value);
 
-    FrameLimitOpt[0] = FrameLimitText;
-    FrameLimitOpt[1] = FrameLimitText;
+    OptBuffer[0] = Buffer;
+    OptBuffer[1] = Buffer;
 }
 
 
@@ -170,7 +174,7 @@ VOID AddItems()
         Menu->AddItem(L"Screenshot", PressOpt, &D3DTweaks[6], ID_SCREENSHOT);
         Menu->AddItem(L"Record", ItemOpt, &D3DTweaks[7], ID_RECORD);
 
-        UpdateFrameLimitText();
+        UpdateIntegralText(FrameLimitText, FrameLimit, FrameLimitOpt);
     }
 
     Menu->AddGroup(L"Process", GroupOpt, &Process[0]);
@@ -186,12 +190,16 @@ VOID AddItems()
     {
         Menu->AddItem(L"Font", FontOpt, &Settings[1], ID_FONT, sizeof(FontOpt)/sizeof(FontOpt[0]));
         Menu->AddItem(L"Bold", ItemOpt, &Settings[2], ID_BOLD);
+        Menu->AddItem(L"Size", FontSizeOpt, &Settings[3], ID_SIZE);
 
         //Initialize with current settings
-        BoldFont = PushSharedMemory->FontBold;
+        FontBold = PushSharedMemory->FontBold;
+        FontSize = 10;
         
-        if (BoldFont)
+        if (FontBold)
             Settings[2].Var = 1;
+
+        UpdateIntegralText(FontSizeText, FontSize, FontSizeOpt);
     }
 }
 
@@ -391,8 +399,8 @@ VOID ProcessOptions( MenuItems* Item )
             {
                 FrameLimit++;
             }
-                 
-            UpdateFrameLimitText();
+            
+            UpdateIntegralText(FrameLimitText, FrameLimit, Item->Options);
         }
         break;
 
@@ -444,16 +452,30 @@ VOID ProcessOptions( MenuItems* Item )
         break;
 
     case ID_BOLD:
-        if (*Item->Var > 0)
-            BoldFont = TRUE;
-        else
-            BoldFont = FALSE;
+    case ID_SIZE:
+        if (*Item->Id == ID_BOLD)
+        {
+            if (*Item->Var > 0)
+                FontBold = TRUE;
+            else
+                FontBold = FALSE;
+        }
 
-        SetFont(NULL, BoldFont);
+        if (*Item->Id == ID_SIZE)
+        {
+            if (*Item->Var > 0)
+                FontSize++;
+            else
+                FontSize--;
+
+            UpdateIntegralText(FontSizeText, FontSize, Item->Options);
+        }
+
+        SetFont(NULL, FontBold, FontSize);
         break;
 
     case ID_FONT:
-        SetFont(FontOpt[*Item->Var], BoldFont);
+        SetFont(FontOpt[*Item->Var], FontBold, FontSize);
         break;
 
     default:

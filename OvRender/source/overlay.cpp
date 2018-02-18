@@ -77,8 +77,9 @@ ULONG __stdcall CreateOverlay( LPVOID Param )
         Log(L"Hooking d3d9...");
         D3D9Overlay = new Dx9Overlay( hookParams->RenderFunction );
         D3D9Overlay->VsyncOverrideMode = hookParams->VsyncOverrideMode;
-        D3D9Overlay->FontName = hookParams->FontName;
-        D3D9Overlay->FontBold = hookParams->FontBold;
+        D3D9Overlay->FontProperties.Name = hookParams->FontName;
+        D3D9Overlay->FontProperties.Bold = hookParams->FontBold;
+        D3D9Overlay->FontProperties.Size = 10;
     }
 
     if (dxgi && DXGIOverlay == NULL)

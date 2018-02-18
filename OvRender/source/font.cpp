@@ -1,7 +1,6 @@
 #include <windows.h>
 #include <tchar.h>
 
-
 /* Structure for LockRect */
 typedef struct _D3DLOCKED_RECT
 {
@@ -40,20 +39,22 @@ Font::Font()
 }
 
 
-VOID Font::SetFontAttributes( WCHAR* FontName, BOOLEAN Bold )
+VOID Font::SetFontAttributes( FONT_PROPERTIES* FontProperties )
 {
     _tcsncpy(
         m_strFontName,
-        FontName,
+        FontProperties->Name,
         sizeof(m_strFontName) / sizeof(TCHAR)
         );
 
     m_strFontName[sizeof(m_strFontName) / sizeof(TCHAR) - 1] = _T('\0');
 
-    if (Bold)
+    if (FontProperties->Bold)
         m_dwFontFlags = D3DFONT_BOLD;
     else
         m_dwFontFlags = 0;
+
+    m_dwFontHeight = FontProperties->Size;
 }
 
 

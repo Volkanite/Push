@@ -37,12 +37,13 @@ VOID DebugRec()
 }
 
 
-VOID SetFont( WCHAR* FontName, BOOLEAN Bold )
+VOID SetFont( WCHAR* FontName, BOOLEAN Bold, UINT32 Size )
 {
     if (FontName)
-        D3D9Overlay->FontName = FontName;
+        D3D9Overlay->FontProperties.Name = FontName;
 
-    D3D9Overlay->FontBold = Bold;
+    D3D9Overlay->FontProperties.Bold = Bold;
+    D3D9Overlay->FontProperties.Size = Size;
 
     ResetFont = TRUE;
 }
@@ -175,7 +176,7 @@ VOID Dx9OvRender( IDirect3DDevice9* Device )
     {
         Dx9OvFont = new Dx9Font(Device);
 
-        Dx9OvFont->SetFontAttributes(D3D9Overlay->FontName, D3D9Overlay->FontBold);
+        Dx9OvFont->SetFontAttributes(&D3D9Overlay->FontProperties);
         Dx9OvFont->InitDeviceObjects();
         Dx9OvFont->RestoreDeviceObjects();
         

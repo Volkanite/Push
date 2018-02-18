@@ -19,6 +19,7 @@
 #include <emmintrin.h>
 #include <math.h>
 #include <slxnamath.h>
+#include <OvRender.h>
 
 
 typedef struct _Sprite
@@ -59,7 +60,7 @@ public:
     int posY;
 
     Font();
-    VOID SetFontAttributes(WCHAR* FontName, BOOLEAN Bold);
+    VOID SetFontAttributes( FONT_PROPERTIES* Properties );
     HRESULT GetTextExtent( TCHAR* strText, SIZE* pSize );
     HRESULT InitDeviceObjects();
     VOID AddSprite( Sprite *sprite );

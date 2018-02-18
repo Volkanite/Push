@@ -41,14 +41,18 @@ typedef struct OV_HOOK_PARAMS{
     BOOLEAN                 FontBold;
 }OV_HOOK_PARAMS;
 
+typedef struct _FONT_PROPERTIES{
+    WCHAR* Name;
+    BOOLEAN Bold;
+    UINT32 Size;
+}FONT_PROPERTIES;
 
 class OvOverlay{
 public:
     UINT8                   Line;
     OV_RENDER               UserRenderFunction;
     OV_VSYNC_OVERRIDE_MODE  VsyncOverrideMode;
-    WCHAR*                  FontName;
-    BOOLEAN                 FontBold;
+    FONT_PROPERTIES         FontProperties;
 
     OvOverlay();
     VOID Render();
