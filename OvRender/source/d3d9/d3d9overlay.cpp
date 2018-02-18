@@ -12,6 +12,7 @@ extern Dx9Overlay* D3D9Overlay;
 IDirect3DDevice9* Dx9OvDevice;
 OV_WINDOW_MODE D3D9Hook_WindowMode;
 UINT32 BackBufferCount;
+BOOLEAN ResetFont;
 
 BOOLEAN TakeScreenShot;
 BOOLEAN StartRecording;
@@ -43,7 +44,7 @@ VOID SetFont( WCHAR* FontName, BOOLEAN Bold )
 
     D3D9Overlay->FontBold = Bold;
 
-    D3D9Hook_ForceReset = TRUE;
+    ResetFont = TRUE;
 }
 
 
@@ -136,10 +137,8 @@ VOID Dx9Overlay_CreateDevice( D3DPRESENT_PARAMETERS* PresentationParameters )
 }
 
 
-VOID Dx9Overlay_Reset( D3DPRESENT_PARAMETERS* PresentationParameters )
+VOID DeleteFont()
 {
-    Log(L"Dx9Overlay_Reset()");
-
     if (Dx9OvFont)
     {
         Dx9OvFont->InvalidateDeviceObjects();
@@ -147,7 +146,14 @@ VOID Dx9Overlay_Reset( D3DPRESENT_PARAMETERS* PresentationParameters )
     }
 
     Dx9OvFont = NULL;
+}
 
+
+VOID Dx9Overlay_Reset( D3DPRESENT_PARAMETERS* PresentationParameters )
+{
+    Log(L"Dx9Overlay_Reset()");
+
+    DeleteFont();
     UpdatePresentationParameters(PresentationParameters);
 }
 
@@ -158,6 +164,12 @@ VOID Dx9OvRender( IDirect3DDevice9* Device )
     IDirect3DSurface9 *backBuffer = NULL;
     D3DSURFACE_DESC backBufferDesc;
     D3DVIEWPORT9 viewport;
+
+    if (ResetFont)
+    {
+        DeleteFont();
+        ResetFont = FALSE;
+    }
 
     if (Dx9OvFont == NULL)
     {
