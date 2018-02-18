@@ -27,9 +27,9 @@ WCHAR* GpuFanDutyCycleOpt[] = { L"", L"" };
 WCHAR* FrameLimitOpt[] = { L"", L"" };
 
 WCHAR* FontOpt[] = { L"Verdana", L"BatangChe", L"Consolas", L"Courier", L"DejaVu Sans Mono", L"DFKai-SB", L"DotumChe", L"FangSong",
-                     L"GulimChe", L"GungsuhChe", L"KaiTi", L"Liberation Mono", L"Lucida Console", L"MingLiU", L"MingLiU_HKSCS", 
-                     L"Miriam Fixed", L"MS Gothic", L"MS Mincho", L"NSimSun", L"Rod", L"SimHei", L"Simplified Arabic Fixed", 
-                     L"SimSun", L"Source Code Pro", L"Unispace" };
+                     L"GulimChe", L"GungsuhChe", L"KaiTi", L"Liberation Mono", L"Lucida Console", L"MingLiU", L"Miriam Fixed", 
+                     L"MS Gothic", L"MS Mincho", L"NSimSun", L"Rod", L"SimHei", L"Simplified Arabic Fixed", L"SimSun", 
+                     L"Source Code Pro", L"Unispace" };
 
 WCHAR GpuSpeedEngine[20];
 WCHAR GpuSpeedMemory[20];
