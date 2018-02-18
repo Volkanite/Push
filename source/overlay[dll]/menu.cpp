@@ -14,6 +14,7 @@ MenuVars MenuGpu[10];
 MenuVars Diagnostics[5];
 MenuVars D3DTweaks[10];
 MenuVars Process[5];
+MenuVars Settings[5];
 
 WCHAR* GroupOpt[] = {L">", L"<"};
 WCHAR* ItemOpt[] = {L"Off", L"On"};
@@ -25,6 +26,11 @@ WCHAR* GpuVoltageOpt[] = { L"", L"" };
 WCHAR* GpuFanDutyCycleOpt[] = { L"", L"" };
 WCHAR* FrameLimitOpt[] = { L"", L"" };
 
+WCHAR* FontOpt[] = { L"Verdana", L"BatangChe", L"Consolas", L"Courier", L"DejaVu Sans Mono", L"DFKai-SB", L"DotumChe", L"FangSong",
+                     L"GulimChe", L"GungsuhChe", L"KaiTi", L"Liberation Mono", L"Lucida Console", L"MingLiU", L"MingLiU_HKSCS", 
+                     L"Miriam Fixed", L"MS Gothic", L"MS Mincho", L"NSimSun", L"Rod", L"SimHei", L"Simplified Arabic Fixed", 
+                     L"SimSun", L"Source Code Pro", L"Unispace" };
+
 WCHAR GpuSpeedEngine[20];
 WCHAR GpuSpeedMemory[20];
 WCHAR GpuVoltage[20];
@@ -34,11 +40,16 @@ WCHAR FrameLimitText[20];
 BOOLEAN MnuInitialized;
 HANDLE MenuProcessHeap;
 
+BOOLEAN BoldFont;
+
 extern OV_WINDOW_MODE D3D9Hook_WindowMode;
 extern BOOLEAN D3D9Hook_ForceReset;
 extern BOOLEAN DisableAutoOverclock;
 extern UINT8 FrameLimit;
 extern OSD_VARS Variables;
+extern BOOLEAN TakeScreenShot;
+extern BOOLEAN StartRecording;
+extern BOOLEAN StopRecording;
 
 
 #define ID_RESET            OSD_LAST_ITEM+1
@@ -61,15 +72,15 @@ extern OSD_VARS Variables;
 #define ID_FRAMETIME        OSD_LAST_ITEM+18
 #define ID_SCREENSHOT       OSD_LAST_ITEM+19
 #define ID_RECORD           OSD_LAST_ITEM+20
+#define ID_FONT             OSD_LAST_ITEM+21
+#define ID_BOLD             OSD_LAST_ITEM+22
 
 
 //Add menu items to menu
 #include <stdio.h>
 #include <wchar.h>
 VOID ChangeVsync(BOOLEAN Setting);
-extern BOOLEAN TakeScreenShot;
-extern BOOLEAN StartRecording;
-extern BOOLEAN StopRecording;
+VOID SetFont(WCHAR* FontName, BOOLEAN Bold);
 
 
 VOID UpdateGpuInformation()
@@ -167,6 +178,20 @@ VOID AddItems()
     if (Process[0].Var)
     {
         Menu->AddItem(L"Terminate", ItemOpt, &Process[1], ID_TERMINATE);
+    }
+
+    Menu->AddGroup(L"Settings", GroupOpt, &Settings[0]);
+
+    if (Settings[0].Var)
+    {
+        Menu->AddItem(L"Font", FontOpt, &Settings[1], ID_FONT, sizeof(FontOpt)/sizeof(FontOpt[0]));
+        Menu->AddItem(L"Bold", ItemOpt, &Settings[2], ID_BOLD);
+
+        //Initialize with current settings
+        BoldFont = PushSharedMemory->FontBold;
+        
+        if (BoldFont)
+            Settings[2].Var = 1;
     }
 }
 
@@ -418,11 +443,25 @@ VOID ProcessOptions( MenuItems* Item )
         }
         break;
 
-    default:
+    case ID_BOLD:
         if (*Item->Var > 0)
-            PushSharedMemory->OSDFlags |= *Item->Id;
+            BoldFont = TRUE;
         else
-            PushSharedMemory->OSDFlags &= ~*Item->Id;
+            BoldFont = FALSE;
+        // <= notice no [break] is here, so it falls right through to ID_FONT so it can change the font.
+    case ID_FONT:
+        SetFont(FontOpt[*Item->Var], BoldFont);
+        ChangeVsync(FALSE); //Smart way to reset device :)
+        break;
+
+    default:
+        if (*Item->Id <= OSD_LAST_ITEM)
+        {
+            if (*Item->Var > 0)
+                PushSharedMemory->OSDFlags |= *Item->Id;
+            else
+                PushSharedMemory->OSDFlags &= ~*Item->Id;
+        }
         break;
     }
 }

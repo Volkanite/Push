@@ -36,6 +36,13 @@ VOID DebugRec()
 }
 
 
+VOID SetFont( WCHAR* FontName, BOOLEAN Bold )
+{
+    D3D9Overlay->FontName = FontName;
+    D3D9Overlay->FontBold = Bold;
+}
+
+
 VOID ChangeVsync(BOOLEAN Setting)
 {
     if (Setting)
