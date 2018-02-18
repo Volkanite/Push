@@ -87,32 +87,21 @@ VOID ChangeVsync(BOOLEAN Setting);
 VOID SetFont(WCHAR* FontName, BOOLEAN Bold, UINT32 Size);
 
 
-VOID UpdateGpuInformation()
-{
-    swprintf(GpuSpeedEngine, 20, L"%i MHz", PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax);
-    GpuSpeedEngineOpt[0] = GpuSpeedEngine;
-    GpuSpeedEngineOpt[1] = GpuSpeedEngine;
-
-    swprintf(GpuSpeedMemory, 20, L"%i MHz", PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax);
-    GpuSpeedMemoryOpt[0] = GpuSpeedMemory;
-    GpuSpeedMemoryOpt[1] = GpuSpeedMemory;
-
-    swprintf(GpuVoltage, 20, L"%i mV", PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax);
-    GpuVoltageOpt[0] = GpuVoltage;
-    GpuVoltageOpt[1] = GpuVoltage;
-
-    swprintf(GpuFanDutyCycle, 20, L"%i %%", PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle);
-    GpuFanDutyCycleOpt[0] = GpuFanDutyCycle;
-    GpuFanDutyCycleOpt[1] = GpuFanDutyCycle;
-}
-
-
-VOID UpdateIntegralText( WCHAR* Buffer, UINT32 Value, WCHAR** OptBuffer )
+VOID UpdateIntegralText(WCHAR* Buffer, UINT32 Value, WCHAR** OptBuffer)
 {
     swprintf(Buffer, 20, L"%i", Value);
 
     OptBuffer[0] = Buffer;
     OptBuffer[1] = Buffer;
+}
+
+
+VOID UpdateGpuInformation()
+{
+    UpdateIntegralText(GpuSpeedEngine, PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax, GpuSpeedEngineOpt);
+    UpdateIntegralText(GpuSpeedMemory, PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax, GpuSpeedMemoryOpt);
+    UpdateIntegralText(GpuVoltage, PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax, GpuVoltageOpt);
+    UpdateIntegralText(GpuFanDutyCycle, PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle, GpuFanDutyCycleOpt);
 }
 
 
