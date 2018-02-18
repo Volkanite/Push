@@ -1247,7 +1247,7 @@ INT32 __stdcall start( )
         {
             // Init settings from ini file.
 
-            buffer = Memory_Allocate(10 * sizeof(WCHAR));
+            buffer = Memory_Allocate(100 * sizeof(WCHAR));
 
             if (Ini_ReadBoolean(L"Settings", L"FrameLimit", FALSE, L".\\" PUSH_SETTINGS_FILE))
                 PushSharedMemory->FrameLimit = TRUE;
@@ -1305,7 +1305,13 @@ INT32 __stdcall start( )
             Ini_GetString(L"Settings", L"ControllerTimeout", NULL, buffer, 5, L".\\" PUSH_SETTINGS_FILE);
             PushSharedMemory->ControllerTimeout = _wtoi(buffer);
 
+            Ini_GetString(L"Settings", L"FontName", NULL, buffer, 100, L".\\" PUSH_SETTINGS_FILE);
+            String_Copy(PushSharedMemory->FontName, buffer);
+
             Memory_Free(buffer);
+
+            if (Ini_ReadBoolean(L"Settings", L"FontBold", FALSE, L".\\" PUSH_SETTINGS_FILE))
+                PushSharedMemory->FontBold = TRUE;
         }
         else
         {

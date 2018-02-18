@@ -66,6 +66,9 @@ VOID CreateOverlay()
     else if (PushSharedMemory->VsyncOverrideMode == PUSH_VSYNC_FORCE_OFF)
         hookParams.VsyncOverrideMode = VSYNC_FORCE_OFF;
 
+    hookParams.FontName = PushSharedMemory->FontName;
+    hookParams.FontBold = PushSharedMemory->FontBold;
+
     OvCreateOverlayEx(&hookParams);
 }
 

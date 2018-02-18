@@ -37,6 +37,8 @@ typedef struct OV_HOOK_PARAMS{
     OV_RENDER               RenderFunction;
     OV_VSYNC_OVERRIDE_MODE  VsyncOverrideMode;
     BOOLEAN                 ForceTrippleBuffering;
+    WCHAR*                  FontName;
+    BOOLEAN                 FontBold;
 }OV_HOOK_PARAMS;
 
 
@@ -45,6 +47,8 @@ public:
     UINT8                   Line;
     OV_RENDER               UserRenderFunction;
     OV_VSYNC_OVERRIDE_MODE  VsyncOverrideMode;
+    WCHAR*                  FontName;
+    BOOLEAN                 FontBold;
 
     OvOverlay();
     VOID Render();

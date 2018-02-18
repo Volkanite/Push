@@ -40,6 +40,23 @@ Font::Font()
 }
 
 
+VOID Font::SetFontAttributes( WCHAR* FontName, BOOLEAN Bold )
+{
+    _tcsncpy(
+        m_strFontName,
+        FontName,
+        sizeof(m_strFontName) / sizeof(TCHAR)
+        );
+
+    m_strFontName[sizeof(m_strFontName) / sizeof(TCHAR) - 1] = _T('\0');
+
+    if (Bold)
+        m_dwFontFlags = D3DFONT_BOLD;
+    else
+        m_dwFontFlags = 0;
+}
+
+
 HRESULT
 Font::InitDeviceObjects()
 {

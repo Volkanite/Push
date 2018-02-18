@@ -77,6 +77,8 @@ ULONG __stdcall CreateOverlay( LPVOID Param )
         Log(L"Hooking d3d9...");
         D3D9Overlay = new Dx9Overlay( hookParams->RenderFunction );
         D3D9Overlay->VsyncOverrideMode = hookParams->VsyncOverrideMode;
+        D3D9Overlay->FontName = hookParams->FontName;
+        D3D9Overlay->FontBold = hookParams->FontBold;
     }
 
     if (dxgi && DXGIOverlay == NULL)
@@ -118,8 +120,10 @@ VOID OvCreateOverlayEx( OV_HOOK_PARAMS* HookParameters )
         sizeof(OV_HOOK_PARAMS)
         );
     
-    hookParams->RenderFunction = HookParameters->RenderFunction;
-    hookParams->VsyncOverrideMode = HookParameters->VsyncOverrideMode;
+    //hookParams->RenderFunction = HookParameters->RenderFunction;
+    //hookParams->VsyncOverrideMode = HookParameters->VsyncOverrideMode;
+
+    memcpy(hookParams, HookParameters, sizeof(OV_HOOK_PARAMS));
 
     CreateThread(0, 0, &CreateOverlay, hookParams, 0, 0);
 }

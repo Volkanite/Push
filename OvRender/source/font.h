@@ -59,6 +59,7 @@ public:
     int posY;
 
     Font();
+    VOID SetFontAttributes(WCHAR* FontName, BOOLEAN Bold);
     HRESULT GetTextExtent( TCHAR* strText, SIZE* pSize );
     HRESULT InitDeviceObjects();
     VOID AddSprite( Sprite *sprite );

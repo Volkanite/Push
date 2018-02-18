@@ -319,6 +319,8 @@ typedef struct _PUSH_SHARED_MEMORY
     BOOLEAN                     AutoLogFileIo;
     UCHAR                       ControllerTimeout;
     PUSH_HARDWARE_INFORMATION   HarwareInformation;
+    WCHAR                       FontName[60];
+    BOOLEAN                     FontBold;
     OSD_ITEM                    OsdItems[1];
 
 } PUSH_SHARED_MEMORY;

@@ -152,6 +152,7 @@ VOID Dx9OvRender( IDirect3DDevice9* Device )
     {
         Dx9OvFont = new Dx9Font(Device);
 
+        Dx9OvFont->SetFontAttributes(D3D9Overlay->FontName, D3D9Overlay->FontBold);
         Dx9OvFont->InitDeviceObjects();
         Dx9OvFont->RestoreDeviceObjects();
         
