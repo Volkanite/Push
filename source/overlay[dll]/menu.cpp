@@ -26,12 +26,6 @@ WCHAR* FontOpt[] = { L"Verdana", L"BatangChe", L"Consolas", L"Courier", L"DejaVu
                      L"MS Gothic", L"MS Mincho", L"NSimSun", L"Rod", L"SimHei", L"Simplified Arabic Fixed", L"SimSun", 
                      L"Source Code Pro", L"Unispace" };
 
-WCHAR GpuSpeedEngine[20];
-WCHAR GpuSpeedMemory[20];
-WCHAR GpuVoltage[20];
-WCHAR GpuFanDutyCycle[20];
-WCHAR FrameLimitText[20];
-WCHAR FontSizeText[20];
 
 BOOLEAN MnuInitialized;
 HANDLE MenuProcessHeap;
@@ -81,11 +75,9 @@ VOID ChangeVsync(BOOLEAN Setting);
 VOID SetFont(WCHAR* FontName, BOOLEAN Bold, UINT32 Size);
 
 
-VOID UpdateIntegralText(WCHAR* Buffer, UINT32 Value, WCHAR** OptBuffer)
+VOID UpdateIntegralText( UINT32 Value, WCHAR** OptBuffer )
 {
-    swprintf(Buffer, 20, L"%i", Value);
-
-    OptBuffer[0] = Buffer;
+    swprintf(OptBuffer[0], 20, L"%i", Value);
 }
 
 
@@ -254,7 +246,7 @@ VOID ProcessOptions( MenuItems* Item )
             break;
             }
 
-            UpdateIntegralText(GpuSpeedEngine, PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax, Item->Options);
+            UpdateIntegralText(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax, Item->Options);
         }
         break;
 
@@ -265,7 +257,7 @@ VOID ProcessOptions( MenuItems* Item )
                 Overclock(OC_MEMORY);
             }
 
-            UpdateIntegralText(GpuSpeedMemory, PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax, Item->Options);
+            UpdateIntegralText(PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax, Item->Options);
         }
         break;
 
@@ -287,7 +279,7 @@ VOID ProcessOptions( MenuItems* Item )
         break;
         }
 
-        UpdateIntegralText(GpuVoltage, PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax, Item->Options);
+        UpdateIntegralText(PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax, Item->Options);
     }
     break;
 
@@ -301,7 +293,7 @@ VOID ProcessOptions( MenuItems* Item )
             PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle--;
 
         CallPipe(L"UpdateFanSpeed", NULL);
-        UpdateIntegralText(GpuFanDutyCycle, PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle, Item->Options);
+        UpdateIntegralText(PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle, Item->Options);
     }
     break;
 
@@ -368,7 +360,7 @@ VOID ProcessOptions( MenuItems* Item )
                 FrameLimit--;
             }
             
-            UpdateIntegralText(FrameLimitText, FrameLimit, Item->Options);
+            UpdateIntegralText(FrameLimit, Item->Options);
         }
         break;
 
@@ -436,7 +428,7 @@ VOID ProcessOptions( MenuItems* Item )
             else
                 FontSize--;
 
-            UpdateIntegralText(FontSizeText, FontSize, Item->Options);
+            UpdateIntegralText(FontSize, Item->Options);
         }
 
         SetFont(NULL, FontBold, FontSize);
@@ -595,7 +587,7 @@ WCHAR** AllocateOptionsBuffer()
     wchar_t **optBuffer;
 
     optBuffer = (WCHAR**)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(WCHAR**));
-    optBuffer[0] = (WCHAR*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(WCHAR*));
+    optBuffer[0] = (WCHAR*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(WCHAR) * 20);
 
     return optBuffer;
 }
@@ -614,27 +606,27 @@ VOID SlOverlayMenu::AddItemToMenu( WCHAR* Title, WCHAR** Options, MenuVars* Vari
     {
     case ID_FRAMELIMIT:
         Items[mSet.MaxItems].Options = AllocateOptionsBuffer();
-        UpdateIntegralText(FrameLimitText, FrameLimit, Items[mSet.MaxItems].Options);
+        UpdateIntegralText(FrameLimit, Items[mSet.MaxItems].Options);
         break;
     case ID_ECLOCK:
         Items[mSet.MaxItems].Options = AllocateOptionsBuffer();
-        UpdateIntegralText(GpuSpeedEngine, PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax, Items[mSet.MaxItems].Options);
+        UpdateIntegralText(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax, Items[mSet.MaxItems].Options);
         break;
     case ID_MCLOCK:
         Items[mSet.MaxItems].Options = AllocateOptionsBuffer();
-        UpdateIntegralText(GpuSpeedMemory, PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax, Items[mSet.MaxItems].Options);
+        UpdateIntegralText(PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax, Items[mSet.MaxItems].Options);
         break;
     case ID_VOLTAGE:
         Items[mSet.MaxItems].Options = AllocateOptionsBuffer();
-        UpdateIntegralText(GpuVoltage, PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax, Items[mSet.MaxItems].Options);
+        UpdateIntegralText(PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax, Items[mSet.MaxItems].Options);
         break;
     case ID_FAN:
         Items[mSet.MaxItems].Options = AllocateOptionsBuffer();
-        UpdateIntegralText(GpuFanDutyCycle, PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle, Items[mSet.MaxItems].Options);
+        UpdateIntegralText(PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle, Items[mSet.MaxItems].Options);
         break;
     case ID_SIZE:
         Items[mSet.MaxItems].Options = AllocateOptionsBuffer();
-        UpdateIntegralText(FontSizeText, FontSize, Items[mSet.MaxItems].Options);
+        UpdateIntegralText(FontSize, Items[mSet.MaxItems].Options);
         break;
     default:
         break;
