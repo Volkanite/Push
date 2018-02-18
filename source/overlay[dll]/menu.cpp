@@ -448,10 +448,12 @@ VOID ProcessOptions( MenuItems* Item )
             BoldFont = TRUE;
         else
             BoldFont = FALSE;
-        // <= notice no [break] is here, so it falls right through to ID_FONT so it can change the font.
+
+        SetFont(NULL, BoldFont);
+        break;
+
     case ID_FONT:
         SetFont(FontOpt[*Item->Var], BoldFont);
-        ChangeVsync(FALSE); //Smart way to reset device :)
         break;
 
     default:

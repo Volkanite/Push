@@ -38,8 +38,12 @@ VOID DebugRec()
 
 VOID SetFont( WCHAR* FontName, BOOLEAN Bold )
 {
-    D3D9Overlay->FontName = FontName;
+    if (FontName)
+        D3D9Overlay->FontName = FontName;
+
     D3D9Overlay->FontBold = Bold;
+
+    D3D9Hook_ForceReset = TRUE;
 }
 
 
