@@ -1249,8 +1249,8 @@ INT32 __stdcall start( )
 
             buffer = Memory_Allocate(100 * sizeof(WCHAR));
 
-            if (Ini_ReadBoolean(L"Settings", L"FrameLimit", FALSE, L".\\" PUSH_SETTINGS_FILE))
-                PushSharedMemory->FrameLimit = TRUE;
+            Ini_GetString(L"Settings", L"FrameLimit", NULL, buffer, 5, L".\\" PUSH_SETTINGS_FILE);
+            PushSharedMemory->FrameLimit = _wtoi(buffer);
 
             if (Ini_ReadBoolean(L"Settings", L"ThreadOptimization", FALSE, L".\\" PUSH_SETTINGS_FILE))
                 PushSharedMemory->ThreadOptimization = TRUE;
