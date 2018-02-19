@@ -218,74 +218,39 @@ VOID UpdateThreadList()
         );
 }
 
-
-VOID
-ThreadMonitor::Refresh()
+extern HANDLE RenderThreadHandle;
+VOID ThreadMonitor::Refresh()
 {
     UINT64 cyclesDeltaMax = 0;
-    THREAD_LIST_ENTRY *thread, *previousEntry;
-    NTSTATUS status;
+    static UINT64              tcycles = 0;
 
-    thread = (THREAD_LIST_ENTRY*) TmThreadList;
-
-    while (thread != 0)
-    {
         THREAD_CYCLE_TIME_INFORMATION cycles;
         OBJECT_ATTRIBUTES objectAttributes = {0};
-        CLIENT_ID id = {0};
         VOID *handle = 0;
 
         objectAttributes.Length = sizeof(OBJECT_ATTRIBUTES);
 
-        id.UniqueProcess = 0;
-        id.UniqueThread = (VOID*) thread->ThreadId;
-
-        status = NtOpenThread(
-                    &handle,
-                    THREAD_QUERY_INFORMATION,
-                    &objectAttributes,
-                    &id
-                    );
-
-        if(!NT_SUCCESS(status))
-        {
-            if (thread == TmThreadList)
-                TmThreadList = thread->NextEntry;
-            else
-                previousEntry->NextEntry = thread->NextEntry;
-
-            thread = thread->NextEntry;
-
-            continue;
-        }
-
         NtQueryInformationThread(
-            handle,
+            RenderThreadHandle,
             ThreadCycleTime,
             &cycles,
             sizeof(THREAD_CYCLE_TIME_INFORMATION),
             0
             );
 
-        NtClose(handle);
-
         // Ensure that this function was already called at least once and we
         // have the previous cycle time value
-        if (thread->cycles)
+        if (tcycles)
         {
             UINT64 cyclesDelta;
 
-            cyclesDelta = cycles.AccumulatedCycles.QuadPart - thread->cycles;
+            cyclesDelta = cycles.AccumulatedCycles.QuadPart - tcycles;
 
             if (cyclesDelta > cyclesDeltaMax)
                 cyclesDeltaMax = cyclesDelta;
         }
 
-        thread->cycles = cycles.AccumulatedCycles.QuadPart;
-
-        previousEntry = thread;
-        thread = thread->NextEntry;
-    }
+        tcycles = cycles.AccumulatedCycles.QuadPart;
 
     MaxThreadCyclesDelta = cyclesDeltaMax;
 }
