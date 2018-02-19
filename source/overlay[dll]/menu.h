@@ -1,6 +1,2 @@
-VOID
-MnuRender( OvOverlay* Overlay );
-
-VOID MenuKeyboardHook( 
-    WPARAM Key 
-    );
+VOID Menu_Render( OvOverlay* Overlay );
+VOID Menu_KeyboardHook( WPARAM Key );

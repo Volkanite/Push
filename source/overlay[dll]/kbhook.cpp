@@ -60,7 +60,7 @@ LONG WINAPI KeyboardHook(
     switch (Message)
     {
     case WM_KEYDOWN:
-        MenuKeyboardHook(wParam);
+        Menu_KeyboardHook(wParam);
         break;
 
     case WM_CHAR:
@@ -117,7 +117,7 @@ BOOLEAN MessageHook( LPMSG Message )
                 return TRUE;
         }
 
-        MenuKeyboardHook(Message->wParam);
+        Menu_KeyboardHook(Message->wParam);
 
         if (PushSharedMemory->SwapWASD)
         {
@@ -183,7 +183,7 @@ LRESULT CALLBACK KeyboardProc(
 {
     if ((0x80000000 & lParam) == 0)//key down
     {
-        MenuKeyboardHook(wParam);
+        Menu_KeyboardHook(wParam);
     }
 
     return CallNextHookEx(KeyboardHookHandle, nCode, wParam, lParam);
@@ -308,7 +308,7 @@ UINT WINAPI GetRawInputDataHook(
                 RawInputProcessed = TRUE;
             }
 
-            MenuKeyboardHook(data->data.keyboard.VKey);
+            Menu_KeyboardHook(data->data.keyboard.VKey);
         }
     }
 

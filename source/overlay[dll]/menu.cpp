@@ -7,7 +7,8 @@
 #include "osd.h"
 
 
-SlOverlayMenu* Menu;
+OverlayMenu* Menu;
+OverlayMenu* OvmMenu;
 
 MenuVars MenuOsd[30];
 MenuVars MenuGpu[10];
@@ -16,6 +17,16 @@ MenuVars D3DTweaks[10];
 MenuVars Process[5];
 MenuVars Capture[5];
 MenuVars Settings[5];
+
+#define GROUP 1
+#define ITEM  2
+#define HEIGHT 16
+
+
+DWORD LightBlue = 0xFF4DD0EB;
+DWORD Green = 0xFF33FF00;
+DWORD White = 0xFFE6E6E6;
+DWORD Blue = 0xFF00A4C5;
 
 WCHAR* GroupOpt[] = {L">", L"<"};
 WCHAR* ItemOpt[] = {L"Off", L"On"};
@@ -460,11 +471,11 @@ VOID ProcessOptions( MenuItems* Item )
 }
 
 
-VOID MnuRender( OvOverlay* Overlay )
+VOID Menu_Render( OvOverlay* Overlay )
 {
     if (!MnuInitialized)
     {
-        Menu = new SlOverlayMenu(300);
+        Menu = new OverlayMenu(300);
         MnuInitialized = TRUE;
     }
 
@@ -476,20 +487,7 @@ VOID MnuRender( OvOverlay* Overlay )
 }
 
 
-#define GROUP 1
-#define ITEM  2
-#define HEIGHT 16
-
-
-DWORD LightBlue = 0xFF4DD0EB;
-DWORD Green     = 0xFF33FF00;
-DWORD White     = 0xFFE6E6E6;
-DWORD Blue      = 0xFF00A4C5;
-
-SlOverlayMenu*  OvmMenu;
-
-
-VOID MenuKeyboardHook( WPARAM Key )
+VOID Menu_KeyboardHook( WPARAM Key )
 {
     if (!OvmMenu)
         return;
@@ -578,7 +576,7 @@ VOID MenuKeyboardHook( WPARAM Key )
 }
 
 
-SlOverlayMenu::SlOverlayMenu( int OptionsX )
+OverlayMenu::OverlayMenu( int OptionsX )
 {
     OpX = OptionsX;
     
@@ -602,7 +600,7 @@ WCHAR** AllocateOptionsBuffer()
 }
 
 
-VOID SlOverlayMenu::AddItemToMenu( WCHAR* Title, WCHAR** Options, MenuVars* Variables, int MaxValue, int Type )
+VOID OverlayMenu::AddItemToMenu( WCHAR* Title, WCHAR** Options, MenuVars* Variables, int MaxValue, int Type )
 {
     Items[mSet.MaxItems].Title = Title;
     Items[mSet.MaxItems].Options= Options;
@@ -645,7 +643,7 @@ VOID SlOverlayMenu::AddItemToMenu( WCHAR* Title, WCHAR** Options, MenuVars* Vari
 }
 
 
-VOID SlOverlayMenu::Render( int X, int Y, OvOverlay* Overlay )
+VOID OverlayMenu::Render( int X, int Y, OvOverlay* Overlay )
 {
     DWORD ColorOne, ColorTwo;
     int ValueOne, ValueTwo;

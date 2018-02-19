@@ -291,7 +291,7 @@ VOID RnRender( OvOverlay* Overlay )
     }
 
     Osd_Draw( Overlay );
-    MnuRender( Overlay );
+    Menu_Render( Overlay );
     RunFrameStatistics();
     
     //Overlay->DrawText(L"u can draw anything in this render loop!\n");

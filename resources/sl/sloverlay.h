@@ -25,7 +25,7 @@ struct MenuVars
 };
 
 
-class SlOverlayMenu
+class OverlayMenu
 {
 public:
     MenuItems Items[50];
@@ -44,7 +44,7 @@ public:
         AddItemToMenu(Title, Options, Variables, MaxValue, ITEM);
     }
 
-    SlOverlayMenu( int OptionsX );
+    OverlayMenu( int OptionsX );
     void Render( int X, int Y, OvOverlay* Overlay );
     void AddItemToMenu(WCHAR* Title, WCHAR** Options, MenuVars* Variables, int MaxValue, int Type);
 };
