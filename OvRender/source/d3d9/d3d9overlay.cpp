@@ -195,6 +195,13 @@ VOID Dx9OvRender( IDirect3DDevice9* Device )
     if (backBuffer)
         backBuffer->GetDesc(&backBufferDesc);
 
+    //steal some info
+    if (BackBufferWidth == 0 && BackBufferHeight == 0)
+    {
+        BackBufferWidth = backBufferDesc.Width;
+        BackBufferHeight = backBufferDesc.Height;
+    }
+
     if (backBufferDesc.Width != 1 && backBufferDesc.Height != 1)
     {
         Device->SetRenderTarget(0, backBuffer);
