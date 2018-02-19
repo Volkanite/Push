@@ -114,7 +114,9 @@ VOID RunFrameStatistics()
         if (PushSharedMemory->FrameLimit > 1)
         {
             FrameLimit = PushSharedMemory->FrameLimit;
-            acceptableFrameTime = 1000.0f / (double)(FrameLimit - 1);
+
+            if (FrameLimit < DisplayFrequency)
+                acceptableFrameTime = 1000.0f / (double)(FrameLimit - 1);
         }
             
         newTickCount = oldTick = lastTickCount_FrameLimiter = GetPerformanceCounter();
