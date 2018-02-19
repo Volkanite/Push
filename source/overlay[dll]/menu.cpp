@@ -14,6 +14,7 @@ MenuVars MenuGpu[10];
 MenuVars Diagnostics[5];
 MenuVars D3DTweaks[10];
 MenuVars Process[5];
+MenuVars Capture[5];
 MenuVars Settings[5];
 
 WCHAR* GroupOpt[] = {L">", L"<"};
@@ -135,8 +136,6 @@ VOID AddItems()
         Menu->AddItem(L"Frame Limiter", ItemOpt, &D3DTweaks[3], ID_FRAMELIMITER);
         Menu->AddItem(L"Frame Limit", NULL, &D3DTweaks[4], ID_FRAMELIMIT, 1);
         Menu->AddItem(L"Vsync", ItemOpt, &D3DTweaks[5], ID_VSYNC);
-        Menu->AddItem(L"Screenshot", PressOpt, &D3DTweaks[6], ID_SCREENSHOT);
-        Menu->AddItem(L"Record", ItemOpt, &D3DTweaks[7], ID_RECORD);
     }
 
     Menu->AddGroup(L"Process", GroupOpt, &Process[0]);
@@ -144,6 +143,14 @@ VOID AddItems()
     if (Process[0].Var)
     {
         Menu->AddItem(L"Terminate", ItemOpt, &Process[1], ID_TERMINATE);
+    }
+
+    Menu->AddGroup(L"Capture", GroupOpt, &Capture[0]);
+
+    if (Capture[0].Var)
+    {
+        Menu->AddItem(L"Screenshot", PressOpt, &Capture[1], ID_SCREENSHOT);
+        Menu->AddItem(L"Record", ItemOpt, &Capture[2], ID_RECORD);
     }
 
     Menu->AddGroup(L"Settings", GroupOpt, &Settings[0]);
