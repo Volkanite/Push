@@ -93,10 +93,12 @@ VOID AddItems()
         // Add OSD items to menu.
         osdItem = (OSD_ITEM*)PushSharedMemory->OsdItems;
 
-        for (i = 1; i < PushSharedMemory->NumberOfOsdItems; i++, osdItem++)
+        for (i = 0; i < PushSharedMemory->NumberOfOsdItems; i++, osdItem++)
         {
-            Menu->AddItem(osdItem->Description, ItemOpt, &MenuOsd[i], osdItem->Flag);
+            Menu->AddItem(osdItem->Description, ItemOpt, &MenuOsd[i+1], osdItem->Flag);
         }
+
+        i++;
 
         Menu->AddItem(L"Frame Time", ItemOptExt, &MenuOsd[i++], ID_FRAMETIME, 3);
         Menu->AddItem(L"API", ItemOpt, &MenuOsd[i++], ID_API);
