@@ -151,7 +151,7 @@ VOID CallPipe( WCHAR* Command, UINT16* Output )
         WriteFile(
             pipeHandle,
             Command,
-            (wcslen(Command) + 1) * sizeof(WCHAR),
+            (DWORD) (wcslen(Command) + 1) * sizeof(WCHAR),
             &dwWritten,
             NULL
             );

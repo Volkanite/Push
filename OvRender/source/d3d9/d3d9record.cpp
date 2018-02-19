@@ -1036,7 +1036,7 @@ DWORD CheckFrameRate()
 
     fFrameWeight += m_fLeftoverWeight;
     DWORD dwFrameDups = (DWORD)(fFrameWeight);
-    m_fLeftoverWeight = fFrameWeight - dwFrameDups;
+    m_fLeftoverWeight = (float)(fFrameWeight - dwFrameDups);
 
     return dwFrameDups;
 }

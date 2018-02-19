@@ -148,7 +148,7 @@ DWORD FindPattern(WCHAR* Module, char pattern[], char mask[])
 
     unsigned int i = NULL;
 
-    int iLen = strlen(mask) - 1;
+    int iLen = (int) strlen(mask) - 1;
 
     for (DWORD dwRet = dwStart; dwRet < dwStart + dwLen; dwRet++)
     {
@@ -183,7 +183,7 @@ DWORD64 FindPattern64(WCHAR* Module, char pattern[], char mask[])
 
     unsigned int i = NULL;
 
-    int iLen = strlen(mask) - 1;
+    int iLen = (int) strlen(mask) - 1;
 
     for (DWORD64 dwRet = dwStart; dwRet < dwStart + dwLen; dwRet++)
     {

@@ -54,9 +54,9 @@ BOOL DetourXS::Create(const LPVOID lpFuncOrig, const LPVOID lpFuncDetour)
 
     // Copy orig bytes to trampoline.
 
-    if (ContainsRelativeCall(m_lpbFuncOrig, m_detourLen))
+    if (ContainsRelativeCall(m_lpbFuncOrig, (INT) m_detourLen))
     {
-        LPBYTE relativeCallInstructionAddress = (LPBYTE) GetRelativeCallAddress(m_lpbFuncOrig, m_detourLen);
+        LPBYTE relativeCallInstructionAddress = (LPBYTE) GetRelativeCallAddress(m_lpbFuncOrig, (INT) m_detourLen);
         int relativeCallAddress = *(int*)(relativeCallInstructionAddress + 1);
         LPBYTE callAddr = (relativeCallInstructionAddress + 5) + relativeCallAddress;
         LPBYTE addressOfCallInstructionInTrampoline;
@@ -96,7 +96,7 @@ BOOL DetourXS::Create(const LPVOID lpFuncOrig, const LPVOID lpFuncDetour)
     }
 
     // Trim the tramp.
-    dwTrampSize = m_detourLen + m_TrampJmp;
+    dwTrampSize = (DWORD) (m_detourLen + m_TrampJmp);
     if (bContainsRelativeCall) dwTrampSize += 8 + 1;
     m_trampoline.resize(dwTrampSize);
 
