@@ -357,7 +357,7 @@ Dx10Font::GetMaxTextureWidth()
 }
 
 
-HRESULT Dx10Font::MapTexture( D3DLOCKED_RECT *LockedRect )
+HRESULT Dx10Font::CreateFontTexture( DWORD* Bitmap )
 {
     D3D10_TEXTURE2D_DESC texDesc;
     D3D10_SHADER_RESOURCE_VIEW_DESC srvDesc;
@@ -387,15 +387,8 @@ HRESULT Dx10Font::MapTexture( D3DLOCKED_RECT *LockedRect )
 
     m_texture11->Map(0, D3D10_MAP_WRITE_DISCARD, 0, &mappedData);
 
-    LockedRect->pBits = mappedData.pData;
-    LockedRect->Pitch = mappedData.RowPitch;
+    WriteAlphaValuesFromBitmapToTexture(Bitmap, mappedData.pData, mappedData.RowPitch);
 
-    return S_OK;
-}
-
-
-HRESULT Dx10Font::UnmapTexture()
-{
     m_texture11->Unmap(0);
 
     return S_OK;

@@ -1,14 +1,6 @@
 #include <windows.h>
 #include <tchar.h>
 
-/* Structure for LockRect */
-typedef struct _D3DLOCKED_RECT
-{
-    INT                 Pitch;
-    void*               pBits;
-} D3DLOCKED_RECT;
-
-
 #include "font.h"
 
 
@@ -55,6 +47,59 @@ VOID Font::SetFontAttributes( FONT_PROPERTIES* FontProperties )
         m_dwFontFlags = 0;
 
     m_dwFontHeight = FontProperties->Size;
+}
+
+
+VOID Font::WriteAlphaValuesFromBitmapToTexture( DWORD* Bitmap, void* Texture, int Pitch )
+{
+    DWORD x = 0;
+    DWORD y = 0;
+    BYTE* pDstRow = (BYTE*)Texture;
+    
+    #if PIXEL_DEPTH == 16
+    WORD* pDstPixel;
+    #elif PIXEL_DEPTH == 32
+    DWORD* pDstPixel;
+    #endif
+    
+    BYTE bAlpha; // pixel intensity
+
+    for( y=0; y < m_dwTexHeight; y++ )
+    {
+        #if PIXEL_DEPTH == 16
+        pDstPixel = (WORD*)pDstRow;
+        #elif PIXEL_DEPTH == 32
+        pDstPixel = (DWORD*)pDstRow;
+        #endif
+
+        for( x=0; x < m_dwTexWidth; x++ )
+        {
+            #if PIXEL_DEPTH == 16
+            bAlpha = (BYTE)((pBitmapBits[m_dwTexWidth*y + x] & 0xff) >> 4);
+            #elif PIXEL_DEPTH == 32
+            bAlpha = (BYTE)((Bitmap[m_dwTexWidth*y + x] & 0xff) >> 0);
+            #endif
+
+            if (bAlpha > 0)
+            {
+                #if PIXEL_DEPTH == 16
+                *pDstPixel++ = (WORD) ((bAlpha << 12) | 0x0fff);
+                #elif PIXEL_DEPTH == 32
+                *pDstPixel++ = (DWORD) ((bAlpha << 24) | 0x00ffffff);
+                #endif
+            }
+            else
+            {
+                #if PIXEL_DEPTH == 16
+                *pDstPixel++ = 0x0000;
+                #elif PIXEL_DEPTH == 32
+                *pDstPixel++ = 0x00000000;
+                #endif
+            }
+        }
+
+        pDstRow += Pitch;
+    }
 }
 
 
@@ -156,63 +201,13 @@ HRESULT Font::InitDeviceObjects()
         x += size.cx + (2 * m_dwSpacing);
     }
 
-    // Create a new texture for the font and lock the surface and write the alpha values for the set 
-    // pixels
-    D3DLOCKED_RECT d3dlr;
-    hr = MapTexture(&d3dlr);
+    // Create a texture for the font, lock the surface and write alpha values for the set pixels
+    hr = CreateFontTexture(pBitmapBits);
 
     if (FAILED(hr))
         return hr;
 
-    BYTE* pDstRow = (BYTE*)d3dlr.pBits;
-    
-    #if PIXEL_DEPTH == 16
-    WORD* pDstPixel;
-    #elif PIXEL_DEPTH == 32
-    DWORD* pDstPixel;
-    #endif
-    
-    BYTE bAlpha; // pixel intensity
-
-    for( y=0; y < m_dwTexHeight; y++ )
-    {
-        #if PIXEL_DEPTH == 16
-        pDstPixel = (WORD*)pDstRow;
-        #elif PIXEL_DEPTH == 32
-        pDstPixel = (DWORD*)pDstRow;
-        #endif
-
-        for( x=0; x < m_dwTexWidth; x++ )
-        {
-            #if PIXEL_DEPTH == 16
-            bAlpha = (BYTE)((pBitmapBits[m_dwTexWidth*y + x] & 0xff) >> 4);
-            #elif PIXEL_DEPTH == 32
-            bAlpha = (BYTE)((pBitmapBits[m_dwTexWidth*y + x] & 0xff) >> 0);
-            #endif
-
-            if (bAlpha > 0)
-            {
-                #if PIXEL_DEPTH == 16
-                *pDstPixel++ = (WORD) ((bAlpha << 12) | 0x0fff);
-                #elif PIXEL_DEPTH == 32
-                *pDstPixel++ = (DWORD) ((bAlpha << 24) | 0x00ffffff);
-                #endif
-            }
-            else
-            {
-                #if PIXEL_DEPTH == 16
-                *pDstPixel++ = 0x0000;
-                #elif PIXEL_DEPTH == 32
-                *pDstPixel++ = 0x00000000;
-                #endif
-            }
-        }
-
-        pDstRow += d3dlr.Pitch;
-    }
-
-    // Done updating texture, so clean up used objects
-    UnmapTexture();
+    // Clean up used objects
     DeleteObject( hbmBitmap );
     DeleteDC( hDC );
     DeleteObject( hFont );

@@ -73,10 +73,11 @@ Dx8Font::GetMaxTextureWidth()
 }
 
 
-HRESULT Dx8Font::MapTexture( D3DLOCKED_RECT* pLockedRect )
+HRESULT Dx8Font::CreateFontTexture( DWORD* Bitmap )
 {
     HRESULT hr;
     D3DFORMAT format;
+    D3DLOCKED_RECT lockedRect;
 
     if (PIXEL_DEPTH == 16)
         format = D3DFMT_A4R4G4B4;
@@ -84,26 +85,22 @@ HRESULT Dx8Font::MapTexture( D3DLOCKED_RECT* pLockedRect )
         format = D3DFMT_A8R8G8B8;
 
     hr = m_pd3dDevice->CreateTexture(
-                        m_dwTexWidth,
-                        m_dwTexHeight,
-                        1,
-                        0,
-                        format,
-                        D3DPOOL_MANAGED,
-                        &m_pTexture
-                        );
+        m_dwTexWidth,
+        m_dwTexHeight,
+        1,
+        0,
+        format,
+        D3DPOOL_MANAGED,
+        &m_pTexture
+        );
 
-    m_pTexture->LockRect(0, pLockedRect, 0, 0);
+    m_pTexture->LockRect(0, &lockedRect, 0, 0);
 
-    return hr;
-}
+    WriteAlphaValuesFromBitmapToTexture(Bitmap, lockedRect.pBits, lockedRect.Pitch);
 
-
-HRESULT Dx8Font::UnmapTexture()
-{
     m_pTexture->UnlockRect(0);
 
-    return S_OK;
+    return hr;
 }
 
 

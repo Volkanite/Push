@@ -512,7 +512,7 @@ Dx11Font::GetMaxTextureWidth()
 }
 
 
-HRESULT Dx11Font::MapTexture( D3DLOCKED_RECT *LockedRect )
+HRESULT Dx11Font::CreateFontTexture( DWORD* Bitmap )
 {
     D3D11_TEXTURE2D_DESC texDesc;
     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
@@ -542,15 +542,8 @@ HRESULT Dx11Font::MapTexture( D3DLOCKED_RECT *LockedRect )
 
     deviceContext->Map(m_texture11, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
 
-    LockedRect->pBits = mappedData.pData;
-    LockedRect->Pitch = m_dwTexWidth * 4;
+    WriteAlphaValuesFromBitmapToTexture(Bitmap, mappedData.pData, mappedData.RowPitch);
 
-    return S_OK;
-}
-
-
-HRESULT Dx11Font::UnmapTexture()
-{
     deviceContext->Unmap(m_texture11, 0);
 
     return S_OK;

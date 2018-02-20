@@ -38,8 +38,7 @@ public:
 
     // Standard functions
     DWORD GetMaxTextureWidth();
-    HRESULT MapTexture(D3DLOCKED_RECT *pLockedRect);
-    HRESULT UnmapTexture();
+    HRESULT CreateFontTexture(DWORD* Bitmap);
 };
 
 
