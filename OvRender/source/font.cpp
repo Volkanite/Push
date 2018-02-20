@@ -58,8 +58,7 @@ VOID Font::SetFontAttributes( FONT_PROPERTIES* FontProperties )
 }
 
 
-HRESULT
-Font::InitDeviceObjects()
+HRESULT Font::InitDeviceObjects()
 {
     HRESULT hr;
     DWORD textureWidthMax;
@@ -86,12 +85,6 @@ Font::InitDeviceObjects()
         m_fTextScale = (FLOAT)textureWidthMax / (FLOAT)m_dwTexWidth;
         m_dwTexWidth = m_dwTexHeight = textureWidthMax;
     }
-
-    // Create a new texture for the font
-    hr = CreateTexture();
-
-    if( FAILED(hr) )
-        return hr;
 
     // Prepare to create a bitmap
     DWORD*      pBitmapBits;
@@ -163,9 +156,14 @@ Font::InitDeviceObjects()
         x += size.cx + (2 * m_dwSpacing);
     }
 
-    // Lock the surface and write the alpha values for the set pixels
+    // Create a new texture for the font and lock the surface and write the alpha values for the set 
+    // pixels
     D3DLOCKED_RECT d3dlr;
-    LockTexture( &d3dlr );
+    hr = MapTexture(&d3dlr);
+
+    if (FAILED(hr))
+        return hr;
+
     BYTE* pDstRow = (BYTE*)d3dlr.pBits;
     
     #if PIXEL_DEPTH == 16
@@ -214,7 +212,7 @@ Font::InitDeviceObjects()
     }
 
     // Done updating texture, so clean up used objects
-    UnlockTexture();
+    UnmapTexture();
     DeleteObject( hbmBitmap );
     DeleteDC( hDC );
     DeleteObject( hFont );

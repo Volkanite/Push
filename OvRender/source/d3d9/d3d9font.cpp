@@ -76,8 +76,7 @@ Dx9Font::GetMaxTextureWidth()
 }
 
 
-HRESULT
-Dx9Font::CreateTexture()
+HRESULT Dx9Font::MapTexture( D3DLOCKED_RECT* pLockedRect )
 {
     HRESULT hr;
     D3DFORMAT format;
@@ -98,23 +97,17 @@ Dx9Font::CreateTexture()
         NULL
         );
 
+    m_pTexture->LockRect(0, pLockedRect, 0, 0);
+
     return hr;
 }
 
 
-VOID
-Dx9Font::LockTexture(
-    D3DLOCKED_RECT* pLockedRect
-    )
-{
-    m_pTexture->LockRect( 0, pLockedRect, 0, 0 );
-}
-
-
-VOID
-Dx9Font::UnlockTexture()
+HRESULT Dx9Font::UnmapTexture()
 {
     m_pTexture->UnlockRect(0);
+
+    return S_OK;
 }
 
 

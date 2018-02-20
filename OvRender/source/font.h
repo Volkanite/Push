@@ -66,13 +66,16 @@ public:
     VOID AddSprite( Sprite *sprite );
     VOID BuildSpriteQuad( Sprite *sprite, SpriteVertex v[ 4 ] );
     VOID AddString(WCHAR *text, DWORD Color);
-    //VOID Draw(RECT* destinationRect, RECT* sourceRect, XMCOLOR color);
     VOID DrawText(FLOAT sx, FLOAT sy, DWORD Color, WCHAR* Text);
 
     virtual DWORD GetMaxTextureWidth() = 0;
-    virtual HRESULT CreateTexture() = 0;
+
+    /*virtual HRESULT CreateTexture() = 0;
     virtual VOID LockTexture( D3DLOCKED_RECT *pLockedRect ) = 0;
-    virtual VOID UnlockTexture() = 0;
+    virtual VOID UnlockTexture() = 0;*/
+
+    virtual HRESULT MapTexture(D3DLOCKED_RECT *pLockedRect) = 0;
+    virtual HRESULT UnmapTexture() = 0;
 };
 
 extern VOID*   HeapHandle;

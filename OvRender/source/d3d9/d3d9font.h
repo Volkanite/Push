@@ -38,9 +38,8 @@ public:
 
     // Standard functions
     DWORD GetMaxTextureWidth();
-    HRESULT CreateTexture();
-    VOID LockTexture( D3DLOCKED_RECT *pLockedRect );
-    VOID UnlockTexture();
+    HRESULT MapTexture(D3DLOCKED_RECT *pLockedRect);
+    HRESULT UnmapTexture();
 };
 
 
