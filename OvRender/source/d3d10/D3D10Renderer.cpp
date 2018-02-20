@@ -182,15 +182,53 @@ BOOLEAN Dx10Font::InitD3D10Sprite( )
 }
 
 
-Dx10Font::Dx10Font(
-    ID3D10Device *Device
-    )
+Dx10Font::Dx10Font( ID3D10Device *Device )
 {
     Init();
 
    D3D10Font_Device = Device;
 
-   InitDeviceObjects();
+   // Create a texture for the font, lock the surface and write alpha values for the set pixels
+
+   HBITMAP bitmapHandle;
+   DWORD* bitmap;
+
+   bitmapHandle = CreateFontBitmap(D3D10_REQ_TEXTURE2D_U_OR_V_DIMENSION, &bitmap);
+
+   D3D10_TEXTURE2D_DESC texDesc;
+   D3D10_SHADER_RESOURCE_VIEW_DESC srvDesc;
+
+   texDesc.Width = m_dwTexWidth;
+   texDesc.Height = m_dwTexHeight;
+   texDesc.MipLevels = 1;
+   texDesc.ArraySize = 1;
+   texDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+   texDesc.Usage = D3D10_USAGE_DYNAMIC;
+   texDesc.BindFlags = D3D10_BIND_SHADER_RESOURCE;
+   texDesc.CPUAccessFlags = D3D10_CPU_ACCESS_WRITE;
+   texDesc.MiscFlags = 0;
+   texDesc.SampleDesc.Count = 1;
+   texDesc.SampleDesc.Quality = 0;
+
+   D3D10Font_Device->CreateTexture2D(&texDesc, NULL, &m_texture11);
+
+   srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+   srvDesc.ViewDimension = D3D10_SRV_DIMENSION_TEXTURE2D;
+   srvDesc.Texture2D.MipLevels = 1;
+   srvDesc.Texture2D.MostDetailedMip = 0;
+
+   D3D10Font_Device->CreateShaderResourceView(m_texture11, &srvDesc, &shaderResourceView);
+
+   D3D10_MAPPED_TEXTURE2D mappedData;
+
+   m_texture11->Map(0, D3D10_MAP_WRITE_DISCARD, 0, &mappedData);
+
+   WriteAlphaValuesFromBitmapToTexture(bitmap, mappedData.pData, mappedData.RowPitch);
+
+   m_texture11->Unmap(0);
+
+   DeleteObject(bitmapHandle);
+
    InitD3D10Sprite();
 }
 
@@ -347,49 +385,4 @@ Dx10Font::End()
 {
     BeginBatch( );
     EndBatch( );
-}
-
-
-DWORD
-Dx10Font::GetMaxTextureWidth()
-{
-    return 2048;
-}
-
-
-HRESULT Dx10Font::CreateFontTexture( DWORD* Bitmap )
-{
-    D3D10_TEXTURE2D_DESC texDesc;
-    D3D10_SHADER_RESOURCE_VIEW_DESC srvDesc;
-
-    texDesc.Width               = m_dwTexWidth;
-    texDesc.Height              = m_dwTexHeight;
-    texDesc.MipLevels           = 1;
-    texDesc.ArraySize           = 1;
-    texDesc.Format              = DXGI_FORMAT_R8G8B8A8_UNORM;
-    texDesc.Usage               = D3D10_USAGE_DYNAMIC;
-    texDesc.BindFlags           = D3D10_BIND_SHADER_RESOURCE;
-    texDesc.CPUAccessFlags      = D3D10_CPU_ACCESS_WRITE;
-    texDesc.MiscFlags           = 0;
-    texDesc.SampleDesc.Count    = 1;
-    texDesc.SampleDesc.Quality  = 0;
-
-    D3D10Font_Device->CreateTexture2D( &texDesc, NULL, &m_texture11 );
-
-    srvDesc.Format                      = DXGI_FORMAT_R8G8B8A8_UNORM;
-    srvDesc.ViewDimension               = D3D10_SRV_DIMENSION_TEXTURE2D;
-    srvDesc.Texture2D.MipLevels         = 1;
-    srvDesc.Texture2D.MostDetailedMip   = 0;
-
-    D3D10Font_Device->CreateShaderResourceView( m_texture11, &srvDesc, &shaderResourceView );
-
-    D3D10_MAPPED_TEXTURE2D mappedData;
-
-    m_texture11->Map(0, D3D10_MAP_WRITE_DISCARD, 0, &mappedData);
-
-    WriteAlphaValuesFromBitmapToTexture(Bitmap, mappedData.pData, mappedData.RowPitch);
-
-    m_texture11->Unmap(0);
-
-    return S_OK;
 }

@@ -17,8 +17,6 @@ VOID IDirect3DDevice8_PresentCallback(
     if (Dx8OvFont == NULL)
     {
         Dx8OvFont = new Dx8Font(Device);
-
-        Dx8OvFont->InitDeviceObjects();
         Dx8OvFont->RestoreDeviceObjects();
 
         GraphicsApi = API_D3D8;

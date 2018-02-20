@@ -12,8 +12,4 @@ public:
     VOID EndBatch( );
     VOID DrawString();
     BOOLEAN InitD3D11Sprite( );
-
-    // Standard functions
-    DWORD GetMaxTextureWidth();
-    HRESULT CreateFontTexture(DWORD* Bitmap);
 };

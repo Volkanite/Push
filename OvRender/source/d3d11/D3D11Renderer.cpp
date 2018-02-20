@@ -321,7 +321,47 @@ Dx11Font::Dx11Font( ID3D11Device *Device )
    vmt = (VOID**)deviceContext;
    vmt = (VOID**) vmt[0];
 
-   InitDeviceObjects();
+   // Create a texture for the font, lock the surface and write alpha values for the set pixels
+
+   HBITMAP bitmapHandle;
+   DWORD* bitmap;
+
+   bitmapHandle = CreateFontBitmap(D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION, &bitmap);
+
+   D3D11_TEXTURE2D_DESC texDesc;
+   D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+
+   texDesc.Width = m_dwTexWidth;
+   texDesc.Height = m_dwTexHeight;
+   texDesc.MipLevels = 1;
+   texDesc.ArraySize = 1;
+   texDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+   texDesc.Usage = D3D11_USAGE_DYNAMIC;
+   texDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D10_BIND_SHADER_RESOURCE;
+   texDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+   texDesc.MiscFlags = 0;
+   texDesc.SampleDesc.Count = 1;
+   texDesc.SampleDesc.Quality = 0;
+
+   device->CreateTexture2D(&texDesc, NULL, &m_texture11);
+
+   srvDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+   srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+   srvDesc.Texture2D.MipLevels = 1;
+   srvDesc.Texture2D.MostDetailedMip = 0;
+
+   device->CreateShaderResourceView(m_texture11, &srvDesc, &shaderResourceView);
+
+   D3D11_MAPPED_SUBRESOURCE mappedData;
+
+   deviceContext->Map(m_texture11, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
+
+   WriteAlphaValuesFromBitmapToTexture(bitmap, mappedData.pData, mappedData.RowPitch);
+
+   deviceContext->Unmap(m_texture11, 0);
+
+   DeleteObject(bitmapHandle);
+
    InitD3D11Sprite();
 }
 
@@ -502,51 +542,6 @@ VOID
 Dx11Font::End()
 {
    DrawString();
-}
-
-
-DWORD
-Dx11Font::GetMaxTextureWidth()
-{
-    return 2048;
-}
-
-
-HRESULT Dx11Font::CreateFontTexture( DWORD* Bitmap )
-{
-    D3D11_TEXTURE2D_DESC texDesc;
-    D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-
-    texDesc.Width               = m_dwTexWidth;
-    texDesc.Height              = m_dwTexHeight;
-    texDesc.MipLevels           = 1;
-    texDesc.ArraySize           = 1;
-    texDesc.Format              = DXGI_FORMAT_B8G8R8A8_UNORM;
-    texDesc.Usage               = D3D11_USAGE_DYNAMIC;
-    texDesc.BindFlags           = D3D11_BIND_SHADER_RESOURCE | D3D10_BIND_SHADER_RESOURCE;
-    texDesc.CPUAccessFlags      = D3D11_CPU_ACCESS_WRITE;
-    texDesc.MiscFlags           = 0;
-    texDesc.SampleDesc.Count    = 1;
-    texDesc.SampleDesc.Quality  = 0;
-
-    device->CreateTexture2D( &texDesc, NULL, &m_texture11 );
-
-    srvDesc.Format                      = DXGI_FORMAT_B8G8R8A8_UNORM;
-    srvDesc.ViewDimension               = D3D11_SRV_DIMENSION_TEXTURE2D;
-    srvDesc.Texture2D.MipLevels         = 1;
-    srvDesc.Texture2D.MostDetailedMip   = 0;
-
-    device->CreateShaderResourceView( m_texture11, &srvDesc, &shaderResourceView );
-
-    D3D11_MAPPED_SUBRESOURCE mappedData;
-
-    deviceContext->Map(m_texture11, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedData);
-
-    WriteAlphaValuesFromBitmapToTexture(Bitmap, mappedData.pData, mappedData.RowPitch);
-
-    deviceContext->Unmap(m_texture11, 0);
-
-    return S_OK;
 }
 
 

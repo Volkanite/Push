@@ -11,8 +11,4 @@ public:
     VOID DrawBatch( UINT startSpriteIndex, UINT spriteCount );
     VOID EndBatch();
     BOOLEAN InitD3D10Sprite( );
-
-    // Standard functions
-    DWORD GetMaxTextureWidth();
-    HRESULT CreateFontTexture(DWORD* Bitmap);
 };

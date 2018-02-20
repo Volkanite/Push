@@ -32,9 +32,6 @@ public:
     // Constructor / destructor
     Dx8Font( LPDIRECT3DDEVICE8 pd3dDevice );
     ~Dx8Font();
-
-    DWORD GetMaxTextureWidth();
-    HRESULT CreateFontTexture(DWORD* Bitmap);
 };
 
 

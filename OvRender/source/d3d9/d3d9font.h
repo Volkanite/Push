@@ -33,12 +33,8 @@ public:
     HRESULT DeleteDeviceObjects();
 
     // Constructor / destructor
-    Dx9Font( LPDIRECT3DDEVICE9 pd3dDevice );
+    Dx9Font(LPDIRECT3DDEVICE9 pd3dDevice, FONT_PROPERTIES* Properties);
     ~Dx9Font();
-
-    // Standard functions
-    DWORD GetMaxTextureWidth();
-    HRESULT CreateFontTexture(DWORD* Bitmap);
 };
 
 

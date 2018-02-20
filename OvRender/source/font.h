@@ -62,15 +62,12 @@ public:
     Font();
     VOID SetFontAttributes( FONT_PROPERTIES* Properties );
     HRESULT GetTextExtent( TCHAR* strText, SIZE* pSize );
-    HRESULT InitDeviceObjects();
+    HBITMAP CreateFontBitmap(DWORD MaxTextureWidth, DWORD** Bitmap);
     VOID WriteAlphaValuesFromBitmapToTexture(DWORD* Bitmap, void* Texture, int Pitch);
     VOID AddSprite( Sprite *sprite );
     VOID BuildSpriteQuad( Sprite *sprite, SpriteVertex v[ 4 ] );
     VOID AddString(WCHAR *text, DWORD Color);
     VOID DrawText(FLOAT sx, FLOAT sy, DWORD Color, WCHAR* Text);
-
-    virtual DWORD GetMaxTextureWidth() = 0;
-    virtual HRESULT CreateFontTexture(DWORD* Bitmap) = 0;
 };
 
 extern VOID*   HeapHandle;

@@ -32,14 +32,11 @@ inline FONT3DVERTEX InitFont3DVertex( const D3DXVECTOR3& p, const D3DXVECTOR3& n
 
 
 
-
 //-----------------------------------------------------------------------------
 // Name: CD3DFont()
 // Desc: Font class constructor
 //-----------------------------------------------------------------------------
-Dx9Font::Dx9Font(
-    LPDIRECT3DDEVICE9 pd3dDevice
-    )
+Dx9Font::Dx9Font( LPDIRECT3DDEVICE9 pd3dDevice, FONT_PROPERTIES* Properties )
 {
     m_pd3dDevice           = NULL;
     m_pTexture             = NULL;
@@ -50,6 +47,48 @@ Dx9Font::Dx9Font(
 
     // Keep a local copy of the device
     m_pd3dDevice = pd3dDevice;
+
+    // Set font properties, call before CreateFontBitmap()
+    SetFontAttributes(Properties);
+
+    // Create a texture for the font, lock the surface and write alpha values for the set pixels
+
+    D3DCAPS9 d3dCaps;
+
+    m_pd3dDevice->GetDeviceCaps(&d3dCaps);
+
+    HBITMAP bitmapHandle;
+    DWORD* bitmap;
+    
+    bitmapHandle = CreateFontBitmap(d3dCaps.MaxTextureWidth, &bitmap);
+
+    HRESULT hr;
+    D3DFORMAT format;
+    D3DLOCKED_RECT lockedRect;
+
+    if (PIXEL_DEPTH == 16)
+        format = D3DFMT_A4R4G4B4;
+    else if (PIXEL_DEPTH == 32)
+        format = D3DFMT_A8R8G8B8;
+
+    hr = m_pd3dDevice->CreateTexture(
+        m_dwTexWidth,
+        m_dwTexHeight,
+        1,
+        D3DUSAGE_DYNAMIC,
+        format,
+        D3DPOOL_DEFAULT,
+        &m_pTexture,
+        NULL
+        );
+
+    m_pTexture->LockRect(0, &lockedRect, 0, 0);
+
+    WriteAlphaValuesFromBitmapToTexture(bitmap, lockedRect.pBits, lockedRect.Pitch);
+
+    m_pTexture->UnlockRect(0);
+
+    DeleteObject(bitmapHandle);
 }
 
 
@@ -62,49 +101,6 @@ Dx9Font::~Dx9Font()
 {
     InvalidateDeviceObjects();
     DeleteDeviceObjects();
-}
-
-
-DWORD
-Dx9Font::GetMaxTextureWidth()
-{
-    D3DCAPS9 d3dCaps;
-
-    m_pd3dDevice->GetDeviceCaps( &d3dCaps );
-
-    return d3dCaps.MaxTextureWidth;
-}
-
-
-HRESULT Dx9Font::CreateFontTexture( DWORD* Bitmap )
-{
-    HRESULT hr;
-    D3DFORMAT format;
-    D3DLOCKED_RECT lockedRect;
-
-    if (PIXEL_DEPTH == 16)
-        format = D3DFMT_A4R4G4B4;
-    else if (PIXEL_DEPTH == 32)
-        format = D3DFMT_A8R8G8B8;
-
-    hr = m_pd3dDevice->CreateTexture(
-        m_dwTexWidth, 
-        m_dwTexHeight, 
-        1, 
-        D3DUSAGE_DYNAMIC, 
-        format, 
-        D3DPOOL_DEFAULT, 
-        &m_pTexture, 
-        NULL
-        );
-
-    m_pTexture->LockRect(0, &lockedRect, 0, 0);
-
-    WriteAlphaValuesFromBitmapToTexture(Bitmap, lockedRect.pBits, lockedRect.Pitch);
-
-    m_pTexture->UnlockRect(0);
-
-    return hr;
 }
 
 

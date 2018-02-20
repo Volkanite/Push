@@ -30,14 +30,11 @@ inline FONT3DVERTEX InitFont3DVertex( const D3DXVECTOR3& p, const D3DXVECTOR3& n
 }
 
 
-
 //-----------------------------------------------------------------------------
 // Name: CD3DFont()
 // Desc: Font class constructor
 //-----------------------------------------------------------------------------
-Dx8Font::Dx8Font( 
-    LPDIRECT3DDEVICE8 pd3dDevice
-    )
+Dx8Font::Dx8Font( LPDIRECT3DDEVICE8 pd3dDevice )
 {
     m_pd3dDevice           = NULL;
     m_pTexture             = NULL;
@@ -48,33 +45,18 @@ Dx8Font::Dx8Font(
 
     // Keep a local copy of the device
     m_pd3dDevice = pd3dDevice;
-}
 
+    // Create a texture for the font, lock the surface and write alpha values for the set pixels
 
-//-----------------------------------------------------------------------------
-// Name: ~CD3DFont()
-// Desc: Font class destructor
-//-----------------------------------------------------------------------------
-Dx8Font::~Dx8Font()
-{
-    InvalidateDeviceObjects();
-    DeleteDeviceObjects();
-}
-
-
-DWORD
-Dx8Font::GetMaxTextureWidth()
-{
     D3DCAPS8 d3dCaps;
 
-    m_pd3dDevice->GetDeviceCaps( &d3dCaps );
+    m_pd3dDevice->GetDeviceCaps(&d3dCaps);
 
-    return d3dCaps.MaxTextureWidth;
-}
+    HBITMAP bitmapHandle;
+    DWORD* bitmap;
 
+    bitmapHandle = CreateFontBitmap(d3dCaps.MaxTextureWidth, &bitmap);
 
-HRESULT Dx8Font::CreateFontTexture( DWORD* Bitmap )
-{
     HRESULT hr;
     D3DFORMAT format;
     D3DLOCKED_RECT lockedRect;
@@ -96,11 +78,22 @@ HRESULT Dx8Font::CreateFontTexture( DWORD* Bitmap )
 
     m_pTexture->LockRect(0, &lockedRect, 0, 0);
 
-    WriteAlphaValuesFromBitmapToTexture(Bitmap, lockedRect.pBits, lockedRect.Pitch);
+    WriteAlphaValuesFromBitmapToTexture(bitmap, lockedRect.pBits, lockedRect.Pitch);
 
     m_pTexture->UnlockRect(0);
 
-    return hr;
+    DeleteObject( bitmapHandle );
+}
+
+
+//-----------------------------------------------------------------------------
+// Name: ~CD3DFont()
+// Desc: Font class destructor
+//-----------------------------------------------------------------------------
+Dx8Font::~Dx8Font()
+{
+    InvalidateDeviceObjects();
+    DeleteDeviceObjects();
 }
 
 

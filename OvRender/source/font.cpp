@@ -103,11 +103,8 @@ VOID Font::WriteAlphaValuesFromBitmapToTexture( DWORD* Bitmap, void* Texture, in
 }
 
 
-HRESULT Font::InitDeviceObjects()
+HBITMAP Font::CreateFontBitmap( DWORD MaxTextureWidth, DWORD** Bitmap )
 {
-    HRESULT hr;
-    DWORD textureWidthMax;
-
     // Establish the font and texture size
     m_fTextScale  = 1.0f; // Draw fonts into texture without scaling
 
@@ -123,12 +120,11 @@ HRESULT Font::InitDeviceObjects()
 
     // If requested texture is too big, use a smaller texture and smaller font,
     // and scale up when rendering.
-    textureWidthMax = GetMaxTextureWidth();
 
-    if( m_dwTexWidth > textureWidthMax )
+    if (m_dwTexWidth > MaxTextureWidth)
     {
-        m_fTextScale = (FLOAT)textureWidthMax / (FLOAT)m_dwTexWidth;
-        m_dwTexWidth = m_dwTexHeight = textureWidthMax;
+        m_fTextScale = (FLOAT)MaxTextureWidth / (FLOAT)m_dwTexWidth;
+        m_dwTexWidth = m_dwTexHeight = MaxTextureWidth;
     }
 
     // Prepare to create a bitmap
@@ -159,7 +155,7 @@ HRESULT Font::InitDeviceObjects()
                           CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY,
                           VARIABLE_PITCH, m_strFontName );
     if( NULL==hFont )
-        return E_FAIL;
+        return NULL;
 
     SelectObject( hDC, hbmBitmap );
     SelectObject( hDC, hFont );
@@ -201,18 +197,14 @@ HRESULT Font::InitDeviceObjects()
         x += size.cx + (2 * m_dwSpacing);
     }
 
-    // Create a texture for the font, lock the surface and write alpha values for the set pixels
-    hr = CreateFontTexture(pBitmapBits);
-
-    if (FAILED(hr))
-        return hr;
-
     // Clean up used objects
-    DeleteObject( hbmBitmap );
+    //DeleteObject( hbmBitmap );
     DeleteDC( hDC );
     DeleteObject( hFont );
 
-    return S_OK;
+    *Bitmap = pBitmapBits;
+
+    return hbmBitmap;
 }
 
 
