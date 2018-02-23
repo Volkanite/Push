@@ -37,6 +37,15 @@ OvOverlay::Render()
 }
 
 
+VOID SetOverlayProperties( OvOverlay* Overlay, OV_HOOK_PARAMS* HookParameters )
+{
+    Overlay->VsyncOverrideMode = HookParameters->VsyncOverrideMode;
+    Overlay->FontProperties.Name = HookParameters->FontName;
+    Overlay->FontProperties.Bold = HookParameters->FontBold;
+    Overlay->FontProperties.Size = 10;
+}
+
+
 ULONG __stdcall CreateOverlay( LPVOID Param )
 {
     EnterCriticalSection(&OvCriticalSection);
@@ -76,16 +85,14 @@ ULONG __stdcall CreateOverlay( LPVOID Param )
     {
         Log(L"Hooking d3d9...");
         D3D9Overlay = new Dx9Overlay( hookParams->RenderFunction );
-        D3D9Overlay->VsyncOverrideMode = hookParams->VsyncOverrideMode;
-        D3D9Overlay->FontProperties.Name = hookParams->FontName;
-        D3D9Overlay->FontProperties.Bold = hookParams->FontBold;
-        D3D9Overlay->FontProperties.Size = 10;
+        SetOverlayProperties(D3D9Overlay, hookParams);
     }
 
     if (dxgi && DXGIOverlay == NULL)
     {
         Log(L"Hooking dxgi...");
         DXGIOverlay = new DxgiOverlay(hookParams->RenderFunction);
+        SetOverlayProperties(DXGIOverlay, hookParams);
     }
 
     if (ddraw && DirectDrawOverlay == NULL)

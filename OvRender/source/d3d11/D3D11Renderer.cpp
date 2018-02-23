@@ -302,7 +302,7 @@ BOOLEAN Dx11Font::InitD3D11Sprite( )
 }
 
 
-Dx11Font::Dx11Font( ID3D11Device *Device )
+Dx11Font::Dx11Font( ID3D11Device *Device, FONT_PROPERTIES* Properties )
 {
     ID3D11Device *device11 = Device;
 
@@ -320,6 +320,9 @@ Dx11Font::Dx11Font( ID3D11Device *Device )
 
    vmt = (VOID**)deviceContext;
    vmt = (VOID**) vmt[0];
+
+   // Set font properties, call before CreateFontBitmap()
+   SetFontAttributes(Properties);
 
    // Create a texture for the font, lock the surface and write alpha values for the set pixels
 

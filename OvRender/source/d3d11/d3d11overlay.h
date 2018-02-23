@@ -4,6 +4,8 @@
 class Dx11Overlay : public OvOverlay
 {
 public:
+    ID3D11Device *device;
+
     Dx11Overlay( IDXGISwapChain* SwapChain, OV_RENDER RenderFunction );
     ~Dx11Overlay();
 

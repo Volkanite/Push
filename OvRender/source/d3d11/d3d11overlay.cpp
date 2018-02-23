@@ -18,8 +18,8 @@ typedef struct _D3DLOCKED_RECT
 #include "d3d11font.h"
 
 
-Dx11Font            *Dx11OvFont;
-ID3D11Texture2D *BackBuffer;
+Dx11Font                *D3D11Font;
+ID3D11Texture2D         *BackBuffer;
 ID3D11RenderTargetView  *RenderTarget;
 
 
@@ -28,8 +28,6 @@ Dx11Overlay::Dx11Overlay(
     OV_RENDER RenderFunction
     )
 {
-    ID3D11Device *device;
-    
     D3D11_TEXTURE2D_DESC BackBufferDescription;
 
     SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&BackBuffer);
@@ -44,10 +42,7 @@ Dx11Overlay::Dx11Overlay(
 
     BackBuffer->Release();
 
-    Dx11OvFont = new Dx11Font( device );
     UserRenderFunction = RenderFunction;
-
-    
 }
 
 
@@ -67,8 +62,7 @@ VOID Dx11Overlay::DrawText( WCHAR* Text )
 }
 
 
-VOID
-Dx11Overlay::DrawText( WCHAR* Text, DWORD Color )
+VOID Dx11Overlay::DrawText( WCHAR* Text, DWORD Color )
 {
     DrawText(Text, 20, Line, Color);
 
@@ -76,24 +70,24 @@ Dx11Overlay::DrawText( WCHAR* Text, DWORD Color )
 }
 
 
-VOID 
-Dx11Overlay::DrawText( WCHAR* Text, int X, int Y, DWORD Color )
+VOID Dx11Overlay::DrawText( WCHAR* Text, int X, int Y, DWORD Color )
 {
-    Dx11OvFont->DrawText((FLOAT)X, (FLOAT)Y, Color, Text);
+    D3D11Font->DrawText((FLOAT)X, (FLOAT)Y, Color, Text);
 }
 
 
-VOID
-Dx11Overlay::Begin()
+VOID Dx11Overlay::Begin()
 {
-    Dx11OvFont->Begin();
+    if (!D3D11Font)
+        D3D11Font = new Dx11Font(device, &this->FontProperties);
+
+    D3D11Font->Begin();
 }
 
 
-VOID
-Dx11Overlay::End()
+VOID Dx11Overlay::End()
 {
-    Dx11OvFont->End();
+    D3D11Font->End();
 }
 
 

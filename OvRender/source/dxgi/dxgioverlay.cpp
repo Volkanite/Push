@@ -11,7 +11,7 @@
 #include "dxgihook.h"
 
 
-Dx11Overlay* DxgiOvDx11Overlay;
+Dx11Overlay* D3D11Overlay;
 Dx10Overlay* DxgiOvDx10Overlay;
 extern DxgiOverlay* DXGIOverlay;
 
@@ -36,8 +36,9 @@ VOID DxgiOvInit( IDXGISwapChain* SwapChain )
 
     if (SUCCEEDED(SwapChain->GetDevice(__uuidof(ID3D11Device), (void **) &device11)))
     {
-        DxgiOvDx11Overlay = new Dx11Overlay(SwapChain, DXGIOverlay->UserRenderFunction);
+        D3D11Overlay = new Dx11Overlay(SwapChain, DXGIOverlay->UserRenderFunction);
         GraphicsApi = API_D3D11;
+        D3D11Overlay->FontProperties = DXGIOverlay->FontProperties;
     }
     else if (SUCCEEDED(SwapChain->GetDevice(__uuidof(ID3D10Device), (void **) &device10)))
     {
@@ -54,8 +55,8 @@ VOID IDXGISwapChain_PresentCallback( IDXGISwapChain* SwapChain )
     if (!DxgiOverlayInitialized)
         DxgiOvInit( SwapChain );
 
-    if (DxgiOvDx11Overlay)
-        DxgiOvDx11Overlay->Render();
+    if (D3D11Overlay)
+        D3D11Overlay->Render();
 
     else if (DxgiOvDx10Overlay)
         DxgiOvDx10Overlay->Render();
@@ -64,10 +65,10 @@ VOID IDXGISwapChain_PresentCallback( IDXGISwapChain* SwapChain )
 
 VOID IDXGISwapChain_ResizeBuffersCallback( IDXGISwapChain* SwapChain )
 {
-    if (DxgiOvDx11Overlay)
+    if (D3D11Overlay)
     {
-        DxgiOvDx11Overlay->~Dx11Overlay();
-        DxgiOvDx11Overlay = NULL;
+        D3D11Overlay->~Dx11Overlay();
+        D3D11Overlay = NULL;
     }
 
     DxgiOverlayInitialized = FALSE;

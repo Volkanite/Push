@@ -4,7 +4,7 @@
 class Dx11Font : public Font
 {
 public:
-    Dx11Font( ID3D11Device *device );
+    Dx11Font(ID3D11Device *device, FONT_PROPERTIES* Properties);
     VOID Begin();
     VOID End();
     VOID BeginBatch( ID3D11ShaderResourceView* texSRV );
