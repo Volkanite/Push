@@ -47,8 +47,11 @@ HANDLE MenuProcessHeap;
 
 BOOLEAN FontBold;
 UINT32 FontSize;
-IAudioEndpointVolume *EndpointVolume;
-ISimpleAudioVolume *SessionVolume;
+
+IAudioEndpointVolume    *EndpointVolume;
+ISimpleAudioVolume      *SessionVolume;
+IAudioSessionEnumerator *AudioSessionEnumerator;
+int AmbientVolumeLevel = 100;
 
 extern OV_WINDOW_MODE D3D9Hook_WindowMode;
 extern BOOLEAN D3D9Hook_ForceReset;
@@ -85,6 +88,7 @@ extern BOOLEAN StopRecording;
 #define ID_SIZE             OSD_LAST_ITEM+23
 #define ID_MVOLUME          OSD_LAST_ITEM+24
 #define ID_GVOLUME          OSD_LAST_ITEM+25
+#define ID_AVOLUME          OSD_LAST_ITEM+26
 
 
 #include <stdio.h>
@@ -183,6 +187,7 @@ VOID AddItems()
         Menu->AddItem(L"Size", NULL, &Settings[3], ID_SIZE, 1);
         Menu->AddItem(L"Master Volume", NULL, &Settings[4], ID_MVOLUME, 1);
         Menu->AddItem(L"Game Volume", NULL, &Settings[5], ID_GVOLUME, 1);
+        Menu->AddItem(L"Ambient Volume", NULL, &Settings[6], ID_AVOLUME, 1);
 
         //Initialize with current settings
         FontBold = PushSharedMemory->FontBold;
@@ -257,10 +262,10 @@ void InitializeVolumeManager()
 
     //-------------------------
 
-    IAudioSessionEnumerator *pAudioSessionEnumerator;
-    pAudioSessionManager2->GetSessionEnumerator(&pAudioSessionEnumerator);
+    pAudioSessionManager2->GetSessionEnumerator(&AudioSessionEnumerator);
+
     INT nSessionCount;
-    pAudioSessionEnumerator->GetCount(&nSessionCount);
+    AudioSessionEnumerator->GetCount(&nSessionCount);
 
     DWORD thisPID = GetCurrentProcessId();
 
@@ -269,7 +274,7 @@ void InitializeVolumeManager()
         IAudioSessionControl *pSessionControl;
         IAudioSessionControl2 *pSessionControl2;
 
-        if (FAILED(pAudioSessionEnumerator->GetSession(nSessionIndex, &pSessionControl)))
+        if (FAILED(AudioSessionEnumerator->GetSession(nSessionIndex, &pSessionControl)))
             continue;
 
         // Get the extended session control interface pointer.
@@ -328,6 +333,46 @@ int GetSessionVolume()
 void SetSessionVolume( int Level )
 {
     SessionVolume->SetMasterVolume((float)Level / 100.0f, NULL);
+}
+
+
+void SetAmbientVolume( int Level )
+{
+    INT nSessionCount;
+    
+    AudioSessionEnumerator->GetCount(&nSessionCount);
+
+    DWORD thisPID = GetCurrentProcessId();
+
+    for (INT nSessionIndex = 0; nSessionIndex < nSessionCount; nSessionIndex++)
+    {
+        IAudioSessionControl *pSessionControl;
+        IAudioSessionControl2 *pSessionControl2;
+
+        if (FAILED(AudioSessionEnumerator->GetSession(nSessionIndex, &pSessionControl)))
+            continue;
+
+        // Get the extended session control interface pointer.
+        pSessionControl->QueryInterface(__uuidof(IAudioSessionControl2), (void**)&pSessionControl2);
+
+        DWORD sessionProcessId;
+        pSessionControl2->GetProcessId(&sessionProcessId);
+
+        if (sessionProcessId != thisPID)
+        {
+            ISimpleAudioVolume *sessionVolume;
+
+            pSessionControl->QueryInterface(__uuidof(ISimpleAudioVolume), (void**)&sessionVolume);
+            sessionVolume->SetMasterVolume((float)Level / 100.0f, NULL);
+        }
+
+        // Clean up.
+        pSessionControl2->Release();
+        pSessionControl2 = NULL;
+
+        pSessionControl->Release();
+        pSessionControl = NULL;
+    }
 }
 
 
@@ -612,6 +657,21 @@ VOID ProcessOptions( MenuItems* Item )
         UpdateIntegralText(currentVolume, Item->Options);
     }
     break;
+    case ID_AVOLUME:
+    {
+        if (*Item->Var > 0)
+        {
+            AmbientVolumeLevel++;
+        }
+        else
+        {
+            AmbientVolumeLevel--;
+        }
+
+        SetAmbientVolume(AmbientVolumeLevel);
+        UpdateIntegralText(AmbientVolumeLevel, Item->Options);
+    }
+    break;
 
     default:
         if (*Item->Id <= OSD_LAST_ITEM)
@@ -798,6 +858,10 @@ VOID OverlayMenu::AddItemToMenu( WCHAR* Title, WCHAR** Options, MenuVars* Variab
     case ID_GVOLUME:
         Items[mSet.MaxItems].Options = AllocateOptionsBuffer();
         UpdateIntegralText(GetSessionVolume(), Items[mSet.MaxItems].Options);
+        break;
+    case ID_AVOLUME:
+        Items[mSet.MaxItems].Options = AllocateOptionsBuffer();
+        UpdateIntegralText(AmbientVolumeLevel, Items[mSet.MaxItems].Options);
         break;
     default:
         break;
