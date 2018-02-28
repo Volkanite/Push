@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <mmdeviceapi.h>
 #include <endpointvolume.h>
+#include <audiopolicy.h>
 #include <OvRender.h>
 #include <sloverlay.h>
 #include <overlay.h>
@@ -47,6 +48,7 @@ HANDLE MenuProcessHeap;
 BOOLEAN FontBold;
 UINT32 FontSize;
 IAudioEndpointVolume *EndpointVolume;
+ISimpleAudioVolume *SessionVolume;
 
 extern OV_WINDOW_MODE D3D9Hook_WindowMode;
 extern BOOLEAN D3D9Hook_ForceReset;
@@ -81,7 +83,8 @@ extern BOOLEAN StopRecording;
 #define ID_FONT             OSD_LAST_ITEM+21
 #define ID_BOLD             OSD_LAST_ITEM+22
 #define ID_SIZE             OSD_LAST_ITEM+23
-#define ID_VOLUME           OSD_LAST_ITEM+24
+#define ID_MVOLUME          OSD_LAST_ITEM+24
+#define ID_GVOLUME          OSD_LAST_ITEM+25
 
 
 #include <stdio.h>
@@ -178,7 +181,8 @@ VOID AddItems()
         Menu->AddItem(L"Font", FontOpt, &Settings[1], ID_FONT, sizeof(FontOpt)/sizeof(FontOpt[0]));
         Menu->AddItem(L"Bold", ItemOpt, &Settings[2], ID_BOLD);
         Menu->AddItem(L"Size", NULL, &Settings[3], ID_SIZE, 1);
-        Menu->AddItem(L"Volume", NULL, &Settings[4], ID_VOLUME, 1);
+        Menu->AddItem(L"Master Volume", NULL, &Settings[4], ID_MVOLUME, 1);
+        Menu->AddItem(L"Game Volume", NULL, &Settings[5], ID_GVOLUME, 1);
 
         //Initialize with current settings
         FontBold = PushSharedMemory->FontBold;
@@ -221,7 +225,7 @@ VOID Overclock( OVERCLOCK_UNIT Unit )
 }
 
 
-void InitializeEndpointVolume()
+void InitializeVolumeManager()
 {
     CoInitialize(NULL);
     IMMDeviceEnumerator *deviceEnumerator = NULL;
@@ -243,8 +247,49 @@ void InitializeEndpointVolume()
 
     hr = defaultDevice->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_INPROC_SERVER, NULL, (LPVOID *)&EndpointVolume);
 
+    //-------------------------
+    IAudioSessionManager2 *pAudioSessionManager2;
+    defaultDevice->Activate(__uuidof(IAudioSessionManager2), CLSCTX_ALL, NULL, (VOID**)&pAudioSessionManager2);
+    //-------------------------
+
     defaultDevice->Release();
     defaultDevice = NULL;
+
+    //-------------------------
+
+    IAudioSessionEnumerator *pAudioSessionEnumerator;
+    pAudioSessionManager2->GetSessionEnumerator(&pAudioSessionEnumerator);
+    INT nSessionCount;
+    pAudioSessionEnumerator->GetCount(&nSessionCount);
+
+    DWORD thisPID = GetCurrentProcessId();
+
+    for (INT nSessionIndex = 0; nSessionIndex < nSessionCount; nSessionIndex++)
+    {
+        IAudioSessionControl *pSessionControl;
+        IAudioSessionControl2 *pSessionControl2;
+
+        if (FAILED(pAudioSessionEnumerator->GetSession(nSessionIndex, &pSessionControl)))
+            continue;
+
+        // Get the extended session control interface pointer.
+        pSessionControl->QueryInterface(__uuidof(IAudioSessionControl2), (void**)&pSessionControl2);
+
+        DWORD sessionProcessId;
+        pSessionControl2->GetProcessId(&sessionProcessId);
+        
+        if (sessionProcessId == thisPID)
+        {
+            hr = pSessionControl->QueryInterface(__uuidof(ISimpleAudioVolume), (void**)&SessionVolume);
+        }
+
+        // Clean up.
+        pSessionControl2->Release();
+        pSessionControl2 = NULL;
+
+        pSessionControl->Release();
+        pSessionControl = NULL;
+    }
 }
 
 
@@ -264,6 +309,25 @@ int GetVolume()
 void SetVolume( int Level )
 {
     EndpointVolume->SetMasterVolumeLevelScalar((float)Level / 100.0f, NULL);
+}
+
+
+int GetSessionVolume()
+{
+    float level = 0;
+
+    SessionVolume->GetMasterVolume(&level);
+
+    level *= 100.0f;
+    level = roundf(level);
+
+    return level;
+}
+
+
+void SetSessionVolume( int Level )
+{
+    SessionVolume->SetMasterVolume((float)Level / 100.0f, NULL);
 }
 
 
@@ -510,7 +574,7 @@ VOID ProcessOptions( MenuItems* Item )
         SetFont(FontOpt[*Item->Var], FontBold, FontSize);
         break;
 
-    case ID_VOLUME:
+    case ID_MVOLUME:
     {
         int currentVolume = 0;
 
@@ -526,6 +590,25 @@ VOID ProcessOptions( MenuItems* Item )
         }
 
         SetVolume(currentVolume);
+        UpdateIntegralText(currentVolume, Item->Options);
+    }
+    break;
+    case ID_GVOLUME:
+    {
+        int currentVolume = 0;
+
+        currentVolume = GetSessionVolume();
+
+        if (*Item->Var > 0)
+        {
+            currentVolume++;
+        }
+        else
+        {
+            currentVolume--;
+        }
+
+        SetSessionVolume(currentVolume);
         UpdateIntegralText(currentVolume, Item->Options);
     }
     break;
@@ -707,10 +790,15 @@ VOID OverlayMenu::AddItemToMenu( WCHAR* Title, WCHAR** Options, MenuVars* Variab
         Items[mSet.MaxItems].Options = AllocateOptionsBuffer();
         UpdateIntegralText(FontSize, Items[mSet.MaxItems].Options);
         break;
-    case ID_VOLUME:
+    case ID_MVOLUME:
         Items[mSet.MaxItems].Options = AllocateOptionsBuffer();
-        InitializeEndpointVolume();
+        InitializeVolumeManager();
         UpdateIntegralText(GetVolume(), Items[mSet.MaxItems].Options);
+        break;
+    case ID_GVOLUME:
+        Items[mSet.MaxItems].Options = AllocateOptionsBuffer();
+        UpdateIntegralText(GetSessionVolume(), Items[mSet.MaxItems].Options);
+        break;
     default:
         break;
     }
