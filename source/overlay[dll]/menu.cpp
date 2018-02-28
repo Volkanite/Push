@@ -1,4 +1,6 @@
 #include <windows.h>
+#include <mmdeviceapi.h>
+#include <endpointvolume.h>
 #include <OvRender.h>
 #include <sloverlay.h>
 #include <overlay.h>
@@ -16,7 +18,7 @@ MenuVars Diagnostics[5];
 MenuVars D3DTweaks[10];
 MenuVars Process[5];
 MenuVars Capture[5];
-MenuVars Settings[5];
+MenuVars Settings[10];
 
 #define GROUP 1
 #define ITEM  2
@@ -44,6 +46,7 @@ HANDLE MenuProcessHeap;
 
 BOOLEAN FontBold;
 UINT32 FontSize;
+IAudioEndpointVolume *EndpointVolume;
 
 extern OV_WINDOW_MODE D3D9Hook_WindowMode;
 extern BOOLEAN D3D9Hook_ForceReset;
@@ -78,10 +81,12 @@ extern BOOLEAN StopRecording;
 #define ID_FONT             OSD_LAST_ITEM+21
 #define ID_BOLD             OSD_LAST_ITEM+22
 #define ID_SIZE             OSD_LAST_ITEM+23
+#define ID_VOLUME           OSD_LAST_ITEM+24
 
 
 #include <stdio.h>
 #include <wchar.h>
+#include <math.h>
 
 VOID ChangeVsync(BOOLEAN Setting);
 VOID SetFont(WCHAR* FontName, BOOLEAN Bold, UINT32 Size);
@@ -173,6 +178,7 @@ VOID AddItems()
         Menu->AddItem(L"Font", FontOpt, &Settings[1], ID_FONT, sizeof(FontOpt)/sizeof(FontOpt[0]));
         Menu->AddItem(L"Bold", ItemOpt, &Settings[2], ID_BOLD);
         Menu->AddItem(L"Size", NULL, &Settings[3], ID_SIZE, 1);
+        Menu->AddItem(L"Volume", NULL, &Settings[4], ID_VOLUME, 1);
 
         //Initialize with current settings
         FontBold = PushSharedMemory->FontBold;
@@ -212,6 +218,52 @@ VOID Overclock( OVERCLOCK_UNIT Unit )
     }
 
     CallPipe(L"UpdateClocks", NULL);
+}
+
+
+void InitializeEndpointVolume()
+{
+    CoInitialize(NULL);
+    IMMDeviceEnumerator *deviceEnumerator = NULL;
+    HRESULT hr;
+    
+    hr = CoCreateInstance(
+        __uuidof(MMDeviceEnumerator), 
+        NULL, 
+        CLSCTX_INPROC_SERVER, 
+        __uuidof(IMMDeviceEnumerator), 
+        (LPVOID *)&deviceEnumerator
+        );
+        
+    IMMDevice *defaultDevice = NULL;
+
+    hr = deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &defaultDevice);
+    deviceEnumerator->Release();
+    deviceEnumerator = NULL;
+
+    hr = defaultDevice->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_INPROC_SERVER, NULL, (LPVOID *)&EndpointVolume);
+
+    defaultDevice->Release();
+    defaultDevice = NULL;
+}
+
+
+int GetVolume()
+{
+    float level = 0;
+
+    EndpointVolume->GetMasterVolumeLevelScalar(&level);
+    
+    level *= 100.0f;
+    level = roundf(level);
+
+    return level;
+}
+
+
+void SetVolume( int Level )
+{
+    EndpointVolume->SetMasterVolumeLevelScalar((float)Level / 100.0f, NULL);
 }
 
 
@@ -458,6 +510,26 @@ VOID ProcessOptions( MenuItems* Item )
         SetFont(FontOpt[*Item->Var], FontBold, FontSize);
         break;
 
+    case ID_VOLUME:
+    {
+        int currentVolume = 0;
+
+        currentVolume = GetVolume();
+
+        if (*Item->Var > 0)
+        {
+            currentVolume++;
+        }
+        else
+        {
+            currentVolume--;
+        }
+
+        SetVolume(currentVolume);
+        UpdateIntegralText(currentVolume, Item->Options);
+    }
+    break;
+
     default:
         if (*Item->Id <= OSD_LAST_ITEM)
         {
@@ -635,6 +707,10 @@ VOID OverlayMenu::AddItemToMenu( WCHAR* Title, WCHAR** Options, MenuVars* Variab
         Items[mSet.MaxItems].Options = AllocateOptionsBuffer();
         UpdateIntegralText(FontSize, Items[mSet.MaxItems].Options);
         break;
+    case ID_VOLUME:
+        Items[mSet.MaxItems].Options = AllocateOptionsBuffer();
+        InitializeEndpointVolume();
+        UpdateIntegralText(GetVolume(), Items[mSet.MaxItems].Options);
     default:
         break;
     }
