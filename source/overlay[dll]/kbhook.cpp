@@ -310,6 +310,18 @@ UINT WINAPI GetRawInputDataHook(
 
             Menu_KeyboardHook(data->data.keyboard.VKey);
         }
+
+        if (Menu_IsVisible() && data->header.dwType == RIM_TYPEKEYBOARD)
+        {
+            // send an invalid type. we do this for games that do not check the return
+            // value of GetRawInputData(pData) and just assumes the function succeeded. 
+            // Thus returning -1 is not enough, so we spoof the device type to something 
+            // invalid as the game has to check what type of device generated the message
+            // at some point.
+            data->header.dwType = 3; //3 is not a valid type. 
+
+            return -1;
+        }
     }
 
     return result;

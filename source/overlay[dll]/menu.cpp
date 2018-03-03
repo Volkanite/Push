@@ -791,6 +791,12 @@ VOID Menu_KeyboardHook( WPARAM Key )
 }
 
 
+BOOLEAN Menu_IsVisible()
+{
+    return OvmMenu->mSet.Show;
+}
+
+
 OverlayMenu::OverlayMenu( int OptionsX )
 {
     OpX = OptionsX;
