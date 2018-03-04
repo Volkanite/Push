@@ -205,7 +205,10 @@ HRESULT Dx9Font::InvalidateDeviceObjects()
 HRESULT Dx9Font::DeleteDeviceObjects()
 {
     if (m_pTexture)
+    {
+        m_pd3dDevice->AddRef(); //why is this needed?
         m_pTexture->Release();
+    }
 
     m_pTexture = NULL;
     m_pd3dDevice = NULL;
