@@ -203,8 +203,6 @@ VOID ClockStep( OVERCLOCK_UNIT Unit, CLOCK_STEP_DIRECTION Direction )
 {
     UINT32 *value;
 
-    DisableAutoOverclock = TRUE;
-
     switch (Unit)
     {
     case OC_ENGINE:
@@ -411,6 +409,8 @@ VOID ProcessOptions( MenuItems* Item )
 
     case ID_ECLOCK:
         {
+            DisableAutoOverclock = TRUE;
+
             if (*Item->Var > 0)
             {
                 ClockStep(OC_ENGINE, Up);
@@ -426,6 +426,8 @@ VOID ProcessOptions( MenuItems* Item )
 
     case ID_MCLOCK:
         {
+            DisableAutoOverclock = TRUE;
+
             if (*Item->Var > 0)
             {
                 ClockStep(OC_MEMORY, Up);
