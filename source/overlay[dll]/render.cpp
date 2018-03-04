@@ -282,6 +282,7 @@ VOID RnRender( OvOverlay* Overlay )
     {
         rendering = TRUE;
 
+        StopImageMonitoring();
         InitializeKeyboardHook();
     }
 

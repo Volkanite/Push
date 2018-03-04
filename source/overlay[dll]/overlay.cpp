@@ -19,6 +19,7 @@ ThreadMonitor* PushThreadMonitor;
 HANDLE PushProcessHeap;
 CRITICAL_SECTION OvCriticalSection;
 extern HANDLE RenderThreadHandle;
+HANDLE ImageMonitoringThreadHandle;
 
 
 VOID Log(const wchar_t* Format, ...)
@@ -104,6 +105,12 @@ ULONG __stdcall ImageMonitorThread(LPVOID Params)
     }
 
     return NULL;
+}
+
+
+VOID StopImageMonitoring()
+{
+    TerminateThread(ImageMonitoringThreadHandle, 0);
 }
 
 
@@ -218,7 +225,12 @@ BOOL __stdcall DllMain(
 
             InitializeCriticalSection(&OvCriticalSection);
             CreateOverlay();
-            CreateThread(0, 0, &ImageMonitorThread, 0, 0, 0);
+            
+            ImageMonitoringThreadHandle = CreateThread(
+                0, 0, 
+                &ImageMonitorThread, 
+                0, 0, 0
+                );
 
             PushProcessHeap = GetProcessHeap();
 
