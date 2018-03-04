@@ -7,7 +7,7 @@
 #include <OvRender.h>
 
 
-Dx9Font* Dx9OvFont;
+Dx9Font* D3D9Font;
 extern Dx9Overlay* D3D9Overlay;
 IDirect3DDevice9* Dx9OvDevice;
 OV_WINDOW_MODE D3D9Hook_WindowMode;
@@ -140,13 +140,13 @@ VOID Dx9Overlay_CreateDevice( D3DPRESENT_PARAMETERS* PresentationParameters )
 
 VOID DeleteFont()
 {
-    if (Dx9OvFont)
+    if (D3D9Font)
     {
-        Dx9OvFont->InvalidateDeviceObjects();
-        Dx9OvFont->DeleteDeviceObjects();
+        D3D9Font->InvalidateDeviceObjects();
+        D3D9Font->DeleteDeviceObjects();
     }
 
-    Dx9OvFont = NULL;
+    D3D9Font = NULL;
 }
 
 
@@ -172,10 +172,10 @@ VOID Dx9OvRender( IDirect3DDevice9* Device )
         ResetFont = FALSE;
     }
 
-    if (Dx9OvFont == NULL)
+    if (D3D9Font == NULL)
     {
-        Dx9OvFont = new Dx9Font(Device, &D3D9Overlay->FontProperties);
-        Dx9OvFont->RestoreDeviceObjects();
+        D3D9Font = new Dx9Font(Device, &D3D9Overlay->FontProperties);
+        D3D9Font->RestoreDeviceObjects();
         
         Dx9OvDevice = Device;
     }
@@ -304,6 +304,15 @@ Dx9Overlay::Dx9Overlay( OV_RENDER RenderFunction )
 }
 
 
+Dx9Overlay::~Dx9Overlay()
+{
+    Dx9Hook_Destroy();
+
+    if (D3D9Font)
+        D3D9Font->~Dx9Font();
+}
+
+
 VOID
 Dx9Overlay::DrawText( WCHAR* Text )
 {   
@@ -322,7 +331,7 @@ Dx9Overlay::DrawText( WCHAR* Text, DWORD Color )
 
 VOID Dx9Overlay::DrawText( WCHAR* Text, int X, int Y, DWORD Color )
 {
-    Dx9OvFont->DrawText((FLOAT)X, (FLOAT)Y, Color, Text, NULL);
+    D3D9Font->DrawText((FLOAT)X, (FLOAT)Y, Color, Text, NULL);
 }
 
 

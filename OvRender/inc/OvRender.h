@@ -66,11 +66,9 @@ public:
 };
 
 
-VOID
-OvCreateOverlay( OV_RENDER RenderFunction );
-
-VOID
-OvCreateOverlayEx( OV_HOOK_PARAMS* HookParameters );
+VOID OvCreateOverlay( OV_RENDER RenderFunction );
+VOID OvCreateOverlayEx( OV_HOOK_PARAMS* HookParameters );
+VOID DestroyOverlay();
 
 VOID Log(const wchar_t* Format, ...);
 

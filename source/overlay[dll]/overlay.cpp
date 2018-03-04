@@ -226,7 +226,8 @@ BOOL __stdcall DllMain(
 
     case DLL_PROCESS_DETACH:
         {
-
+            DestroyOverlay();
+            Keyboard_UnHook();
 
         } break;
     }

@@ -200,7 +200,11 @@ VOID* FindDevice()
 }
 
 
-VOID HookDxgi( IDXGISWAPCHAIN_HOOK* HookParameters )
+DetourXS *DetourDXGIPresent;
+DetourXS *DetourDXGIResizeBuffers;
+
+
+VOID DxgiHook_Initialize( IDXGISWAPCHAIN_HOOK* HookParameters )
 {
     IDXGISwapChain* swapChain;
     VOID **vmt;
@@ -222,12 +226,17 @@ VOID HookDxgi( IDXGISWAPCHAIN_HOOK* HookParameters )
         //ReplaceVirtualMethod(vmt, 8, IDXGISwapChain_PresentHook);
         //ReplaceVirtualMethod(vmt, 13, IDXGISwapChain_ResizeBuffersHook);
         
-        DetourXS *detour;
-
-        detour = new DetourXS(vmt[8], IDXGISwapChain_PresentHook);
-        HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present)detour->GetTrampoline();
+        DetourDXGIPresent = new DetourXS(vmt[8], IDXGISwapChain_PresentHook);
+        HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present)DetourDXGIPresent->GetTrampoline();
         
-        detour = new DetourXS(vmt[13], IDXGISwapChain_ResizeBuffersHook);
-        HkIDXGISwapChain_ResizeBuffers = (TYPE_IDXGISwapChain_ResizeBuffers)detour->GetTrampoline();
+        DetourDXGIResizeBuffers = new DetourXS(vmt[13], IDXGISwapChain_ResizeBuffersHook);
+        HkIDXGISwapChain_ResizeBuffers = (TYPE_IDXGISwapChain_ResizeBuffers)DetourDXGIResizeBuffers->GetTrampoline();
     }
+}
+
+
+VOID DxgiHook_Destroy()
+{
+    DetourDXGIPresent->Destroy();
+    DetourDXGIResizeBuffers->Destroy();
 }

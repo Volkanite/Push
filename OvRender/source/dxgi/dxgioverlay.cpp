@@ -84,7 +84,13 @@ DxgiOverlay::DxgiOverlay( OV_RENDER RenderFunction )
     hookParams.PresentCallback = IDXGISwapChain_PresentCallback;
     hookParams.ResizeBuffersCallback = IDXGISwapChain_ResizeBuffersCallback;
 
-    HookDxgi(&hookParams);
+    DxgiHook_Initialize(&hookParams);
+}
+
+
+DxgiOverlay::~DxgiOverlay()
+{
+    DxgiHook_Destroy();
 }
 
 

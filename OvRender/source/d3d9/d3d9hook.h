@@ -42,5 +42,5 @@ typedef struct _DX9HOOK_PARAMS
 
 extern BOOLEAN D3D9Hook_ForceReset;
 
-VOID
-Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams );
+VOID Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams );
+VOID Dx9Hook_Destroy();

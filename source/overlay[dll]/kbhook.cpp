@@ -108,6 +108,7 @@ BOOLEAN MessageHook( LPMSG Message )
             //Unhook raw hook since this message hook is sufficient
             Log(L"KEYBOARD_HOOK_RAW::Destroy()");
             RawInputDetour->Destroy();
+            RawInputDetour = NULL;
             OverlayGetRawInputData = NULL;
 
             //Check if raw input already processed this request or we'll
@@ -438,4 +439,14 @@ void Keyboard_Hook( PUSH_KEYBOARD_HOOK_TYPE HookType )
     default:
         break;
     }
+}
+
+
+VOID Keyboard_UnHook()
+{
+    if (RawInputDetour)
+        RawInputDetour->Destroy();
+
+    if (KeyboardHookHandle)
+        UnhookWindowsHookEx(KeyboardHookHandle);
 }

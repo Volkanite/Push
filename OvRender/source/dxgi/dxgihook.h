@@ -1,7 +1,3 @@
-/*typedef VOID (*HK_IDXGISWAPCHAIN_PRESENT_CALLBACK)(
-    IDXGISwapChain* SwapChain
-    );*/
-
 typedef struct _IDXGISWAPCHAIN_HOOK
 {
     VOID* PresentCallback;
@@ -9,4 +5,5 @@ typedef struct _IDXGISWAPCHAIN_HOOK
 
 }IDXGISWAPCHAIN_HOOK;
 
-VOID HookDxgi( IDXGISWAPCHAIN_HOOK* HookParameters );
+VOID DxgiHook_Initialize(IDXGISWAPCHAIN_HOOK* HookParameters);
+VOID DxgiHook_Destroy();

@@ -137,6 +137,16 @@ VOID OvCreateOverlayEx( OV_HOOK_PARAMS* HookParameters )
 }
 
 
+VOID DestroyOverlay()
+{
+    if (D3D9Overlay)
+        D3D9Overlay->~Dx9Overlay();
+
+    if (DXGIOverlay)
+        DXGIOverlay->~DxgiOverlay();
+}
+
+
 DWORD FindPattern(WCHAR* Module, char pattern[], char mask[])
 {
     HMODULE hModule = GetModuleHandle(Module);
