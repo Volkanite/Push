@@ -25,13 +25,8 @@ VOID InitializeKeyboardHook();
 
 double PCFreq = 0.0;
 __int64 CounterStart = 0;
-typedef enum _OVERCLOCK_UNIT
-{
-    OC_ENGINE,
-    OC_MEMORY
 
-}OVERCLOCK_UNIT;
-VOID Overclock(OVERCLOCK_UNIT Unit);
+
 extern "C" LONG __stdcall NtQueryPerformanceCounter(
     LARGE_INTEGER* PerformanceCounter,
     LARGE_INTEGER* PerformanceFrequency
@@ -210,10 +205,10 @@ VOID RunFrameStatistics()
                 PushSharedMemory->Overloads |= OSD_GPU_M_CLK;
 
                 if (PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax < PushSharedMemory->HarwareInformation.DisplayDevice.EngineOverclock)
-                    Overclock(OC_ENGINE);
+                    ClockStep(OC_ENGINE, Up);
 
                 if (PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax < PushSharedMemory->HarwareInformation.DisplayDevice.MemoryOverclock)
-                    Overclock(OC_MEMORY);
+                    ClockStep(OC_MEMORY, Up);
             }
         }
     }

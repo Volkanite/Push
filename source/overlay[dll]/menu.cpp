@@ -8,6 +8,7 @@
 
 #include "kbhook.h"
 #include "osd.h"
+#include "menu.h"
 
 
 OverlayMenu* Menu;
@@ -198,33 +199,33 @@ VOID AddItems()
 }
 
 
-typedef enum _OVERCLOCK_UNIT
+VOID ClockStep( OVERCLOCK_UNIT Unit, CLOCK_STEP_DIRECTION Direction )
 {
-    OC_ENGINE,
-    OC_MEMORY,
-    OC_VOLTAGE
+    UINT32 *value;
 
-}OVERCLOCK_UNIT;
+    DisableAutoOverclock = TRUE;
 
-
-VOID Overclock( OVERCLOCK_UNIT Unit )
-{
     switch (Unit)
     {
     case OC_ENGINE:
-        PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax++;
+        value = &PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax;
         PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
         break;
     case OC_MEMORY:
-        PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax++;
+        value = &PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax;
         PushSharedMemory->OSDFlags |= OSD_GPU_M_CLK;
         break;
     case OC_VOLTAGE:
-        PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax++;
+        value = &PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax;
         PushSharedMemory->OSDFlags |= OSD_GPU_VOLTAGE;
     default:
         break;
     }
+
+    if (Direction == Up)
+        (*value)++;
+    else if (Direction == Down)
+        (*value)--;
 
     CallPipe(L"UpdateClocks", NULL);
 }
@@ -409,22 +410,13 @@ VOID ProcessOptions( MenuItems* Item )
 
     case ID_ECLOCK:
         {
-            DisableAutoOverclock = TRUE;
-
-            switch (*Item->Var)
+            if (*Item->Var > 0)
             {
-            case 0:
-            {
-                PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax--;
-                CallPipe(L"UpdateClocks", NULL);
+                ClockStep(OC_ENGINE, Up);
             }
-            break;
-
-            case 1:
+            else
             {
-                Overclock(OC_ENGINE);
-            }
-            break;
+                ClockStep(OC_ENGINE, Down);
             }
 
             UpdateIntegralText(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax, Item->Options);
@@ -435,7 +427,11 @@ VOID ProcessOptions( MenuItems* Item )
         {
             if (*Item->Var > 0)
             {
-                Overclock(OC_MEMORY);
+                ClockStep(OC_MEMORY, Up);
+            }
+            else
+            {
+                ClockStep(OC_MEMORY, Down);
             }
 
             UpdateIntegralText(PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax, Item->Options);
@@ -444,20 +440,13 @@ VOID ProcessOptions( MenuItems* Item )
 
     case ID_VOLTAGE:
     {
-        switch (*Item->Var)
+        if (*Item->Var > 0)
         {
-        case 0:
-        {
-            PushSharedMemory->HarwareInformation.DisplayDevice.Voltage--;
-            CallPipe(L"UpdateClocks", NULL);
+            ClockStep(OC_VOLTAGE, Up);
         }
-        break;
-
-        case 1:
+        else
         {
-            Overclock(OC_VOLTAGE);
-        }
-        break;
+            ClockStep(OC_VOLTAGE, Down);
         }
 
         UpdateIntegralText(PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax, Item->Options);
