@@ -218,6 +218,7 @@ VOID ClockStep( OVERCLOCK_UNIT Unit, CLOCK_STEP_DIRECTION Direction )
     case OC_VOLTAGE:
         value = &PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax;
         PushSharedMemory->OSDFlags |= OSD_GPU_VOLTAGE;
+        PushSharedMemory->OSDFlags |= OSD_GPU_TEMP;
     default:
         break;
     }
