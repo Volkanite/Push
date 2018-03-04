@@ -170,6 +170,13 @@ LRESULT CALLBACK MessageProc(
     if (nCode == HC_ACTION && wParam & PM_REMOVE)
     {
         MessageHook((LPMSG)lParam);
+
+        if (((LPMSG)lParam)->message == WM_KEYDOWN && Menu_IsVisible())
+        {
+            ((LPMSG)lParam)->message = WM_NULL;
+            ((LPMSG)lParam)->lParam = 0;
+            ((LPMSG)lParam)->wParam = 0;
+        }
     }
 
     return CallNextHookEx(KeyboardHookHandle, nCode, wParam, lParam);
