@@ -181,7 +181,9 @@ DWORD FindPciDeviceByClass( BYTE baseClass, BYTE subClass, BYTE programIf, BYTE 
 }
 
 
-VOID* HwMmio;
+void **mmioPages;
+int numPages;
+int pages[] = { 0, 5 };
 
 
 DWORD ReadGpuRegister( DWORD Address )
@@ -189,11 +191,22 @@ DWORD ReadGpuRegister( DWORD Address )
     DWORD* val=0;
     DWORD address;
     DWORD ret;
+    int pageNumber;
+    int pageIndex;
 
-    if (!HwMmio) return 0;
+    pageNumber = Address / 4096;
 
-    address = ((DWORD)HwMmio) + Address;
+    for (pageIndex = 0; pageIndex < numPages; pageIndex++)
+    {
+        if (pageNumber == pages[pageIndex])
+            break;
+    }
 
+    if (!mmioPages[pageIndex]) return 0;
+
+    DWORD someadd = pageNumber * 4096;
+    DWORD offset = Address - someadd;
+    address = ((DWORD)mmioPages[pageIndex]) + offset;
     val = (DWORD*)address;
     ret = *val;
     return ret;
@@ -277,7 +290,29 @@ VOID InitGpuHardware()
         size = 0x6000;
     }
 
-    HwMmio = R0MapPhysicalMemory(PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress, size);
+    if (PushSharedMemory->HarwareInformation.DisplayDevice.VendorId == AMD)
+    {
+        size = 4096;
+    }
+
+    numPages = sizeof(pages) / sizeof(pages[0]);
+
+    mmioPages = Memory_Allocate( sizeof(void*) * (sizeof(pages) / sizeof(pages[0])) );
+
+    for (int i = 0; i < sizeof(pages) / sizeof(pages[0]); i++)
+    {
+        ULONG address;
+
+        address = PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress;
+
+        if (pages[i] > 0)
+        {
+            address = pages[i] * 4096;
+            address += PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress;
+        }
+
+        mmioPages[i] = R0MapPhysicalMemory(address, size);
+    }
 }
 
 
