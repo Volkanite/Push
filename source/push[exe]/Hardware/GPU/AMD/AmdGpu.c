@@ -5,6 +5,10 @@
 
 
 #define R6XX_CONFIG_MEMSIZE 0x5428
+#define AMD_TEMP 0x730
+#define AMD_USAGE1 0x668
+#define AMD_USAGE2 0x6D0
+
 WORD DeviceId;
 
 UINT8 AmdGpu_GetLoad();
@@ -28,6 +32,8 @@ VOID AmdGpu_Initialize()
 VOID AmdGpu_GetInfo( GPU_INFO* Information )
 {
     Adl_GetInfo(Information);
+
+    Information->Temperature = AmdGpu_GetTemperature();
 }
 
 
@@ -72,7 +78,7 @@ UINT8 AmdGpu_GetTemperature()
 {
     UINT32 temp;
 
-    temp = ReadGpuRegister(0x730);
+    temp = ReadGpuRegister(AMD_TEMP);
 
     return temp;
 }
@@ -93,9 +99,9 @@ UINT8 AmdGpu_GetLoad()
         DWORD usage, reg6do;
         FLOAT f1;
 
-        usage = ReadGpuRegister(0x668);
+        usage = ReadGpuRegister(AMD_USAGE1);
 
-        reg6do = ReadGpuRegister(0x6D0);
+        reg6do = ReadGpuRegister(AMD_USAGE2);
 
         reg6do = (reg6do & 0x0000ffff);
 
