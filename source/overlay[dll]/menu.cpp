@@ -53,6 +53,7 @@ IAudioEndpointVolume    *EndpointVolume;
 ISimpleAudioVolume      *SessionVolume;
 IAudioSessionEnumerator *AudioSessionEnumerator;
 int AmbientVolumeLevel = 100;
+int ThreadStrap = 0;
 
 extern OV_WINDOW_MODE D3D9Hook_WindowMode;
 extern BOOLEAN D3D9Hook_ForceReset;
@@ -62,6 +63,7 @@ extern OSD_VARS Variables;
 extern BOOLEAN TakeScreenShot;
 extern BOOLEAN StartRecording;
 extern BOOLEAN StopRecording;
+extern BOOLEAN StripWaitCycles;
 
 
 #define ID_RESET            OSD_LAST_ITEM+1
@@ -90,6 +92,7 @@ extern BOOLEAN StopRecording;
 #define ID_MVOLUME          OSD_LAST_ITEM+24
 #define ID_GVOLUME          OSD_LAST_ITEM+25
 #define ID_AVOLUME          OSD_LAST_ITEM+26
+#define ID_THREADSTRAP      OSD_LAST_ITEM+27
 
 
 #include <stdio.h>
@@ -149,6 +152,7 @@ VOID AddItems()
     {
         Menu->AddItem(L"File Logging", ItemOpt, &Diagnostics[1], ID_FILELOGGING);
         Menu->AddItem(L"Auto-log", ItemOpt, &Diagnostics[2], ID_FILEAUTOLOG);
+        Menu->AddItem(L"Thread strap", NULL, &Diagnostics[3], ID_THREADSTRAP, 1);
     }
 
     Menu->AddGroup(L"Direct3D", GroupOpt, &D3DTweaks[0]);
@@ -489,6 +493,21 @@ VOID ProcessOptions( MenuItems* Item )
             PushSharedMemory->AutoLogFileIo = TRUE;
         else
             PushSharedMemory->AutoLogFileIo = FALSE;
+        break;
+
+    case ID_THREADSTRAP:
+        if (*Item->Var > 0)
+        {
+            StripWaitCycles = FALSE;
+            ThreadStrap = 1;
+        }
+        else
+        {
+            ThreadStrap = 0;
+            StripWaitCycles = TRUE;
+        }
+
+        UpdateIntegralText(ThreadStrap, Item->Options);
         break;
 
     case ID_WINDOWED:
@@ -839,6 +858,10 @@ VOID OverlayMenu::AddItemToMenu( WCHAR* Title, WCHAR** Options, MenuVars* Variab
     case ID_VOLTAGE:
         Items[mSet.MaxItems].Options = AllocateOptionsBuffer();
         UpdateIntegralText(PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax, Items[mSet.MaxItems].Options);
+        break;
+    case ID_THREADSTRAP:
+        Items[mSet.MaxItems].Options = AllocateOptionsBuffer();
+        UpdateIntegralText(ThreadStrap, Items[mSet.MaxItems].Options);
         break;
     case ID_FAN:
         Items[mSet.MaxItems].Options = AllocateOptionsBuffer();

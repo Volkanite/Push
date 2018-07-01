@@ -22,7 +22,7 @@ THREAD_LIST_ENTRY* TmThreadList = 0;
 VOID* TmHeapHandle;
 ULONG MaxMhz;
 extern UINT64 CyclesWaited;
-
+BOOLEAN StripWaitCycles = TRUE;
 
 #ifdef _WIN64
 #include <intrin.h>
@@ -261,9 +261,13 @@ UINT8 ThreadMonitor::GetMaxThreadUsage()
     FLOAT threadUsage = 0.0f;
 
     //Remove waiting cycles used by frame limiter
-    MaxThreadCyclesDelta -= CyclesWaited;
+    if (StripWaitCycles)
+    {
+        MaxThreadCyclesDelta -= CyclesWaited;
+    }
+
     CyclesWaited = 0;
-    
+
     threadUsage = ((FLOAT)MaxThreadCyclesDelta / (FLOAT)(MaxMhz * 1000000)) * 100;
 
     //clip calculated thread usage to [0-100] range to filter calculation non-ideality
