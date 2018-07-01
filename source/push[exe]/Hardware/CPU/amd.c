@@ -47,12 +47,12 @@ UINT8 AMD_GetTemperature()
 
 UINT16 AMD_GetSpeed()
 {
-    DWORD eax;
+    DWORD eax, edx;
     unsigned __int32 cpuDid;
     unsigned __int32 cpuFid;
     double multiplier;
 
-    eax = CPU_ReadMsr(COFVID_STATUS);
+    CPU_ReadMsr(COFVID_STATUS, &eax, &edx);
     
     cpuDid = (eax >> 6) & 7;
     cpuFid = eax & 0x1F;

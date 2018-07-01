@@ -2,6 +2,7 @@
 #include <ring0.h>
 
 #include "cpu.h"
+#include "intel.h"
 
 
 #define MSR_CORE_THREAD_COUNT   0x0035
@@ -9,6 +10,7 @@
 #define IA32_THERM_STATUS       0x019C
 #define MSR_TEMPERATURE_TARGET  0x01A2
 #define MSR_TURBO_RATIO_LIMIT   0x01AD
+#define FSB_CLOCK_VCC           0x00CE
 
 
 int CoreCount;
@@ -37,10 +39,10 @@ VOID IntelCPU_Initialize()
 
 int GetCoreCount()
 {
-    DWORD eax;
+    DWORD eax, edx;
     unsigned __int8 cores;
 
-    eax = CPU_ReadMsr(MSR_CORE_THREAD_COUNT);
+    CPU_ReadMsr(MSR_CORE_THREAD_COUNT, &eax, &edx);
 
     cores = (eax >> 16) & 0xFFFF;
 
@@ -59,10 +61,10 @@ int GetCoreCount()
 
 float GetTjMax()
 {
-    DWORD eax;
+    DWORD eax, edx;
     float tjMax;
 
-    eax = CPU_ReadMsr(MSR_TEMPERATURE_TARGET);
+    CPU_ReadMsr(MSR_TEMPERATURE_TARGET, &eax, &edx);
 
     tjMax = (eax >> 16) & 0xFF;
 
@@ -87,7 +89,7 @@ UINT8 Intel_GetTemperature()
 
     for (i = 0; i < CoreCount; i++)
     {
-        DWORD eax;
+        DWORD eax, edx;
         DWORD mask          = 0;
         float deltaT;   
                
@@ -99,7 +101,7 @@ UINT8 Intel_GetTemperature()
         
         mask = SetThreadAffinityMask(hThread, 1UL << i);
 
-        eax = CPU_ReadMsr(IA32_THERM_STATUS);
+        CPU_ReadMsr(IA32_THERM_STATUS, &eax, &edx);
         
         SetThreadAffinityMask(hThread, mask);
 
@@ -122,42 +124,51 @@ UINT8 Intel_GetTemperature()
 * Indicates the processor speed.
 *
 * 15:0 - Current Performance State Value
+* 16:31 - Max and Min FIDs
 *
-*/
-
-UINT16 Intel_GetSpeed()
-{
-    DWORD eax;
-    unsigned __int32 multiplier;
-    unsigned __int16 coreClock;
-
-    eax = CPU_ReadMsr(IA32_PERF_STATUS);
-
-    multiplier = (eax >> 8) & 0xff;
-    coreClock = (float)(multiplier * 100.0f);
-
-    return coreClock;
-}
-
-
-/*
+* Register EAX bits 0..7: the current VID
+* Register EAX bits 8..15: the current FID
+* Register EDX bits 0..7: The maximum VID value.
+* Register EDX bits 8..15: The maximum FID value (multiplier).
+* Register EDX bits 16..23: The minimum VID value.
+* Register EDX bits 24..31: The minimum FID value (multiplier).
+*
 * MSR_TURBO_RATIO_LIMIT MSR (0x1AD) Bits 31:0 [Scope: Package]
-* Indicates the factory configured values for of 1-core, 2-core, 3-core and 4-core 
+* Indicates the factory configured values for of 1-core, 2-core, 3-core and 4-core
 * turbo ratio limits for all processors.
 *
 * 7:0 - Maximum turbo ratio limit of 1 core active.
 *
 */
 
-UINT16 Intel_GetMaxSpeed()
+UINT16 Intel_GetSpeed( INTEL_SPEED_INDEX Index )
 {
-    DWORD eax;
+    DWORD eax, edx;
     unsigned __int32 multiplier;
     unsigned __int16 coreClock;
 
-    eax = CPU_ReadMsr(MSR_TURBO_RATIO_LIMIT);
+    switch (Index)
+    {
+    case INTEL_SPEED_LFM:
+        CPU_ReadMsr(FSB_CLOCK_VCC, &eax, &edx);
+        multiplier = (edx >> 8) & 0xff;
+        break;
+    case INTEL_SPEED_HFM:
+        CPU_ReadMsr(FSB_CLOCK_VCC, &eax, &edx);
+        multiplier = (eax >> 8) & 0xff;
+        break;
+    case INTEL_SPEED_TURBO:
+        CPU_ReadMsr(MSR_TURBO_RATIO_LIMIT, &eax, &edx);
+        multiplier = (eax & 0xff);
+        break;
+    case INTEL_SPEED_STATUS:
+        CPU_ReadMsr(IA32_PERF_STATUS, &eax, &edx);
+        multiplier = (eax >> 8) & 0xff;
+        break;
+    default:
+        break;
+    }
 
-    multiplier = (eax & 0xff);
     coreClock = (float)(multiplier * 100.0f);
 
     return coreClock;

@@ -108,12 +108,13 @@ VOID CPU_Intialize()
 }
 
 
-DWORD CPU_ReadMsr( DWORD Index )
+VOID CPU_ReadMsr( DWORD Index, DWORD* EAX, DWORD* EDX )
 {
     IO_STATUS_BLOCK isb;
-    QWORD eax;
+    NTSTATUS status;
+    BYTE buffer[8];
 
-    NtDeviceIoControlFile(
+    status = NtDeviceIoControlFile(
         R0DriverHandle,
         NULL,
         NULL,
@@ -122,11 +123,15 @@ DWORD CPU_ReadMsr( DWORD Index )
         IOCTL_PUSH_READ_MSR,
         &Index,
         sizeof(DWORD),
-        &eax,
-        sizeof(eax)
+        &buffer,
+        sizeof(buffer)
         );
 
-    return eax;
+    if (NT_SUCCESS(status))
+    {
+        Memory_Copy(EAX, buffer, 4);
+        Memory_Copy(EDX, buffer + 4, 4);
+    }
 }
 
 
@@ -155,7 +160,21 @@ UINT16 CPU_GetSpeed()
         return AMD_GetSpeed();
         break;
     default:
-        return Intel_GetSpeed();
+        return Intel_GetSpeed(INTEL_SPEED_STATUS);
+        break;
+    }
+}
+
+
+UINT16 CPU_GetNormalSpeed()
+{
+    switch (Vendor)
+    {
+    case AMD:
+        return AMD_GetSpeed();
+        break;
+    default:
+        return Intel_GetSpeed(INTEL_SPEED_HFM);
         break;
     }
 }
@@ -169,7 +188,7 @@ UINT16 CPU_GetMaxSpeed()
         return AMD_GetSpeed();
         break;
     default:
-        return Intel_GetMaxSpeed();
+        return Intel_GetSpeed(INTEL_SPEED_TURBO);
         break;
     }
 }
