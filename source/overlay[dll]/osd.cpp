@@ -16,6 +16,8 @@ extern BOOLEAN IsStableFrametime;
 extern BOOLEAN IsLimitedFrametime;
 
 
+CPU_CALC_INDEX CPUStrap = CPU_CALC_twc;
+
 /**
 * Draws all on-screen display items.
 */
@@ -55,6 +57,28 @@ VOID Osd_Draw( OvOverlay* Overlay )
             osdItem->Value = DiskResponseTime;
             swprintf(osdItem->Text, 20, L"DSK : %i ms", osdItem->Value);
             break;
+        case OSD_CPU_LOAD:
+        {
+            switch (CPUStrap)
+            {
+            case CPU_CALC_twc:
+                osdItem->Value = PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage;
+                break;
+            case CPU_CALC_t:
+                osdItem->Value = PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage;
+                break;
+            case CPU_CALC_o:
+                osdItem->Value = PushSharedMemory->HarwareInformation.Processor.Load;
+                break;
+            case CPU_CALC_c:
+                osdItem->Value = PushSharedMemory->HarwareInformation.Processor.MaxCoreUsage;
+                break;
+            }
+            
+            swprintf(osdItem->Text, 20, L"CPU : %i %%", osdItem->Value);
+        }
+        break;
+
         default:
             break;
         }
@@ -113,7 +137,7 @@ VOID Osd_Draw( OvOverlay* Overlay )
 
         osdItem->Value = FrameRate;
         //swprintf(buffer, 20, L"%i", FrameRate);
-		swprintf(buffer, 100, L"%.0f", FrameRate);
+        swprintf(buffer, 100, L"%.0f", FrameRate);
 
         if (IsStableFrametime)
         {

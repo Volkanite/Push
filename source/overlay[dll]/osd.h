@@ -11,3 +11,12 @@ typedef struct _OSD_VARS
     BOOLEAN GraphicsApi;
     UCHAR FrameTime;
 }OSD_VARS;
+
+typedef enum CPU_CALC_INDEX
+{
+    CPU_CALC_twc,
+    CPU_CALC_t,
+    CPU_CALC_o,
+    CPU_CALC_c
+
+} CPU_CALC_INDEX;

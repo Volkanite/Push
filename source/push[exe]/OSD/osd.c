@@ -196,8 +196,8 @@ UINT32 OSD_Initialize()
     OSD_AddItem(OSD_CPU_SPEED, L"CPU Speed", L"CPU : %i MHz", &hardware->Processor.MhzCurrent, sizeof(UINT16), NULL, 0, NULL);
     OSD_AddItem(OSD_CPU_TEMP, L"CPU temperature", L"CPU : %i °C", &hardware->Processor.Temperature, sizeof(UINT8), NULL, 75, NULL);
     OSD_AddItem(OSD_CPU_LOAD, L"CPU utilization", L"CPU : %i %%", &hardware->Processor.Load, sizeof(UINT8), NULL, 95, NULL);
-    OSD_AddItem(OSD_MCU, L"Max core usage", L"CPU-c : %i %%", &hardware->Processor.MaxCoreUsage, sizeof(UINT8), NULL, 0, NULL);
-    OSD_AddItem(OSD_MTU, L"Max thread usage", L"CPU-t : %i %%", &hardware->Processor.MaxThreadUsage, sizeof(UINT8), NULL, 0, NULL);
+    //OSD_AddItem(OSD_MCU, L"Max core usage", L"CPU-c : %i %%", &hardware->Processor.MaxCoreUsage, sizeof(UINT8), NULL, 0, NULL);
+    //OSD_AddItem(OSD_MTU, L"Max thread usage", L"CPU-t : %i %%", &hardware->Processor.MaxThreadUsage, sizeof(UINT8), NULL, 0, NULL);
     OSD_AddItem(OSD_DISK_RWRATE, L"Disk read-write rate", NULL, NULL, sizeof(UINT8), NULL, 0, FormatDiskReadWriteRate);
     OSD_AddItem(OSD_DISK_RESPONSE, L"Disk response time", L"DSK : %i ms", NULL, sizeof(UINT8), NULL, 4000, NULL);
     OSD_AddItem(OSD_TIME, L"Time", NULL, NULL, sizeof(UINT8), NULL, 0, FormatTime);

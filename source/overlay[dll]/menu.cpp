@@ -42,6 +42,7 @@ WCHAR* FontOpt[] = { L"Verdana", L"BatangChe", L"Consolas", L"Courier", L"DejaVu
                      L"MS Gothic", L"MS Mincho", L"NSimSun", L"Rod", L"SimHei", L"Simplified Arabic Fixed", L"SimSun", 
                      L"Source Code Pro", L"Unispace" };
 
+WCHAR* CPUCalcOpt[] = { L"twc", L"t", L"o", L"c" };
 
 BOOLEAN MnuInitialized;
 HANDLE MenuProcessHeap;
@@ -53,7 +54,7 @@ IAudioEndpointVolume    *EndpointVolume;
 ISimpleAudioVolume      *SessionVolume;
 IAudioSessionEnumerator *AudioSessionEnumerator;
 int AmbientVolumeLevel = 100;
-int ThreadStrap = 0;
+extern CPU_CALC_INDEX CPUStrap;
 
 extern OV_WINDOW_MODE D3D9Hook_WindowMode;
 extern BOOLEAN D3D9Hook_ForceReset;
@@ -92,7 +93,7 @@ extern BOOLEAN StripWaitCycles;
 #define ID_MVOLUME          OSD_LAST_ITEM+24
 #define ID_GVOLUME          OSD_LAST_ITEM+25
 #define ID_AVOLUME          OSD_LAST_ITEM+26
-#define ID_THREADSTRAP      OSD_LAST_ITEM+27
+#define ID_CPUSTRAP      OSD_LAST_ITEM+27
 
 
 #include <stdio.h>
@@ -152,7 +153,7 @@ VOID AddItems()
     {
         Menu->AddItem(L"File Logging", ItemOpt, &Diagnostics[1], ID_FILELOGGING);
         Menu->AddItem(L"Auto-log", ItemOpt, &Diagnostics[2], ID_FILEAUTOLOG);
-        Menu->AddItem(L"Thread strap", NULL, &Diagnostics[3], ID_THREADSTRAP, 1);
+        Menu->AddItem(L"CPU strap", CPUCalcOpt, &Diagnostics[3], ID_CPUSTRAP, 4);
     }
 
     Menu->AddGroup(L"Direct3D", GroupOpt, &D3DTweaks[0]);
@@ -495,19 +496,21 @@ VOID ProcessOptions( MenuItems* Item )
             PushSharedMemory->AutoLogFileIo = FALSE;
         break;
 
-    case ID_THREADSTRAP:
+    case ID_CPUSTRAP:
         if (*Item->Var > 0)
         {
             StripWaitCycles = FALSE;
-            ThreadStrap = 1;
+            int cs = CPUStrap;
+            cs++;
+            CPUStrap = (CPU_CALC_INDEX) cs;
         }
         else
         {
-            ThreadStrap = 0;
+            int cs = CPUStrap;
+            cs--;
+            CPUStrap = (CPU_CALC_INDEX)cs;
             StripWaitCycles = TRUE;
         }
-
-        UpdateIntegralText(ThreadStrap, Item->Options);
         break;
 
     case ID_WINDOWED:
@@ -858,10 +861,6 @@ VOID OverlayMenu::AddItemToMenu( WCHAR* Title, WCHAR** Options, MenuVars* Variab
     case ID_VOLTAGE:
         Items[mSet.MaxItems].Options = AllocateOptionsBuffer();
         UpdateIntegralText(PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax, Items[mSet.MaxItems].Options);
-        break;
-    case ID_THREADSTRAP:
-        Items[mSet.MaxItems].Options = AllocateOptionsBuffer();
-        UpdateIntegralText(ThreadStrap, Items[mSet.MaxItems].Options);
         break;
     case ID_FAN:
         Items[mSet.MaxItems].Options = AllocateOptionsBuffer();
