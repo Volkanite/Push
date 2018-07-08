@@ -197,7 +197,7 @@ VOID RunFrameStatistics()
         // Lazy overclock
         if (debugInt++ % DisplayFrequency == 0)
         {
-            if (!DisableAutoOverclock && IsGpuLag())
+            if (!DisableAutoOverclock && IsGpuLag() && PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock != 0)
             {
                 PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
                 PushSharedMemory->OSDFlags |= OSD_GPU_M_CLK;
