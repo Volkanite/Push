@@ -18,6 +18,7 @@ float TjMax;
 
 int GetCoreCount();
 float GetTjMax();
+extern WORD Model;
 
 
 VOID IntelCPU_Initialize()
@@ -144,8 +145,11 @@ UINT8 Intel_GetTemperature()
 UINT16 Intel_GetSpeed( INTEL_SPEED_INDEX Index )
 {
     DWORD eax, edx;
-    unsigned __int32 multiplier;
+    float multiplier;
+    float busSpeed;
     unsigned __int16 coreClock;
+
+    busSpeed = 100.0f;
 
     switch (Index)
     {
@@ -154,8 +158,17 @@ UINT16 Intel_GetSpeed( INTEL_SPEED_INDEX Index )
         multiplier = (edx >> 8) & 0xff;
         break;
     case INTEL_SPEED_HFM:
-        CPU_ReadMsr(FSB_CLOCK_VCC, &eax, &edx);
-        multiplier = (eax >> 8) & 0xff;
+        if (Model == 0x17) // Intel Core 2 (45nm)
+        {
+            CPU_ReadMsr(IA32_PERF_STATUS, &eax, &edx);
+            multiplier = ((edx >> 8) & 0x1f) + 0.5 * ((edx >> 14) & 1);
+            busSpeed = 266.0f;
+        }
+        else
+        {
+            CPU_ReadMsr(FSB_CLOCK_VCC, &eax, &edx);
+            multiplier = (eax >> 8) & 0xff;
+        }
         break;
     case INTEL_SPEED_TURBO:
         CPU_ReadMsr(MSR_TURBO_RATIO_LIMIT, &eax, &edx);
@@ -169,7 +182,7 @@ UINT16 Intel_GetSpeed( INTEL_SPEED_INDEX Index )
         break;
     }
 
-    coreClock = (float)(multiplier * 100.0f);
+    coreClock = (float)(multiplier * busSpeed);
 
     return coreClock;
 }

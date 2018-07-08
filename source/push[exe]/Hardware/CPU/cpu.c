@@ -9,7 +9,10 @@
 
 
 WORD Vendor;
+WORD Model;
 extern VOID *R0DriverHandle;
+#define CPUID_VENDORID          0
+#define CPUID_PROCESSOR_INFO    1
 
 
 BOOLEAN Cpuid(
@@ -81,7 +84,7 @@ VOID CPU_Intialize()
     CHAR name[12];
 
     CpuidTx(
-        0, 
+        CPUID_VENDORID, 
         &eax, 
         &ebx, 
         &ecx, 
@@ -105,6 +108,18 @@ VOID CPU_Intialize()
 
         AMD_Initialize();
     }
+
+    CpuidTx(
+        CPUID_PROCESSOR_INFO,
+        &eax,
+        &ebx,
+        &ecx,
+        &edx,
+        1UL
+        );
+
+    Model = ((eax & 0x0F0000) >> 12) +
+        ((eax & 0xF0) >> 4);
 }
 
 
