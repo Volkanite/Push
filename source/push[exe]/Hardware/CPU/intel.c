@@ -158,16 +158,18 @@ UINT16 Intel_GetSpeed( INTEL_SPEED_INDEX Index )
         multiplier = (edx >> 8) & 0xff;
         break;
     case INTEL_SPEED_HFM:
-        if (Model == 0x17) // Intel Core 2 (45nm)
+        switch (Model)
         {
+        case 0x17: // Intel Core 2 (45nm) - Core
             CPU_ReadMsr(IA32_PERF_STATUS, &eax, &edx);
             multiplier = ((edx >> 8) & 0x1f) + 0.5 * ((edx >> 14) & 1);
             busSpeed = 266.0f;
-        }
-        else
-        {
+            break;
+        case 0x2A: // Intel Core i5, i7 2xxx LGA1155 (32nm) - SandyBridge
+        default:
             CPU_ReadMsr(FSB_CLOCK_VCC, &eax, &edx);
             multiplier = (eax >> 8) & 0xff;
+            break;
         }
         break;
     case INTEL_SPEED_TURBO:
