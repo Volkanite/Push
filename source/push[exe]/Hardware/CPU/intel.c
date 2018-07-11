@@ -166,6 +166,7 @@ UINT16 Intel_GetSpeed( INTEL_SPEED_INDEX Index )
             busSpeed = 266.0f;
             break;
         case 0x2A: // Intel Core i5, i7 2xxx LGA1155 (32nm) - SandyBridge
+        case 0x3C: // Intel Core i5, i7 4xxx LGA1150 (22nm) - Haswell
         default:
             CPU_ReadMsr(FSB_CLOCK_VCC, &eax, &edx);
             multiplier = (eax >> 8) & 0xff;
