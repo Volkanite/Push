@@ -319,12 +319,13 @@ Dx9Overlay::DrawText( WCHAR* Text )
     DrawText(Text, 0xFFFFFF00);
 }
 
-
+UINT32 dsec;
 VOID
 Dx9Overlay::DrawText( WCHAR* Text, DWORD Color )
 {
     DrawText(Text, 20, Line, Color);
-
+    //Log(L"DrawText: %s", Text);
+    dsec++;
     Line += 15;
 }
 
@@ -338,14 +339,14 @@ VOID Dx9Overlay::DrawText( WCHAR* Text, int X, int Y, DWORD Color )
 VOID
 Dx9Overlay::Begin()
 {
-
+    dsec = 0;
 }
 
 
 VOID
 Dx9Overlay::End()
 {
-
+    //Log(L"dsec %u", dsec);
 }
 
 
