@@ -88,12 +88,13 @@ VOID OSD_Refresh()
 
         OsdItems[i].Value2 = OsdItems[i].ValueSource2Ptr ? *(UINT32*)OsdItems[i].ValueSource2Ptr : 0;
 
+        //set default color (yellow)
+        OsdItems[i].Color = 0xFFFFFF00;
+
         if (!OsdItems[i].Flag //draw if no flag, could be somebody just wants to display stuff on-screen
             || PushSharedMemory->OSDFlags & OsdItems[i].Flag //if it has a flag, is it set?
             || (OsdItems[i].Threshold && OsdItems[i].Value > OsdItems[i].Threshold)) //is the item's value > it's threshold?
         {
-            OsdItems[i].Color = 0xFFFFFF00;
-
             PushSharedMemory->OSDFlags |= OsdItems[i].Flag;
 
             if (OsdItems[i].DisplayFormatPtr || OsdItems[i].DynamicFormatPtr)

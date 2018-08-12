@@ -87,6 +87,7 @@ VOID Osd_Draw( OvOverlay* Overlay )
             || PushSharedMemory->OSDFlags & osdItem->Flag //if it has a flag, is it set?
             || (osdItem->Threshold && osdItem->Value > osdItem->Threshold)) //is the item's value > it's threshold?
         {
+            PushSharedMemory->OSDFlags |= osdItem->Flag;
             Overlay->DrawText(osdItem->Text, osdItem->Color);
         }
     }
