@@ -345,7 +345,11 @@ NTSTATUS SlLoadDriver(
         );
 
     if (NT_SUCCESS(status))
+    {
+        *DriverHandle = fileHandle;
+
         return status;
+    }
 
     String_Copy(
         registyPath, 
