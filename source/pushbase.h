@@ -280,10 +280,15 @@ typedef UINT16 OSDVALUE;
 typedef struct _OSD_ITEM
 {
     UINT32 Flag;
+    BOOLEAN Triggered;
+    BOOLEAN Queue;
     OSDVALUE Threshold;
     UINT8 ValueSize;
     UINT32 Value;
     UINT32 Value2;
+    UINT32 Samples;
+    UINT32 SampleHigh;
+    UINT32 ValueAvg;
     UINT32 Color;
     WCHAR Text[20];
     WCHAR Description[40];

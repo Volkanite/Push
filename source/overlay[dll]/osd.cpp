@@ -34,19 +34,6 @@ VOID Osd_Draw( OvOverlay* Overlay )
         //Process specific.
         switch (osdItem->Flag)
         {
-        /*case OSD_FPS:
-            {
-                if (!IsStableFramerate || PushSharedMemory->KeepFps)
-                {
-                    osdItem->Value = FrameRate;
-                    swprintf(osdItem->Text, 20, L"%i", osdItem->Value);
-                }
-                else
-                {
-                    continue;
-                }
-            }
-            break;*/
         case OSD_RESOLUTION:
             swprintf(osdItem->Text, 20, L"MON : %i x %i", BackBufferWidth, BackBufferHeight);
             break;
@@ -57,27 +44,6 @@ VOID Osd_Draw( OvOverlay* Overlay )
             osdItem->Value = DiskResponseTime;
             swprintf(osdItem->Text, 20, L"DSK : %i ms", osdItem->Value);
             break;
-        case OSD_CPU_LOAD:
-        {
-            switch (CPUStrap)
-            {
-            case CPU_CALC_twc:
-                osdItem->Value = PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage;
-                break;
-            case CPU_CALC_t:
-                osdItem->Value = PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage;
-                break;
-            case CPU_CALC_o:
-                osdItem->Value = PushSharedMemory->HarwareInformation.Processor.Load;
-                break;
-            case CPU_CALC_c:
-                osdItem->Value = PushSharedMemory->HarwareInformation.Processor.MaxCoreUsage;
-                break;
-            }
-            
-            swprintf(osdItem->Text, 20, L"CPU : %i %%", osdItem->Value);
-        }
-        break;
 
         default:
             break;
@@ -85,9 +51,8 @@ VOID Osd_Draw( OvOverlay* Overlay )
 
         if (!osdItem->Flag //draw if no flag, could be somebody just wants to display stuff on-screen
             || PushSharedMemory->OSDFlags & osdItem->Flag //if it has a flag, is it set?
-            || (osdItem->Threshold && osdItem->Value > osdItem->Threshold)) //is the item's value > it's threshold?
+            || osdItem->Queue)
         {
-            PushSharedMemory->OSDFlags |= osdItem->Flag;
             Overlay->DrawText(osdItem->Text, osdItem->Color);
         }
     }

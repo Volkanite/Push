@@ -5,6 +5,16 @@
 
 #include "rtss.h"
 
+int items;
+typedef enum CPU_CALC_INDEX
+{
+    CPU_CALC_twc,
+    CPU_CALC_t,
+    CPU_CALC_o,
+    CPU_CALC_c
+
+} CPU_CALC_INDEX;
+CPU_CALC_INDEX CPUStrap = CPU_CALC_twc;/*CPU_CALC_o;*/
 
 VOID FormatDiskReadWriteRate(
     UINT32 Value,
@@ -61,7 +71,7 @@ VOID FormatDiskReadWriteRate(
 /**
 * Refreshes all on-screen display items.
 */
-int items;
+
 VOID OSD_Refresh()
 {
     UINT8 i;
@@ -88,14 +98,43 @@ VOID OSD_Refresh()
 
         OsdItems[i].Value2 = OsdItems[i].ValueSource2Ptr ? *(UINT32*)OsdItems[i].ValueSource2Ptr : 0;
 
+        //do some over-rides
+        if (OsdItems[i].Flag == OSD_CPU_LOAD)
+        {
+            switch (CPUStrap)
+            {
+            case CPU_CALC_twc:
+                OsdItems[i].Value = PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage;
+                break;
+            case CPU_CALC_t:
+                OsdItems[i].Value = PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage;
+                break;
+            case CPU_CALC_o:
+                OsdItems[i].Value = PushSharedMemory->HarwareInformation.Processor.Load;
+                break;
+            case CPU_CALC_c:
+                OsdItems[i].Value = PushSharedMemory->HarwareInformation.Processor.MaxCoreUsage;
+                break;
+            }
+
+            //Log(L"CPU : %i %%, avg: %i %%", OsdItems[i].Value, OsdItems[i].ValueAvg);
+        }
+
+        //calculate average
+        OsdItems[i].Samples++;
+        OsdItems[i].SampleHigh += OsdItems[i].Value;
+        OsdItems[i].ValueAvg = OsdItems[i].SampleHigh / OsdItems[i].Samples;
+
         //set default color (yellow)
         OsdItems[i].Color = 0xFFFFFF00;
 
         if (!OsdItems[i].Flag //draw if no flag, could be somebody just wants to display stuff on-screen
             || PushSharedMemory->OSDFlags & OsdItems[i].Flag //if it has a flag, is it set?
-            || (OsdItems[i].Threshold && OsdItems[i].Value > OsdItems[i].Threshold)) //is the item's value > it's threshold?
+            || (OsdItems[i].Threshold && OsdItems[i].Value > OsdItems[i].Threshold) //is the item's value > it's threshold?
+            || (OsdItems[i].Triggered && OsdItems[i].Value > OsdItems[i].ValueAvg))
         {
-            PushSharedMemory->OSDFlags |= OsdItems[i].Flag;
+            OsdItems[i].Triggered = TRUE;
+            OsdItems[i].Queue = TRUE;
 
             if (OsdItems[i].DisplayFormatPtr || OsdItems[i].DynamicFormatPtr)
             {
@@ -137,6 +176,10 @@ VOID OSD_Refresh()
             {
                 OsdItems[i].Color = 0xFFFF0000;
             } 
+        }
+        else
+        {
+            OsdItems[i].Queue = FALSE;
         }
     }
 
