@@ -191,6 +191,8 @@ DWORD ReadGpuRegister( DWORD Address )
     DWORD* val=0;
     DWORD address;
     DWORD ret;
+    DWORD someadd;
+    DWORD offset;
     int pageNumber;
     int pageIndex;
 
@@ -204,8 +206,8 @@ DWORD ReadGpuRegister( DWORD Address )
 
     if (!mmioPages[pageIndex]) return 0;
 
-    DWORD someadd = pageNumber * 4096;
-    DWORD offset = Address - someadd;
+    someadd = pageNumber * 4096;
+    offset = Address - someadd;
     address = ((DWORD)mmioPages[pageIndex]) + offset;
     val = (DWORD*)address;
     ret = *val;
