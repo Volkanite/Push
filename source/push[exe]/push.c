@@ -1231,6 +1231,10 @@ INT32 __stdcall start( )
     //initialize window handle used by overlay
     //PushSharedMemory->WindowHandle = PushMainWindow->Handle;
 
+    //initialize default font properties for overlay
+    String_Copy(PushSharedMemory->FontName, L"Verdana");
+    PushSharedMemory->FontBold = TRUE;
+
     if (File_Exists(PUSH_SETTINGS_FILE))
     {
         wchar_t *buffer;
