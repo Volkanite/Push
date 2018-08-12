@@ -32,7 +32,7 @@ VOID* __stdcall ADL_Main_Memory_Alloc( INT32 Size )
 }
 
 
-VOID Adl_Initialize()
+BOOLEAN Adl_Initialize()
 {
     VOID *adl = NULL;
     ADLODParameters parameters;
@@ -42,7 +42,7 @@ VOID Adl_Initialize()
 
     adl = Module_Load(L"atiadlxy.dll");
 
-    if (!adl) return;
+    if (!adl) return FALSE;
 
     AdlInitialized = TRUE;
 
@@ -99,6 +99,8 @@ VOID Adl_Initialize()
     ADL_Overdrive5_FanSpeedInfo_Get(0, 0, &fanSpeedInfo);
 
     FanFlags = fanSpeedInfo.iFlags;
+
+    return TRUE;
 }
 
 

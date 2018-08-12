@@ -1,6 +1,6 @@
 #include "AmdGpu.h"
 
-VOID Adl_Initialize();
+BOOLEAN Adl_Initialize();
 VOID Adl_GetInfo(GPU_INFO* Activity);
 
 UINT16 Adl_GetEngineClockMax();

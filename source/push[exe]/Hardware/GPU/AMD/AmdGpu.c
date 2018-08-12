@@ -10,6 +10,7 @@
 #define AMD_USAGE2 0x6D0
 
 WORD DeviceId;
+BOOLEAN ADL_Initialized;
 
 UINT8 AmdGpu_GetLoad();
 UINT16 AmdGpu_GetEngineClock();
@@ -24,7 +25,7 @@ VOID AmdGpu_ForceMaximumClocks();
 
 VOID AmdGpu_Initialize()
 {
-    Adl_Initialize();
+    ADL_Initialized = Adl_Initialize();
     D3DKMTInitialize();
 }
 
@@ -39,7 +40,10 @@ VOID AmdGpu_GetInfo( GPU_INFO* Information )
 
 UINT16 AmdGpu_GetEngineClockMax()
 {
-    return Adl_GetEngineClockMax();
+    if (ADL_Initialized)
+        return Adl_GetEngineClockMax();
+    else
+        return 0;
 }
 
 
