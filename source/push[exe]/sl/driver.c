@@ -333,6 +333,20 @@ NTSTATUS SlLoadDriver(
     WCHAR dir[260];
     WCHAR *ptr;
 
+    // check if driver possibly already loaded
+    status = File_Create(
+        &fileHandle,
+        DeviceName,
+        FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE,
+        NULL,
+        FILE_OPEN,
+        FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
+        NULL
+        );
+
+    if (NT_SUCCESS(status))
+        return status;
+
     String_Copy(
         registyPath, 
         L"\\Registry\\Machine\\System\\CurrentControlSet\\Services\\"
