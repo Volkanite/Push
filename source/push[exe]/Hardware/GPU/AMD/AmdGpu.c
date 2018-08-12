@@ -32,7 +32,8 @@ VOID AmdGpu_Initialize()
 
 VOID AmdGpu_GetInfo( GPU_INFO* Information )
 {
-    Adl_GetInfo(Information);
+    if (ADL_Initialized)
+        Adl_GetInfo(Information);
 
     Information->Temperature = AmdGpu_GetTemperature();
 }
