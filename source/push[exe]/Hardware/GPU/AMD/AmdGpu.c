@@ -4,12 +4,15 @@
 #include "..\d3dkmt.h"
 
 
-#define R6XX_CONFIG_MEMSIZE 0x5428
-#define AMD_TEMP 0x730
-#define AMD_USAGE1 0x668
-#define AMD_USAGE2 0x6D0
+#define R6XX_CONFIG_MEMSIZE     0x5428
+#define AMD_TEMP                0x730
+#define CG_MULT_THERMAL_STATUS  0x740
+#define CG_THERMAL_STATUS       0x7F4
+#define AMD_USAGE1              0x668
+#define AMD_USAGE2              0x6D0
+#define ASIC_T_MASK             0x1FF
 
-WORD DeviceId;
+extern WORD GPU_DeviceId;
 BOOLEAN ADL_Initialized;
 
 UINT8 AmdGpu_GetLoad();
@@ -83,15 +86,23 @@ UINT8 AmdGpu_GetTemperature()
 {
     UINT32 temp;
 
-    temp = ReadGpuRegister(AMD_TEMP);
-
+    switch (GPU_DeviceId)
+    {
+    case 0x95C5:
+        temp = ReadGpuRegister(CG_THERMAL_STATUS) & ASIC_T_MASK;
+        break;
+    default:
+        temp = ReadGpuRegister(AMD_TEMP);
+        break;
+    }
+    
     return temp;
 }
 
 
 UINT8 AmdGpu_GetLoad()
 {
-    if (DeviceId == 0x9832)
+    if (GPU_DeviceId == 0x9832)
     {
         GPU_INFO activity;
 

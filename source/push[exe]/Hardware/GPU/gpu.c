@@ -17,6 +17,7 @@ typedef struct _PCI_CONFIG
 }PCI_CONFIG;
 
 WORD GPU_VendorId;
+WORD GPU_DeviceId;
 
 
 VOID GPU_Initialize( ULONG PciAddress )
@@ -33,6 +34,7 @@ VOID GPU_Initialize( ULONG PciAddress )
         );
 
     vendorID = pciConfig.VendorId;
+    GPU_DeviceId = pciConfig.DeviceId;
 
     if (!result)
     {
