@@ -130,8 +130,9 @@ VOID OSD_Refresh()
 
         if (!OsdItems[i].Flag //draw if no flag, could be somebody just wants to display stuff on-screen
             || PushSharedMemory->OSDFlags & OsdItems[i].Flag //if it has a flag, is it set?
+            || PushSharedMemory->Overloads & OsdItems[i].Flag //item signifies performance issue?
             || (OsdItems[i].Threshold && OsdItems[i].Value > OsdItems[i].Threshold) //is the item's value > it's threshold?
-            || (OsdItems[i].Triggered && OsdItems[i].Value > OsdItems[i].ValueAvg))
+            || (OsdItems[i].Triggered && OsdItems[i].Value > OsdItems[i].ValueAvg)) //add's a more dynamic touch ;)
         {
             OsdItems[i].Triggered = TRUE;
             OsdItems[i].Queue = TRUE;
