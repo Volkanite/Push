@@ -34,8 +34,7 @@ FLT_FILE_LIST_ENTRY* FltFileList = NULL;
 BOOLEAN FltInitialized = FALSE;
 
 
-VOID
-FltFilterInstall( DRIVER_OBJECT* DriverObject )
+VOID FltFilterInstall( DRIVER_OBJECT* DriverObject )
 {
     NTSTATUS status;
     FLT_REGISTRATION FilterRegistration;
@@ -74,19 +73,23 @@ FltFilterInstall( DRIVER_OBJECT* DriverObject )
 
         FltInitialized = TRUE;
     }
+    else
+    {
+        DbgPrint("[PUSH] => FltRegisterFilter() failed with 0x%X", status);
+    }
 
     DbgPrint("[PUSH] <= (PushFilterInstall)");
 }
 
 
-VOID
-FltStopFiltering()
+VOID FltStopFiltering()
 {
     FLT_FILE_LIST_ENTRY *file = FltFileList;
 
     DbgPrint("[PUSH] => (FltStopFiltering)");
 
-    FltUnregisterFilter(FltFilterData);
+    if (FltInitialized && FltFilterData)
+        FltUnregisterFilter(FltFilterData);
 
     FltFileList = NULL;
 
