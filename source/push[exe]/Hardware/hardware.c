@@ -181,12 +181,30 @@ DWORD FindPciDeviceByClass( BYTE baseClass, BYTE subClass, BYTE programIf, BYTE 
 }
 
 
+VOID* HwMmio;
 void **mmioPages;
 int numPages;
 int pages[] = { 0, 5 };
+BOOLEAN PagedMMIO = TRUE;
 
 
-DWORD ReadGpuRegister( DWORD Address )
+DWORD ReadGpuRegisterUnpaged( DWORD Address )
+{
+    DWORD* val=0;
+    DWORD address;
+    DWORD ret;
+
+    if (!HwMmio) return 0;
+
+    address = ((DWORD)HwMmio) + Address;
+
+    val = (DWORD*)address;
+    ret = *val;
+    return ret;
+}
+
+
+DWORD ReadGpuRegisterPaged( DWORD Address )
 {
     DWORD* val=0;
     DWORD address;
@@ -212,6 +230,15 @@ DWORD ReadGpuRegister( DWORD Address )
     val = (DWORD*)address;
     ret = *val;
     return ret;
+}
+
+
+DWORD ReadGpuRegister( DWORD Address )
+{
+    if (PagedMMIO)
+        return ReadGpuRegisterPaged(Address);
+    else
+        return ReadGpuRegisterUnpaged(Address);
 }
 
 
@@ -291,29 +318,36 @@ VOID InitGpuHardware()
 
         size = 0x6000;
     }
-
-    if (PushSharedMemory->HarwareInformation.DisplayDevice.VendorId == AMD)
+    
+    if (PagedMMIO)
     {
-        size = 4096;
-    }
-
-    numPages = sizeof(pages) / sizeof(pages[0]);
-
-    mmioPages = Memory_Allocate( sizeof(void*) * (sizeof(pages) / sizeof(pages[0])) );
-
-    for (int i = 0; i < sizeof(pages) / sizeof(pages[0]); i++)
-    {
-        ULONG address;
-
-        address = PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress;
-
-        if (pages[i] > 0)
+            if (PushSharedMemory->HarwareInformation.DisplayDevice.VendorId == AMD)
         {
-            address = pages[i] * 4096;
-            address += PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress;
+            size = 4096;
         }
-
-        mmioPages[i] = R0MapPhysicalMemory(address, size);
+    
+        numPages = sizeof(pages) / sizeof(pages[0]);
+    
+        mmioPages = Memory_Allocate( sizeof(void*) * (sizeof(pages) / sizeof(pages[0])) );
+    
+        for (int i = 0; i < sizeof(pages) / sizeof(pages[0]); i++)
+        {
+            ULONG address;
+    
+            address = PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress;
+    
+            if (pages[i] > 0)
+            {
+                address = pages[i] * 4096;
+                address += PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress;
+            }
+    
+            mmioPages[i] = R0MapPhysicalMemory(address, size);
+        }
+    }
+    else
+    {
+        HwMmio = R0MapPhysicalMemory(PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress, size);
     }
 }
 
