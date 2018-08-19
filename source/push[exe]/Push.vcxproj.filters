@@ -148,6 +148,12 @@
     <ClCompile Include="sl\registry.c">
       <Filter>sl</Filter>
     </ClCompile>
+    <ClCompile Include="Hardware\GPU\AMD\atom.c">
+      <Filter>Hardware\GPU\AMD</Filter>
+    </ClCompile>
+    <ClCompile Include="Hardware\GPU\AMD\AtomBios.c">
+      <Filter>Hardware\GPU\AMD</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\cache.h">

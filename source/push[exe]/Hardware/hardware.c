@@ -275,7 +275,8 @@ GetBarSize(
     return 1 << (pos - 1);
 }
 
-
+void* gpubios;
+VOID File_Dump(WCHAR* FileName, VOID* Addr, UINT32 Size);
 VOID InitGpuHardware()
 {
     DWORD bar;
@@ -298,6 +299,8 @@ VOID InitGpuHardware()
         break;
     case AMD:
         bar = REGISTER_BAR2;
+        gpubios = R0MapPhysicalMemory(0x000C0000, 63488);
+        //File_Dump(L"bios.rom", gpubios, 63488);
         break;
     default:
         return;

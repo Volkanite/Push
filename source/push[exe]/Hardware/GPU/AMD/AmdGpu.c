@@ -25,10 +25,22 @@ UINT64 AmdGpu_GetFreeMemory();
 UINT8  AmdGpu_GetTemperature();
 VOID AmdGpu_ForceMaximumClocks();
 
+VOID AtomBios_Initialize();
+UINT32 AtomBios_GetEngineClock();
+UINT32 AtomBios_GetMemoryClock();
+
 
 VOID AmdGpu_Initialize()
 {
     ADL_Initialized = Adl_Initialize();
+
+    //Prefer ADL but if not then AtomBios
+    if (!ADL_Initialized)
+    {
+        AtomBios_Initialize();
+    }
+
+    //this is a keeper until further notice
     D3DKMTInitialize();
 }
 
@@ -39,6 +51,13 @@ VOID AmdGpu_GetInfo( GPU_INFO* Information )
         Adl_GetInfo(Information);
 
     Information->Temperature = AmdGpu_GetTemperature();
+    
+
+    if (!ADL_Initialized)
+    {
+        Information->EngineClock = AtomBios_GetEngineClock();
+        Information->MemoryClock = AtomBios_GetMemoryClock();
+    }
 }
 
 
