@@ -728,6 +728,49 @@ VOID* File_Load( WCHAR* FileName, UINT64* FileSize )
 
 
 /**
+* Loads a file into memory and returns the base address.
+*
+* \param FileName The Win32 file name.
+* \param FileSize Optional, returns the file size.
+*/
+
+VOID File_Dump( WCHAR* FileName, VOID* Buffer, UINT32 Size )
+{
+    HANDLE fileHandle;
+    NTSTATUS status;
+    IO_STATUS_BLOCK isb;
+
+    status = File_Create(
+        &fileHandle,
+        FileName,
+        FILE_WRITE_ATTRIBUTES | FILE_WRITE_DATA | SYNCHRONIZE,
+        FILE_SHARE_READ | FILE_SHARE_WRITE,
+        FILE_OVERWRITE_IF,
+        FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
+        NULL
+        );
+
+    if (!NT_SUCCESS(status))
+        return;
+
+    // Write memory to file
+    status = NtWriteFile(
+        fileHandle,
+        NULL,
+        NULL,
+        NULL,
+        &isb,
+        Buffer,
+        Size,
+        NULL,
+        NULL
+        );
+
+    NtClose(fileHandle);
+}
+
+
+/**
 * Retrieves the size of a file.
 *
 * \param FileName The Win32 file name.
