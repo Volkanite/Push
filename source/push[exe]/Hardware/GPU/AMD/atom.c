@@ -1473,7 +1473,7 @@ static int atom_iio_len[] = { 1, 2, 3, 3, 3, 3, 4, 4, 4, 3 };
 
 static void atom_index_iio(struct atom_context *ctx, int base)
 {
-    //ctx->iio = kzalloc(2 * 256, GFP_KERNEL);
+    ctx->iio = Memory_Allocate(2 * 256);
     Log(L"ATOMFIX: Code needs fixing");
     if (!ctx->iio)
         return;
@@ -1505,6 +1505,14 @@ static void atom_index_iio(struct atom_context *ctx, int base)
 #define ATOM_ROM_PART_NUMBER_PTR    0x6E
 extern void* gpubios;
 struct atom_context ctxlol;
+
+VOID UTF8ToWchar(
+    WCHAR* WcharStringDestination,
+    ULONG WcharStringMaxWCharCount,
+    CHAR* UTF8StringSource,
+    ULONG UTF8StringByteCount
+    );
+
 struct atom_context *amdgpu_atom_parse(struct card_info *card, void *bios)
 {
     int base;
@@ -1513,7 +1521,7 @@ struct atom_context *amdgpu_atom_parse(struct card_info *card, void *bios)
     ctxlol.bios = gpubios;
     struct atom_context *ctx;
     ctx = &ctxlol;
-        Log(L"ATOMFIX: Code needs fixing");
+
     char *str;
     u16 idx;
 
@@ -1562,12 +1570,28 @@ struct atom_context *amdgpu_atom_parse(struct card_info *card, void *bios)
         idx = 0x80;
 
     str = CSTR(idx);
-    if (*str != '\0') {
-        Log(L"ATOM BIOS: %s\n", str);
-        //strlcpy(ctx->vbios_version, str, sizeof(ctx->vbios_version));
-        Log(L"ATOMFIX: Code needs fixing");
-    }
 
+    str = CSTR(CU16(base + ATOM_ROM_MSG_PTR));
+      while (*str && ((*str == '\n') || (*str == '\r')))
+          str++;
+      char bios_name[70];
+      /* name string isn't always 0 terminated */
+       for (int i = 0; i < 63; i++) {
+           bios_name[i] = str[i];
+           char lol = '-';
+           if (bios_name[i] == ' ' && str[i+1] == ' ') 
+           {
+               bios_name[i] = 0;
+               break;
+           }
+       }
+
+      wchar_t help[260];
+      int len = strlen(bios_name);
+      if (len > 63)
+          len = 63;
+      UTF8ToWchar(help, 260, str, len);
+      Log(L"ATOM BIOS: %s\n", help);
 
     return ctx;
 }
@@ -1653,60 +1677,4 @@ bool amdgpu_atom_parse_cmd_header(struct atom_context *ctx, int index, uint8_t *
         *crev = CU8(idx + 3);
     return true;
 }
-
-
-//BOOLEAN atom_parse()
-//{
-//  int base;
-//
-//  char *str;
-//  //char name[512];
-//  int i;
-//  void *bios;
-//
-//
-//  ctxlol.bios = gpubios;
-//
-//  struct atom_context *ctx = &ctxlol;
-//  bios = (uint8_t*)gpubios;
-//
-//  if (CU16(0) != ATOM_BIOS_MAGIC) {
-//      Log(L"Invalid BIOS magic.\n");
-//      return FALSE;
-//  }
-//  if (strncmp
-//      (CSTR(ATOM_ATI_MAGIC_PTR), ATOM_ATI_MAGIC,
-//      strlen(ATOM_ATI_MAGIC))) {
-//      Log(L"Invalid ATI magic.\n");
-//      return FALSE;
-//  }
-//
-//  base = CU16(ATOM_ROM_TABLE_PTR);
-//  if (strncmp
-//      (CSTR(base + ATOM_ROM_MAGIC_PTR), ATOM_ROM_MAGIC,
-//      strlen(ATOM_ROM_MAGIC))) {
-//      Log(L"Invalid ATOM magic.\n");
-//      return FALSE;
-//  }
-//
-//  ctx->cmd_table = CU16(base + ATOM_ROM_CMD_PTR);
-//  ctx->data_table = CU16(base + ATOM_ROM_DATA_PTR);
-//  //atom_index_iio(ctx, CU16(ctx->data_table + ATOM_DATA_IIO_PTR) + 4);
-//
-//  str = CSTR(CU16(base + ATOM_ROM_MSG_PTR));
-//  while (*str && ((*str == '\n') || (*str == '\r')))
-//      str++;
-//  /* name string isn't always 0 terminated */
-//  for (i = 0; i < 63; i++) {
-//      bios_name[i] = str[i];
-//      if (bios_name[i] < '.' || bios_name[i] > 'z') {
-//          bios_name[i] = 0;
-//          break;
-//      }
-//  }
-//
-//  //radeon_info(rdev, "ATOM BIOS: %s\n", rdev->bios_name);
-//
-//  return TRUE;
-//}
 
