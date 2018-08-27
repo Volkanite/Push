@@ -29,7 +29,7 @@ VOID AtomBios_Initialize();
 UINT32 AtomBios_GetEngineClock();
 UINT32 AtomBios_GetMemoryClock();
 
-
+UINT32 radeon_atom_get_engine_clock();
 VOID AmdGpu_Initialize()
 {
     ADL_Initialized = Adl_Initialize();
@@ -63,16 +63,21 @@ VOID AmdGpu_GetInfo( GPU_INFO* Information )
 
 UINT16 AmdGpu_GetEngineClockMax()
 {
-    if (ADL_Initialized)
-        return Adl_GetEngineClockMax();
-    else
-        return 0;
+    UINT16 clock;
+
+    clock = AtomBios_GetEngineClock();
+
+    return clock;
 }
 
 
 UINT16 AmdGpu_GetMemoryClockMax()
 {
-    return Adl_GetMemoryClockMax();
+    UINT16 clock;
+
+    clock = AtomBios_GetMemoryClock();
+
+    return clock;
 }
 
 
@@ -150,18 +155,6 @@ UINT8 AmdGpu_GetLoad()
 
         return f1;
     }
-}
-
-
-UINT16 AmdGpu_GetMaxEngineClock()
-{
-    return Adl_GetEngineClockMax();
-}
-
-
-UINT16 AmdGpu_GetMaxMemoryClock()
-{
-    return Adl_GetMemoryClockMax();
 }
 
 
