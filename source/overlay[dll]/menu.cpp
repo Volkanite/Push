@@ -37,7 +37,7 @@ WCHAR* ItemOpt[] = {L"Off", L"On"};
 WCHAR* ItemOptExt[] = { L"Off", L"On", L"Avg"};
 WCHAR* PressOpt[] = { L">>", L">>" };
 
-WCHAR* FontOpt[] = { L"Verdana", L"BatangChe", L"Consolas", L"Courier", L"DejaVu Sans Mono", L"DFKai-SB", L"DotumChe", L"FangSong",
+WCHAR* FontOpt[] = { L"Verdana", L"Consolas", L"Courier", L"DejaVu Sans Mono", L"DFKai-SB", L"DotumChe", L"FangSong",
                      L"GulimChe", L"GungsuhChe", L"KaiTi", L"Liberation Mono", L"Lucida Console", L"MingLiU", L"Miriam Fixed", 
                      L"MS Gothic", L"MS Mincho", L"NSimSun", L"Rod", L"SimHei", L"Simplified Arabic Fixed", L"SimSun", 
                      L"Source Code Pro", L"Unispace" };
