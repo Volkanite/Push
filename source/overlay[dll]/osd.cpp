@@ -26,6 +26,7 @@ VOID Osd_Draw( OvOverlay* Overlay )
 {
     UINT8 i;
     OSD_ITEM *osdItem;
+    wchar_t buffer[100];
 
     osdItem = (OSD_ITEM*) PushSharedMemory->OsdItems;
 
@@ -34,12 +35,6 @@ VOID Osd_Draw( OvOverlay* Overlay )
         //Process specific.
         switch (osdItem->Flag)
         {
-        case OSD_RESOLUTION:
-            swprintf(osdItem->Text, 20, L"MON : %i x %i", BackBufferWidth, BackBufferHeight);
-            break;
-        case OSD_BUFFERS:
-            swprintf(osdItem->Text, 20, L"Buffers : %i", BackBufferCount);
-            break;
         case OSD_DISK_RESPONSE:
             osdItem->Value = DiskResponseTime;
             swprintf(osdItem->Text, 20, L"DSK : %i ms", osdItem->Value);
@@ -82,18 +77,33 @@ VOID Osd_Draw( OvOverlay* Overlay )
         }
     }
 
+    if (Variables.InputApi)
+    {
+        Overlay->DrawText(L"API: lolinput");
+    }
+
     if (Variables.FrameTime)
     {
-        wchar_t buffer[100];
-
         switch (Variables.FrameTime)
         {
         case 1:
         case 2:
-            swprintf(buffer, 100, L"FrameTime: %.1f", FrameTimeAvg);
+            swprintf(buffer, 100, L"Frame Time: %.1f", FrameTimeAvg);
             Overlay->DrawText(buffer);
             break;
         }
+    }
+
+    if (Variables.Resolution)
+    {
+        swprintf(buffer, 100, L"Resolution : %i x %i", BackBufferWidth, BackBufferHeight);
+        Overlay->DrawText(buffer);
+    }
+
+    if (Variables.Buffers)
+    {
+        swprintf(buffer, 20, L"Frame Buffers : %i", BackBufferCount);
+        Overlay->DrawText(buffer);
     }
 
     if (!IsStableFramerate || PushSharedMemory->KeepFps)

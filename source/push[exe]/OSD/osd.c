@@ -246,8 +246,6 @@ UINT32 OSD_Initialize()
     OSD_AddItem(OSD_DISK_RWRATE, L"Disk read-write rate", NULL, NULL, sizeof(UINT8), NULL, 0, FormatDiskReadWriteRate);
     OSD_AddItem(OSD_DISK_RESPONSE, L"Disk response time", L"DSK : %i ms", NULL, sizeof(UINT8), NULL, 4000, NULL);
     OSD_AddItem(OSD_TIME, L"Time", NULL, NULL, sizeof(UINT8), NULL, 0, FormatTime);
-    OSD_AddItem(OSD_BUFFERS, L"Frame Buffer count", NULL, NULL, sizeof(UINT8), NULL, 0, NULL);
-    OSD_AddItem(OSD_RESOLUTION, L"Resolution", NULL, NULL, sizeof(UINT8), 0, 0, NULL);
     OSD_AddItem(OSD_REFRESH_RATE, L"Resfresh Rate", L"MON : %i Hz", &hardware->Display.RefreshRate, sizeof(UINT8), NULL, 0, NULL);
 
     return sizeof(OSD_ITEM) * items;

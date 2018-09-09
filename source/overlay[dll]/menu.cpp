@@ -16,7 +16,7 @@ OverlayMenu* OvmMenu;
 
 MenuVars MenuOsd[30];
 MenuVars MenuGpu[10];
-MenuVars Diagnostics[5];
+MenuVars Diagnostics[10];
 MenuVars D3DTweaks[10];
 MenuVars Process[5];
 MenuVars Capture[5];
@@ -83,7 +83,7 @@ extern BOOLEAN StripWaitCycles;
 #define ID_KEEP_FPS         OSD_LAST_ITEM+14
 #define ID_OC               OSD_LAST_ITEM+15
 #define ID_FAN              OSD_LAST_ITEM+16
-#define ID_API              OSD_LAST_ITEM+17
+#define ID_GAPI             OSD_LAST_ITEM+17
 #define ID_FRAMETIME        OSD_LAST_ITEM+18
 #define ID_SCREENSHOT       OSD_LAST_ITEM+19
 #define ID_RECORD           OSD_LAST_ITEM+20
@@ -93,7 +93,10 @@ extern BOOLEAN StripWaitCycles;
 #define ID_MVOLUME          OSD_LAST_ITEM+24
 #define ID_GVOLUME          OSD_LAST_ITEM+25
 #define ID_AVOLUME          OSD_LAST_ITEM+26
-#define ID_CPUSTRAP      OSD_LAST_ITEM+27
+#define ID_CPUSTRAP         OSD_LAST_ITEM+27
+#define ID_IAPI             OSD_LAST_ITEM+28
+#define ID_BUFFERS          OSD_LAST_ITEM+29
+#define ID_RESOLUTION       OSD_LAST_ITEM+30
 
 
 #include <stdio.h>
@@ -129,8 +132,6 @@ VOID AddItems()
 
         i++;
 
-        Menu->AddItem(L"Frame Time", ItemOptExt, &MenuOsd[i++], ID_FRAMETIME, 3);
-        Menu->AddItem(L"API", ItemOpt, &MenuOsd[i++], ID_API);
         Menu->AddItem(L"FPS", ItemOpt, &MenuOsd[i++], ID_KEEP_FPS);
         Menu->AddItem(L"Reset", PressOpt, &MenuOsd[i++], ID_RESET);
     }
@@ -154,6 +155,11 @@ VOID AddItems()
         Menu->AddItem(L"File Logging", ItemOpt, &Diagnostics[1], ID_FILELOGGING);
         Menu->AddItem(L"Auto-log", ItemOpt, &Diagnostics[2], ID_FILEAUTOLOG);
         Menu->AddItem(L"CPU strap", CPUCalcOpt, &Diagnostics[3], ID_CPUSTRAP, 4);
+        Menu->AddItem(L"Frame Time", ItemOptExt, &Diagnostics[4], ID_FRAMETIME, 3);
+        Menu->AddItem(L"Graphics API", ItemOpt, &Diagnostics[5], ID_GAPI);
+        Menu->AddItem(L"Input API", ItemOpt, &Diagnostics[6], ID_IAPI);
+        Menu->AddItem(L"Frame Buffer count", ItemOpt, &Diagnostics[7], ID_BUFFERS);
+        Menu->AddItem(L"Resolution", ItemOpt, &Diagnostics[8], ID_RESOLUTION);
     }
 
     Menu->AddGroup(L"Direct3D", GroupOpt, &D3DTweaks[0]);
@@ -592,11 +598,32 @@ VOID ProcessOptions( MenuItems* Item )
         Variables.FrameTime = *Item->Var;
         break;
 
-    case ID_API:
+    case ID_GAPI:
         if (*Item->Var > 0)
             Variables.GraphicsApi = TRUE;
         else
             Variables.GraphicsApi = FALSE;
+        break;
+
+    case ID_IAPI:
+        if (*Item->Var > 0)
+            Variables.InputApi = TRUE;
+        else
+            Variables.InputApi = FALSE;
+        break;
+
+    case ID_RESOLUTION:
+        if (*Item->Var > 0)
+            Variables.Resolution = TRUE;
+        else
+            Variables.Resolution = FALSE;
+        break;
+
+    case ID_BUFFERS:
+        if (*Item->Var > 0)
+            Variables.Buffers = TRUE;
+        else
+            Variables.Buffers = FALSE;
         break;
 
     case ID_TERMINATE:
