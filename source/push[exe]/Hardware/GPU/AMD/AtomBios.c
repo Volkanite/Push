@@ -205,7 +205,9 @@ UINT32 AtomBios_GetMemoryClock()
     UINT16 data_offset;
     UINT8 frev, crev;
 
-    if (!AtomCtx)
+    if (!AtomCtx.bios)
+        return 0;
+
     if (!amdgpu_atom_parse_data_header(&AtomCtx, index, NULL, &frev, &crev, &data_offset))
         return 0;
 
