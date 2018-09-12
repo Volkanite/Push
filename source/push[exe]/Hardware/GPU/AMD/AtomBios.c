@@ -177,7 +177,7 @@ typedef struct GET_ENGINE_CLOCK_PS_ALLOCATION
     ULONG ulReturnEngineClock;
 }GET_ENGINE_CLOCK_PS_ALLOCATION;
 
-extern struct atom_context ctxlol;
+extern struct atom_context AtomCtx;
 
 
 UINT32 AtomBios_GetEngineClock()
@@ -188,10 +188,10 @@ UINT32 AtomBios_GetEngineClock()
     UINT16 data_offset;
     UINT8 frev, crev;
 
-    if (!amdgpu_atom_parse_data_header(&ctxlol, index, NULL, &frev, &crev, &data_offset))
+    if (!amdgpu_atom_parse_data_header(&AtomCtx, index, NULL, &frev, &crev, &data_offset))
         return 0;
 
-    args = (atom_firmware_info_v3_1 *)(ctxlol.bios + data_offset);
+    args = (atom_firmware_info_v3_1 *)(AtomCtx.bios + data_offset);
 
     return args->bootup_sclk_in10khz / 100;
 }
@@ -205,10 +205,11 @@ UINT32 AtomBios_GetMemoryClock()
     UINT16 data_offset;
     UINT8 frev, crev;
 
-    if (!amdgpu_atom_parse_data_header(&ctxlol, index, NULL, &frev, &crev, &data_offset))
+    if (!AtomCtx)
+    if (!amdgpu_atom_parse_data_header(&AtomCtx, index, NULL, &frev, &crev, &data_offset))
         return 0;
 
-    args = (atom_firmware_info_v3_1 *)(ctxlol.bios + data_offset);
+    args = (atom_firmware_info_v3_1 *)(AtomCtx.bios + data_offset);
 
     return args->bootup_mclk_in10khz / 100;
 }
@@ -219,7 +220,7 @@ UINT32 AtomBios_GetMemoryClock()
     GET_ENGINE_CLOCK_PS_ALLOCATION args;
     int index = GetIndexIntoMasterTable(COMMAND, GetEngineClock);
 
-    amdgpu_atom_execute_table(&ctxlol, index, (UINT32 *)&args);
+    amdgpu_atom_execute_table(&AtomCtx, index, (UINT32 *)&args);
     //return le32_to_cpu(args.ulReturnEngineClock);
     return args.ulReturnEngineClock;
 }*/

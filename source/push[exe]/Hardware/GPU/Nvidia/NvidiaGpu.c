@@ -111,7 +111,7 @@ UINT64 NvidiaGpu_GetFreeMemory()
 
 UINT8 NvidiaGpu_GetLoad()
 {
-	return OpenNvapi_GetLoad();
+    return OpenNvapi_GetLoad();
 }
 
 
@@ -121,7 +121,7 @@ UINT16 NvidiaGpu_GetEngineClockMax()
 }
 
 
-UINT16 NvidiaGpu_GetMaxMemoryClock()
+UINT16 NvidiaGpu_GetMemoryClockMax()
 {
     return Nvapi_GetMaxMemoryClock();
 }

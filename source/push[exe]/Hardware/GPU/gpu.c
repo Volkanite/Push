@@ -156,13 +156,29 @@ UINT16 GPU_GetMaximumEngineClock()
 
 UINT16 GPU_GetMaximumMemoryClock()
 {
-    return AmdGpu_GetMemoryClockMax();
+    switch (GPU_VendorId)
+    {
+    case AMD:
+        return AmdGpu_GetMemoryClockMax();
+    case NVIDIA:
+        return NvidiaGpu_GetMemoryClockMax();
+    default:
+        return 0;
+    }
 }
 
 
 UINT16 GPU_GetMaximumVoltage()
 {
-    return AmdGpu_GetVoltageMax();
+    switch (GPU_VendorId)
+    {
+    case AMD:
+        return AmdGpu_GetVoltageMax();
+    case NVIDIA:
+        return NvidiaGpu_GetVoltage();
+    default:
+        return 0;
+    }
 }
 
 

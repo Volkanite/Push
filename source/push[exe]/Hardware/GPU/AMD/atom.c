@@ -1504,7 +1504,7 @@ static void atom_index_iio(struct atom_context *ctx, int base)
 
 #define ATOM_ROM_PART_NUMBER_PTR    0x6E
 extern void* gpubios;
-struct atom_context ctxlol;
+struct atom_context AtomCtx;
 
 VOID UTF8ToWchar(
     WCHAR* WcharStringDestination,
@@ -1518,9 +1518,9 @@ struct atom_context *amdgpu_atom_parse(struct card_info *card, void *bios)
     int base;
     /*struct atom_context *ctx =
         kzalloc(sizeof(struct atom_context), GFP_KERNEL);*/
-    ctxlol.bios = gpubios;
+    AtomCtx.bios = gpubios;
     struct atom_context *ctx;
-    ctx = &ctxlol;
+    ctx = &AtomCtx;
 
     char *str;
     u16 idx;
