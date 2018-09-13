@@ -537,6 +537,8 @@ void EnumerateDevices()
 }
 
 
+#define BOOL INTBOOL
+
 INTBOOL __stdcall SetupDiSetSelectedDevice(
     HANDLE DeviceInfoSet,
     SP_DEVINFO_DATA* DeviceInfoData
@@ -562,37 +564,8 @@ typedef struct _SP_DEVINSTALL_PARAMS_W {
 } SP_DEVINSTALL_PARAMS_W;
 
 
-INTBOOL __stdcall SetupDiGetDeviceInstallParamsW(
-    HANDLE DeviceInfoSet,
-    SP_DEVINFO_DATA* DeviceInfoData,
-    SP_DEVINSTALL_PARAMS_W* DeviceInstallParams
-    );
-
-INTBOOL __stdcall SetupDiSetDeviceInstallParamsW(
-    HANDLE DeviceInfoSet,
-    SP_DEVINFO_DATA* DeviceInfoData,
-    SP_DEVINSTALL_PARAMS_W* DeviceInstallParams
-    );
-
-INTBOOL __stdcall SetupDiBuildDriverInfoList(
-    HANDLE DeviceInfoSet,
-    SP_DEVINFO_DATA* DeviceInfoData,
-    DWORD DriverType
-    );
-
-INTBOOL __stdcall SetupDiCallClassInstaller(
-    UINT32 InstallFunction,
-    HANDLE DeviceInfoSet,
-    SP_DEVINFO_DATA* DeviceInfoData
-    );
-
-DWORD __stdcall GetLastError();
-#define SPDIT_COMPATDRIVER       0x00000002
-
-#define DIF_SELECTBESTCOMPATDRV             0x00000017
-
-void SetupDiCallClassInstaller64();
 #define LINE_LEN                    256
+
 #pragma pack(push, 1) // exact fit - no padding
 typedef struct _SP_DRVINFO_DATA_V2_W {
     DWORD     cbSize;
@@ -604,37 +577,48 @@ typedef struct _SP_DRVINFO_DATA_V2_W {
     FILETIME  DriverDate;
     INT64 DriverVersion;
 } SP_DRVINFO_DATA_V2_W;
-#pragma pack(pop) //back to whatever the previous packing mode was
+#pragma pack(pop)
 
-INTBOOL __stdcall SetupDiGetSelectedDriverW(
+
+BOOL __stdcall SetupDiGetDeviceInstallParamsW(
     HANDLE DeviceInfoSet,
     SP_DEVINFO_DATA* DeviceInfoData,
-    SP_DRVINFO_DATA_V2_W* DriverInfoData
+    SP_DEVINSTALL_PARAMS_W* DeviceInstallParams
     );
 
-
-#define BOOL INTBOOL
-BOOL __stdcall SetupDiSetSelectedDriverW(
+BOOL __stdcall SetupDiSetDeviceInstallParamsW(
     HANDLE DeviceInfoSet,
     SP_DEVINFO_DATA* DeviceInfoData,
-    SP_DRVINFO_DATA_V2_W* DriverInfoData
-);
+    SP_DEVINSTALL_PARAMS_W* DeviceInstallParams
+    );
 
-//
-// Default install handler for DIF_SELECTBESTCOMPATDRV
-//
+BOOL __stdcall SetupDiBuildDriverInfoList(
+    HANDLE DeviceInfoSet,
+    SP_DEVINFO_DATA* DeviceInfoData,
+    DWORD DriverType
+    );
 
-BOOL __stdcall SetupDiSelectBestCompatDrv(
+BOOL __stdcall SetupDiCallClassInstaller(
+    UINT32 InstallFunction,
     HANDLE DeviceInfoSet,
     SP_DEVINFO_DATA* DeviceInfoData
     );
 
-BOOL __stdcall InstallSelectedDriver(
-    HANDLE     hwndParent,
+BOOL __stdcall SetupDiGetSelectedDriverW(
     HANDLE DeviceInfoSet,
-    wchar_t*  Reserved,
-        BOOL     Backup,
-        DWORD*   bReboot
+    SP_DEVINFO_DATA* DeviceInfoData,
+    SP_DRVINFO_DATA_V2_W* DriverInfoData
+    );
+
+BOOL __stdcall SetupDiSetSelectedDriverW(
+    HANDLE DeviceInfoSet,
+    SP_DEVINFO_DATA* DeviceInfoData,
+    SP_DRVINFO_DATA_V2_W* DriverInfoData
+    );
+
+BOOL __stdcall SetupDiSelectBestCompatDrv(
+    HANDLE DeviceInfoSet,
+    SP_DEVINFO_DATA* DeviceInfoData
     );
 
 BOOL __stdcall DiInstallDevice(
@@ -645,6 +629,9 @@ BOOL __stdcall DiInstallDevice(
     DWORD            Flags,
     BOOL*            NeedReboot
     );
+
+DWORD __stdcall GetLastError();
+#define SPDIT_COMPATDRIVER       0x00000002
 
 
 void InstallDriver( HANDLE DeviceInformation, SP_DEVINFO_DATA* DeviceData )
