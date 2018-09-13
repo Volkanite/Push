@@ -537,14 +537,6 @@ void EnumerateDevices()
 }
 
 
-/*void DifxapiInstallDriver()
-{
-    int flags = 28;
-    INTBOOL flag;
-
-    DriverPackageInstallW(L"C:\\mij\\drivers\\MijXinput.inf", flags, NULL, &flag);
-}*/
-
 INTBOOL __stdcall SetupDiSetSelectedDevice(
     HANDLE DeviceInfoSet,
     SP_DEVINFO_DATA* DeviceInfoData
@@ -655,13 +647,6 @@ BOOL __stdcall DiInstallDevice(
     );
 
 
-BOOL
-__stdcall
-SetupDiInstallDevice(
-HANDLE DeviceInfoSet,
-SP_DEVINFO_DATA* DeviceInfoData
-);
-
 void InstallDriver( HANDLE DeviceInformation, SP_DEVINFO_DATA* DeviceData )
 {
     SP_DEVINSTALL_PARAMS_W deviceInstallParams;
@@ -724,7 +709,7 @@ void InstallDriver( HANDLE DeviceInformation, SP_DEVINFO_DATA* DeviceData )
 
     //DiInstallDevice willfully returns 0xE0000235 (ERROR_IN_WOW64) in a WOW64 environment.
     //I don't know if this was a security restraint but there is no reason why this function
-    //should not work under WOW64. All we have to do insert one, literally one jmp patch to
+    //should not work under WOW64. All we have to do is insert one, literally one jmp patch to
     //skip the WOW64 check and the function succeeds as normal.
     DWORD module = Module_GetHandle(L"newdev.dll");
     DWORD address = Module_GetProcedureAddress(module, "DiInstallDevice");
@@ -735,7 +720,7 @@ void InstallDriver( HANDLE DeviceInformation, SP_DEVINFO_DATA* DeviceData )
     {
         DWORD oldPageProtection = 0;
 
-        //We firstly have remove page protection of course.
+        //We firstly have to remove page protection of course.
         VirtualProtect(addr, 1, PAGE_EXECUTE_READWRITE, &oldPageProtection);
         
         //patch to jne
