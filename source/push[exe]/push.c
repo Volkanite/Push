@@ -25,6 +25,7 @@ TYPE_MuteJack MuteJack;
 
 
 VOID InitializeCRT();
+void EnumerateDevices();
 
 
 INTBOOL __stdcall SetWindowTextW(
@@ -1348,6 +1349,9 @@ INT32 __stdcall start( )
     {
         Log(L"Shared memory too small!");
     }
+
+    //Check for controllers/gamepads/bluetooth adapters
+    //EnumerateDevices();
 
     // Check for running games
     Process_EnumProcesses(ProcessEnum);
