@@ -66,6 +66,18 @@ INT32 String_CompareN( WCHAR* s1, WCHAR* s2, UINT_B n )
     return (0);
 }
 
+WCHAR* __stdcall StrStrNIW(WCHAR*, WCHAR*, int);
+WCHAR* String_CompareIgnoreCase( WCHAR* s1, WCHAR* s2 )
+{
+    StrStrIW(s1, s2);
+}
+
+
+WCHAR* String_CompareIgnoreCaseN(WCHAR* s1, WCHAR* s2, int n)
+{
+    return StrStrNIW(s1, s2, n);
+}
+
 
 WCHAR* String_Copy( WCHAR* dst, WCHAR* Source )
 {

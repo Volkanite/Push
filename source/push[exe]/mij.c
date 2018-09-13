@@ -393,3 +393,137 @@ VOID SetMacro( UINT8 Count, MOTIONINJOY_MACRO* Macro )
 
     File_Close(driverHandle);
 }
+
+HANDLE __stdcall SetupDiGetClassDevsW(
+    GUID* ClassGuid,
+    WCHAR* Enumerator,
+    HANDLE hwndParent,
+    DWORD Flags
+    );
+
+INTBOOL __stdcall SetupDiEnumDeviceInfo(
+    HANDLE DeviceInfoSet,
+    DWORD MemberIndex,
+    SP_DEVINFO_DATA* DeviceInfoData
+    );
+
+INTBOOL __stdcall SetupDiGetDeviceRegistryPropertyW(
+    HANDLE DeviceInfoSet,
+    SP_DEVINFO_DATA* DeviceInfoData,
+    DWORD Property,
+    DWORD* PropertyRegDataType,
+    BYTE* PropertyBuffer,
+    DWORD PropertyBufferSize,
+    DWORD* RequiredSize
+    );
+
+#define DIGCF_PRESENT           0x00000002
+#define DIGCF_ALLCLASSES        0x00000004
+
+#define SPDRP_HARDWAREID                  (0x00000001)  // HardwareID (R/W)
+#define SPDRP_COMPATIBLEIDS               (0x00000002)  // CompatibleIDs (R/W)
+
+typedef struct _USB_DEVICES
+{
+    wchar_t* RegistryId;
+    wchar_t* FriendlyName;
+}USB_DEVICES;
+
+USB_DEVICES KnownDevices[] = {
+    { L"USB\\Vid_054c&Pid_0268", L"Sony PlayStation 3 Controller" },
+    { L"USB\\Vid_0A12&Pid_0001", L"TRENDnet TBW-106UB Bluetooth Adapter" },
+    { L"USB\\Vid_0B05&Pid_17CB", L"ASUS USB-BT400 Bluetooth Adapter" }
+    // Add more devices to search for here
+};
+
+WCHAR* String_CompareIgnoreCaseN(WCHAR* s1, WCHAR* s2, int n);
+
+
+void EnumerateDevices()
+{
+    HANDLE deviceInfo = NULL;
+
+    deviceInfo = SetupDiGetClassDevsW(NULL, L"USB", NULL, DIGCF_ALLCLASSES | DIGCF_PRESENT);
+
+    if (deviceInfo != INVALID_HANDLE_VALUE)
+    {
+        BOOLEAN flag = TRUE;
+        unsigned int num = 0;
+
+        while (flag)
+        {
+            SP_DEVINFO_DATA deviceData;
+
+            Memory_Clear(&deviceData, sizeof(SP_DEVINFO_DATA));
+
+            deviceData.cbSize = sizeof(SP_DEVINFO_DATA);
+            deviceData.DevInst = NULL;
+            deviceData.Reserved = 0;
+
+            flag = SetupDiEnumDeviceInfo(deviceInfo, num, &deviceData);
+            
+            if (flag)
+            {
+                wchar_t propertyBuffer[1000];
+                DWORD requiredSize = 0;
+                DWORD propertyDataType = 1;
+
+                if (SetupDiGetDeviceRegistryPropertyW(
+                    deviceInfo, 
+                    &deviceData, 
+                    SPDRP_HARDWAREID,
+                    &propertyDataType, 
+                    &propertyBuffer, 
+                    1000 * sizeof(wchar_t), 
+                    &requiredSize))
+                {
+                    BOOLEAN flag2 = FALSE;
+
+                    // Direct Match, definitely a device we recognize
+                    for (int i = 0; i < sizeof(KnownDevices) / sizeof(KnownDevices[0]); i++)
+                    {
+                        if (String_CompareIgnoreCaseN(propertyBuffer, KnownDevices[i].RegistryId, 22))
+                        {
+                            flag2 = TRUE;
+                            Log(L"found %s [%s]", KnownDevices[i].FriendlyName, propertyBuffer);
+                            break;
+                        }
+                    }
+
+                    // Possible devices that could work
+                    if (!flag2 
+                        && SetupDiGetDeviceRegistryPropertyW(
+                            deviceInfo, 
+                            &deviceData, 
+                            SPDRP_COMPATIBLEIDS, 
+                            &propertyDataType,
+                            &propertyBuffer, 
+                            1000 * sizeof(wchar_t), 
+                            &requiredSize))
+                    {
+                        //Bluetooth Device
+                        //BaseClass[0xE0] = Wireless Controller, SubClass[0x01] = Wireless Radio, Protocol[0x01] = Bluetooth Programming Interface)
+                        //https://web.archive.org/web/20070626033649/http://www.usb.org/developers/defined_class/#BaseClassE0h
+                        if (String_CompareIgnoreCaseN(propertyBuffer, L"usb\\Class_e0&subClass_01&Prot_01", 33))
+                        {
+                            Log(L"found Bluetooth device %s", propertyBuffer);
+                            flag2 = TRUE;
+                        }
+                        //Controller
+                        else if (String_CompareIgnoreCaseN(propertyBuffer, L"usb\\Class_58&subClass_42", 25))
+                        {
+                            Log(L"found Controller %s", propertyBuffer);
+                            flag2 = TRUE;
+                        }
+                    }
+                    if (flag2)
+                    {
+                        //Callback(&deviceData);
+                    }
+                }
+            }
+
+            num += 1;
+        }
+    }
+}
