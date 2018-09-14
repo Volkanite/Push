@@ -10,10 +10,10 @@ USB_DEVICES KnownDevices[] = {
 };
 
 
-VOID GetControllerMappingFile(WCHAR* GameName, WCHAR* Buffer)
+void GetControllerMappingFile( wchar_t* GameName, wchar_t* Buffer )
 {
-    WCHAR *dot;
-    WCHAR batchFile[260];
+    wchar_t *dot;
+    wchar_t batchFile[260];
 
     String_Copy(batchFile, L"mij\\");
     String_Concatenate(batchFile, GameName);
@@ -29,10 +29,10 @@ VOID GetControllerMappingFile(WCHAR* GameName, WCHAR* Buffer)
 }
 
 
-VOID GetSettingsFile(WCHAR* GameName, WCHAR* Buffer)
+void GetSettingsFile( wchar_t* GameName, wchar_t* Buffer )
 {
-    WCHAR *dot;
-    WCHAR batchFile[260];
+    wchar_t *dot;
+    wchar_t batchFile[260];
 
     String_Copy(batchFile, L"mij\\");
     String_Concatenate(batchFile, GameName);
@@ -142,7 +142,7 @@ VOID Mij_SetProfile( WCHAR* GameName )
 }
 
 
-VOID SetMacro( UINT8 Count, MOTIONINJOY_MACRO* Macro )
+void SetMacro( unsigned __int8 Count, MOTIONINJOY_MACRO* Macro )
 {
     HANDLE driverHandle;
     BYTE b;
