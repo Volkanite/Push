@@ -25,7 +25,6 @@ TYPE_MuteJack MuteJack;
 
 
 VOID InitializeCRT();
-void EnumerateDevices();
 
 
 INTBOOL __stdcall SetWindowTextW(
@@ -366,7 +365,7 @@ VOID OnProcessEvent( PROCESSID processID )
             );
 
         //mij
-        SetProfile(game.Name);
+        Mij_SetProfile(game.Name);
 
         if (PushSharedMemory->GameUsesRamDisk)
             //resume process
