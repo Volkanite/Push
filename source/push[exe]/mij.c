@@ -48,8 +48,9 @@ void GetSettingsFile( wchar_t* GameName, wchar_t* Buffer )
 }
 
 
-VOID SetMacro(UINT8 Count, MOTIONINJOY_MACRO* Macro);
+void SetMacro(UINT8 Count, MOTIONINJOY_MACRO* Macro);
 void InstallDriver(HANDLE DeviceInformation, SP_DEVINFO_DATA* DeviceData);
+void GetDeviceDetail(HANDLE DeviceInformation, SP_DEVINFO_DATA* DeviceData);
 
 
 WORD SomeMacro[6] = {
@@ -285,13 +286,41 @@ VOID Mij_EnumerateDevices()
                     if (flag2)
                     {
                         //Callback(&deviceData);
-                        InstallDriver(deviceInfo, &deviceData);
+                        GetDeviceDetail(deviceInfo, &deviceData);
                     }
                 }
             }
 
             num += 1;
         }
+    }
+}
+
+
+void GetDeviceDetail( HANDLE DeviceInformation, SP_DEVINFO_DATA* DeviceData )
+{
+    wchar_t propertyBuffer[1000];
+    DWORD propertyDataType = 1;
+    DWORD requiredSize = 0;
+
+    SetupDiGetDeviceRegistryPropertyW(
+        DeviceInformation,
+        DeviceData,
+        SPDRP_DEVICEDESC,
+        &propertyDataType,
+        &propertyBuffer,
+        1000 * sizeof(wchar_t),
+        &requiredSize
+        );
+
+    if (String_Compare(propertyBuffer, L"MotioninJoy Virtual Xinput device for Windows") == 0)
+    {
+        Log(L"Driver already installed for this device");
+    }
+    else
+    {
+        Log(L"Installing driver...");
+        InstallDriver(DeviceInformation, DeviceData);
     }
 }
 

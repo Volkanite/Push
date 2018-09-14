@@ -234,8 +234,9 @@ BOOL __stdcall DiInstallDevice(
 #define DIGCF_PRESENT           0x00000002
 #define DIGCF_ALLCLASSES        0x00000004
 
-#define SPDRP_HARDWAREID                  (0x00000001)  // HardwareID (R/W)
-#define SPDRP_COMPATIBLEIDS               (0x00000002)  // CompatibleIDs (R/W)
+#define SPDRP_DEVICEDESC    (0x00000000)  // DeviceDesc (R/W)
+#define SPDRP_HARDWAREID    (0x00000001)  // HardwareID (R/W)
+#define SPDRP_COMPATIBLEIDS (0x00000002)  // CompatibleIDs (R/W)
 
 DWORD __stdcall GetLastError();
 #define SPDIT_COMPATDRIVER       0x00000002
