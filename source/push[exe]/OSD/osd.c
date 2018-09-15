@@ -135,7 +135,7 @@ VOID OSD_Refresh()
             || PushSharedMemory->OSDFlags & osdItem->Flag //if it has a flag, is it set?
             || PushSharedMemory->Overloads & osdItem->Flag //item signifies performance issue?
             || (osdItem->Threshold && osdItem->Value > osdItem->Threshold) //is the item's value > it's threshold?
-            || (osdItem->Triggered && osdItem->Value > osdItem->HighestDelta) //is the item's value > it's maximal
+            || (osdItem->Triggered && osdItem->Value > osdItem->HighestDelta) //is the item's value > it's maximal?
             || (osdItem->Queue && osdItem->Value > osdItem->ValueAvg)) //add's a more dynamic touch ;)
         {
             osdItem->Triggered = TRUE;
@@ -189,9 +189,13 @@ VOID OSD_Refresh()
     }
 
     if (PushOverlayInterface == OVERLAY_INTERFACE_PURE)
-        memcpy(PushSharedMemory->OsdItems, OsdItems, sizeof(OSD_ITEM)* NumberOfItems);
+    {
+        Memory_Copy(PushSharedMemory->OsdItems, OsdItems, sizeof(OSD_ITEM)* NumberOfItems);
+    }
     else if (PushOverlayInterface == OVERLAY_INTERFACE_RTSS)
+    {
         RTSS_Update(OsdItems);
+    }
 }
 
 
