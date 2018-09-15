@@ -285,7 +285,8 @@ typedef struct _OSD_ITEM
     UINT32 Value;
     UINT32 Value2;
     UINT32 Samples;
-    UINT32 SampleHigh;
+    UINT32 RunningDelta;
+    UINT32 HighestDelta;
     UINT32 ValueAvg;
     UINT32 Color;
     WCHAR Text[20];

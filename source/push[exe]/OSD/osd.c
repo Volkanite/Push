@@ -122,8 +122,11 @@ VOID OSD_Refresh()
 
         //calculate average
         OsdItems[i].Samples++;
-        OsdItems[i].SampleHigh += OsdItems[i].Value;
-        OsdItems[i].ValueAvg = OsdItems[i].SampleHigh / OsdItems[i].Samples;
+        OsdItems[i].RunningDelta += OsdItems[i].Value;
+        OsdItems[i].ValueAvg = OsdItems[i].RunningDelta / OsdItems[i].Samples;
+
+        if (OsdItems[i].Value > OsdItems[i].HighestDelta)
+            OsdItems[i].HighestDelta = OsdItems[i].Value;
 
         //set default color (yellow)
         OsdItems[i].Color = 0xFFFFFF00;
@@ -132,7 +135,8 @@ VOID OSD_Refresh()
             || PushSharedMemory->OSDFlags & OsdItems[i].Flag //if it has a flag, is it set?
             || PushSharedMemory->Overloads & OsdItems[i].Flag //item signifies performance issue?
             || (OsdItems[i].Threshold && OsdItems[i].Value > OsdItems[i].Threshold) //is the item's value > it's threshold?
-            || (OsdItems[i].Triggered && OsdItems[i].Value > OsdItems[i].ValueAvg)) //add's a more dynamic touch ;)
+            || (OsdItems[i].Triggered && OsdItems[i].Value > OsdItems[i].HighestDelta) //is the item's value > it's maximal
+            || (OsdItems[i].Queue && OsdItems[i].Value > OsdItems[i].ValueAvg)) //add's a more dynamic touch ;)
         {
             OsdItems[i].Triggered = TRUE;
             OsdItems[i].Queue = TRUE;
