@@ -5,7 +5,8 @@
 
 #include "rtss.h"
 
-int items;
+int NumberOfItems;
+
 typedef enum CPU_CALC_INDEX
 {
     CPU_CALC_twc,
@@ -75,85 +76,84 @@ VOID FormatDiskReadWriteRate(
 VOID OSD_Refresh()
 {
     UINT8 i;
+    OSD_ITEM *osdItem;
 
-    PushSharedMemory->NumberOfOsdItems = items;
+    osdItem = (OSD_ITEM*)OsdItems;
 
     // Loop and draw all on screen display items
-    for (i = 0; i < items; i++)
+    for (i = 0; i < NumberOfItems; i++, osdItem++)
     {
         //GetValues(&OsdItems[i]);
 
-        switch (OsdItems[i].ValueSize)
+        switch (osdItem->ValueSize)
         {
         case sizeof(UINT8) :
-            OsdItems[i].Value = OsdItems[i].ValueSourcePtr ? *(UINT8*)OsdItems[i].ValueSourcePtr : 0;
+            osdItem->Value = osdItem->ValueSourcePtr ? *(UINT8*)osdItem->ValueSourcePtr : 0;
             break;
         case sizeof(UINT16) :
-            OsdItems[i].Value = OsdItems[i].ValueSourcePtr ? *(UINT16*)OsdItems[i].ValueSourcePtr : 0;
+            osdItem->Value = osdItem->ValueSourcePtr ? *(UINT16*)osdItem->ValueSourcePtr : 0;
             break;
         case sizeof(UINT32) :
-            OsdItems[i].Value = OsdItems[i].ValueSourcePtr ? *(UINT32*)OsdItems[i].ValueSourcePtr : 0;
+            osdItem->Value = osdItem->ValueSourcePtr ? *(UINT32*)osdItem->ValueSourcePtr : 0;
             break;
         }
 
-        OsdItems[i].Value2 = OsdItems[i].ValueSource2Ptr ? *(UINT32*)OsdItems[i].ValueSource2Ptr : 0;
+        osdItem->Value2 = osdItem->ValueSource2Ptr ? *(UINT32*)osdItem->ValueSource2Ptr : 0;
 
         //do some over-rides
-        if (OsdItems[i].Flag == OSD_CPU_LOAD)
+        if (osdItem->Flag == OSD_CPU_LOAD)
         {
             switch (CPUStrap)
             {
             case CPU_CALC_twc:
-                OsdItems[i].Value = PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage;
+                osdItem->Value = PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage;
                 break;
             case CPU_CALC_t:
-                OsdItems[i].Value = PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage;
+                osdItem->Value = PushSharedMemory->HarwareInformation.Processor.MaxThreadUsage;
                 break;
             case CPU_CALC_o:
-                OsdItems[i].Value = PushSharedMemory->HarwareInformation.Processor.Load;
+                osdItem->Value = PushSharedMemory->HarwareInformation.Processor.Load;
                 break;
             case CPU_CALC_c:
-                OsdItems[i].Value = PushSharedMemory->HarwareInformation.Processor.MaxCoreUsage;
+                osdItem->Value = PushSharedMemory->HarwareInformation.Processor.MaxCoreUsage;
                 break;
             }
-
-            //Log(L"CPU : %i %%, avg: %i %%", OsdItems[i].Value, OsdItems[i].ValueAvg);
         }
 
         //calculate average
-        OsdItems[i].Samples++;
-        OsdItems[i].RunningDelta += OsdItems[i].Value;
-        OsdItems[i].ValueAvg = OsdItems[i].RunningDelta / OsdItems[i].Samples;
+        osdItem->Samples++;
+        osdItem->RunningDelta += osdItem->Value;
+        osdItem->ValueAvg = osdItem->RunningDelta / osdItem->Samples;
 
-        if (OsdItems[i].Value > OsdItems[i].HighestDelta)
-            OsdItems[i].HighestDelta = OsdItems[i].Value;
+        if (osdItem->Value > osdItem->HighestDelta)
+            osdItem->HighestDelta = osdItem->Value;
 
         //set default color (yellow)
-        OsdItems[i].Color = 0xFFFFFF00;
+        osdItem->Color = 0xFFFFFF00;
 
-        if (!OsdItems[i].Flag //draw if no flag, could be somebody just wants to display stuff on-screen
-            || PushSharedMemory->OSDFlags & OsdItems[i].Flag //if it has a flag, is it set?
-            || PushSharedMemory->Overloads & OsdItems[i].Flag //item signifies performance issue?
-            || (OsdItems[i].Threshold && OsdItems[i].Value > OsdItems[i].Threshold) //is the item's value > it's threshold?
-            || (OsdItems[i].Triggered && OsdItems[i].Value > OsdItems[i].HighestDelta) //is the item's value > it's maximal
-            || (OsdItems[i].Queue && OsdItems[i].Value > OsdItems[i].ValueAvg)) //add's a more dynamic touch ;)
+        if (!osdItem->Flag //draw if no flag, could be somebody just wants to display stuff on-screen
+            || PushSharedMemory->OSDFlags & osdItem->Flag //if it has a flag, is it set?
+            || PushSharedMemory->Overloads & osdItem->Flag //item signifies performance issue?
+            || (osdItem->Threshold && osdItem->Value > osdItem->Threshold) //is the item's value > it's threshold?
+            || (osdItem->Triggered && osdItem->Value > osdItem->HighestDelta) //is the item's value > it's maximal
+            || (osdItem->Queue && osdItem->Value > osdItem->ValueAvg)) //add's a more dynamic touch ;)
         {
-            OsdItems[i].Triggered = TRUE;
-            OsdItems[i].Queue = TRUE;
+            osdItem->Triggered = TRUE;
+            osdItem->Queue = TRUE;
 
-            if (OsdItems[i].DisplayFormatPtr || OsdItems[i].DynamicFormatPtr)
+            if (osdItem->DisplayFormatPtr || osdItem->DynamicFormatPtr)
             {
-                if (OsdItems[i].DynamicFormatPtr)
+                if (osdItem->DynamicFormatPtr)
                 {
                     OSD_DYNAMIC_FORMAT dynamicFormat;
 
-                    dynamicFormat = (OSD_DYNAMIC_FORMAT) OsdItems[i].DynamicFormatPtr;
+                    dynamicFormat = (OSD_DYNAMIC_FORMAT) osdItem->DynamicFormatPtr;
 
-                    dynamicFormat(OsdItems[i].Value2 ? OsdItems[i].Value2 : 0, OsdItems[i].Text);
+                    dynamicFormat(osdItem->Value2 ? osdItem->Value2 : 0, osdItem->Text);
 
-                    String_Concatenate(OsdItems[i].Text, L"\n");
+                    String_Concatenate(osdItem->Text, L"\n");
                 }
-                else if (OsdItems[i].DisplayFormatPtr)
+                else if (osdItem->DisplayFormatPtr)
                 {
                     wchar_t buffer[260];
                     int charactersWritten;
@@ -161,14 +161,14 @@ VOID OSD_Refresh()
                     charactersWritten = String_Format(
                         buffer,
                         260,
-                        (WCHAR*) OsdItems[i].DisplayFormatPtr,
-                        OsdItems[i].Value2 ? OsdItems[i].Value2 : OsdItems[i].Value
+                        (WCHAR*) osdItem->DisplayFormatPtr,
+                        osdItem->Value2 ? osdItem->Value2 : osdItem->Value
                         );
 
-                    String_CopyN(OsdItems[i].Text, buffer, 20);
+                    String_CopyN(osdItem->Text, buffer, 20);
 
-                    OsdItems[i].Text[18] = L'\0';
-                    OsdItems[i].Text[19] = L'\n';
+                    osdItem->Text[18] = L'\0';
+                    osdItem->Text[19] = L'\n';
 
                     if (charactersWritten > 18)
                     {
@@ -177,19 +177,19 @@ VOID OSD_Refresh()
                 }
             }
 
-            if (PushSharedMemory->Overloads & OsdItems[i].Flag)
+            if (PushSharedMemory->Overloads & osdItem->Flag)
             {
-                OsdItems[i].Color = 0xFFFF0000;
+                osdItem->Color = 0xFFFF0000;
             } 
         }
         else
         {
-            OsdItems[i].Queue = FALSE;
+            osdItem->Queue = FALSE;
         }
     }
 
     if (PushOverlayInterface == OVERLAY_INTERFACE_PURE)
-        memcpy(PushSharedMemory->OsdItems, OsdItems, sizeof(OSD_ITEM) * items);
+        memcpy(PushSharedMemory->OsdItems, OsdItems, sizeof(OSD_ITEM)* NumberOfItems);
     else if (PushOverlayInterface == OVERLAY_INTERFACE_RTSS)
         RTSS_Update(OsdItems);
 }
@@ -209,17 +209,17 @@ VOID OSD_AddItem(
     if (!OsdItems)
         OsdItems = Memory_AllocateEx(sizeof(OSD_ITEM) * 21, HEAP_ZERO_MEMORY);
 
-    OsdItems[items].Flag = Flag;
-    OsdItems[items].DisplayFormatPtr = DisplayFormat;
-    OsdItems[items].ValueSourcePtr = ValueSource;
-    OsdItems[items].ValueSize = ValueSize;
-    OsdItems[items].ValueSource2Ptr = ValueSource2;
-    OsdItems[items].Threshold = Threshold;
-    OsdItems[items].DynamicFormatPtr = DynamicFormat;
+    OsdItems[NumberOfItems].Flag = Flag;
+    OsdItems[NumberOfItems].DisplayFormatPtr = DisplayFormat;
+    OsdItems[NumberOfItems].ValueSourcePtr = ValueSource;
+    OsdItems[NumberOfItems].ValueSize = ValueSize;
+    OsdItems[NumberOfItems].ValueSource2Ptr = ValueSource2;
+    OsdItems[NumberOfItems].Threshold = Threshold;
+    OsdItems[NumberOfItems].DynamicFormatPtr = DynamicFormat;
 
-    String_CopyN(OsdItems[items].Description, Description, 40);
+    String_CopyN(OsdItems[NumberOfItems].Description, Description, 40);
 
-    items++;
+    NumberOfItems++;
 }
 
 
@@ -252,5 +252,7 @@ UINT32 OSD_Initialize()
     OSD_AddItem(OSD_TIME, L"Time", NULL, NULL, sizeof(UINT8), NULL, 0, FormatTime);
     OSD_AddItem(OSD_REFRESH_RATE, L"Resfresh Rate", L"MON : %i Hz", &hardware->Display.RefreshRate, sizeof(UINT8), NULL, 0, NULL);
 
-    return sizeof(OSD_ITEM) * items;
+    PushSharedMemory->NumberOfOsdItems = NumberOfItems;
+
+    return sizeof(OSD_ITEM) * NumberOfItems;
 }
