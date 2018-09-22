@@ -2,7 +2,7 @@
 #include "push.h"
 
 
-VOID* Module_Load( WCHAR* FileName )
+HANDLE Module_Load( WCHAR* FileName )
 {
     UNICODE_STRING moduleName;
     VOID *moduleHandle;
@@ -34,7 +34,7 @@ NTSTATUS __stdcall LdrGetProcedureAddress(
     );
 
 
-VOID* Module_GetHandle( WCHAR* FileName )
+HANDLE Module_GetHandle( WCHAR* FileName )
 {
     UNICODE_STRING moduleName;
     VOID* moduleHandle;
@@ -47,22 +47,24 @@ VOID* Module_GetHandle( WCHAR* FileName )
 
 UINT32 strlen_o(CHAR* String)
 {
-	const char *p;
+    const char *p;
 
-	if (!String)
-		return NULL;
+    if (!String)
+        return NULL;
 
-	p = String;
+    p = String;
 
-	while (*p)
-		p++;
+    while (*p)
+        p++;
 
-	return p - String;
+    return p - String;
 }
+
+
 VOID RtlInitAnsiString( PANSI_STRING DestinationString, CHAR* SourceString )
 {
     if (SourceString)
-		DestinationString->MaximumLength = (DestinationString->Length = (UINT16)strlen ? strlen(SourceString) : strlen_o(SourceString)) + 1;
+        DestinationString->MaximumLength = (DestinationString->Length = (UINT16)strlen ? strlen(SourceString) : strlen_o(SourceString)) + 1;
     else
         DestinationString->MaximumLength = DestinationString->Length = 0;
 
@@ -70,7 +72,7 @@ VOID RtlInitAnsiString( PANSI_STRING DestinationString, CHAR* SourceString )
 }
 
 
-VOID* Module_GetProcedureAddress( VOID* DllHandle, CHAR* ProcedureName )
+HANDLE Module_GetProcedureAddress( HANDLE DllHandle, CHAR* ProcedureName )
 {
     ANSI_STRING procedureName;
     VOID* procedureAddress = NULL;
