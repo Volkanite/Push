@@ -707,8 +707,8 @@ HRESULT __stdcall  DirectInput8Create_Detour(
 
         di = (LPDIRECTINPUT8A) (DWORD)*((DWORD*)*ppvOut);
 
-        Log(L"di 0x%x", di);
-        Log(L"dwFuncTable 0x%x!", dwFuncTable);
+        //Log(L"di 0x%x", di);
+        //Log(L"dwFuncTable 0x%x!", dwFuncTable);
 
         VOID **virtualMethodTable;
 
@@ -758,11 +758,8 @@ VOID Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
 
     if (!base)
     {
-        Log(L"not dinput!");
         return;
     }
-
-    Log(L"got dinput...");
 
     func = (DWORD)GetProcAddress((HMODULE)base, "DirectInput8Create");
 
