@@ -99,7 +99,7 @@ VOID StripPermissions( WCHAR* KeyName )
 }
 
 
-VOID Driver_Load()
+BOOLEAN Driver_Load()
 {
     NTSTATUS status;
 
@@ -143,7 +143,11 @@ VOID Driver_Load()
                 NULL
                 );
         }
+
+        return FALSE;
     }
+
+    return TRUE;
 }
 
 

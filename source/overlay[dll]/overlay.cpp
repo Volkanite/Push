@@ -197,6 +197,22 @@ VOID* OpenSection( WCHAR* SectionName, SIZE_T SectionSize )
         SectionSize
         );
 }
+HINSTANCE OverlayInstance;
+HHOOK Hook;
+WCHAR ModuleName[260];
+
+LRESULT CALLBACK OverlayCBTProc(
+    _In_ int    nCode,
+    _In_ WPARAM wParam,
+    _In_ LPARAM lParam
+    )
+{
+    return CallNextHookEx(Hook, nCode, wParam, lParam);
+}
+extern "C" __declspec(dllexport) VOID InstallOverlayHook()
+{
+    Hook = SetWindowsHookExA(WH_CBT, OverlayCBTProc, OverlayInstance, 0);
+}
 
 
 BOOL __stdcall DllMain(
@@ -209,7 +225,17 @@ BOOL __stdcall DllMain(
     {
     case DLL_PROCESS_ATTACH:
         {
-            Log(L"Dropship arrived successfully.");
+            wchar_t modulePath[260];
+            wchar_t *slash;
+
+            GetModuleFileNameW(NULL, modulePath, 260);
+
+            slash = wcsrchr(modulePath, L'\\');
+            wcscpy(ModuleName, slash + 1);
+
+            Log(L"Dropship arrived successfully on %s", ModuleName);
+
+            OverlayInstance = Instance;
 
             PushSharedMemory = (PUSH_SHARED_MEMORY *)OpenSection(
                 PUSH_SECTION_NAME, 
@@ -238,6 +264,7 @@ BOOL __stdcall DllMain(
 
     case DLL_PROCESS_DETACH:
         {
+            Log(L"Dropship leaving %s ...", ModuleName);
             DestroyOverlay();
             Keyboard_UnHook();
 

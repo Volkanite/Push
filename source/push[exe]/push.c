@@ -881,27 +881,30 @@ INTBOOL __stdcall ConnectNamedPipe(
         OVERLAPPED* lpOverlapped
         );
 
-    INTBOOL __stdcall DisconnectNamedPipe(
-        HANDLE hNamedPipe
+INTBOOL __stdcall DisconnectNamedPipe(
+    HANDLE hNamedPipe
         );
 
-    NTSTATUS __stdcall NtCreateNamedPipeFile(
-        HANDLE* FileHandle,
-        ULONG DesiredAccess,
-        OBJECT_ATTRIBUTES* ObjectAttributes,
-        PIO_STATUS_BLOCK IoStatusBlock,
-        ULONG ShareAccess,
-        ULONG CreateDisposition,
-        ULONG CreateOptions,
-        ULONG NamedPipeType,
-        ULONG ReadMode,
-        ULONG CompletionMode,
-        ULONG MaximumInstances,
-        ULONG InboundQuota,
-        ULONG OutboundQuota,
-        LARGE_INTEGER* DefaultTimeout
-        );
+NTSTATUS __stdcall NtCreateNamedPipeFile(
+    HANDLE* FileHandle,
+    ULONG DesiredAccess,
+    OBJECT_ATTRIBUTES* ObjectAttributes,
+    PIO_STATUS_BLOCK IoStatusBlock,
+    ULONG ShareAccess,
+    ULONG CreateDisposition,
+    ULONG CreateOptions,
+    ULONG NamedPipeType,
+    ULONG ReadMode,
+    ULONG CompletionMode,
+    ULONG MaximumInstances,
+    ULONG InboundQuota,
+    ULONG OutboundQuota,
+    LARGE_INTEGER* DefaultTimeout
+    );
 
+typedef VOID(*TYPE_InstallOverlayHook)();
+
+TYPE_InstallOverlayHook InstallOverlayHook;
 
 #include "Hardware\GPU\AMD\adl.h"
 #define PIPE_ACCEPT_REMOTE_CLIENTS 0x00000000
@@ -1161,6 +1164,7 @@ INT32 __stdcall start( )
     LDR_DATA_TABLE_ENTRY *module;
     SECTION_BASIC_INFORMATION sectionInfo;
     LARGE_INTEGER newSectionSize;
+    BOOLEAN driverLoaded;
 
     InitializeCRT();
 
@@ -1204,7 +1208,7 @@ INT32 __stdcall start( )
 
     // Start Driver.
     Driver_Extract();
-    Driver_Load();
+    driverLoaded = Driver_Load();
 
     //initialize instance
     PushInstance = Module_GetHandle(L"Push.exe");
@@ -1356,8 +1360,21 @@ INT32 __stdcall start( )
     Process_EnumProcesses(ProcessEnum);
 
     // Activate process monitoring
+    if (driverLoaded)
+    {
+        PushToggleProcessMonitoring(TRUE);
+    }
+    else
+    {
+        HANDLE overlayLib = NULL;
+        void* prcAddress = 0;
 
-    PushToggleProcessMonitoring(TRUE);
+        overlayLib = Module_Load(L"overlay32.dll");
+        prcAddress = Module_GetProcedureAddress(overlayLib, "InstallOverlayHook");
+
+        InstallOverlayHook = (TYPE_InstallOverlayHook)prcAddress;
+        InstallOverlayHook();
+    }
 
     g_szPrevGame[5] = '\0';
 
