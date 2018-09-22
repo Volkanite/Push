@@ -69,7 +69,7 @@ INT32 String_CompareN( WCHAR* s1, WCHAR* s2, UINT_B n )
 WCHAR* __stdcall StrStrNIW(WCHAR*, WCHAR*, int);
 WCHAR* String_CompareIgnoreCase( WCHAR* s1, WCHAR* s2 )
 {
-    StrStrIW(s1, s2);
+    return StrStrIW(s1, s2);
 }
 
 

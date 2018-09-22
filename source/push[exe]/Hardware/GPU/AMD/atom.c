@@ -375,7 +375,7 @@ static uint32_t atom_get_src_int(atom_exec_context *ctx, uint8_t attr,
     case ATOM_ARG_FB:
         idx = U8(*ptr);
         (*ptr)++;
-        if ((gctx->fb_base + (idx * 4)) > gctx->scratch_size_bytes) {
+        if ((gctx->fb_base + (idx * 4)) > (unsigned int) gctx->scratch_size_bytes) {
             Log(L"ATOM: fb read beyond scratch region: %d vs. %d\n",
                   gctx->fb_base + (idx * 4), gctx->scratch_size_bytes);
             val = 0;
@@ -632,7 +632,7 @@ static void atom_put_dst(atom_exec_context *ctx, int arg, uint8_t attr,
     case ATOM_ARG_FB:
         idx = U8(*ptr);
         (*ptr)++;
-        if ((gctx->fb_base + (idx * 4)) > gctx->scratch_size_bytes) {
+        if ((gctx->fb_base + (idx * 4)) > (unsigned int) gctx->scratch_size_bytes) {
             Log(L"ATOM: fb write beyond scratch region: %d vs. %d\n",
                   gctx->fb_base + (idx * 4), gctx->scratch_size_bytes);
         } else

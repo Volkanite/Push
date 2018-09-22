@@ -177,7 +177,7 @@ BOOL __stdcall SetupDiGetDeviceRegistryPropertyW(
     SP_DEVINFO_DATA* DeviceInfoData,
     DWORD Property,
     DWORD* PropertyRegDataType,
-    BYTE* PropertyBuffer,
+    VOID* PropertyBuffer,
     DWORD PropertyBufferSize,
     DWORD* RequiredSize
     );

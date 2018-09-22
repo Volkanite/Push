@@ -389,7 +389,7 @@ void InstallDriver( HANDLE DeviceInformation, SP_DEVINFO_DATA* DeviceData )
     //I don't know if this was a security restraint but there is no reason why this function
     //should not work under WOW64. All we have to do is insert one, literally one jmp patch to
     //skip the WOW64 check and the function succeeds as normal.
-    DWORD module = Module_GetHandle(L"newdev.dll");
+    HANDLE module = Module_GetHandle(L"newdev.dll");
     DWORD address = Module_GetProcedureAddress(module, "DiInstallDevice");
     address += 0x134;
     BYTE *addr = address;
