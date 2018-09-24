@@ -62,9 +62,9 @@ BOOLEAN IsGpuLag()
     return FALSE;
 }
 
-#define TSAMP 60
-double garb[TSAMP];
-int addint = 0;
+#define TSAMPLES 60
+double FrameTimesCircularBuffer[TSAMPLES];
+int CircularBufferIndex = 0;
 
 double GetAverageFrameTime()
 {
@@ -72,10 +72,10 @@ double GetAverageFrameTime()
     UINT32 i;
     double total = 0;
 
-    for (i = 0; i < TSAMP; i++)
-        total += garb[i];
+    for (i = 0; i < TSAMPLES; i++)
+        total += FrameTimesCircularBuffer[i];
 
-    return total / TSAMP;
+    return total / TSAMPLES;
 }
 
 #include <math.h>
@@ -124,11 +124,11 @@ VOID RunFrameStatistics()
 
     IsLimitedFrametime = FALSE;
 
-    garb[addint] = frameTime;
-    addint++;
+    FrameTimesCircularBuffer[CircularBufferIndex] = frameTime;
+    CircularBufferIndex++;
 
-    if (addint == TSAMP)
-        addint = 0;
+    if (CircularBufferIndex == TSAMPLES)
+        CircularBufferIndex = 0;
 
     FrameTimeAvg = GetAverageFrameTime();
 
