@@ -10,6 +10,10 @@
 ///
 #define PUSH_LIB_NAME_32 L"overlay32.dll"
 #define PUSH_LIB_NAME_64 L"overlay64.dll"
+///
+/// Push version information
+///
+#define PUSH_VERSION        L"r45"
 
 ///
 /// Settings file name

@@ -36,10 +36,6 @@
 ///
 #define PUSH_SETTINGS_FILE                          L"push.ini"
 
-///
-/// Push version information
-///
-#define PUSH_VERSION                                L"r43"
 
 ///
 /// Base value for the IOCTL's.
