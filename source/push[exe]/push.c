@@ -1369,11 +1369,16 @@ INT32 __stdcall start( )
         HANDLE overlayLib = NULL;
         void* prcAddress = 0;
 
+        Resource_Extract(L"OVERLAY32", PUSH_LIB_NAME_32);
+
         overlayLib = Module_Load(L"overlay32.dll");
         prcAddress = Module_GetProcedureAddress(overlayLib, "InstallOverlayHook");
 
-        InstallOverlayHook = (TYPE_InstallOverlayHook)prcAddress;
-        InstallOverlayHook();
+        if (prcAddress)
+        {
+            InstallOverlayHook = (TYPE_InstallOverlayHook)prcAddress;
+            InstallOverlayHook();
+        }
     }
 
     g_szPrevGame[5] = '\0';
