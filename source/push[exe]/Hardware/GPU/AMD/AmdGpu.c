@@ -100,8 +100,18 @@ UINT64 AmdGpu_GetTotalMemory()
 
 UINT64 AmdGpu_GetFreeMemory()
 {
-    UINT64 used = D3DKMTGetMemoryUsage();
-    UINT64 total = AmdGpu_GetTotalMemory();
+    UINT64 used, total;
+
+    used = D3DKMTGetMemoryUsage();
+
+    if (PushDriverLoaded)
+    {
+        total = AmdGpu_GetTotalMemory();
+    }
+    else
+    {
+        total = D3DKMT_GetTotalMemory();
+    }
 
     return total - used;
 }
