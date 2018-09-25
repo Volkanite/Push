@@ -7,7 +7,7 @@
 #include "ddraw\ddrawoverlay.h"
 
 
-Dx8Overlay*     OvDx8Overlay;
+Dx8Overlay*     D3D8Overlay;
 Dx9Overlay*     D3D9Overlay;
 DxgiOverlay*    DXGIOverlay;
 DDrawOverlay*   DirectDrawOverlay;
@@ -75,10 +75,10 @@ ULONG __stdcall CreateOverlay( LPVOID Param )
         ddraw = TRUE;
     }
 
-    if (d3d8 && OvDx8Overlay == NULL)
+    if (d3d8 && D3D8Overlay == NULL)
     {
         Log(L"Hooking d3d8...");
-        OvDx8Overlay = new Dx8Overlay( hookParams->RenderFunction );
+        D3D8Overlay = new Dx8Overlay(hookParams->RenderFunction);
     }
 
     if (d3d9 && D3D9Overlay == NULL)
@@ -139,6 +139,9 @@ VOID OvCreateOverlayEx( OV_HOOK_PARAMS* HookParameters )
 
 VOID DestroyOverlay()
 {
+    if (D3D8Overlay)
+        D3D8Overlay->~Dx8Overlay();
+
     if (D3D9Overlay)
         D3D9Overlay->~Dx9Overlay();
 

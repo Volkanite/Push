@@ -22,7 +22,7 @@ typedef HRESULT (WINAPI *TYPE_IDirect3DDevice8_Reset) (
     D3DPRESENT_PARAMETERS* pPresentationParameters
     );
 
-
+VOID Log(const wchar_t* Format, ...);
 
 
 
@@ -32,6 +32,9 @@ TYPE_IDirect3DDevice8_Reset     HkIDirect3DDevice8_Reset;
 
 HK_IDIRECT3DDEVICE8_PRESENT_CALLBACK    HkIDirect3DDevice8_PresentCallback;
 HK_IDIRECT3DDEVICE8_RESET_CALLBACK      HkIDirect3DDevice8_ResetCallback;
+
+DetourXS *DetourPresent8;
+DetourXS *DetourReset8;
 
 
 LONG WINAPI IDirect3DDevice8_PresentHook(
@@ -76,7 +79,6 @@ VOID HookD3D8(
     D3DPRESENT_PARAMETERS d3dPresentParameters = {0};
     LONG result;
     IDirect3DDevice8 *OBJECT_IDirect3DDevice8;
-    DetourXS *detour;
     HMODULE base = NULL;
 
     HkIDirect3DDevice8_PresentCallback = IDirect3DDevice8_PresentCallback;
@@ -121,13 +123,24 @@ VOID HookD3D8(
 
     if (IDirect3DDevice8_PresentCallback)
     {
-        detour = new DetourXS(vmt[15], IDirect3DDevice8_PresentHook);
-        HkIDirect3DDevice8_Present = (TYPE_IDirect3DDevice8_Present)detour->GetTrampoline();
+        DetourPresent8 = new DetourXS(vmt[15], IDirect3DDevice8_PresentHook);
+        HkIDirect3DDevice8_Present = (TYPE_IDirect3DDevice8_Present)DetourPresent8->GetTrampoline();
     }
 
     if (IDirect3DDevice8_ResetCallback)
     {
-        detour = new DetourXS(vmt[14], IDirect3DDevice8_ResetHook);
-        HkIDirect3DDevice8_Reset = (TYPE_IDirect3DDevice8_Reset)detour->GetTrampoline();
+        DetourReset8 = new DetourXS(vmt[14], IDirect3DDevice8_ResetHook);
+        HkIDirect3DDevice8_Reset = (TYPE_IDirect3DDevice8_Reset)DetourReset8->GetTrampoline();
     }
+}
+
+
+VOID Dx8Hook_Destroy()
+{
+    Log(L"=> DestroyDetourXsHooks()");
+
+    DetourReset8->Destroy();
+    DetourPresent8->Destroy();
+
+    Log(L"<= DestroyDetourXsHooks()");
 }

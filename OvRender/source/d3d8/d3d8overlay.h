@@ -5,6 +5,7 @@ class Dx8Overlay : public OvOverlay
 {
 public:
     Dx8Overlay( OV_RENDER RenderFunction );
+    ~Dx8Overlay();
 
     // Standard functions
     VOID DrawText( WCHAR* Text );
@@ -12,5 +13,5 @@ public:
     VOID DrawText( WCHAR* Text, int X, int Y, DWORD Color );
     VOID Begin();
     VOID End();
-	VOID* GetDevice();
+    VOID* GetDevice();
 };

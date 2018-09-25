@@ -6,36 +6,35 @@
 #include "d3d8hook.h"
 
 
-Dx8Font* Dx8OvFont;
-extern Dx8Overlay* OvDx8Overlay;
+Dx8Font* D3D8Font;
+extern Dx8Overlay* D3D8Overlay;
 
 
 VOID IDirect3DDevice8_PresentCallback( 
     IDirect3DDevice8 *Device 
     )
 {
-    if (Dx8OvFont == NULL)
+    if (D3D8Font == NULL)
     {
-        Dx8OvFont = new Dx8Font(Device);
-        Dx8OvFont->RestoreDeviceObjects();
+        D3D8Font = new Dx8Font(Device);
+        D3D8Font->RestoreDeviceObjects();
 
         GraphicsApi = API_D3D8;
     }
 
-    OvDx8Overlay->Render();
+    D3D8Overlay->Render();
 }
 
 
-VOID
-IDirect3DDevice8_ResetCallback()
+VOID IDirect3DDevice8_ResetCallback()
 {
-    if (Dx8OvFont)
+    if (D3D8Font)
     {
-        Dx8OvFont->InvalidateDeviceObjects();
-        Dx8OvFont->DeleteDeviceObjects();
+        D3D8Font->InvalidateDeviceObjects();
+        D3D8Font->DeleteDeviceObjects();
     }
 
-    Dx8OvFont = NULL;
+    D3D8Font = NULL;
 }
 
 
@@ -49,6 +48,15 @@ Dx8Overlay::Dx8Overlay(
         );
 
     UserRenderFunction = RenderFunction;
+}
+
+
+Dx8Overlay::~Dx8Overlay()
+{
+    Dx8Hook_Destroy();
+
+    if (D3D8Font)
+        D3D8Font->~Dx8Font();
 }
 
 
@@ -77,7 +85,7 @@ VOID Dx8Overlay::DrawText(
     DWORD Color 
     )
 {
-    Dx8OvFont->DrawText(
+    D3D8Font->DrawText(
         (FLOAT)X, 
         (FLOAT)Y, 
         Color, 
