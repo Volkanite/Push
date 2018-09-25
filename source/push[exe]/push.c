@@ -680,13 +680,6 @@ VOID CreateOverlay( DWORD ProcessId )
     }
 
     Process_Close(processHandle);
-
-    //start timer
-    SetTimer(PushMainWindow->Handle, 0, 1000, 0);
-
-    // Start disk monitoring;
-    if (!DiskMonitorInitialized)
-        DiskStartMonitoring();
 }
 
 
@@ -1047,6 +1040,15 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                     responseTime = GetDiskResponseTime(processId);
 
                     File_Write(pipeHandle, &responseTime, 2);
+                }
+                else if (String_CompareN(buffer, L"StartHardwareMonitoring", 23) == 0)
+                {
+                    //start timer
+                    SetTimer(PushMainWindow->Handle, 0, 1000, 0);
+
+                    // Start disk monitoring;
+                    if (!DiskMonitorInitialized)
+                        DiskStartMonitoring();
                 }
             }
         }
