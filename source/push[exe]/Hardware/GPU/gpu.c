@@ -41,7 +41,10 @@ VOID GPU_Initialize( ULONG PciAddress )
         wchar_t devicePath[260];
 
         GetDisplayAdapterDevicePath(devicePath);
-        swscanf_s(devicePath, L"\\\\?\\pci#ven_%04x", &vendorID);
+        swscanf_s(devicePath, L"\\\\?\\PCI#VEN_%04x", &vendorID);
+
+        if (!vendorID)
+            swscanf_s(devicePath, L"\\\\?\\pci#ven_%04x", &vendorID);
     }
 
     switch (vendorID)
@@ -116,14 +119,22 @@ VOID GPU_GetInfo( GPU_INFO* Info )
 
 UINT64 GPU_GetTotalMemory()
 {
-    switch (GPU_VendorId)
+    if (PushDriverLoaded)
     {
-    case AMD:
-        return AmdGpu_GetTotalMemory();
-        break;
+        switch (GPU_VendorId)
+        {
+        case AMD:
+            return AmdGpu_GetTotalMemory();
+            break;
+        default:
+            return 0;
+            break;
+        }
     }
-
-    return 0;
+    else
+    {
+        return D3DKMT_GetTotalMemory();
+    }
 }
 
 

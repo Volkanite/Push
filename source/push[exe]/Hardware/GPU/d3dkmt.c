@@ -196,7 +196,7 @@ VOID D3DKMTInitialize()
     HANDLE gdi32 = NULL;
     D3DKMT_QUERYSTATISTICS queryStatistics;
     RTL_OSVERSIONINFOW versionInfo;
-	wchar_t devicePath[260];
+    wchar_t devicePath[260];
 
     if (D3DKMT_Initialized)
     {
@@ -430,7 +430,14 @@ UINT16 D3DKMT_GetEngineClock(){ return 0; };
 UINT16 D3DKMT_GetMemoryClock(){ return 0; };
 UINT16 D3DKMT_GetMaxEngineClock(){ return 0; };
 UINT16 D3DKMT_GetMaxMemoryClock(){ return 0; };
-UINT64 D3DKMT_GetTotalMemory(){ return 0; };
+
+
+UINT64 D3DKMT_GetTotalMemory()
+{ 
+    return EtGpuDedicatedLimit; 
+}
+
+
 UINT64 D3DKMT_GetFreeMemory(){ return 0; };
 UINT8  D3DKMT_GetTemperature(){ return 0; };
 VOID   D3DKMT_ForceMaximumClocks(){};

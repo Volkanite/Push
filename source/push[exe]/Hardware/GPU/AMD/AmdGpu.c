@@ -28,14 +28,15 @@ VOID AmdGpu_ForceMaximumClocks();
 VOID AtomBios_Initialize();
 UINT32 AtomBios_GetEngineClock();
 UINT32 AtomBios_GetMemoryClock();
-
 UINT32 radeon_atom_get_engine_clock();
+
+
 VOID AmdGpu_Initialize()
 {
     ADL_Initialized = Adl_Initialize();
 
     //Prefer ADL but if not then AtomBios
-    if (!ADL_Initialized)
+    if (!ADL_Initialized && PushDriverLoaded)
     {
         AtomBios_Initialize();
     }

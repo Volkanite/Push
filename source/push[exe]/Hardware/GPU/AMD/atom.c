@@ -1525,7 +1525,7 @@ struct atom_context *amdgpu_atom_parse(struct card_info *card, void *bios)
     char *str;
     u16 idx;
 
-    if (!ctx)
+    if (!ctx || !bios)
         return NULL;
 
     ctx->card = card;
