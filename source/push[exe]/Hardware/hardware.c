@@ -235,6 +235,9 @@ DWORD ReadGpuRegisterPaged( DWORD Address )
 
 DWORD ReadGpuRegister( DWORD Address )
 {
+    if (!PushDriverLoaded)
+        return 0;
+
     if (PagedMMIO)
         return ReadGpuRegisterPaged(Address);
     else
