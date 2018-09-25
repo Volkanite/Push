@@ -208,10 +208,10 @@ UINT16 CPU_GetNormalSpeed()
             );
 
         int size = basicInfo.NumberOfProcessors * sizeof(PROCESSOR_POWER_INFORMATION);
-        powerInformation = (PPROCESSOR_POWER_INFORMATION)RtlAllocateHeap(
-            NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap,
-            HEAP_ZERO_MEMORY,
-            size
+
+        powerInformation = (PPROCESSOR_POWER_INFORMATION)Memory_AllocateEx(
+            size, 
+            HEAP_ZERO_MEMORY
             );
 
         NtPowerInformation(
