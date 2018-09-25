@@ -256,6 +256,8 @@ UINT32 OSD_Initialize()
     OSD_AddItem(OSD_TIME, L"Time", NULL, NULL, sizeof(UINT8), NULL, 0, FormatTime);
     OSD_AddItem(OSD_REFRESH_RATE, L"Resfresh Rate", L"MON : %i Hz", &hardware->Display.RefreshRate, sizeof(UINT8), NULL, 0, NULL);
 
+    //Initial population of shared memory OSD items
+    Memory_Copy(PushSharedMemory->OsdItems, OsdItems, sizeof(OSD_ITEM)* NumberOfItems);
     PushSharedMemory->NumberOfOsdItems = NumberOfItems;
 
     return sizeof(OSD_ITEM) * NumberOfItems;
