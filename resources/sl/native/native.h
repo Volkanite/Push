@@ -13,3 +13,4 @@
 #include "ntmmapi.h"
 #include "ntldr.h"
 #include "ntdef.h"
+#include "ntpoapi.h"

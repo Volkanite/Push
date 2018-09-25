@@ -55,6 +55,7 @@ extern OVERLAY_INTERFACE PushOverlayInterface;
 extern BOOLEAN             g_bRecache;
 extern UINT32 GameProcessId;
 extern WCHAR PushFilePath[260];
+extern BOOLEAN PushDriverLoaded;
 
 
 VOID GetGamePath(

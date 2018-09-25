@@ -18,6 +18,7 @@ PUSH_SHARED_MEMORY* PushSharedMemory;
 OVERLAY_INTERFACE PushOverlayInterface = OVERLAY_INTERFACE_PURE;
 extern SYSTEM_BASIC_INFORMATION HwInfoSystemBasicInformation;
 UINT32 GameProcessId;
+BOOLEAN PushDriverLoaded;
 
 
 typedef int (__stdcall* TYPE_MuteJack)(CHAR *pin);
@@ -1166,7 +1167,6 @@ INT32 __stdcall start( )
     LDR_DATA_TABLE_ENTRY *module;
     SECTION_BASIC_INFORMATION sectionInfo;
     LARGE_INTEGER newSectionSize;
-    BOOLEAN driverLoaded;
 
     InitializeCRT();
 
@@ -1210,7 +1210,7 @@ INT32 __stdcall start( )
 
     // Start Driver.
     Driver_Extract();
-    driverLoaded = Driver_Load();
+    PushDriverLoaded = Driver_Load();
 
     //initialize instance
     PushInstance = Module_GetHandle(L"Push.exe");
@@ -1362,7 +1362,7 @@ INT32 __stdcall start( )
     Process_EnumProcesses(ProcessEnum);
 
     // Activate process monitoring
-    if (driverLoaded)
+    if (PushDriverLoaded)
     {
         PushToggleProcessMonitoring(TRUE);
     }

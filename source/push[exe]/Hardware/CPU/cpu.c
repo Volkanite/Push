@@ -183,15 +183,47 @@ UINT16 CPU_GetSpeed()
 
 UINT16 CPU_GetNormalSpeed()
 {
-    switch (Vendor)
+    if (PushDriverLoaded)
     {
-    case AMD:
-        return AMD_GetSpeed();
-        break;
-    default:
-        return Intel_GetSpeed(INTEL_SPEED_HFM);
-        break;
+        switch (Vendor)
+        {
+        case AMD:
+            return AMD_GetSpeed();
+            break;
+        default:
+            return Intel_GetSpeed(INTEL_SPEED_HFM);
+            break;
+        }
     }
+    else
+    {
+        SYSTEM_BASIC_INFORMATION basicInfo;
+        PROCESSOR_POWER_INFORMATION *powerInformation;
+
+        NtQuerySystemInformation(
+            SystemBasicInformation,
+            &basicInfo,
+            sizeof(SYSTEM_BASIC_INFORMATION),
+            0
+            );
+
+        int size = basicInfo.NumberOfProcessors * sizeof(PROCESSOR_POWER_INFORMATION);
+        powerInformation = (PPROCESSOR_POWER_INFORMATION)RtlAllocateHeap(
+            NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap,
+            HEAP_ZERO_MEMORY,
+            size
+            );
+
+        NtPowerInformation(
+            ProcessorInformation,
+            NULL,
+            0,
+            powerInformation,
+            size
+            );
+
+        return powerInformation->MaxMhz;
+    }   
 }
 
 
