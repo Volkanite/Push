@@ -89,6 +89,7 @@
     <TargetName>OvRender</TargetName>
     <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x86;$(SolutionDir)resources\sl\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\</OutDir>
+    <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)$(PlatformArchitecture)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
