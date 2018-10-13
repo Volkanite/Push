@@ -13,7 +13,7 @@
 ///
 /// Push version information
 ///
-#define PUSH_VERSION        L"r45"
+#define PUSH_VERSION        L"r46"
 
 ///
 /// Settings file name
