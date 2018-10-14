@@ -19,6 +19,7 @@ OVERLAY_INTERFACE PushOverlayInterface = OVERLAY_INTERFACE_PURE;
 extern SYSTEM_BASIC_INFORMATION HwInfoSystemBasicInformation;
 UINT32 GameProcessId;
 BOOLEAN PushDriverLoaded;
+extern BOOLEAN Wr0DriverLoaded;
 
 
 typedef int (__stdcall* TYPE_MuteJack)(CHAR *pin);
@@ -1343,7 +1344,7 @@ INT32 __stdcall start( )
 
         Resource_Extract(L"DRIVERALT", L"WinRing0x64.sys");
         GetDriverPath(L"WinRing0x64.sys", driverPath);
-        Wr0Initialize(driverPath);
+        Wr0DriverLoaded = Wr0Initialize(driverPath);
     }
 
     //initialize HWInfo

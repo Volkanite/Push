@@ -3,6 +3,7 @@
 
 #include "cpu.h"
 #include "intel.h"
+#include "..\wr0.h"
 
 
 #define MSR_CORE_THREAD_COUNT   0x0035
@@ -43,7 +44,7 @@ int GetCoreCount()
     DWORD eax, edx;
     unsigned __int8 cores;
 
-    CPU_ReadMsr(MSR_CORE_THREAD_COUNT, &eax, &edx);
+    Wr0Rdmsr(MSR_CORE_THREAD_COUNT, &eax, &edx);
 
     cores = (eax >> 16) & 0xFFFF;
 
@@ -65,7 +66,7 @@ float GetTjMax()
     DWORD eax, edx;
     float tjMax;
 
-    CPU_ReadMsr(MSR_TEMPERATURE_TARGET, &eax, &edx);
+    Wr0Rdmsr(MSR_TEMPERATURE_TARGET, &eax, &edx);
 
     tjMax = (eax >> 16) & 0xFF;
 
@@ -102,7 +103,7 @@ UINT8 Intel_GetTemperature()
         
         mask = SetThreadAffinityMask(hThread, 1UL << i);
 
-        CPU_ReadMsr(IA32_THERM_STATUS, &eax, &edx);
+        Wr0Rdmsr(IA32_THERM_STATUS, &eax, &edx);
         
         SetThreadAffinityMask(hThread, mask);
 
@@ -154,31 +155,31 @@ UINT16 Intel_GetSpeed( INTEL_SPEED_INDEX Index )
     switch (Index)
     {
     case INTEL_SPEED_LFM:
-        CPU_ReadMsr(FSB_CLOCK_VCC, &eax, &edx);
+        Wr0Rdmsr(FSB_CLOCK_VCC, &eax, &edx);
         multiplier = (edx >> 8) & 0xff;
         break;
     case INTEL_SPEED_HFM:
         switch (Model)
         {
         case 0x17: // Intel Core 2 (45nm) - Core
-            CPU_ReadMsr(IA32_PERF_STATUS, &eax, &edx);
+            Wr0Rdmsr(IA32_PERF_STATUS, &eax, &edx);
             multiplier = ((edx >> 8) & 0x1f) + 0.5 * ((edx >> 14) & 1);
             busSpeed = 266.0f;
             break;
         case 0x2A: // Intel Core i5, i7 2xxx LGA1155 (32nm) - SandyBridge
         case 0x3C: // Intel Core i5, i7 4xxx LGA1150 (22nm) - Haswell
         default:
-            CPU_ReadMsr(FSB_CLOCK_VCC, &eax, &edx);
+            Wr0Rdmsr(FSB_CLOCK_VCC, &eax, &edx);
             multiplier = (eax >> 8) & 0xff;
             break;
         }
         break;
     case INTEL_SPEED_TURBO:
-        CPU_ReadMsr(MSR_TURBO_RATIO_LIMIT, &eax, &edx);
+        Wr0Rdmsr(MSR_TURBO_RATIO_LIMIT, &eax, &edx);
         multiplier = (eax & 0xff);
         break;
     case INTEL_SPEED_STATUS:
-        CPU_ReadMsr(IA32_PERF_STATUS, &eax, &edx);
+        Wr0Rdmsr(IA32_PERF_STATUS, &eax, &edx);
         multiplier = (eax >> 8) & 0xff;
         break;
     default:

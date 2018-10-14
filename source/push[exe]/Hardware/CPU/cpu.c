@@ -6,6 +6,7 @@
 
 #include "amd.h"
 #include "intel.h"
+#include "..\wr0.h"
 
 
 WORD Vendor;
@@ -123,33 +124,6 @@ VOID CPU_Intialize()
 }
 
 
-VOID CPU_ReadMsr( DWORD Index, DWORD* EAX, DWORD* EDX )
-{
-    IO_STATUS_BLOCK isb;
-    NTSTATUS status;
-    BYTE buffer[8];
-
-    status = NtDeviceIoControlFile(
-        R0DriverHandle,
-        NULL,
-        NULL,
-        NULL,
-        &isb,
-        IOCTL_PUSH_READ_MSR,
-        &Index,
-        sizeof(DWORD),
-        &buffer,
-        sizeof(buffer)
-        );
-
-    if (NT_SUCCESS(status))
-    {
-        Memory_Copy(EAX, buffer, 4);
-        Memory_Copy(EDX, buffer + 4, 4);
-    }
-}
-
-
 UINT8 CPU_GetTemperature()
 {
     switch (Vendor)
@@ -183,7 +157,7 @@ UINT16 CPU_GetSpeed()
 
 UINT16 CPU_GetNormalSpeed()
 {
-    if (PushDriverLoaded)
+    if (PushDriverLoaded || Wr0DriverLoaded)
     {
         switch (Vendor)
         {

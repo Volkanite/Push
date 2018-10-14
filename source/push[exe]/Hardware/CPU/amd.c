@@ -53,7 +53,7 @@ UINT16 AMD_GetSpeed()
     unsigned __int32 cpuFid;
     double multiplier;
 
-    CPU_ReadMsr(COFVID_STATUS, &eax, &edx);
+    Wr0Rdmsr(COFVID_STATUS, &eax, &edx);
     
     cpuDid = (eax >> 6) & 7;
     cpuFid = eax & 0x1F;

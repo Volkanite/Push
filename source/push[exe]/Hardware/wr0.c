@@ -24,7 +24,7 @@ BOOL __stdcall DeleteService(
 
 
 HANDLE gHandle = INVALID_HANDLE_VALUE;
-
+BOOLEAN Wr0DriverLoaded;
 
 
 //-----------------------------------------------------------------------------
@@ -257,6 +257,56 @@ BOOL StopDriver(WCHAR* DriverId)
     }
     CloseServiceHandle(hSCManager);
     return rCode;
+}
+
+
+//-----------------------------------------------------------------------------
+//
+// CPU
+//
+//-----------------------------------------------------------------------------
+
+BOOL Wr0Rdmsr( DWORD Index, DWORD* EAX, DWORD* EDX )
+{
+    if (gHandle == INVALID_HANDLE_VALUE)
+    {
+        return FALSE;
+    }
+
+    if (EAX == NULL || EDX == NULL)
+    {
+        return FALSE;
+    }
+
+    IO_STATUS_BLOCK isb;
+    NTSTATUS status;
+    BOOL    result = FALSE;
+    BYTE buffer[8];
+
+    status = NtDeviceIoControlFile(
+        gHandle,
+        NULL,
+        NULL,
+        NULL,
+        &isb,
+        IOCTL_OLS_READ_MSR,
+        &Index,
+        sizeof(DWORD),
+        &buffer,
+        sizeof(buffer)
+        );
+
+    if (NT_SUCCESS(status))
+    {
+        Memory_Copy(EAX, buffer, 4);
+        Memory_Copy(EDX, buffer + 4, 4);
+
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
 }
 
 

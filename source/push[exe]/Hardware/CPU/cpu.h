@@ -1,5 +1,5 @@
 VOID CPU_Intialize();
-VOID CPU_ReadMsr(DWORD Index, DWORD* EAX, DWORD* EDX);
+//VOID CPU_ReadMsr(DWORD Index, DWORD* EAX, DWORD* EDX);
 
 /* stats */
 UINT8 CPU_GetTemperature();

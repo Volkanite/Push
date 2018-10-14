@@ -65,6 +65,33 @@ VOID* R0MapPhysicalMemory(
 }
 
 
+/*VOID CPU_ReadMsr(DWORD Index, DWORD* EAX, DWORD* EDX)
+{
+    IO_STATUS_BLOCK isb;
+    NTSTATUS status;
+    BYTE buffer[8];
+
+    status = NtDeviceIoControlFile(
+        R0DriverHandle,
+        NULL,
+        NULL,
+        NULL,
+        &isb,
+        IOCTL_PUSH_READ_MSR,
+        &Index,
+        sizeof(DWORD),
+        &buffer,
+        sizeof(buffer)
+        );
+
+    if (NT_SUCCESS(status))
+    {
+        Memory_Copy(EAX, buffer, 4);
+        Memory_Copy(EDX, buffer + 4, 4);
+    }
+}*/
+
+
 /*BOOLEAN
 R0ReadPciConfig( 
     DWORD PciAddress, 
