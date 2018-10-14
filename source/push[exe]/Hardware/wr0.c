@@ -4,7 +4,7 @@
 
 //Driver Show Name
 #define DRIVER_ID       L"WinRing0"
-#define OLS_DRIVER_ID   L"WinRing0_1_2_0"
+#define OLS_DRIVER_ID   L"WinRing0_1_0_1"
 
 
 BOOL Wr0InstallDriver(WCHAR* DriverId, WCHAR* DriverPath);
@@ -354,5 +354,66 @@ BOOL Wr0ReadPciConfig( DWORD pciAddress, DWORD regAddress, BYTE* value, DWORD si
     else
     {
         return FALSE;
+    }
+}
+
+
+//-----------------------------------------------------------------------------
+//
+// Physical Memory
+//
+//-----------------------------------------------------------------------------
+
+DWORD Wr0ReadPhysicalMemory( ULONG_PTR address, BYTE* buffer, DWORD count, DWORD unitSize )
+{
+    if (gHandle == INVALID_HANDLE_VALUE)
+    {
+        return 0;
+    }
+
+    if (buffer == NULL)
+    {
+        return 0;
+    }
+
+    DWORD   size = 0;
+    OLS_READ_MEMORY_INPUT inBuf;
+    NTSTATUS status;
+    IO_STATUS_BLOCK isb;
+
+    if (sizeof(ULONG_PTR) == 4)
+    {
+        inBuf.Address.u.HighPart = 0;
+        inBuf.Address.u.LowPart = (DWORD)address;
+    }
+    else
+    {
+        inBuf.Address.QuadPart = address;
+    }
+
+    inBuf.UnitSize = unitSize;
+    inBuf.Count = count;
+    size = inBuf.UnitSize * inBuf.Count;
+
+    status = NtDeviceIoControlFile(
+        gHandle,
+        NULL,
+        NULL,
+        NULL,
+        &isb,
+        IOCTL_OLS_READ_MEMORY,
+        &inBuf,
+        sizeof(OLS_READ_MEMORY_INPUT),
+        buffer,
+        size
+        );
+
+    if (NT_SUCCESS(status) && isb.Information == size)
+    {
+        return count * unitSize;
+    }
+    else
+    {
+        return 0;
     }
 }

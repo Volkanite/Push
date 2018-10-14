@@ -17,6 +17,9 @@
 #define IOCTL_OLS_READ_PCI_CONFIG \
     CTL_CODE(OLS_TYPE, 0x851, METHOD_BUFFERED, FILE_READ_ACCESS)
 
+#define IOCTL_OLS_READ_MEMORY \
+    CTL_CODE(OLS_TYPE, 0x841, METHOD_BUFFERED, FILE_READ_ACCESS)
+
 
 //-----------------------------------------------------------------------------
 //
@@ -31,10 +34,19 @@ typedef struct  _OLS_READ_PCI_CONFIG_INPUT {
     ULONG PciOffset;
 }   OLS_READ_PCI_CONFIG_INPUT;
 
+typedef LARGE_INTEGER PHYSICAL_ADDRESS;
+
+typedef struct  _OLS_READ_MEMORY_INPUT {
+    PHYSICAL_ADDRESS Address;
+    ULONG UnitSize;
+    ULONG Count;
+}   OLS_READ_MEMORY_INPUT;
+
 #pragma pack(pop)
 
 BOOL Wr0Rdmsr(DWORD Index, DWORD* EAX, DWORD* EDX);
 BOOL Wr0ReadPciConfig(DWORD pciAddress, DWORD regAddress, BYTE* value, DWORD size);
+DWORD Wr0ReadPhysicalMemory(ULONG_PTR address, BYTE* buffer, DWORD count, DWORD unitSize);
 
 extern HANDLE gHandle;
 extern BOOLEAN Wr0DriverLoaded;

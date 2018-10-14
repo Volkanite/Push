@@ -188,6 +188,7 @@ void **mmioPages;
 int numPages;
 int pages[] = { 0, 5 };
 BOOLEAN PagedMMIO = TRUE;
+BOOLEAN MemoryMappedIO;
 
 
 DWORD ReadGpuRegisterUnpaged( DWORD Address )
@@ -235,15 +236,39 @@ DWORD ReadGpuRegisterPaged( DWORD Address )
 }
 
 
+DWORD ReadGpuRegisterDirect( DWORD Address )
+{
+    DWORD buffer;
+    DWORD base;
+    DWORD physicalAddress;
+    //DWORD value;
+
+    base = PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress;
+
+    physicalAddress = base + Address;
+
+    Wr0ReadPhysicalMemory(physicalAddress, (BYTE*) &buffer, 4, sizeof(BYTE));
+
+    return buffer;
+}
+
+
 DWORD ReadGpuRegister( DWORD Address )
 {
-    if (!PushDriverLoaded)
+    if (!PushDriverLoaded && !Wr0DriverLoaded)
         return 0;
 
-    if (PagedMMIO)
-        return ReadGpuRegisterPaged(Address);
+    if (MemoryMappedIO)
+    {
+        if (PagedMMIO)
+            return ReadGpuRegisterPaged(Address);
+        else
+            return ReadGpuRegisterUnpaged(Address);
+    }
     else
-        return ReadGpuRegisterUnpaged(Address);
+    {
+        return ReadGpuRegisterDirect(Address);
+    }
 }
 
 
@@ -326,36 +351,44 @@ VOID InitGpuHardware()
 
         size = 0x6000;
     }
-    
-    if (PagedMMIO)
+
+    if (PushDriverLoaded)
     {
-            if (PushSharedMemory->HarwareInformation.DisplayDevice.VendorId == AMD)
-        {
-            size = 4096;
-        }
-    
-        numPages = sizeof(pages) / sizeof(pages[0]);
-    
-        mmioPages = Memory_Allocate( sizeof(void*) * (sizeof(pages) / sizeof(pages[0])) );
-    
-        for (int i = 0; i < sizeof(pages) / sizeof(pages[0]); i++)
-        {
-            ULONG address;
-    
-            address = PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress;
-    
-            if (pages[i] > 0)
-            {
-                address = pages[i] * 4096;
-                address += PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress;
-            }
-    
-            mmioPages[i] = R0MapPhysicalMemory(address, size);
-        }
+        MemoryMappedIO = TRUE;
     }
-    else
+
+    if (MemoryMappedIO)
     {
-        HwMmio = R0MapPhysicalMemory(PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress, size);
+        if (PagedMMIO)
+        {
+            if (PushSharedMemory->HarwareInformation.DisplayDevice.VendorId == AMD)
+            {
+                size = 4096;
+            }
+
+            numPages = sizeof(pages) / sizeof(pages[0]);
+
+            mmioPages = Memory_Allocate(sizeof(void*)* (sizeof(pages) / sizeof(pages[0])));
+
+            for (int i = 0; i < sizeof(pages) / sizeof(pages[0]); i++)
+            {
+                ULONG address;
+
+                address = PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress;
+
+                if (pages[i] > 0)
+                {
+                    address = pages[i] * 4096;
+                    address += PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress;
+                }
+
+                mmioPages[i] = R0MapPhysicalMemory(address, size);
+            }
+        }
+        else
+        {
+            HwMmio = R0MapPhysicalMemory(PushSharedMemory->HarwareInformation.DisplayDevice.BarAddress, size);
+        }
     }
 }
 

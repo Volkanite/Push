@@ -4,19 +4,12 @@
 #include "ring0.h"
 
 
-DWORD
+/*DWORD
 PushReadPhysicalMemory( DWORD Address )
 {
     DWORD   buffer;
     //UINT32  iBytesRet;
     IO_STATUS_BLOCK isb;
-
-    /*DeviceIoControl(PushDriverHandle,
-                    IOCTL_PUSH_READ_GPU_REGISTER,
-                    &xAddr, sizeof(DWORD),
-                    &dwBuffer, sizeof(DWORD),
-                    &iBytesRet,
-                    NULL);*/
 
     NtDeviceIoControlFile(
         R0DriverHandle,
@@ -32,7 +25,7 @@ PushReadPhysicalMemory( DWORD Address )
         );
 
     return buffer;
-}
+}*/
 
 
 //map physical memory to user space
