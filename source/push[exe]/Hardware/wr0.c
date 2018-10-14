@@ -158,16 +158,6 @@ BOOL OpenDriver()
 {
     NTSTATUS status;
 
-    /*gHandle = CreateFile(
-        _T("\\\\.\\") OLS_DRIVER_ID,
-        GENERIC_READ | GENERIC_WRITE,
-        0,
-        NULL,
-        OPEN_EXISTING,
-        FILE_ATTRIBUTE_NORMAL,
-        NULL
-        );*/
-
     status = File_Create(
         &gHandle,
         L"\\\\.\\" OLS_DRIVER_ID,
@@ -343,17 +333,6 @@ BOOL Wr0ReadPciConfig( DWORD pciAddress, DWORD regAddress, BYTE* value, DWORD si
 
     inBuf.PciAddress = pciAddress;
     inBuf.PciOffset = regAddress;
-
-    /*result = DeviceIoControl(
-        gHandle,
-        IOCTL_OLS_READ_PCI_CONFIG,
-        &inBuf,
-        sizeof(inBuf),
-        value,
-        size,
-        &returnedLength,
-        NULL
-        );*/
 
     status = NtDeviceIoControlFile(
         gHandle,
