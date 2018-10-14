@@ -21,12 +21,12 @@ DWORD R0ReadMsr(
     DWORD Index
     );
 
-BOOLEAN R0ReadPciConfig( 
+/*BOOLEAN R0ReadPciConfig( 
     DWORD PciAddress, 
     DWORD RegAddress,
     BYTE* Value,
     UINT32 Size
-    );
+    );*/
 
 DWORD PushReadPhysicalMemory(
     DWORD Address

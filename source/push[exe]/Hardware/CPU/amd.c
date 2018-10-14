@@ -2,6 +2,7 @@
 #include <ring0.h>
 
 #include "cpu.h"
+#include "..\wr0.h"
 
 
 #define PCI_BUS 0
@@ -34,7 +35,7 @@ UINT8 AMD_GetTemperature()
 {
     DWORD value;
 
-    R0ReadPciConfig(
+    Wr0ReadPciConfig(
         MiscellaneousControlAddress, 
         REPORTED_TEMPERATURE_CONTROL_REGISTER, 
         (BYTE*)&value, 

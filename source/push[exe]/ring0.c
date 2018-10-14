@@ -65,7 +65,7 @@ VOID* R0MapPhysicalMemory(
 }
 
 
-BOOLEAN
+/*BOOLEAN
 R0ReadPciConfig( 
     DWORD PciAddress, 
     DWORD RegAddress,
@@ -98,7 +98,7 @@ R0ReadPciConfig(
         return FALSE;
     else
         return TRUE;
-}
+}*/
 
 
 VOID

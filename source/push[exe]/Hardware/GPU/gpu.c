@@ -8,6 +8,7 @@
 #include "Nvidia\NvidiaGpu.h"
 #include "Intel\IntelGpu.h"
 #include "GPU\d3dkmt.h"
+#include "..\wr0.h"
 
 
 typedef struct _PCI_CONFIG
@@ -26,7 +27,7 @@ VOID GPU_Initialize( ULONG PciAddress )
     BOOLEAN result;
     DWORD vendorID;
 
-    result = R0ReadPciConfig(
+    result = Wr0ReadPciConfig(
         PciAddress,
         REGISTER_VENDORID,
         (BYTE *)&pciConfig,

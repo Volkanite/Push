@@ -7,6 +7,7 @@
 #include "hardware.h"
 #include "GPU\gpu.h"
 #include "CPU\os_cpu.h"
+#include "wr0.h"
 
 
 UINT64                      g_hNVPMContext;
@@ -128,7 +129,7 @@ DWORD FindPciDeviceByClass( BYTE baseClass, BYTE subClass, BYTE programIf, BYTE 
     BOOLEAN multiFuncFlag = FALSE;
     BYTE type = 0;
 
-    if(R0DriverHandle == INVALID_HANDLE_VALUE)
+    if(gHandle == INVALID_HANDLE_VALUE)
     {
         return 0xFFFFFFFF;
     }
@@ -147,11 +148,12 @@ DWORD FindPciDeviceByClass( BYTE baseClass, BYTE subClass, BYTE programIf, BYTE 
                     break;
                 }
                 pciAddress = PciBusDevFunc(bus, dev, func);
-                if (R0ReadPciConfig(pciAddress, 0, (BYTE*)conf, sizeof(conf)))
+
+                if (Wr0ReadPciConfig(pciAddress, 0, (BYTE*)conf, sizeof(conf)))
                 {
                     if(func == 0) // Is Multi Function Device
                     {
-                        if (R0ReadPciConfig(pciAddress, 0x0E, (BYTE*)&type, sizeof(type)))
+                        if (Wr0ReadPciConfig(pciAddress, 0x0E, (BYTE*)&type, sizeof(type)))
                         {
                             if(type & 0x80)
                             {
@@ -250,7 +252,7 @@ GetBarAddress( DWORD Bar )
 {
     DWORD barAddress;
 
-    R0ReadPciConfig(
+    Wr0ReadPciConfig(
         PushSharedMemory->HarwareInformation.DisplayDevice.pciAddress,
         Bar,
         (BYTE *)&barAddress,
@@ -287,7 +289,7 @@ VOID InitGpuHardware()
 
     PushSharedMemory->HarwareInformation.DisplayDevice.pciAddress = FindPciDeviceByClass(0x03, 0x00, 0x00, 0);
 
-    R0ReadPciConfig(
+    Wr0ReadPciConfig(
         PushSharedMemory->HarwareInformation.DisplayDevice.pciAddress,
         REGISTER_VENDORID,
         (BYTE *)&PushSharedMemory->HarwareInformation.DisplayDevice.VendorId,

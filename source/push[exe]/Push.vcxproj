@@ -45,6 +45,7 @@
     <ClCompile Include="Hardware\GPU\Nvidia\NvThermalDiode\NvThermalDiode.c" />
     <ClCompile Include="Hardware\GPU\Nvidia\OpenNvapi.c" />
     <ClCompile Include="Hardware\hardware.c" />
+    <ClCompile Include="Hardware\wr0.c" />
     <ClCompile Include="ini.c" />
     <ClCompile Include="math.c" />
     <ClCompile Include="mij.c" />
@@ -96,6 +97,7 @@
     <ClInclude Include="Hardware\GPU\Nvidia\OpenNvapi.h" />
     <ClInclude Include="Hardware\hardware.h" />
     <ClInclude Include="Hardware\vendors.h" />
+    <ClInclude Include="Hardware\wr0.h" />
     <ClInclude Include="mij.h" />
     <ClInclude Include="wow64.h" />
     <ClInclude Include="OSD\osd.h" />

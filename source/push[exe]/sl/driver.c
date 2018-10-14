@@ -317,6 +317,41 @@ void StartServiceAvi (WCHAR *pszServiceName)
 }
 
 
+VOID GetDriverPath( WCHAR* DriverBinaryName, WCHAR* Buffer )
+{
+    WCHAR driverPath[260];
+    WCHAR dir[260];
+    WCHAR root[4];
+    WCHAR *ptr;
+
+    String_Copy(dir, PushFilePath);
+
+    if ((ptr = String_FindLastChar(dir, '\\')) != NULL)
+    {
+        *ptr = '\0';
+    }
+
+    String_Format(driverPath, 260, L"%s\\%s", dir, DriverBinaryName);
+
+    root[0] = driverPath[0];
+    root[1] = ':';
+    root[2] = '\\';
+    root[3] = '\0';
+
+    if (root[0] == '\\' || GetDriveTypeW((WCHAR*)root) == DRIVE_REMOTE)
+    {
+        WCHAR tempPath[260];
+
+        GetTempPathW(260, tempPath);
+        String_Concatenate(tempPath, DriverBinaryName);
+        File_Copy(driverPath, tempPath, NULL);
+        String_Copy(driverPath, tempPath);
+    }
+
+    String_Copy(Buffer, driverPath);
+}
+
+
 NTSTATUS SlLoadDriver(
     WCHAR* ServiceName,
     WCHAR* DriverBinaryName,
@@ -333,9 +368,6 @@ NTSTATUS SlLoadDriver(
     SERVICE_STATUS ServiceStatus;
     NTSTATUS status;
     WCHAR driverPath[260];
-    WCHAR root[4];
-    WCHAR dir[260];
-    WCHAR *ptr;
 
     // check if driver possibly already loaded
     status = File_Create(
@@ -382,29 +414,7 @@ NTSTATUS SlLoadDriver(
         }
     }
 
-    String_Copy(dir, PushFilePath);
-
-    if((ptr = String_FindLastChar(dir, '\\')) != NULL)
-    {
-        *ptr = '\0';
-    }
-
-    String_Format(driverPath, 260, L"%s\\%s", dir, DriverBinaryName);
-
-    root[0] = driverPath[0];
-    root[1] = ':';
-    root[2] = '\\';
-    root[3] = '\0';
-
-    if(root[0] == '\\' || GetDriveTypeW((WCHAR*)root) == DRIVE_REMOTE)
-    {
-        WCHAR tempPath[260];
-
-        GetTempPathW(260, tempPath);
-        String_Concatenate(tempPath, DriverBinaryName);
-        File_Copy(driverPath, tempPath, NULL);
-        String_Copy(driverPath, tempPath);
-    }
+    GetDriverPath(DriverBinaryName, driverPath);
 
     scmHandle = OpenSCManagerW(0, 0, SC_MANAGER_ALL_ACCESS);
 

@@ -26,6 +26,8 @@ TYPE_MuteJack MuteJack;
 
 
 VOID InitializeCRT();
+BOOL Wr0Initialize(WCHAR* DriverPath);
+VOID GetDriverPath(WCHAR* DriverBinaryName, WCHAR* Buffer);
 
 
 INTBOOL __stdcall SetWindowTextW(
@@ -1333,6 +1335,15 @@ INT32 __stdcall start( )
                 NULL
                 );
         }
+    }
+
+    if (!PushDriverLoaded)
+    {
+        wchar_t driverPath[260];
+
+        Resource_Extract(L"DRIVERALT", L"WinRing0x64.sys");
+        GetDriverPath(L"WinRing0x64.sys", driverPath);
+        Wr0Initialize(driverPath);
     }
 
     //initialize HWInfo

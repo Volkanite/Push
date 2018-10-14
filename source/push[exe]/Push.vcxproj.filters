@@ -154,6 +154,9 @@
     <ClCompile Include="Hardware\GPU\AMD\AtomBios.c">
       <Filter>Hardware\GPU\AMD</Filter>
     </ClCompile>
+    <ClCompile Include="Hardware\wr0.c">
+      <Filter>Hardware</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\cache.h">
@@ -239,6 +242,9 @@
     </ClInclude>
     <ClInclude Include="Hardware\CPU\os_cpu.h">
       <Filter>Hardware\CPU</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\wr0.h">
+      <Filter>Hardware</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
