@@ -564,6 +564,7 @@ VOID GetHardwareInfo()
     }
 
     CPU_Intialize();
+    PushSharedMemory->HarwareInformation.Processor.TjMax = CPU_GetTemperatureMaximal();
     PushSharedMemory->HarwareInformation.Processor.MhzMax = CPU_GetNormalSpeed();
 
     gdi32 = Module_Load(L"gdi32.dll");

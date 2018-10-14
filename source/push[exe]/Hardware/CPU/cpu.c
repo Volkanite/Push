@@ -141,6 +141,23 @@ UINT8 CPU_GetTemperature()
 }
 
 
+UINT8 CPU_GetTemperatureMaximal()
+{
+    switch (Vendor)
+    {
+    case INTEL:
+        return Intel_GetTemperatureMaximal();
+        break;
+    case AMD:
+        return 75;
+        break;
+    default:
+        return 0;
+        break;
+    }
+}
+
+
 UINT16 CPU_GetSpeed()
 {
     switch (Vendor)

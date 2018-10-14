@@ -221,7 +221,7 @@ typedef struct _PUSH_HARDWARE_INFORMATION
         UINT8 MaxThreadUsage;
         UINT8 MaxCoreUsage;
         UINT8 Temperature;
-        INT32 tjmax;
+        INT32 TjMax;
     }Processor;
 
     struct

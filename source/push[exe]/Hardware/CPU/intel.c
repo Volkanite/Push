@@ -121,6 +121,12 @@ UINT8 Intel_GetTemperature()
 }
 
 
+UINT8 Intel_GetTemperatureMaximal()
+{
+    return (UINT8) TjMax;
+}
+
+
 /*
 * IA32_PERF_STATUS MSR (0x198) Bits 31:0 [Scope: Core]
 * Indicates the processor speed.
