@@ -6,6 +6,7 @@
 
 #include "amd.h"
 #include "intel.h"
+#include "os_cpu.h"
 #include "..\wr0.h"
 
 
@@ -174,47 +175,20 @@ UINT16 CPU_GetSpeed()
 
 UINT16 CPU_GetNormalSpeed()
 {
-    if (PushDriverLoaded || Wr0DriverLoaded)
+    if (!PushDriverLoaded && !Wr0DriverLoaded)
     {
-        switch (Vendor)
-        {
-        case AMD:
-            return AMD_GetSpeed();
-            break;
-        default:
-            return Intel_GetSpeed(INTEL_SPEED_HFM);
-            break;
-        }
+        return OsGetCpuSpeed();
     }
-    else
+
+    switch (Vendor)
     {
-        SYSTEM_BASIC_INFORMATION basicInfo;
-        PROCESSOR_POWER_INFORMATION *powerInformation;
-
-        NtQuerySystemInformation(
-            SystemBasicInformation,
-            &basicInfo,
-            sizeof(SYSTEM_BASIC_INFORMATION),
-            0
-            );
-
-        int size = basicInfo.NumberOfProcessors * sizeof(PROCESSOR_POWER_INFORMATION);
-
-        powerInformation = (PPROCESSOR_POWER_INFORMATION)Memory_AllocateEx(
-            size, 
-            HEAP_ZERO_MEMORY
-            );
-
-        NtPowerInformation(
-            ProcessorInformation,
-            NULL,
-            0,
-            powerInformation,
-            size
-            );
-
-        return powerInformation->MaxMhz;
-    }   
+    case AMD:
+        return AMD_GetSpeed();
+        break;
+    default:
+        return Intel_GetSpeed(INTEL_SPEED_HFM);
+        break;
+    }
 }
 
 

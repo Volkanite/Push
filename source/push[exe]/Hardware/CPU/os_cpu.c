@@ -191,3 +191,34 @@ VOID PhpUpdateCpuInformation()
         PhCpuUserUsage = 0;
     }
 }
+
+
+UINT16 OsGetCpuSpeed()
+{
+    SYSTEM_BASIC_INFORMATION basicInfo;
+    PROCESSOR_POWER_INFORMATION *powerInformation;
+
+    NtQuerySystemInformation(
+        SystemBasicInformation,
+        &basicInfo,
+        sizeof(SYSTEM_BASIC_INFORMATION),
+        0
+        );
+
+    int size = basicInfo.NumberOfProcessors * sizeof(PROCESSOR_POWER_INFORMATION);
+
+    powerInformation = (PPROCESSOR_POWER_INFORMATION)Memory_AllocateEx(
+        size,
+        HEAP_ZERO_MEMORY
+        );
+
+    NtPowerInformation(
+        ProcessorInformation,
+        NULL,
+        0,
+        powerInformation,
+        size
+        );
+
+    return powerInformation->MaxMhz;
+}
