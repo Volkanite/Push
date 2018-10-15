@@ -74,6 +74,7 @@
     <GenerateManifest>false</GenerateManifest>
     <LibraryPath>$(SolutionDir)resources\sl\lib\i386;$(SolutionDir)resources\ddk\lib\i386</LibraryPath>
     <TargetExt>.sys</TargetExt>
+    <TargetName>push32</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

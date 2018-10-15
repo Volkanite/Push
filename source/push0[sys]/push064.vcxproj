@@ -73,7 +73,7 @@
     <GenerateManifest>false</GenerateManifest>
     <LibraryPath>$(SolutionDir)resources\sl\lib\AMD64;$(SolutionDir)resources\ddk\lib\amd64;$(LibraryPath)</LibraryPath>
     <TargetExt>.sys</TargetExt>
-    <TargetName>$(ProjectName)</TargetName>
+    <TargetName>push64</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -182,7 +182,7 @@
       </DataExecutionPrevention>
     </Link>
     <PostBuildEvent>
-      <Command>signtool.exe sign /v /f test.pfx ..\..\bin\push064.sys</Command>
+      <Command>signtool.exe sign /v /f test.pfx ..\..\bin\push64.sys</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
