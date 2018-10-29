@@ -509,14 +509,12 @@ int __stdcall GetSystemMetrics(
 
 int MonitorWidth;
 int MonitorHeight;
-PTHREAD_LIST ThreadList;
 
 
 VOID GetHardwareInfo()
 {
     int i = 0;
     int monitorCount;
-    PTHREAD_LIST *threadListEntry;
     HANDLE gdi32;
     int cores = 0;
 
@@ -545,20 +543,6 @@ VOID GetHardwareInfo()
 
     //byte => megabytes
     PushSharedMemory->HarwareInformation.Memory.Total = (physicalPages * pageSize) / 1048576;
-
-    threadListEntry = &ThreadList;
-
-    for (i = 0; i < PushSharedMemory->HarwareInformation.Processor.NumberOfThreads; i++)
-    {
-        threadListEntry->nextEntry = (PTHREAD_LIST*)Memory_Allocate(sizeof(PTHREAD_LIST));
-
-        threadListEntry->number = i;
-        threadListEntry->idleTime.QuadPart = 0;
-        threadListEntry->perfCounter.QuadPart = 0;
-        threadListEntry->usage = 0.0f;
-
-        threadListEntry = threadListEntry->nextEntry;
-    }
 
     cores = CPU_Intialize();
 
