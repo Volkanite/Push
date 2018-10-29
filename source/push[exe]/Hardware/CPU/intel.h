@@ -8,7 +8,7 @@ typedef enum _INTEL_SPEED_INDEX
 } INTEL_SPEED_INDEX;
 
 
-VOID IntelCPU_Initialize();
+UINT8 IntelCPU_Initialize();
 
 UINT8 Intel_GetTemperature();
 UINT8 Intel_GetTemperatureMaximal();

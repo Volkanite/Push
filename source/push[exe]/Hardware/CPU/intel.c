@@ -22,10 +22,12 @@ float GetTjMax();
 extern WORD Model;
 
 
-VOID IntelCPU_Initialize()
+UINT8 IntelCPU_Initialize()
 {
     CoreCount = GetCoreCount();
     TjMax = GetTjMax();
+
+    return CoreCount;
 }
 
 

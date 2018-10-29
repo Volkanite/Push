@@ -20,7 +20,7 @@ typedef struct _THREAD_LIST {
 
 THREAD_LIST_ENTRY* TmThreadList = 0;
 VOID* TmHeapHandle;
-ULONG MaxMhz;
+ULONG BaseMhz;
 extern UINT64 CyclesWaited;
 BOOLEAN StripWaitCycles = TRUE;
 
@@ -189,7 +189,7 @@ ThreadMonitor::ThreadMonitor()
         MEM_RELEASE
         );
 
-    MaxMhz = PushSharedMemory->HarwareInformation.Processor.MhzMax;
+    BaseMhz = PushSharedMemory->HarwareInformation.Processor.MhzBase;
 }
 
 
@@ -268,7 +268,7 @@ UINT8 ThreadMonitor::GetMaxThreadUsage()
 
     CyclesWaited = 0;
 
-    threadUsage = ((FLOAT)MaxThreadCyclesDelta / (FLOAT)(MaxMhz * 1000000)) * 100;
+    threadUsage = ((FLOAT)MaxThreadCyclesDelta / (FLOAT)(BaseMhz * 1000000)) * 100;
 
     //clip calculated thread usage to [0-100] range to filter calculation non-ideality
 

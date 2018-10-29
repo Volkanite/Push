@@ -80,10 +80,11 @@ BOOLEAN CpuidTx(
 }
 
 
-VOID CPU_Intialize()
+UINT8 CPU_Intialize()
 {
     DWORD  eax, ebx, ecx, edx;
     CHAR name[12];
+    int cores;
 
     CpuidTx(
         CPUID_VENDORID, 
@@ -102,13 +103,13 @@ VOID CPU_Intialize()
     {
         Vendor = INTEL;
 
-        IntelCPU_Initialize();
+        cores = IntelCPU_Initialize();
     }
     else if (strncmp(name, "AuthenticAMD", 12) == 0)
     {
         Vendor = AMD;
 
-        AMD_Initialize();
+        cores = AMD_Initialize();
     }
 
     CpuidTx(
@@ -122,6 +123,8 @@ VOID CPU_Intialize()
 
     Model = ((eax & 0x0F0000) >> 12) +
         ((eax & 0xF0) >> 4);
+
+    return cores;
 }
 
 
@@ -173,7 +176,7 @@ UINT16 CPU_GetSpeed()
 }
 
 
-UINT16 CPU_GetNormalSpeed()
+UINT16 CPU_GetBaseSpeed()
 {
     if (!PushDriverLoaded && !Wr0DriverLoaded)
     {

@@ -68,7 +68,7 @@ GetMaxCoreLoad()
     FLOAT maxUsage = 0.0f;
     UINT8 i = 0;
 
-    for (i = 0; i < PushSharedMemory->HarwareInformation.Processor.NumberOfCores; i++)
+    for (i = 0; i < PushSharedMemory->HarwareInformation.Processor.NumberOfThreads; i++)
     {
         usage = GetCpuUsage(i);
 

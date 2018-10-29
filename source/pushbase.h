@@ -161,16 +161,16 @@ typedef struct _IMDISK_SET_DEVICE_FLAGS
 #define OSD_LAST_ITEM       0x00100000 //Update me!
 
 
-typedef struct _CORE_LIST CORE_LIST;
-typedef struct _CORE_LIST {
+typedef struct _PTHREAD_LIST PTHREAD_LIST;
+typedef struct _PTHREAD_LIST {
 
     UINT8 number;
     LARGE_INTEGER perfCounter;
     LARGE_INTEGER idleTime;
     float usage;
-    CORE_LIST *nextEntry;
+    PTHREAD_LIST *nextEntry;
 
-} CORE_LIST;
+} PTHREAD_LIST;
 
 
 #pragma pack(push,1)
@@ -215,7 +215,9 @@ typedef struct _PUSH_HARDWARE_INFORMATION
     struct
     {
         UINT8 NumberOfCores;
+        UINT8 NumberOfThreads;
         UINT16 MhzCurrent;
+        UINT16 MhzBase;
         UINT16 MhzMax;
         UINT8 Load;
         UINT8 MaxThreadUsage;

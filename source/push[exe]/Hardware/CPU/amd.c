@@ -21,13 +21,15 @@ DWORD GetPciAddress(BYTE bus, BYTE device, BYTE function)
 }
 
 
-VOID AMD_Initialize()
+UINT8 AMD_Initialize()
 {
     MiscellaneousControlAddress = GetPciAddress(
         PCI_BUS, 
         PCI_BASE_DEVICE, 
         MISCELLANEOUS_CONTROL_FUNCTION
         );
+
+    return 0;
 }
 
 

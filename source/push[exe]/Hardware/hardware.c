@@ -509,15 +509,16 @@ int __stdcall GetSystemMetrics(
 
 int MonitorWidth;
 int MonitorHeight;
-CORE_LIST coreList;
+PTHREAD_LIST ThreadList;
 
 
 VOID GetHardwareInfo()
 {
     int i = 0;
     int monitorCount;
-    CORE_LIST *coreListEntry;
+    PTHREAD_LIST *threadListEntry;
     HANDLE gdi32;
+    int cores = 0;
 
     //use 64 bits to force allmul() on 32 bit builds
     UINT64 physicalPages;
@@ -537,7 +538,7 @@ VOID GetHardwareInfo()
     // Get the number of processors in the system
     NtQuerySystemInformation(SystemBasicInformation, &HwInfoSystemBasicInformation, sizeof(SYSTEM_BASIC_INFORMATION), 0);
 
-    PushSharedMemory->HarwareInformation.Processor.NumberOfCores = HwInfoSystemBasicInformation.NumberOfProcessors;
+    PushSharedMemory->HarwareInformation.Processor.NumberOfThreads = HwInfoSystemBasicInformation.NumberOfProcessors;
 
     physicalPages = HwInfoSystemBasicInformation.NumberOfPhysicalPages;
     pageSize = HwInfoSystemBasicInformation.PageSize;
@@ -545,28 +546,27 @@ VOID GetHardwareInfo()
     //byte => megabytes
     PushSharedMemory->HarwareInformation.Memory.Total = (physicalPages * pageSize) / 1048576;
 
-    coreListEntry = &coreList;
+    threadListEntry = &ThreadList;
 
-    for (i = 0; i < PushSharedMemory->HarwareInformation.Processor.NumberOfCores; i++)
+    for (i = 0; i < PushSharedMemory->HarwareInformation.Processor.NumberOfThreads; i++)
     {
-        coreListEntry->nextEntry = (CORE_LIST*)Memory_Allocate(
-                                    /*PushHeapHandle,
-                                    0,*/
-                                    sizeof(CORE_LIST)
-                                    );
+        threadListEntry->nextEntry = (PTHREAD_LIST*)Memory_Allocate(sizeof(PTHREAD_LIST));
 
-        coreListEntry->number                   = i;
-        coreListEntry->idleTime.QuadPart        = 0;
-        coreListEntry->perfCounter.QuadPart     = 0;
-        coreListEntry->usage                    = 0.0f;
+        threadListEntry->number = i;
+        threadListEntry->idleTime.QuadPart = 0;
+        threadListEntry->perfCounter.QuadPart = 0;
+        threadListEntry->usage = 0.0f;
 
-        coreListEntry = coreListEntry->nextEntry;
+        threadListEntry = threadListEntry->nextEntry;
     }
 
-    CPU_Intialize();
-    PushSharedMemory->HarwareInformation.Processor.TjMax = CPU_GetTemperatureMaximal();
-    PushSharedMemory->HarwareInformation.Processor.MhzMax = CPU_GetNormalSpeed();
+    cores = CPU_Intialize();
 
+    PushSharedMemory->HarwareInformation.Processor.NumberOfCores = cores;
+    PushSharedMemory->HarwareInformation.Processor.TjMax = CPU_GetTemperatureMaximal();
+    PushSharedMemory->HarwareInformation.Processor.MhzBase = CPU_GetBaseSpeed();
+
+    // Monitors
     gdi32 = Module_Load(L"gdi32.dll");
 
     GetNumberOfPhysicalMonitors = Module_GetProcedureAddress(gdi32, "GetNumberOfPhysicalMonitors");
