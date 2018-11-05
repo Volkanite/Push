@@ -1027,9 +1027,14 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                 }
                 else if (String_Compare(buffer, L"UpdateClocks") == 0)
                 {
-                    GPU_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax);
-                    GPU_SetMemoryClock(PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax);
-                    GPU_SetVoltage(PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax);
+                    if (PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax > 1 &&
+                        PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax > 1
+                        )
+                    {
+                        GPU_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax);
+                        GPU_SetMemoryClock(PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax);
+                        GPU_SetVoltage(PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax);
+                    }
                 }
                 else if (String_Compare(buffer, L"UpdateFanSpeed") == 0)
                 {

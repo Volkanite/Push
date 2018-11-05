@@ -232,6 +232,11 @@ VOID ClockStep( OVERCLOCK_UNIT Unit, CLOCK_STEP_DIRECTION Direction )
         break;
     }
 
+    if (*value == 0)
+    {
+        return;
+    }
+
     if (Direction == Up)
         (*value)++;
     else if (Direction == Down)
