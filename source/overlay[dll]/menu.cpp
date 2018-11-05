@@ -130,7 +130,8 @@ VOID AddItems()
             //Skip some items that are handled in another sub-menu
             if (osdItem->Flag == OSD_GPU_E_CLK ||
                 osdItem->Flag == OSD_GPU_M_CLK ||
-                osdItem->Flag == OSD_GPU_VOLTAGE
+                osdItem->Flag == OSD_GPU_VOLTAGE ||
+                osdItem->Flag == OSD_GPU_FAN_DC
                 )
             {
                 continue;
@@ -505,15 +506,25 @@ VOID ProcessOptions( MenuItems* Item, WPARAM Key )
 
     case ID_FAN:
     {
-        PushSharedMemory->OSDFlags |= OSD_GPU_FAN_DC;
-
-        if (*Item->Var > 0)
+        switch (Key)
+        {
+        case VK_RIGHT:
             PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle++;
-        else
+            break;
+        case VK_LEFT:
             PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle--;
+            break;
+        case VK_RETURN:
+            PushSharedMemory->OSDFlags |= OSD_GPU_FAN_DC;
+            break;
+        }
 
-        CallPipe(L"UpdateFanSpeed", NULL);
-        UpdateIntegralText(PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle, Item->Options);
+        if (Key == VK_LEFT || Key == VK_RIGHT)
+        {
+            PushSharedMemory->OSDFlags |= OSD_GPU_FAN_DC;
+            CallPipe(L"UpdateFanSpeed", NULL);
+            UpdateIntegralText(PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle, Item->Options);
+        }
     }
     break;
 
