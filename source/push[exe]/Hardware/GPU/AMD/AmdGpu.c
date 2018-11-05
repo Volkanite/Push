@@ -66,7 +66,14 @@ UINT16 AmdGpu_GetEngineClockMax()
 {
     UINT16 clock;
 
-    clock = AtomBios_GetEngineClock();
+    if (ADL_Initialized)
+    {
+        clock = Adl_GetEngineClockMax();
+    }
+    else
+    {
+        clock = AtomBios_GetEngineClock();
+    }
 
     return clock;
 }
@@ -76,7 +83,14 @@ UINT16 AmdGpu_GetMemoryClockMax()
 {
     UINT16 clock;
 
-    clock = AtomBios_GetMemoryClock();
+    if (ADL_Initialized)
+    {
+        clock = Adl_GetMemoryClockMax();
+    }
+    else
+    {
+        clock = AtomBios_GetMemoryClock();
+    }
 
     return clock;
 }
