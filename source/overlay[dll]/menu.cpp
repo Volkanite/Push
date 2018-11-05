@@ -127,6 +127,15 @@ VOID AddItems()
 
         for (i = 0; i < PushSharedMemory->NumberOfOsdItems; i++, osdItem++)
         {
+            //Skip some items that are handled in another sub-menu
+            if (osdItem->Flag == OSD_GPU_E_CLK ||
+                osdItem->Flag == OSD_GPU_M_CLK ||
+                osdItem->Flag == OSD_GPU_VOLTAGE
+                )
+            {
+                continue;
+            }
+
             Menu->AddItem(osdItem->Description, ItemOpt, &MenuOsd[i+1], osdItem->Flag);
         }
 
@@ -392,7 +401,7 @@ void SetAmbientVolume( int Level )
 }
 
 
-VOID ProcessOptions( MenuItems* Item )
+VOID ProcessOptions( MenuItems* Item, WPARAM Key )
 {
     switch (*Item->Id)
     {
@@ -425,47 +434,69 @@ VOID ProcessOptions( MenuItems* Item )
 
     case ID_ECLOCK:
         {
-            DisableAutoOverclock = TRUE;
-
-            if (*Item->Var > 0)
+            switch (Key)
             {
-                ClockStep(OC_ENGINE, Up);
-            }
-            else
-            {
-                ClockStep(OC_ENGINE, Down);
-            }
+            case VK_LEFT:
+            case VK_RIGHT:
+                DisableAutoOverclock = TRUE;
 
-            UpdateIntegralText(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax, Item->Options);
+                if (Key == VK_RIGHT)
+                {
+                    ClockStep(OC_ENGINE, Up);
+                }
+                else if (Key == VK_LEFT)
+                {
+                    ClockStep(OC_ENGINE, Down);
+                }
+
+                UpdateIntegralText(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax, Item->Options);
+                break;
+            case VK_RETURN:
+                PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
+                break;
+            }
         }
         break;
 
     case ID_MCLOCK:
         {
-            DisableAutoOverclock = TRUE;
-
-            if (*Item->Var > 0)
+            switch (Key)
             {
-                ClockStep(OC_MEMORY, Up);
-            }
-            else
-            {
-                ClockStep(OC_MEMORY, Down);
-            }
+            case VK_LEFT:
+            case VK_RIGHT:
+                DisableAutoOverclock = TRUE;
 
-            UpdateIntegralText(PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax, Item->Options);
+                if (Key == VK_RIGHT)
+                {
+                    ClockStep(OC_MEMORY, Up);
+                }
+                else if (Key == VK_LEFT)
+                {
+                    ClockStep(OC_MEMORY, Down);
+                }
+
+                UpdateIntegralText(PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax, Item->Options);
+                break;
+            case VK_RETURN:
+                PushSharedMemory->OSDFlags |= OSD_GPU_M_CLK;
+                break;
+            }
         }
         break;
 
     case ID_VOLTAGE:
     {
-        if (*Item->Var > 0)
+        switch (Key)
         {
+        case VK_RIGHT:
             ClockStep(OC_VOLTAGE, Up);
-        }
-        else
-        {
+            break;
+        case VK_LEFT:
             ClockStep(OC_VOLTAGE, Down);
+            break;
+        case VK_RETURN:
+            PushSharedMemory->OSDFlags |= OSD_GPU_VOLTAGE;
+            break;
         }
 
         UpdateIntegralText(PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax, Item->Options);
@@ -751,88 +782,98 @@ VOID Menu_Render( OvOverlay* Overlay )
 VOID Menu_KeyboardHook( WPARAM Key )
 {
     if (!OvmMenu)
-        return;
-
-    if (Key == VK_INSERT || Key == VK_UP || Key == VK_DOWN || Key == VK_LEFT || Key == VK_RIGHT)
     {
-        switch (Key)
-        {
-        case VK_INSERT:
+        return;
+    }
 
-            OvmMenu->mSet.Show = !OvmMenu->mSet.Show;
-            
+    if (Key != VK_INSERT && Key != VK_UP && Key != VK_DOWN && Key != VK_LEFT && Key != VK_RIGHT && Key != VK_RETURN)
+    {
+        return;
+    }
+
+    switch (Key)
+    {
+    case VK_INSERT:
+
+        OvmMenu->mSet.Show = !OvmMenu->mSet.Show;
+
+        break;
+
+    case VK_UP:
+    {
+        if (!OvmMenu->mSet.Show)
+          break;
+
+        OvmMenu->mSet.SeletedIndex--;
+
+        if (OvmMenu->mSet.SeletedIndex < 0)
+          OvmMenu->mSet.SeletedIndex = OvmMenu->mSet.MaxItems - 1;
+
+    } break;
+
+    case VK_DOWN:
+    {
+        if (!OvmMenu->mSet.Show)
             break;
 
-        case VK_UP:
-        {
-            if (!OvmMenu->mSet.Show)
-                break;
+        OvmMenu->mSet.SeletedIndex++;
 
-            OvmMenu->mSet.SeletedIndex--;
+        if (OvmMenu->mSet.SeletedIndex == OvmMenu->mSet.MaxItems)
+            OvmMenu->mSet.SeletedIndex = 0;
 
-            if (OvmMenu->mSet.SeletedIndex < 0)
-                OvmMenu->mSet.SeletedIndex = OvmMenu->mSet.MaxItems - 1;
+    } break;
 
-        } break;
-
-        case VK_DOWN:
-        {
-            if (!OvmMenu->mSet.Show)
-                break;
-
-            OvmMenu->mSet.SeletedIndex++;
-
-            if (OvmMenu->mSet.SeletedIndex == OvmMenu->mSet.MaxItems)
-                OvmMenu->mSet.SeletedIndex = 0;
-
-        } break;
-
-        case VK_LEFT:
-            {
-                if (!OvmMenu->mSet.Show)
-                    break;
-
-                if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var && *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var > 0)
-                {
-                    *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var += -1;
-
-                    if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == GROUP)
-                        OvmMenu->mSet.MaxItems = 0;
-                }
-
-                if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == ITEM)
-                    ProcessOptions(&OvmMenu->Items[OvmMenu->mSet.SeletedIndex]);
-            } 
+    case VK_LEFT:
+    {
+        if (!OvmMenu->mSet.Show)
             break;
 
-        case VK_RIGHT:
-            {
-                if (!OvmMenu->mSet.Show)
-                    break;
+        if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var && *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var > 0)
+        {
+            *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var += -1;
 
-                if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var
-                    && *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var < (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].MaxValue - 1))
-                {
-                    *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var += 1;
-
-                    if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == GROUP)
-                        OvmMenu->mSet.MaxItems = 0;
-                }
-
-                //special case for integral items
-                if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var && OvmMenu->Items[OvmMenu->mSet.SeletedIndex].MaxValue == 1)
-                {
-                    if (*OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var <= (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].MaxValue - 1))
-                    {
-                        *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var += 1;
-                    }
-                }
-                
-                if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == ITEM)
-                    ProcessOptions(&OvmMenu->Items[OvmMenu->mSet.SeletedIndex]);
-            } 
-            break;
+            if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == GROUP)
+                OvmMenu->mSet.MaxItems = 0;
         }
+
+        if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == ITEM)
+            ProcessOptions(&OvmMenu->Items[OvmMenu->mSet.SeletedIndex], Key);
+
+    }break;
+
+    case VK_RIGHT:
+    {
+        if (!OvmMenu->mSet.Show)
+             break;
+
+        if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var
+             && *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var < (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].MaxValue - 1))
+        {
+             *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var += 1;
+
+             if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == GROUP)
+                 OvmMenu->mSet.MaxItems = 0;
+        }
+
+        //special case for integral items
+        if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var && OvmMenu->Items[OvmMenu->mSet.SeletedIndex].MaxValue == 1)
+        {
+             if (*OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var <= (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].MaxValue - 1))
+             {
+                 *OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Var += 1;
+             }
+        }
+
+        if (OvmMenu->Items[OvmMenu->mSet.SeletedIndex].Type == ITEM)
+             ProcessOptions(&OvmMenu->Items[OvmMenu->mSet.SeletedIndex], Key);
+
+    }break;
+
+    case VK_RETURN:
+    {
+        ProcessOptions(&OvmMenu->Items[OvmMenu->mSet.SeletedIndex], Key);
+    }break;
+
     }
 }
 
