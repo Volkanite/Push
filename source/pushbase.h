@@ -60,6 +60,15 @@
 #define IOCTL_PUSH_QUEUE_FILE           CTL_CODE(FILE_DEVICE_PUSH, 0x813, 0, ( 0x0001 ) | ( 0x0002 ))
 
 
+#define CMD_STARTHWMON      1
+#define CMD_SETGPUCLK       2
+#define CMD_ADJGPUCLK       3
+#define CMD_MAXGPUCLK       4
+#define CMD_SETGPUFAN       5
+#define CMD_GETDSKRSP       6
+#define CMD_CONTROLLERCFG   7
+
+
 #define IMDISK_VERSION                 0x0160
 #define IMDISK_DRIVER_VERSION          0x0103
 

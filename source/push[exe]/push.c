@@ -925,27 +925,21 @@ VOID Log(const wchar_t* Format, ...)
     wcsncat(output, buffer, 260);
     OutputDebugStringW(output);
 }
+typedef struct CONTROLLER_CONFIG_CMD_BUFFER
+{
+    BYTE CommadHeader;
+    MOTIONINJOY_BUTTON_MAP Map;
+}CONTROLLER_CONFIG_CMD_BUFFER;
 
 
 DWORD __stdcall PipeThread( VOID* Parameter )
 {
     HANDLE pipeHandle;
-    WCHAR buffer[1024];
+    BYTE buffer[1024];
     OBJECT_ATTRIBUTES objAttributes;
     UNICODE_STRING pipeName;
     IO_STATUS_BLOCK isb;
     LARGE_INTEGER timeOut;
-
-    /*pipeHandle = CreateNamedPipeW(
-        L"\\\\.\\pipe\\Push",
-        PIPE_ACCESS_DUPLEX,
-        PIPE_WAIT | PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_ACCEPT_REMOTE_CLIENTS,
-        1,
-        1024 * 16,
-        1024 * 16,
-        NMPWAIT_USE_DEFAULT_WAIT,
-        NULL
-        );*/
 
     RtlDosPathNameToNtPathName_U(L"\\\\.\\pipe\\Push", &pipeName, NULL, NULL);
 
@@ -993,40 +987,19 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                 NULL
                 ) == STATUS_SUCCESS)
             {
-                /* add terminating zero */
-                buffer[isb.Information] = '\0';
+                /* parse command buffer */
 
-                if (String_Compare(buffer, L"ForceMaxClocks") == 0)
+                switch (buffer[0])
                 {
-                    Hardware_ForceMaxClocks();
-                }
-                else if (String_CompareN(buffer, L"Overclock", 8) == 0)
-                {
-                    switch (buffer[10])
-                    {
-                    case 'e':
-                        {
-                            switch (buffer[12])
-                            {
-                            case 'i':
-                                Adl_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock + 1, 2);
-                                break;
-                            case 'd':
-                                Adl_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock - 1, 2);
-                                break;
-                            }
-                        }
-                        break;
-                    case 'm':
-                        Adl_SetMemoryClock(PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock + 1, 2);
-                        break;
-                    case 'v':
-                        Adl_SetVoltage(PushSharedMemory->HarwareInformation.DisplayDevice.Voltage + 1);
-                        break;
-                    }
-                }
-                else if (String_Compare(buffer, L"UpdateClocks") == 0)
-                {
+                case CMD_STARTHWMON:
+                    //start timer
+                    SetTimer(PushMainWindow->Handle, 0, 1000, 0);
+
+                    // Start disk monitoring;
+                    if (!DiskMonitorInitialized)
+                        DiskStartMonitoring();
+                    break;
+                case CMD_SETGPUCLK:
                     if (PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax > 1 &&
                         PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax > 1
                         )
@@ -1035,29 +1008,56 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                         GPU_SetMemoryClock(PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax);
                         GPU_SetVoltage(PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax);
                     }
-                }
-                else if (String_Compare(buffer, L"UpdateFanSpeed") == 0)
-                {
+                    break;
+                case CMD_ADJGPUCLK:
+                    switch (buffer[10])
+                    {
+                    case 'e':
+                    {
+                        switch (buffer[12])
+                        {
+                        case 'i':
+                            Adl_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock + 1, 2);
+                            break;
+                        case 'd':
+                            Adl_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock - 1, 2);
+                            break;
+                        }
+                    }
+                        break;
+                    case 'm':
+                        Adl_SetMemoryClock(PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock + 1, 2);
+                        break;
+                    case 'v':
+                        Adl_SetVoltage(PushSharedMemory->HarwareInformation.DisplayDevice.Voltage + 1);
+                        break;
+                    }
+                    break;
+                case CMD_MAXGPUCLK:
+                    Hardware_ForceMaxClocks();
+                    break;
+                case CMD_SETGPUFAN:
                     Adl_SetFanDutyCycle(PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle);
-                }
-                else if (String_CompareN(buffer, L"GetDiskResponseTime", 19) == 0)
+                    break;
+                case CMD_GETDSKRSP:
                 {
                     UINT32 processId;
                     UINT16 responseTime;
 
-                    processId = String_ToInteger(&buffer[20]);
+                    processId = buffer[1];
                     responseTime = GetDiskResponseTime(processId);
 
                     File_Write(pipeHandle, &responseTime, 2);
-                }
-                else if (String_CompareN(buffer, L"StartHardwareMonitoring", 23) == 0)
+                }break;
+                case CMD_CONTROLLERCFG:
                 {
-                    //start timer
-                    SetTimer(PushMainWindow->Handle, 0, 1000, 0);
+                    CONTROLLER_CONFIG_CMD_BUFFER *cmdBuffer;
 
-                    // Start disk monitoring;
-                    if (!DiskMonitorInitialized)
-                        DiskStartMonitoring();
+                    cmdBuffer = &buffer;
+
+                    Mij_SetButton(&cmdBuffer->Map);
+                }break;
+
                 }
             }
         }

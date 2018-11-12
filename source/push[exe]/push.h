@@ -210,5 +210,6 @@ extern TYPE_strcmp      ntdll_strcmp;
 #include <mij.h>
 #include <driver.h>
 #include <osd.h>
+#include <mhp.h>
 
 #endif //PUSH_H

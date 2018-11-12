@@ -135,7 +135,7 @@ VOID* DetourApi( WCHAR* dllName, CHAR* apiName, BYTE* NewFunction )
 }
 
 
-VOID CallPipe( WCHAR* Command, UINT16* Output )
+VOID CallPipe( BYTE* CommandBuffer, UINT32 CommandBufferSize, UINT16* Output )
 {
     static HANDLE pipeHandle = INVALID_HANDLE_VALUE;
     DWORD dwWritten;
@@ -157,8 +157,8 @@ VOID CallPipe( WCHAR* Command, UINT16* Output )
 
         WriteFile(
             pipeHandle,
-            Command,
-            (DWORD) (wcslen(Command) + 1) * sizeof(WCHAR),
+            CommandBuffer,
+            CommandBufferSize,
             &dwWritten,
             NULL
             );

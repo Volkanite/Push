@@ -63,6 +63,40 @@ WORD SomeMacro[6] = {
 };
 
 
+VOID Mij_SetButton( MOTIONINJOY_BUTTON_MAP* ButtonMapping )
+{
+    HANDLE driverHandle;
+    IO_STATUS_BLOCK isb;
+    MOTIONINJOY_APP_OPTION options;
+
+    File_Create(
+        &driverHandle,
+        L"\\\\.\\MIJFilter",
+        SYNCHRONIZE | FILE_READ_DATA | FILE_WRITE_DATA,
+        FILE_SHARE_READ | FILE_SHARE_WRITE,
+        FILE_OPEN,
+        FILE_SYNCHRONOUS_IO_NONALERT,
+        NULL
+        );
+
+    Memory_Clear(&options, sizeof(MOTIONINJOY_APP_OPTION));
+
+    options.CommonOption.mode = DirectInput;
+    options.CommonOption.LED = 129;
+    options.CommonOption.AutoOff_timeout = 0x80 | /*PushSharedMemory->ControllerTimeout*/60;
+    options.CommonOption.Deadzone_LStick_X = 10;
+    options.CommonOption.Deadzone_LStick_Y = 10;
+
+    options.InputOption.Duration = 100;
+    options.InputOption.Interval = 400;
+
+    Memory_Copy(options.InputOption.Maping, ButtonMapping, 96);
+
+    NtDeviceIoControlFile(driverHandle, NULL, NULL, NULL, &isb, IOCTL_MIJ_SET_CONFIG_OPTIONS, &options, 256, NULL, 0);
+    File_Close(driverHandle);
+}
+
+
 VOID Mij_SetProfile( WCHAR* GameName )
 {
     HANDLE driverHandle;

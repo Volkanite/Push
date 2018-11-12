@@ -8,7 +8,7 @@ extern BOOLEAN IsStableFramerate;
 
 char *GetDirectoryFile(char *pszFileName);
 VOID Log(const wchar_t* Format, ...);
-VOID CallPipe(WCHAR* Command, UINT16* Output);
+VOID CallPipe(BYTE* CommandBuffer, UINT32 CommandBufferSize, UINT16* Output);
 VOID StopImageMonitoring();
 
 extern VOID PushRefreshThreadMonitor();

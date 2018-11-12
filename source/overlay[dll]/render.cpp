@@ -284,7 +284,10 @@ VOID RnRender( OvOverlay* Overlay )
 
         StopImageMonitoring();
         InitializeKeyboardHook();
-        CallPipe(L"StartHardwareMonitoring", NULL);
+
+        BYTE cmdBuffer[2];
+        cmdBuffer[0] = CMD_STARTHWMON;
+        CallPipe(cmdBuffer, sizeof(cmdBuffer), NULL);
     }
 
     Osd_Draw( Overlay );

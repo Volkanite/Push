@@ -9,6 +9,7 @@
 #include "kbhook.h"
 #include "osd.h"
 #include "menu.h"
+#include "..\push[exe]\mij.h"
 
 
 OverlayMenu* Menu;
@@ -20,6 +21,7 @@ MenuVars Diagnostics[10];
 MenuVars D3DTweaks[10];
 MenuVars Process[5];
 MenuVars Capture[5];
+MenuVars Controller[30];
 MenuVars Settings[10];
 
 #define GROUP 1
@@ -41,6 +43,34 @@ WCHAR* FontOpt[] = { L"Verdana", L"Consolas", L"Courier", L"DejaVu Sans Mono", L
                      L"GulimChe", L"GungsuhChe", L"KaiTi", L"Liberation Mono", L"Lucida Console", L"MingLiU", L"Miriam Fixed", 
                      L"MS Gothic", L"MS Mincho", L"NSimSun", L"Rod", L"SimHei", L"Simplified Arabic Fixed", L"SimSun", 
                      L"Source Code Pro", L"Unispace" };
+
+WCHAR* ControllerOpt[] = { L"Undefined",
+                           L"Button 1",
+                           L"Button 2",
+                           L"Button 3",
+                           L"Button 4",
+                           L"Button 5",
+                           L"Button 6",
+                           L"Button 7",
+                           L"Button 8",
+                           L"Button 9",
+                           L"Button 10",
+                           L"Button 11",
+                           L"Button 12",
+                           L"Button 13",
+                           L"Dpad Up",
+                           L"Dpad Right",
+                           L"Dpad Down",
+                           L"Dpad Left",
+                           L"Axis X+",
+                           L"Axis X-",
+                           L"Axis Y+",
+                           L"Axis Y-",
+                           L"Axis RX+",
+                           L"Axis RX-",
+                           L"Axis RY+",
+                           L"Axis RY-"
+                         };
 
 WCHAR* CPUCalcOpt[] = { L"twc", L"t", L"o", L"c" };
 
@@ -97,6 +127,14 @@ extern BOOLEAN StripWaitCycles;
 #define ID_IAPI             OSD_LAST_ITEM+28
 #define ID_BUFFERS          OSD_LAST_ITEM+29
 #define ID_RESOLUTION       OSD_LAST_ITEM+30
+#define ID_CONTROLLER       OSD_LAST_ITEM+31
+
+
+typedef struct CONTROLLER_CONFIG_CMD_BUFFER
+{
+    BYTE CommadHeader;
+    MOTIONINJOY_BUTTON_MAP Map;
+}CONTROLLER_CONFIG_CMD_BUFFER;
 
 
 #include <stdio.h>
@@ -198,6 +236,37 @@ VOID AddItems()
         Menu->AddItem(L"Record", ItemOpt, &Capture[2], ID_RECORD);
     }
 
+    Menu->AddGroup(L"Controller", GroupOpt, &Controller[0]);
+
+    if (Controller[0].Var)
+    {
+        Menu->AddItem(L"Triangle", ControllerOpt, &Controller[1], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"Circle", ControllerOpt, &Controller[2], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"Cross", ControllerOpt, &Controller[3], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"Square", ControllerOpt, &Controller[4], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"L1", ControllerOpt, &Controller[5], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"R1", ControllerOpt, &Controller[6], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"L2", ControllerOpt, &Controller[7], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"R2", ControllerOpt, &Controller[8], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"Select", ControllerOpt, &Controller[9], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"Start", ControllerOpt, &Controller[10], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"L3", ControllerOpt, &Controller[11], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"R3", ControllerOpt, &Controller[12], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"PS", ControllerOpt, &Controller[13], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"Dpad Up", ControllerOpt, &Controller[14], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"Dpad Right", ControllerOpt, &Controller[15], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"Dpad Down", ControllerOpt, &Controller[16], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"Dpad Left", ControllerOpt, &Controller[17], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"Left Stick X+", ControllerOpt, &Controller[18], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"Left Stick X-", ControllerOpt, &Controller[19], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"Left Stick Y+", ControllerOpt, &Controller[20], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"Left Stick Y-", ControllerOpt, &Controller[21], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"Right Stick X+", ControllerOpt, &Controller[22], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"Right Stick X-", ControllerOpt, &Controller[23], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"Right Stick Y+", ControllerOpt, &Controller[24], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"Right Stick Y-", ControllerOpt, &Controller[25], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+    }
+
     Menu->AddGroup(L"Settings", GroupOpt, &Settings[0]);
 
     if (Settings[0].Var)
@@ -252,7 +321,9 @@ VOID ClockStep( OVERCLOCK_UNIT Unit, CLOCK_STEP_DIRECTION Direction )
     else if (Direction == Down)
         (*value)--;
 
-    CallPipe(L"UpdateClocks", NULL);
+    BYTE cmdBuffer[2];
+    cmdBuffer[0] = CMD_SETGPUCLK;
+    CallPipe(cmdBuffer, sizeof(cmdBuffer), NULL);
 }
 
 
@@ -402,6 +473,92 @@ void SetAmbientVolume( int Level )
 }
 
 
+WORD ControllerVarToButton( UINT32 Var )
+{
+    switch (Var)
+    {
+    case 1:
+        return Button1;
+        break;
+    case 2:
+        return Button2;
+        break;
+    case 3:
+        return Button3;
+        break;
+    case 4:
+        return Button4;
+        break;
+    case 5:
+        return Button5;
+        break;
+    case 6:
+        return Button6;
+        break;
+    case 7:
+        return Button7;
+        break;
+    case 8:
+        return Button8;
+        break;
+    case 9:
+        return Button9;
+        break;
+    case 10:
+        return Button10;
+        break;
+    case 11:
+        return Button11;
+        break;
+    case 12:
+        return Button12;
+        break;
+    case 13:
+        return Button13;
+        break;
+    case 14:
+        return DpadUp;
+        break;
+    case 15:
+        return DpadRight;
+        break;
+    case 16:
+        return DpadDown;
+        break;
+    case 17:
+        return DpadLeft;
+        break;
+    case 18:
+        return Axis_Xpos;
+        break;
+    case 19:
+        return Axis_Xneg;
+        break;
+    case 20:
+        return Axis_Ypos;
+        break;
+    case 21:
+        return Axis_Yneg;
+        break;
+    case 22:
+        return Axis_RXpos;
+        break;
+    case 23:
+        return Axis_RXneg;
+        break;
+    case 24:
+        return Axis_RYpos;
+        break;
+    case 25:
+        return Axis_RYneg;
+        break;
+    default:
+        return 0;
+        break;
+    }
+}
+
+
 VOID ProcessOptions( MenuItems* Item, WPARAM Key )
 {
     switch (*Item->Id)
@@ -425,7 +582,9 @@ VOID ProcessOptions( MenuItems* Item, WPARAM Key )
         break;
 
     case ID_FORCEMAX:
-        CallPipe(L"ForceMaxClocks", NULL);
+        BYTE cmdBuffer[2];
+        cmdBuffer[0] = CMD_MAXGPUCLK;
+        CallPipe(cmdBuffer, sizeof(cmdBuffer), NULL);
 
         PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
         PushSharedMemory->OSDFlags |= OSD_GPU_M_CLK;
@@ -522,7 +681,9 @@ VOID ProcessOptions( MenuItems* Item, WPARAM Key )
         if (Key == VK_LEFT || Key == VK_RIGHT)
         {
             PushSharedMemory->OSDFlags |= OSD_GPU_FAN_DC;
-            CallPipe(L"UpdateFanSpeed", NULL);
+            BYTE cmdBuffer[2];
+            cmdBuffer[0] = CMD_SETGPUFAN;
+            CallPipe(cmdBuffer, sizeof(cmdBuffer), NULL);
             UpdateIntegralText(PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle, Item->Options);
         }
     }
@@ -760,6 +921,41 @@ VOID ProcessOptions( MenuItems* Item, WPARAM Key )
         UpdateIntegralText(AmbientVolumeLevel, Item->Options);
     }
     break;
+
+    case ID_CONTROLLER:
+    {
+        CONTROLLER_CONFIG_CMD_BUFFER cmdBuffer;
+
+        memset(&cmdBuffer, 0, sizeof(cmdBuffer));
+
+        cmdBuffer.CommadHeader = CMD_CONTROLLERCFG;
+
+        cmdBuffer.Map.Triangle = ControllerVarToButton(Controller[1].Var);
+        cmdBuffer.Map.Circle = ControllerVarToButton(Controller[2].Var);
+        cmdBuffer.Map.Cross = ControllerVarToButton(Controller[3].Var);
+        cmdBuffer.Map.Square = ControllerVarToButton(Controller[4].Var);
+        cmdBuffer.Map.L1 = ControllerVarToButton(Controller[5].Var);
+        cmdBuffer.Map.R1 = ControllerVarToButton(Controller[6].Var);
+        cmdBuffer.Map.L2 = ControllerVarToButton(Controller[7].Var);
+        cmdBuffer.Map.R2 = ControllerVarToButton(Controller[8].Var);
+        cmdBuffer.Map.Select = ControllerVarToButton(Controller[9].Var);
+        cmdBuffer.Map.Start = ControllerVarToButton(Controller[10].Var);
+        cmdBuffer.Map.L3 = ControllerVarToButton(Controller[11].Var);
+        cmdBuffer.Map.R3 = ControllerVarToButton(Controller[12].Var);
+        cmdBuffer.Map.PS = ControllerVarToButton(Controller[13].Var);
+        cmdBuffer.Map.DpadUp = ControllerVarToButton(Controller[14].Var);
+        cmdBuffer.Map.DpadRight = ControllerVarToButton(Controller[15].Var);
+        cmdBuffer.Map.DpadDown = ControllerVarToButton(Controller[16].Var);
+        cmdBuffer.Map.DpadLeft = ControllerVarToButton(Controller[17].Var);
+        cmdBuffer.Map.LStick_Xpos = ControllerVarToButton(Controller[18].Var);
+        cmdBuffer.Map.LStick_Xneg = ControllerVarToButton(Controller[19].Var);
+        cmdBuffer.Map.LStick_Ypos = ControllerVarToButton(Controller[20].Var);
+        cmdBuffer.Map.LStick_Yneg = ControllerVarToButton(Controller[21].Var);
+
+
+        CallPipe((BYTE*)&cmdBuffer, sizeof(cmdBuffer), NULL);
+    }break;
+        
 
     default:
         if (*Item->Id <= OSD_LAST_ITEM)

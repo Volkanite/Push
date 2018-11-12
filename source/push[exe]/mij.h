@@ -53,6 +53,49 @@ typedef struct _MOTIONINJOY_COMMON_OPTION
     BYTE mouseWheelSpeed;
 }MOTIONINJOY_COMMON_OPTION;
 
+typedef struct MOTIONINJOY_BUTTON_MAP{
+    //Lightly Depressed
+    WORD Triangle;
+    WORD Circle;
+    WORD Cross;
+    WORD Square;
+    WORD L1;
+    WORD R1;
+    WORD L2;
+    WORD R2;
+    WORD Select;
+    WORD L3;
+    WORD R3;
+    WORD Start;
+    WORD PS;
+    WORD DpadUp;
+    WORD DpadRight;
+    WORD DpadDown;
+    WORD DpadLeft;
+
+    //Fully Depressed
+    WORD Triangle_Hard;
+    WORD Circle_Hard;
+    WORD Cross_Hard;
+    WORD Square_Hard;
+    WORD L1_Hard;
+    WORD R1_Hard;
+    WORD L2_Hard;
+    WORD R2_Hard;
+    WORD DpadUp_Hard;
+    WORD DpadRight_Hard;
+    WORD DpadDown_Hard;
+    WORD DpadLeft_Hard;
+
+    //Axis
+    WORD LStick_Xpos;
+    WORD LStick_Xneg;
+    WORD LStick_Ypos;
+    WORD LStick_Yneg;
+
+    WORD Other[15];
+}MOTIONINJOY_BUTTON_MAP;
+
 typedef struct _MOTIONINJOY_INPUT_OPTION
 {
     WORD Auto;
@@ -103,6 +146,7 @@ typedef enum _MOTIONINJOY_MODE
     XInput = 5
 }_MOTIONINJOY_MODE;
 
+
 #define IOCTL_INDEX 0x800
 #define FILE_DEVICE_UNKNOWN             0x00000022
 #define FILE_WRITE_ACCESS         ( 0x0002 )    // file & pipe
@@ -121,125 +165,7 @@ typedef enum _MOTIONINJOY_MODE
 #define IOCTL_MIJ_SET_REMOTE_OPTIONS    CTL_CODE(FILE_DEVICE_UNKNOWN, 2153, METHOD_BUFFERED, FILE_WRITE_ACCESS)
 #define IOCTL_MIJ_MOUSE_MOVE            CTL_CODE(FILE_DEVICE_UNKNOWN, 2248u, METHOD_BUFFERED, FILE_WRITE_ACCESS)
 
-#define BOOL INTBOOL
 
-typedef UINT32(__stdcall* PSP_FILE_CALLBACK_W)(
-    VOID* Context,
-    UINT32 Notification,
-    UINT32 Param1,
-    UINT32 Param2
-    );
-
-typedef struct _SP_DEVINSTALL_PARAMS_W {
-    DWORD             cbSize;
-    DWORD             Flags;
-    DWORD             FlagsEx;
-    HANDLE              hwndParent;
-    PSP_FILE_CALLBACK_W InstallMsgHandler;
-    VOID*             InstallMsgHandlerContext;
-    HANDLE          FileQueue;
-    ULONG_PTR         ClassInstallReserved;
-    DWORD             Reserved;
-    WCHAR             DriverPath[260];
-} SP_DEVINSTALL_PARAMS_W;
-
-
-#define LINE_LEN                    256
-
-#pragma pack(push, 1) // exact fit - no padding
-typedef struct _SP_DRVINFO_DATA_V2_W {
-    DWORD     cbSize;
-    DWORD     DriverType;
-    ULONG_PTR Reserved;
-    WCHAR     Description[LINE_LEN];
-    WCHAR     MfgName[LINE_LEN];
-    WCHAR     ProviderName[LINE_LEN];
-    FILETIME  DriverDate;
-    INT64 DriverVersion;
-} SP_DRVINFO_DATA_V2_W;
-#pragma pack(pop)
-
-HANDLE __stdcall SetupDiGetClassDevsW(
-    GUID* ClassGuid,
-    WCHAR* Enumerator,
-    HANDLE hwndParent,
-    DWORD Flags
-    );
-
-BOOL __stdcall SetupDiEnumDeviceInfo(
-    HANDLE DeviceInfoSet,
-    DWORD MemberIndex,
-    SP_DEVINFO_DATA* DeviceInfoData
-    );
-
-BOOL __stdcall SetupDiGetDeviceRegistryPropertyW(
-    HANDLE DeviceInfoSet,
-    SP_DEVINFO_DATA* DeviceInfoData,
-    DWORD Property,
-    DWORD* PropertyRegDataType,
-    VOID* PropertyBuffer,
-    DWORD PropertyBufferSize,
-    DWORD* RequiredSize
-    );
-
-BOOL __stdcall SetupDiSetSelectedDevice(
-    HANDLE DeviceInfoSet,
-    SP_DEVINFO_DATA* DeviceInfoData
-    );
-
-BOOL __stdcall SetupDiGetDeviceInstallParamsW(
-    HANDLE DeviceInfoSet,
-    SP_DEVINFO_DATA* DeviceInfoData,
-    SP_DEVINSTALL_PARAMS_W* DeviceInstallParams
-    );
-
-BOOL __stdcall SetupDiSetDeviceInstallParamsW(
-    HANDLE DeviceInfoSet,
-    SP_DEVINFO_DATA* DeviceInfoData,
-    SP_DEVINSTALL_PARAMS_W* DeviceInstallParams
-    );
-
-BOOL __stdcall SetupDiBuildDriverInfoList(
-    HANDLE DeviceInfoSet,
-    SP_DEVINFO_DATA* DeviceInfoData,
-    DWORD DriverType
-    );
-
-BOOL __stdcall SetupDiGetSelectedDriverW(
-    HANDLE DeviceInfoSet,
-    SP_DEVINFO_DATA* DeviceInfoData,
-    SP_DRVINFO_DATA_V2_W* DriverInfoData
-    );
-
-BOOL __stdcall SetupDiSetSelectedDriverW(
-    HANDLE DeviceInfoSet,
-    SP_DEVINFO_DATA* DeviceInfoData,
-    SP_DRVINFO_DATA_V2_W* DriverInfoData
-    );
-
-BOOL __stdcall SetupDiSelectBestCompatDrv(
-    HANDLE DeviceInfoSet,
-    SP_DEVINFO_DATA* DeviceInfoData
-    );
-
-BOOL __stdcall DiInstallDevice(
-    HANDLE             hwndParent,
-    HANDLE         DeviceInfoSet,
-    SP_DEVINFO_DATA* DeviceInfoData,
-    SP_DRVINFO_DATA_V2_W* DriverInfoData,
-    DWORD            Flags,
-    BOOL*            NeedReboot
-    );
-
-#define DIGCF_PRESENT           0x00000002
-#define DIGCF_ALLCLASSES        0x00000004
-
-#define SPDRP_DEVICEDESC    (0x00000000)  // DeviceDesc (R/W)
-#define SPDRP_HARDWAREID    (0x00000001)  // HardwareID (R/W)
-#define SPDRP_COMPATIBLEIDS (0x00000002)  // CompatibleIDs (R/W)
-
-DWORD __stdcall GetLastError();
-#define SPDIT_COMPATDRIVER       0x00000002
 
 typedef struct _USB_DEVICES
 {
@@ -251,34 +177,38 @@ typedef struct _USB_DEVICES
 WCHAR* String_CompareIgnoreCaseN(WCHAR* s1, WCHAR* s2, int n);
 
 VOID Mij_SetProfile(WCHAR* GameName);
+VOID Mij_SetButton(MOTIONINJOY_BUTTON_MAP* ButtonMapping);
 VOID Mij_EnumerateDevices();
 
+typedef enum MOTIONINJOY_DIRECTINPUT{
+    Axis_Xpos = 0x0100,
+    Axis_Xneg = 0x0101,
+    Axis_Ypos = 0x0102,
+    Axis_Yneg = 0x0103,
+    Axis_RXpos = 0x0106,
+    Axis_RXneg = 0x0107,
+    Axis_RYpos = 0x0108,
+    Axis_RYneg = 0x0109,
+    Button1 = 0x0200,
+    Button2 = 0x0201,
+    Button3 = 0x0202,
+    Button4 = 0x0203,
+    Button5 = 0x0204,
+    Button6 = 0x0205,
+    Button7 = 0x0206,
+    Button8 = 0x0207,
+    Button9 = 0x0208,
+    Button10 = 0x0209,
+    Button11 = 0x020A,
+    Button12 = 0x020B,
+    Button13 = 0x020C,
+    DpadUp = 0x0214,
+    DpadRight = 0x0215,
+    DpadDown = 0x0216,
+    DpadLeft = 0x0217
+}MOTIONINJOY_DIRECTINPUT;
 
-// DirectInput
-// 0x0100 = Axis X+
-// 0x0101 = Axis X-
-// 0x0102 = Axis Y+
-// 0x0103 = Axis Y-
-// 0x0106 = Axis RX+
-// 0x0107 = Axis RX-
-// 0x0108 = Axis RY+
-// 0x0109 = Axis RY-
-// 0x0200 = Button 1
-// 0x0201 = Button 2
-// 0x0202 = Button 3
-// 0x0203 = Button 4
-// 0x0204 = Button 5
-// 0x0205 = Button 6
-// 0x0206 = Button 7
-// 0x0207 = Button 8
-// 0x0208 = Button 9
-// 0x0209 = Button 10
-// 0x020B = Button 12
-// 0x020C = Button 13
-// 0x0214 = D-Pad Up
-// 0x0215 = D-Pad Right
-// 0x0216 = D-Pad Down
-// 0x0217 = D-Pad Left
+
 // Keyboard
 // 0x0302 = A
 // 0x0307 = D
