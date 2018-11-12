@@ -83,7 +83,7 @@ VOID Mij_SetButton( MOTIONINJOY_BUTTON_MAP* ButtonMapping )
 
     options.CommonOption.mode = DirectInput;
     options.CommonOption.LED = 129;
-    options.CommonOption.AutoOff_timeout = 0x80 | /*PushSharedMemory->ControllerTimeout*/60;
+    options.CommonOption.AutoOff_timeout = 0x80 | /*PushSharedMemory->ControllerTimeout*/10; //minutes
     options.CommonOption.Deadzone_LStick_X = 10;
     options.CommonOption.Deadzone_LStick_Y = 10;
 
