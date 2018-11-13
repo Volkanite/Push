@@ -1027,19 +1027,19 @@ DWORD __stdcall PipeThread( VOID* Parameter )
             {
                 /* parse command buffer */
 
-                switch (buffer[0])
+                COMMAND_HEADER *cmdBuffer;
+                cmdBuffer = &buffer;
+
+                switch (cmdBuffer->CommandIndex)
                 {
                 case CMD_STARTHWMON:
                 {
-                    COMMAND_HEADER *cmdBuffer;
                     //start timer
                     SetTimer(PushMainWindow->Handle, 0, 1000, 0);
 
                     // Start disk monitoring;
                     if (!DiskMonitorInitialized)
                        DiskStartMonitoring();
-
-                    cmdBuffer = &buffer;
 
                     wchar_t fileName[260];
                     GetConfigFileFromProcessId(cmdBuffer->ProcessId, fileName);
@@ -1122,7 +1122,7 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                     UINT32 processId;
                     UINT16 responseTime;
 
-                    processId = buffer[1];
+                    processId = cmdBuffer->ProcessId;
                     responseTime = GetDiskResponseTime(processId);
 
                     File_Write(pipeHandle, &responseTime, 2);
