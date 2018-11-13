@@ -103,7 +103,7 @@ typedef struct _MOTIONINJOY_INPUT_OPTION
     WORD Duration;
     WORD Interval;
     BYTE Macro[16];
-    WORD Maping[48];
+    MOTIONINJOY_BUTTON_MAP Maping;
 }MOTIONINJOY_INPUT_OPTION;
 
 typedef struct _MOTIONINJOY_APP_OPTION
@@ -180,34 +180,32 @@ VOID Mij_SetProfile(WCHAR* GameName);
 VOID Mij_SetButton(MOTIONINJOY_BUTTON_MAP* ButtonMapping);
 VOID Mij_EnumerateDevices();
 
-typedef enum MOTIONINJOY_DIRECTINPUT{
-    Axis_Xpos = 0x0100,
-    Axis_Xneg = 0x0101,
-    Axis_Ypos = 0x0102,
-    Axis_Yneg = 0x0103,
-    Axis_RXpos = 0x0106,
-    Axis_RXneg = 0x0107,
-    Axis_RYpos = 0x0108,
-    Axis_RYneg = 0x0109,
-    Button1 = 0x0200,
-    Button2 = 0x0201,
-    Button3 = 0x0202,
-    Button4 = 0x0203,
-    Button5 = 0x0204,
-    Button6 = 0x0205,
-    Button7 = 0x0206,
-    Button8 = 0x0207,
-    Button9 = 0x0208,
-    Button10 = 0x0209,
-    Button11 = 0x020A,
-    Button12 = 0x020B,
-    Button13 = 0x020C,
-    DpadUp = 0x0214,
-    DpadRight = 0x0215,
-    DpadDown = 0x0216,
-    DpadLeft = 0x0217
-}MOTIONINJOY_DIRECTINPUT;
-
+/* DirectInput */
+#define DI_Axis_Xpos    0x0100
+#define DI_Axis_Xneg    0x0101
+#define DI_Axis_Ypos    0x0102
+#define DI_Axis_Yneg    0x0103
+#define DI_Axis_RXpos   0x0106
+#define DI_Axis_RXneg   0x0107
+#define DI_Axis_RYpos   0x0108
+#define DI_Axis_RYneg   0x0109
+#define DI_Button1      0x0200
+#define DI_Button2      0x0201
+#define DI_Button3      0x0202
+#define DI_Button4      0x0203
+#define DI_Button5      0x0204
+#define DI_Button6      0x0205
+#define DI_Button7      0x0206
+#define DI_Button8      0x0207
+#define DI_Button9      0x0208
+#define DI_Button10     0x0209
+#define DI_Button11     0x020A
+#define DI_Button12     0x020B
+#define DI_Button13     0x020C
+#define DI_DpadUp       0x0214
+#define DI_DpadRight    0x0215
+#define DI_DpadDown     0x0216
+#define DI_DpadLeft     0x0217
 
 // Keyboard
 // 0x0302 = A
@@ -262,3 +260,5 @@ typedef enum MOTIONINJOY_DIRECTINPUT{
 // 0x0707 = Right Stick X-
 // 0x0708 = Right Stick Y-
 // 0x0709 = Right Stick Y+
+// Macros
+// 0x0800 = Macro1

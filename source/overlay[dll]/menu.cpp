@@ -478,79 +478,79 @@ WORD ControllerVarToButton( UINT32 Var )
     switch (Var)
     {
     case 1:
-        return Button1;
+        return DI_Button1;
         break;
     case 2:
-        return Button2;
+        return DI_Button2;
         break;
     case 3:
-        return Button3;
+        return DI_Button3;
         break;
     case 4:
-        return Button4;
+        return DI_Button4;
         break;
     case 5:
-        return Button5;
+        return DI_Button5;
         break;
     case 6:
-        return Button6;
+        return DI_Button6;
         break;
     case 7:
-        return Button7;
+        return DI_Button7;
         break;
     case 8:
-        return Button8;
+        return DI_Button8;
         break;
     case 9:
-        return Button9;
+        return DI_Button9;
         break;
     case 10:
-        return Button10;
+        return DI_Button10;
         break;
     case 11:
-        return Button11;
+        return DI_Button11;
         break;
     case 12:
-        return Button12;
+        return DI_Button12;
         break;
     case 13:
-        return Button13;
+        return DI_Button13;
         break;
     case 14:
-        return DpadUp;
+        return DI_DpadUp;
         break;
     case 15:
-        return DpadRight;
+        return DI_DpadRight;
         break;
     case 16:
-        return DpadDown;
+        return DI_DpadDown;
         break;
     case 17:
-        return DpadLeft;
+        return DI_DpadLeft;
         break;
     case 18:
-        return Axis_Xpos;
+        return DI_Axis_Xpos;
         break;
     case 19:
-        return Axis_Xneg;
+        return DI_Axis_Xneg;
         break;
     case 20:
-        return Axis_Ypos;
+        return DI_Axis_Ypos;
         break;
     case 21:
-        return Axis_Yneg;
+        return DI_Axis_Yneg;
         break;
     case 22:
-        return Axis_RXpos;
+        return DI_Axis_RXpos;
         break;
     case 23:
-        return Axis_RXneg;
+        return DI_Axis_RXneg;
         break;
     case 24:
-        return Axis_RYpos;
+        return DI_Axis_RYpos;
         break;
     case 25:
-        return Axis_RYneg;
+        return DI_Axis_RYneg;
         break;
     default:
         return 0;

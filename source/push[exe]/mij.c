@@ -90,7 +90,7 @@ VOID Mij_SetButton( MOTIONINJOY_BUTTON_MAP* ButtonMapping )
     options.InputOption.Duration = 100;
     options.InputOption.Interval = 400;
 
-    Memory_Copy(options.InputOption.Maping, ButtonMapping, 96);
+    Memory_Copy(&options.InputOption.Maping, ButtonMapping, sizeof(MOTIONINJOY_BUTTON_MAP));
 
     NtDeviceIoControlFile(driverHandle, NULL, NULL, NULL, &isb, IOCTL_MIJ_SET_CONFIG_OPTIONS, &options, 256, NULL, 0);
     File_Close(driverHandle);
@@ -167,10 +167,10 @@ VOID Mij_SetProfile( WCHAR* GameName )
     options.InputOption.Duration = 100;
     options.InputOption.Interval = 400;
 
-    Memory_Copy(options.InputOption.Maping, buttonMapping, 96);
+    Memory_Copy(&options.InputOption.Maping, buttonMapping, sizeof(MOTIONINJOY_BUTTON_MAP));
 
     if (setTestMacro)
-        options.InputOption.Maping[0] = 0x0800; //set triangle button to macro
+        options.InputOption.Maping.Triangle = 0x0800; //set triangle button to macro
 
     NtDeviceIoControlFile(driverHandle, NULL, NULL, NULL, &isb, IOCTL_MIJ_SET_CONFIG_OPTIONS, &options, 256, NULL, 0);
     File_Close(driverHandle);
