@@ -331,6 +331,15 @@ typedef struct COMMAND_HEADER
     UCHAR CommandIndex;
     UINT32 ProcessId;
 }COMMAND_HEADER;
+
+typedef struct GPU_CONFIG_CMD_BUFFER
+{
+    COMMAND_HEADER CommandHeader;
+    UINT32 EngineClock;
+    UINT32 MemoryClock;
+    UINT32 Voltage;
+}GPU_CONFIG_CMD_BUFFER;
+
 #pragma pack(pop)
 
 

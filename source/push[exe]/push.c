@@ -1034,7 +1034,7 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                 {
                 case CMD_STARTHWMON:
                 {
-					wchar_t fileName[260];
+                    wchar_t fileName[260];
 
                     //start timer
                     SetTimer(PushMainWindow->Handle, 0, 1000, 0);
@@ -1083,35 +1083,15 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                         PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax > 1
                         )
                     {
-                        GPU_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax);
-                        GPU_SetMemoryClock(PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax);
-                        GPU_SetVoltage(PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax);
+                        GPU_CONFIG_CMD_BUFFER *gpuConfig;
+                        gpuConfig = &buffer;
+
+                        GPU_SetEngineClock(gpuConfig->EngineClock);
+                        GPU_SetMemoryClock(gpuConfig->MemoryClock);
+                        GPU_SetVoltage(gpuConfig->Voltage);
                     }
                     break;
-                case CMD_ADJGPUCLK:
-                    switch (buffer[10])
-                    {
-                    case 'e':
-                    {
-                        switch (buffer[12])
-                        {
-                        case 'i':
-                            Adl_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock + 1, 2);
-                            break;
-                        case 'd':
-                            Adl_SetEngineClock(PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock - 1, 2);
-                            break;
-                        }
-                    }
-                        break;
-                    case 'm':
-                        Adl_SetMemoryClock(PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock + 1, 2);
-                        break;
-                    case 'v':
-                        Adl_SetVoltage(PushSharedMemory->HarwareInformation.DisplayDevice.Voltage + 1);
-                        break;
-                    }
-                    break;
+
                 case CMD_MAXGPUCLK:
                     Hardware_ForceMaxClocks();
                     break;

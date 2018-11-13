@@ -287,6 +287,7 @@ VOID AddItems()
 VOID ClockStep( OVERCLOCK_UNIT Unit, CLOCK_STEP_DIRECTION Direction )
 {
     UINT32 *value;
+    GPU_CONFIG_CMD_BUFFER cmdBuffer;
 
     switch (Unit)
     {
@@ -316,9 +317,14 @@ VOID ClockStep( OVERCLOCK_UNIT Unit, CLOCK_STEP_DIRECTION Direction )
     else if (Direction == Down)
         (*value)--;
 
-    BYTE cmdBuffer[2];
-    cmdBuffer[0] = CMD_SETGPUCLK;
-    CallPipe(cmdBuffer, sizeof(cmdBuffer), NULL);
+    cmdBuffer.CommandHeader.CommandIndex = CMD_SETGPUCLK;
+    cmdBuffer.CommandHeader.ProcessId = GetCurrentProcessId();
+
+    cmdBuffer.EngineClock = PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax;
+    cmdBuffer.MemoryClock = PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax;
+    cmdBuffer.Voltage = PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax;
+
+    CallPipe((BYTE*) &cmdBuffer, sizeof(cmdBuffer), NULL);
 }
 
 
