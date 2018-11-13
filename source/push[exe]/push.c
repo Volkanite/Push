@@ -1034,6 +1034,8 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                 {
                 case CMD_STARTHWMON:
                 {
+					wchar_t fileName[260];
+
                     //start timer
                     SetTimer(PushMainWindow->Handle, 0, 1000, 0);
 
@@ -1041,7 +1043,6 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                     if (!DiskMonitorInitialized)
                        DiskStartMonitoring();
 
-                    wchar_t fileName[260];
                     GetConfigFileFromProcessId(cmdBuffer->ProcessId, fileName);
 
                     if (File_Exists(fileName))
