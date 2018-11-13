@@ -1150,7 +1150,7 @@ PROFILE_GetString(
 * \param FileName The ini filename. Like lpFileName.
 */
 
-BOOLEAN SlIniWriteString( WCHAR* section, WCHAR* entry, WCHAR* string )
+BOOLEAN Ini_WriteString( WCHAR* section, WCHAR* entry, WCHAR* string, WCHAR* FileName )
 {
   BOOLEAN ret = FALSE;
 
@@ -1158,12 +1158,12 @@ BOOLEAN SlIniWriteString( WCHAR* section, WCHAR* entry, WCHAR* string )
 
   if (!section && !entry && !string) /* documented "file flush" case */
   {
-      if (PROFILE_Open(L".\\" PUSH_SETTINGS_FILE, TRUE))
+      if (PROFILE_Open(FileName, TRUE))
       {
           if (CurrentProfile) PROFILE_ReleaseFile();  /* always return FALSE in this case */
       }
   }
-  else if (PROFILE_Open(L".\\" PUSH_SETTINGS_FILE, TRUE))
+  else if (PROFILE_Open(FileName, TRUE))
   {
       if (section) 
       {
@@ -1241,7 +1241,7 @@ VOID SlIniWriteBoolean( WCHAR* Section, WCHAR* Key, BOOLEAN bolValue )
     WCHAR value[255];
 
     String_Format(value, 255, L"%ls", bolValue ? L"True" : L"False");
-    SlIniWriteString(Section, Key, value);
+    Ini_WriteString(Section, Key, value, L".\\" PUSH_SETTINGS_FILE);
 }
 
 
@@ -1255,7 +1255,7 @@ VOID SlIniWriteSubKey( WCHAR *Section, WCHAR *pszMasterKey, WCHAR *pszSubKey, WC
     String_Concatenate(key, L").");
     String_Concatenate(key, pszSubKey);
 
-    SlIniWriteString(Section, key, Value);
+    Ini_WriteString(Section, key, Value, L".\\" PUSH_SETTINGS_FILE);
 }
 
 

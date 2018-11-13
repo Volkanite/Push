@@ -285,9 +285,10 @@ VOID RnRender( OvOverlay* Overlay )
         StopImageMonitoring();
         InitializeKeyboardHook();
 
-        BYTE cmdBuffer[2];
-        cmdBuffer[0] = CMD_STARTHWMON;
-        CallPipe(cmdBuffer, sizeof(cmdBuffer), NULL);
+        COMMAND_HEADER cmdBuffer;
+        cmdBuffer.CommandIndex= CMD_STARTHWMON;
+        cmdBuffer.ProcessId = GetCurrentProcessId();
+        CallPipe((BYTE*) &cmdBuffer, sizeof(cmdBuffer), NULL);
     }
 
     Osd_Draw( Overlay );

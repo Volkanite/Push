@@ -174,6 +174,13 @@ typedef struct _USB_DEVICES
 }USB_DEVICES;
 
 
+typedef struct CONTROLLER_CONFIG_CMD_BUFFER
+{
+    COMMAND_HEADER CommandHeader;
+    MOTIONINJOY_BUTTON_MAP Map;
+}CONTROLLER_CONFIG_CMD_BUFFER;
+
+
 WCHAR* String_CompareIgnoreCaseN(WCHAR* s1, WCHAR* s2, int n);
 
 VOID Mij_SetProfile(WCHAR* GameName);

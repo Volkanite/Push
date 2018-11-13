@@ -463,7 +463,7 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     i++;
 
                     String_Format(indexString, 10, L"%i", i);
-                    SlIniWriteString(L"Games", filePath, indexString);
+                    Ini_WriteString(L"Games", filePath, indexString, L".\\" PUSH_SETTINGS_FILE);
                     GetPathOnly(filePath, path);
 
                     slash = String_FindLastChar(path, '\\');

@@ -54,8 +54,8 @@ BOOLEAN SearchGame( WCHAR* ExecutablePath, WCHAR* GameId )
                 }
 
                 // Update path. 
-                SlIniWriteString(L"Games", gameList->Game->ExecutablePath, NULL);
-                SlIniWriteString(L"Games", ExecutablePath, gameList->Game->Id);
+                Ini_WriteString(L"Games", gameList->Game->ExecutablePath, NULL, L".\\" PUSH_SETTINGS_FILE);
+                Ini_WriteString(L"Games", ExecutablePath, gameList->Game->Id, L".\\" PUSH_SETTINGS_FILE);
 
                 return TRUE;
             }

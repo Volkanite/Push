@@ -128,13 +128,7 @@ extern BOOLEAN StripWaitCycles;
 #define ID_BUFFERS          OSD_LAST_ITEM+29
 #define ID_RESOLUTION       OSD_LAST_ITEM+30
 #define ID_CONTROLLER       OSD_LAST_ITEM+31
-
-
-typedef struct CONTROLLER_CONFIG_CMD_BUFFER
-{
-    BYTE CommadHeader;
-    MOTIONINJOY_BUTTON_MAP Map;
-}CONTROLLER_CONFIG_CMD_BUFFER;
+#define ID_SAVE             OSD_LAST_ITEM+32
 
 
 #include <stdio.h>
@@ -265,6 +259,7 @@ VOID AddItems()
         Menu->AddItem(L"Right Stick X-", ControllerOpt, &Controller[23], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
         Menu->AddItem(L"Right Stick Y+", ControllerOpt, &Controller[24], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
         Menu->AddItem(L"Right Stick Y-", ControllerOpt, &Controller[25], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
+        Menu->AddItem(L"Save Profile", PressOpt, &Controller[26], ID_SAVE);
     }
 
     Menu->AddGroup(L"Settings", GroupOpt, &Settings[0]);
@@ -556,6 +551,42 @@ WORD ControllerVarToButton( UINT32 Var )
         return 0;
         break;
     }
+}
+
+
+void SendControllerConfig( int CommandIndex )
+{
+    CONTROLLER_CONFIG_CMD_BUFFER cmdBuffer;
+
+    memset(&cmdBuffer, 0, sizeof(cmdBuffer));
+
+    cmdBuffer.CommandHeader.CommandIndex = CommandIndex;
+    cmdBuffer.CommandHeader.ProcessId = GetCurrentProcessId();
+
+    cmdBuffer.Map.Triangle = ControllerVarToButton(Controller[1].Var);
+    cmdBuffer.Map.Circle = ControllerVarToButton(Controller[2].Var);
+    cmdBuffer.Map.Cross = ControllerVarToButton(Controller[3].Var);
+    cmdBuffer.Map.Square = ControllerVarToButton(Controller[4].Var);
+    cmdBuffer.Map.L1 = ControllerVarToButton(Controller[5].Var);
+    cmdBuffer.Map.R1 = ControllerVarToButton(Controller[6].Var);
+    cmdBuffer.Map.L2 = ControllerVarToButton(Controller[7].Var);
+    cmdBuffer.Map.R2 = ControllerVarToButton(Controller[8].Var);
+    cmdBuffer.Map.Select = ControllerVarToButton(Controller[9].Var);
+    cmdBuffer.Map.Start = ControllerVarToButton(Controller[10].Var);
+    cmdBuffer.Map.L3 = ControllerVarToButton(Controller[11].Var);
+    cmdBuffer.Map.R3 = ControllerVarToButton(Controller[12].Var);
+    cmdBuffer.Map.PS = ControllerVarToButton(Controller[13].Var);
+    cmdBuffer.Map.DpadUp = ControllerVarToButton(Controller[14].Var);
+    cmdBuffer.Map.DpadRight = ControllerVarToButton(Controller[15].Var);
+    cmdBuffer.Map.DpadDown = ControllerVarToButton(Controller[16].Var);
+    cmdBuffer.Map.DpadLeft = ControllerVarToButton(Controller[17].Var);
+    cmdBuffer.Map.LStick_Xpos = ControllerVarToButton(Controller[18].Var);
+    cmdBuffer.Map.LStick_Xneg = ControllerVarToButton(Controller[19].Var);
+    cmdBuffer.Map.LStick_Ypos = ControllerVarToButton(Controller[20].Var);
+    cmdBuffer.Map.LStick_Yneg = ControllerVarToButton(Controller[21].Var);
+
+
+    CallPipe((BYTE*)&cmdBuffer, sizeof(cmdBuffer), NULL);
 }
 
 
@@ -923,39 +954,12 @@ VOID ProcessOptions( MenuItems* Item, WPARAM Key )
     break;
 
     case ID_CONTROLLER:
-    {
-        CONTROLLER_CONFIG_CMD_BUFFER cmdBuffer;
-
-        memset(&cmdBuffer, 0, sizeof(cmdBuffer));
-
-        cmdBuffer.CommadHeader = CMD_CONTROLLERCFG;
-
-        cmdBuffer.Map.Triangle = ControllerVarToButton(Controller[1].Var);
-        cmdBuffer.Map.Circle = ControllerVarToButton(Controller[2].Var);
-        cmdBuffer.Map.Cross = ControllerVarToButton(Controller[3].Var);
-        cmdBuffer.Map.Square = ControllerVarToButton(Controller[4].Var);
-        cmdBuffer.Map.L1 = ControllerVarToButton(Controller[5].Var);
-        cmdBuffer.Map.R1 = ControllerVarToButton(Controller[6].Var);
-        cmdBuffer.Map.L2 = ControllerVarToButton(Controller[7].Var);
-        cmdBuffer.Map.R2 = ControllerVarToButton(Controller[8].Var);
-        cmdBuffer.Map.Select = ControllerVarToButton(Controller[9].Var);
-        cmdBuffer.Map.Start = ControllerVarToButton(Controller[10].Var);
-        cmdBuffer.Map.L3 = ControllerVarToButton(Controller[11].Var);
-        cmdBuffer.Map.R3 = ControllerVarToButton(Controller[12].Var);
-        cmdBuffer.Map.PS = ControllerVarToButton(Controller[13].Var);
-        cmdBuffer.Map.DpadUp = ControllerVarToButton(Controller[14].Var);
-        cmdBuffer.Map.DpadRight = ControllerVarToButton(Controller[15].Var);
-        cmdBuffer.Map.DpadDown = ControllerVarToButton(Controller[16].Var);
-        cmdBuffer.Map.DpadLeft = ControllerVarToButton(Controller[17].Var);
-        cmdBuffer.Map.LStick_Xpos = ControllerVarToButton(Controller[18].Var);
-        cmdBuffer.Map.LStick_Xneg = ControllerVarToButton(Controller[19].Var);
-        cmdBuffer.Map.LStick_Ypos = ControllerVarToButton(Controller[20].Var);
-        cmdBuffer.Map.LStick_Yneg = ControllerVarToButton(Controller[21].Var);
-
-
-        CallPipe((BYTE*)&cmdBuffer, sizeof(cmdBuffer), NULL);
-    }break;
-        
+        SendControllerConfig(CMD_CONTROLLERCFG);
+        break;
+    
+    case ID_SAVE:
+        SendControllerConfig(CMD_SAVEPRFL);
+        break;
 
     default:
         if (*Item->Id <= OSD_LAST_ITEM)

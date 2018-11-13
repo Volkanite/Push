@@ -67,6 +67,7 @@
 #define CMD_SETGPUFAN       5
 #define CMD_GETDSKRSP       6
 #define CMD_CONTROLLERCFG   7
+#define CMD_SAVEPRFL        8
 
 
 #define IMDISK_VERSION                 0x0160
@@ -323,6 +324,13 @@ typedef struct _PUSH_SHARED_MEMORY
     OSD_ITEM                    OsdItems[1];
 
 } PUSH_SHARED_MEMORY;
+
+
+typedef struct COMMAND_HEADER
+{
+    UCHAR CommandIndex;
+    UINT32 ProcessId;
+}COMMAND_HEADER;
 #pragma pack(pop)
 
 

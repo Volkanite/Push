@@ -899,6 +899,8 @@ NTSTATUS __stdcall NtCreateNamedPipeFile(
     LARGE_INTEGER* DefaultTimeout
     );
 
+VOID CreatePath(WCHAR* Path);
+
 typedef VOID(*TYPE_InstallOverlayHook)();
 
 TYPE_InstallOverlayHook InstallOverlayHook;
@@ -925,11 +927,47 @@ VOID Log(const wchar_t* Format, ...)
     wcsncat(output, buffer, 260);
     OutputDebugStringW(output);
 }
-typedef struct CONTROLLER_CONFIG_CMD_BUFFER
+
+
+DWORD GetConfig( wchar_t *Button, WCHAR* File )
 {
-    BYTE CommadHeader;
-    MOTIONINJOY_BUTTON_MAP Map;
-}CONTROLLER_CONFIG_CMD_BUFFER;
+    WCHAR buffer[255];
+
+    Ini_GetString(L"Options", Button, L"0x0", buffer, 255, File);
+
+    return wcstol(buffer, NULL, 16);
+}
+
+
+void WriteConfig( wchar_t *Button, int Value, wchar_t* File )
+{
+    wchar_t buffer[20];
+
+    String_Format(buffer, 20, L"0x%X", Value);
+    Ini_WriteString(L"Options", Button, buffer, File);
+}
+
+
+void GetConfigFileFromProcessId( int ProcessId, wchar_t* Buffer )
+{
+    wchar_t processName[260];
+    wchar_t exec[260];
+    wchar_t fileName[260];
+    wchar_t *slash;
+
+    Process_GetFileNameByProcessId(ProcessId, processName);
+    slash = String_FindLastChar(processName, '\\');
+    String_Copy(exec, slash + 1);
+    slash = String_FindLastChar(exec, '.');
+    *slash = L'\0';
+    String_Concatenate(exec, L".ini");
+    String_Copy(fileName, L"mij\\");
+    String_Concatenate(fileName, exec);
+    Log(fileName);
+    CreatePath(L".\\mij\\");
+
+    String_Copy(Buffer, fileName);
+}
 
 
 DWORD __stdcall PipeThread( VOID* Parameter )
@@ -992,13 +1030,53 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                 switch (buffer[0])
                 {
                 case CMD_STARTHWMON:
+                {
+                    COMMAND_HEADER *cmdBuffer;
                     //start timer
                     SetTimer(PushMainWindow->Handle, 0, 1000, 0);
 
                     // Start disk monitoring;
                     if (!DiskMonitorInitialized)
-                        DiskStartMonitoring();
-                    break;
+                       DiskStartMonitoring();
+
+                    cmdBuffer = &buffer;
+
+                    wchar_t fileName[260];
+                    GetConfigFileFromProcessId(cmdBuffer->ProcessId, fileName);
+
+                    if (File_Exists(fileName))
+                    {
+                        MOTIONINJOY_BUTTON_MAP map;
+
+                        Memory_Clear(&map, sizeof(map));
+
+                        map.Triangle = GetConfig(L"ButtonTriangle", fileName);
+                        map.Circle = GetConfig(L"ButtonCircle", fileName);
+                        map.Cross = GetConfig(L"ButtonCross", fileName);
+                        map.Square = GetConfig(L"ButtonSquare", fileName);
+                        map.DpadUp = GetConfig(L"DPadUp", fileName);
+                        map.DpadRight = GetConfig(L"DPadRight", fileName);
+                        map.DpadDown = GetConfig(L"DPadDown", fileName);
+                        map.DpadLeft = GetConfig(L"DPadLeft", fileName);
+                        map.L1 = GetConfig(L"ButtonL1", fileName);
+                        map.R1 = GetConfig(L"ButtonR1", fileName);
+                        map.L2 = GetConfig(L"ButtonL2", fileName);
+                        map.R2 = GetConfig(L"ButtonR2", fileName);
+                        map.L3 = GetConfig(L"ButtonL3", fileName);
+                        map.R3 = GetConfig(L"ButtonR3", fileName);
+                        map.Select = GetConfig(L"ButtonSelect", fileName);
+                        map.Start = GetConfig(L"ButtonStart", fileName);
+                        map.PS = GetConfig(L"ButtonPS", fileName);
+                        map.LStick_Xpos = GetConfig(L"LeftStickXpos", fileName);
+                        map.LStick_Xneg = GetConfig(L"LeftStickXneg", fileName);
+                        map.LStick_Ypos = GetConfig(L"LeftStickYpos", fileName);
+                        map.LStick_Yneg = GetConfig(L"LeftStickYneg", fileName);
+
+                        Mij_SetButton(&map);
+                    }
+                    
+                }break;
+
                 case CMD_SETGPUCLK:
                     if (PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax > 1 &&
                         PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax > 1
@@ -1056,6 +1134,43 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                     cmdBuffer = &buffer;
 
                     Mij_SetButton(&cmdBuffer->Map);
+                }break;
+
+                case CMD_SAVEPRFL:
+                {
+                    CONTROLLER_CONFIG_CMD_BUFFER *cmdBuffer;
+
+                    cmdBuffer = &buffer;
+
+                    wchar_t fileName[260];
+                    GetConfigFileFromProcessId(cmdBuffer->CommandHeader.ProcessId, fileName);
+
+                    WriteConfig(L"ButtonTriangle", cmdBuffer->Map.Triangle, fileName);
+                    WriteConfig(L"ButtonCircle", cmdBuffer->Map.Circle, fileName);
+                    WriteConfig(L"ButtonCross", cmdBuffer->Map.Cross, fileName);
+                    WriteConfig(L"ButtonSquare", cmdBuffer->Map.Square, fileName);
+                    WriteConfig(L"DPadUp", cmdBuffer->Map.DpadUp, fileName);
+                    WriteConfig(L"DPadRight", cmdBuffer->Map.DpadRight, fileName);
+                    WriteConfig(L"DPadDown", cmdBuffer->Map.DpadDown, fileName);
+                    WriteConfig(L"DPadLeft", cmdBuffer->Map.DpadLeft, fileName);
+                    WriteConfig(L"ButtonL1", cmdBuffer->Map.L1, fileName);
+                    WriteConfig(L"ButtonR1", cmdBuffer->Map.R1, fileName);
+                    WriteConfig(L"ButtonL2", cmdBuffer->Map.L2, fileName);
+                    WriteConfig(L"ButtonR2", cmdBuffer->Map.R2, fileName);
+                    WriteConfig(L"ButtonL3", cmdBuffer->Map.L3, fileName);
+                    WriteConfig(L"ButtonR3", cmdBuffer->Map.R3, fileName);
+                    WriteConfig(L"ButtonSelect", cmdBuffer->Map.Select, fileName);
+                    WriteConfig(L"ButtonStart", cmdBuffer->Map.Start, fileName);
+                    WriteConfig(L"ButtonPS", cmdBuffer->Map.PS, fileName);
+                    WriteConfig(L"LeftStickXpos", cmdBuffer->Map.LStick_Xpos, fileName);
+                    WriteConfig(L"LeftStickXneg", cmdBuffer->Map.LStick_Xneg, fileName);
+                    WriteConfig(L"LeftStickYpos", cmdBuffer->Map.LStick_Ypos, fileName);
+                    WriteConfig(L"LeftStickYneg", cmdBuffer->Map.LStick_Yneg, fileName);
+                    WriteConfig(L"RightStickXpos", 0, fileName);
+                    WriteConfig(L"RightStickXneg", 0, fileName);
+                    WriteConfig(L"RightStickYpos", 0, fileName);
+                    WriteConfig(L"RightStickYneg", 0, fileName);
+
                 }break;
 
                 }

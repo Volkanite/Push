@@ -71,10 +71,11 @@ VOID SlIniWriteSubKey(
     WCHAR *pszValue
     );
 
-BOOLEAN SlIniWriteString( 
-    WCHAR* section, 
-    WCHAR* entry, 
-    WCHAR* string 
+BOOLEAN Ini_WriteString(
+    WCHAR* section,
+    WCHAR* entry,
+    WCHAR* string,
+    WCHAR* FileName
     );
 
 #ifdef __cplusplus
