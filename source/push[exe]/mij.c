@@ -10,44 +10,6 @@ USB_DEVICES KnownDevices[] = {
 };
 
 
-void GetControllerMappingFile( wchar_t* GameName, wchar_t* Buffer )
-{
-    wchar_t *dot;
-    wchar_t batchFile[260];
-
-    String_Copy(batchFile, L"mij\\");
-    String_Concatenate(batchFile, GameName);
-
-    dot = String_FindLastChar(batchFile, '.');
-
-    if (dot)
-        String_Copy(dot, L".map");
-    else
-        String_Concatenate(batchFile, L".map");
-
-    String_Copy(Buffer, batchFile);
-}
-
-
-void GetSettingsFile( wchar_t* GameName, wchar_t* Buffer )
-{
-    wchar_t *dot;
-    wchar_t batchFile[260];
-
-    String_Copy(batchFile, L"mij\\");
-    String_Concatenate(batchFile, GameName);
-
-    dot = String_FindLastChar(batchFile, '.');
-
-    if (dot)
-        String_Copy(dot, L".mij");
-    else
-        String_Concatenate(batchFile, L".mij");
-
-    String_Copy(Buffer, batchFile);
-}
-
-
 void SetMacro(UINT8 Count, MOTIONINJOY_MACRO* Macro);
 void InstallDriver(HANDLE DeviceInformation, SP_DEVINFO_DATA* DeviceData);
 void GetDeviceDetail(HANDLE DeviceInformation, SP_DEVINFO_DATA* DeviceData);
@@ -97,14 +59,10 @@ VOID Mij_SetButton( MOTIONINJOY_BUTTON_MAP* ButtonMapping )
 }
 
 
-VOID Mij_SetProfile( WCHAR* GameName )
+VOID Mij_SetProfile( MOTIONINJOY_APP_OPTION* Configuration )
 {
     HANDLE driverHandle;
     IO_STATUS_BLOCK isb;
-    MOTIONINJOY_APP_OPTION options;
-    wchar_t bigbuff[260];
-    void* buttonMapping = NULL;
-    wchar_t* settingsFile = NULL;
     BOOLEAN setTestMacro = FALSE;
 
     if (setTestMacro)
@@ -126,20 +84,6 @@ VOID Mij_SetProfile( WCHAR* GameName )
         SetMacro(1, &macro);
     }
 
-    GetControllerMappingFile(GameName, bigbuff);
-
-    buttonMapping = File_Load(bigbuff, NULL);
-
-    GetSettingsFile(GameName, bigbuff);
-
-    settingsFile = File_Load(bigbuff, NULL);
-
-    if (!settingsFile || !buttonMapping)
-        return;
-
-    // Start our reads after the UTF16-LE character marker
-    settingsFile += 1;
-
     File_Create(
         &driverHandle,
         L"\\\\.\\MIJFilter",
@@ -150,29 +94,10 @@ VOID Mij_SetProfile( WCHAR* GameName )
         NULL
         );
 
-    Memory_Clear(&options, sizeof(MOTIONINJOY_APP_OPTION));
-
-    if (settingsFile[0] == '0')
-        options.CommonOption.mode = Keyboard;
-    else if (settingsFile[0] == '4')
-        options.CommonOption.mode = DirectInput;
-    else if (settingsFile[0] == '5')
-        options.CommonOption.mode = XInput;
-
-    options.CommonOption.LED = 129;
-    options.CommonOption.AutoOff_timeout = 0x80 | PushSharedMemory->ControllerTimeout;
-    options.CommonOption.Deadzone_LStick_X = 10;
-    options.CommonOption.Deadzone_LStick_Y = 10;
-
-    options.InputOption.Duration = 100;
-    options.InputOption.Interval = 400;
-
-    Memory_Copy(&options.InputOption.Maping, buttonMapping, sizeof(MOTIONINJOY_BUTTON_MAP));
-
     if (setTestMacro)
-        options.InputOption.Maping.Triangle = 0x0800; //set triangle button to macro
+        Configuration->InputOption.Maping.Triangle = Macro1; //set triangle button to macro
 
-    NtDeviceIoControlFile(driverHandle, NULL, NULL, NULL, &isb, IOCTL_MIJ_SET_CONFIG_OPTIONS, &options, 256, NULL, 0);
+    NtDeviceIoControlFile(driverHandle, NULL, NULL, NULL, &isb, IOCTL_MIJ_SET_CONFIG_OPTIONS, Configuration, 256, NULL, 0);
     File_Close(driverHandle);
 }
 

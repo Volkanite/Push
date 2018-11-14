@@ -183,7 +183,7 @@ typedef struct CONTROLLER_CONFIG_CMD_BUFFER
 
 WCHAR* String_CompareIgnoreCaseN(WCHAR* s1, WCHAR* s2, int n);
 
-VOID Mij_SetProfile(WCHAR* GameName);
+VOID Mij_SetProfile(MOTIONINJOY_APP_OPTION* Configuration);
 VOID Mij_SetButton(MOTIONINJOY_BUTTON_MAP* ButtonMapping);
 VOID Mij_EnumerateDevices();
 
@@ -267,5 +267,6 @@ VOID Mij_EnumerateDevices();
 // 0x0707 = Right Stick X-
 // 0x0708 = Right Stick Y-
 // 0x0709 = Right Stick Y+
-// Macros
-// 0x0800 = Macro1
+
+/* Macros */
+#define Macro1 0x0800;

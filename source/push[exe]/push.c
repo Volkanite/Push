@@ -148,6 +148,8 @@ NTSTATUS __stdcall NtTerminateThread(
     NTSTATUS ExitStatus
     );
 
+VOID CreatePath(WCHAR* Path);
+
 #define MB_TOPMOST          0x00040000L
 
 
@@ -311,6 +313,93 @@ VOID Cache( PUSH_GAME* Game )
 }
 
 
+DWORD GetConfig(wchar_t *Button, WCHAR* File)
+{
+    WCHAR buffer[255];
+
+    Ini_GetString(L"Options", Button, L"0x0", buffer, 255, File);
+
+    return wcstol(buffer, NULL, 16);
+}
+
+
+void WriteConfig(wchar_t *Button, int Value, wchar_t* File)
+{
+    wchar_t buffer[20];
+
+    String_Format(buffer, 20, L"0x%X", Value);
+    Ini_WriteString(L"Options", Button, buffer, File);
+}
+
+
+void GetConfigFile(wchar_t* GameName, wchar_t* Buffer)
+{
+    wchar_t *dot;
+    wchar_t batchFile[260];
+
+    String_Copy(batchFile, L"mij\\");
+    String_Concatenate(batchFile, GameName);
+
+    dot = String_FindLastChar(batchFile, '.');
+
+    if (dot)
+        String_Copy(dot, L".mij");
+    else
+        String_Concatenate(batchFile, L".mij");
+
+    String_Copy(Buffer, batchFile);
+}
+
+
+void GetConfigFileFromProcessId(int ProcessId, wchar_t* Buffer)
+{
+    wchar_t processName[260];
+    wchar_t fileName[260];
+    wchar_t *slash, *dot;
+
+    Process_GetFileNameByProcessId(ProcessId, processName);
+
+    String_Copy(fileName, L"mij\\");
+
+    dot = String_FindLastChar(processName, '.');
+    String_Copy(dot, L".ini");
+
+    slash = String_FindLastChar(processName, '\\');
+    String_Copy(fileName, slash + 1);
+
+    Log(fileName);
+    CreatePath(L".\\mij\\");
+
+    String_Copy(Buffer, fileName);
+}
+
+
+void PopulateButtonMap(MOTIONINJOY_BUTTON_MAP *Map, wchar_t *FileName)
+{
+    Map->Triangle = GetConfig(L"ButtonTriangle", FileName);
+    Map->Circle = GetConfig(L"ButtonCircle", FileName);
+    Map->Cross = GetConfig(L"ButtonCross", FileName);
+    Map->Square = GetConfig(L"ButtonSquare", FileName);
+    Map->DpadUp = GetConfig(L"DPadUp", FileName);
+    Map->DpadRight = GetConfig(L"DPadRight", FileName);
+    Map->DpadDown = GetConfig(L"DPadDown", FileName);
+    Map->DpadLeft = GetConfig(L"DPadLeft", FileName);
+    Map->L1 = GetConfig(L"ButtonL1", FileName);
+    Map->R1 = GetConfig(L"ButtonR1", FileName);
+    Map->L2 = GetConfig(L"ButtonL2", FileName);
+    Map->R2 = GetConfig(L"ButtonR2", FileName);
+    Map->L3 = GetConfig(L"ButtonL3", FileName);
+    Map->R3 = GetConfig(L"ButtonR3", FileName);
+    Map->Select = GetConfig(L"ButtonSelect", FileName);
+    Map->Start = GetConfig(L"ButtonStart", FileName);
+    Map->PS = GetConfig(L"ButtonPS", FileName);
+    Map->LStick_Xpos = GetConfig(L"LeftStickXpos", FileName);
+    Map->LStick_Xneg = GetConfig(L"LeftStickXneg", FileName);
+    Map->LStick_Ypos = GetConfig(L"LeftStickYpos", FileName);
+    Map->LStick_Yneg = GetConfig(L"LeftStickYneg", FileName);
+}
+
+
 VOID OnProcessEvent( PROCESSID processID )
 {
     WCHAR fileName[260];
@@ -369,7 +458,35 @@ VOID OnProcessEvent( PROCESSID processID )
             );
 
         //mij
-        Mij_SetProfile(game.Name);
+        MOTIONINJOY_APP_OPTION configuration;
+        wchar_t configFile[260];
+
+        Memory_Clear(&configuration, sizeof(configuration));
+
+        GetConfigFile(game.Name, configFile);
+        PopulateButtonMap(&configuration.InputOption.Maping, configFile);
+
+        /*if (settingsFile[0] == '0')
+            options.CommonOption.mode = Keyboard;
+        else if (settingsFile[0] == '4')
+            options.CommonOption.mode = DirectInput;
+        else if (settingsFile[0] == '5')
+            options.CommonOption.mode = XInput;*/
+
+        configuration.CommonOption.mode = DirectInput;
+
+        if (!PushSharedMemory->ControllerTimeout)
+            PushSharedMemory->ControllerTimeout = 10;
+
+        configuration.CommonOption.LED = 129;
+        configuration.CommonOption.AutoOff_timeout = 0x80 | PushSharedMemory->ControllerTimeout;
+        configuration.CommonOption.Deadzone_LStick_X = 10;
+        configuration.CommonOption.Deadzone_LStick_Y = 10;
+
+        configuration.InputOption.Duration = 100;
+        configuration.InputOption.Interval = 400;
+        
+        Mij_SetProfile(&configuration);
 
         if (PushSharedMemory->GameUsesRamDisk)
             //resume process
@@ -899,8 +1016,6 @@ NTSTATUS __stdcall NtCreateNamedPipeFile(
     LARGE_INTEGER* DefaultTimeout
     );
 
-VOID CreatePath(WCHAR* Path);
-
 typedef VOID(*TYPE_InstallOverlayHook)();
 
 TYPE_InstallOverlayHook InstallOverlayHook;
@@ -926,47 +1041,6 @@ VOID Log(const wchar_t* Format, ...)
 
     wcsncat(output, buffer, 260);
     OutputDebugStringW(output);
-}
-
-
-DWORD GetConfig( wchar_t *Button, WCHAR* File )
-{
-    WCHAR buffer[255];
-
-    Ini_GetString(L"Options", Button, L"0x0", buffer, 255, File);
-
-    return wcstol(buffer, NULL, 16);
-}
-
-
-void WriteConfig( wchar_t *Button, int Value, wchar_t* File )
-{
-    wchar_t buffer[20];
-
-    String_Format(buffer, 20, L"0x%X", Value);
-    Ini_WriteString(L"Options", Button, buffer, File);
-}
-
-
-void GetConfigFileFromProcessId( int ProcessId, wchar_t* Buffer )
-{
-    wchar_t processName[260];
-    wchar_t exec[260];
-    wchar_t fileName[260];
-    wchar_t *slash;
-
-    Process_GetFileNameByProcessId(ProcessId, processName);
-    slash = String_FindLastChar(processName, '\\');
-    String_Copy(exec, slash + 1);
-    slash = String_FindLastChar(exec, '.');
-    *slash = L'\0';
-    String_Concatenate(exec, L".ini");
-    String_Copy(fileName, L"mij\\");
-    String_Concatenate(fileName, exec);
-    Log(fileName);
-    CreatePath(L".\\mij\\");
-
-    String_Copy(Buffer, fileName);
 }
 
 
@@ -1050,29 +1124,7 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                         MOTIONINJOY_BUTTON_MAP map;
 
                         Memory_Clear(&map, sizeof(map));
-
-                        map.Triangle = GetConfig(L"ButtonTriangle", fileName);
-                        map.Circle = GetConfig(L"ButtonCircle", fileName);
-                        map.Cross = GetConfig(L"ButtonCross", fileName);
-                        map.Square = GetConfig(L"ButtonSquare", fileName);
-                        map.DpadUp = GetConfig(L"DPadUp", fileName);
-                        map.DpadRight = GetConfig(L"DPadRight", fileName);
-                        map.DpadDown = GetConfig(L"DPadDown", fileName);
-                        map.DpadLeft = GetConfig(L"DPadLeft", fileName);
-                        map.L1 = GetConfig(L"ButtonL1", fileName);
-                        map.R1 = GetConfig(L"ButtonR1", fileName);
-                        map.L2 = GetConfig(L"ButtonL2", fileName);
-                        map.R2 = GetConfig(L"ButtonR2", fileName);
-                        map.L3 = GetConfig(L"ButtonL3", fileName);
-                        map.R3 = GetConfig(L"ButtonR3", fileName);
-                        map.Select = GetConfig(L"ButtonSelect", fileName);
-                        map.Start = GetConfig(L"ButtonStart", fileName);
-                        map.PS = GetConfig(L"ButtonPS", fileName);
-                        map.LStick_Xpos = GetConfig(L"LeftStickXpos", fileName);
-                        map.LStick_Xneg = GetConfig(L"LeftStickXneg", fileName);
-                        map.LStick_Ypos = GetConfig(L"LeftStickYpos", fileName);
-                        map.LStick_Yneg = GetConfig(L"LeftStickYneg", fileName);
-
+                        PopulateButtonMap(&map, fileName);
                         Mij_SetButton(&map);
                     }
                     
