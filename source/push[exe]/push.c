@@ -37,6 +37,9 @@ INTBOOL __stdcall SetWindowTextW(
     );
 
 
+#define GAMES_CONFIG_PATH L"games\\"
+
+
 VOID CopyProgress( UINT64 TotalSize, UINT64 TotalTransferred )
 {
     WCHAR progressText[260];
@@ -337,15 +340,15 @@ void GetConfigFile(wchar_t* GameName, wchar_t* Buffer)
     wchar_t *dot;
     wchar_t batchFile[260];
 
-    String_Copy(batchFile, L"mij\\");
+    String_Copy(batchFile, GAMES_CONFIG_PATH);
     String_Concatenate(batchFile, GameName);
 
     dot = String_FindLastChar(batchFile, '.');
 
     if (dot)
-        String_Copy(dot, L".mij");
+        String_Copy(dot, L".ini");
     else
-        String_Concatenate(batchFile, L".mij");
+        String_Concatenate(batchFile, L".ini");
 
     String_Copy(Buffer, batchFile);
 }
@@ -359,7 +362,7 @@ void GetConfigFileFromProcessId(int ProcessId, wchar_t* Buffer)
 
     Process_GetFileNameByProcessId(ProcessId, processName);
 
-    String_Copy(fileName, L"mij\\");
+    String_Copy(fileName, GAMES_CONFIG_PATH);
 
     dot = String_FindLastChar(processName, '.');
     String_Copy(dot, L".ini");
@@ -368,7 +371,7 @@ void GetConfigFileFromProcessId(int ProcessId, wchar_t* Buffer)
     String_Concatenate(fileName, slash + 1);
 
     Log(fileName);
-    CreatePath(L".\\mij\\");
+    CreatePath(L".\\" GAMES_CONFIG_PATH);
 
     String_Copy(Buffer, fileName);
 }
