@@ -269,4 +269,4 @@ VOID Mij_EnumerateDevices();
 // 0x0709 = Right Stick Y+
 
 /* Macros */
-#define Macro1 0x0800;
+#define Macro1 0x0800
