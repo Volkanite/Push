@@ -365,7 +365,7 @@ void GetConfigFileFromProcessId(int ProcessId, wchar_t* Buffer)
     String_Copy(dot, L".ini");
 
     slash = String_FindLastChar(processName, '\\');
-    String_Copy(fileName, slash + 1);
+    String_Concatenate(fileName, slash + 1);
 
     Log(fileName);
     CreatePath(L".\\mij\\");
