@@ -37,7 +37,8 @@ INTBOOL __stdcall SetWindowTextW(
     );
 
 
-#define GAMES_CONFIG_PATH L"games\\"
+#define GAMES_CONFIG_PATH   L"games\\"
+#define CONTROLLER_SECTION  L"Controller"
 
 
 VOID CopyProgress( UINT64 TotalSize, UINT64 TotalTransferred )
@@ -320,7 +321,7 @@ DWORD GetConfig(wchar_t *Button, WCHAR* File)
 {
     WCHAR buffer[255];
 
-    Ini_GetString(L"Options", Button, L"0x0", buffer, 255, File);
+    Ini_GetString(CONTROLLER_SECTION, Button, L"0x0", buffer, 255, File);
 
     return wcstol(buffer, NULL, 16);
 }
@@ -331,7 +332,7 @@ void WriteConfig(wchar_t *Button, int Value, wchar_t* File)
     wchar_t buffer[20];
 
     String_Format(buffer, 20, L"0x%X", Value);
-    Ini_WriteString(L"Options", Button, buffer, File);
+    Ini_WriteString(CONTROLLER_SECTION, Button, buffer, File);
 }
 
 
