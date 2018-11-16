@@ -372,7 +372,6 @@ void GetConfigFileFromProcessId(int ProcessId, wchar_t* Buffer)
     String_Concatenate(fileName, slash + 1);
 
     Log(fileName);
-    CreatePath(L".\\" GAMES_CONFIG_PATH);
 
     String_Copy(Buffer, fileName);
 }
@@ -1180,6 +1179,8 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                     cmdBuffer = &buffer;
 
                     wchar_t fileName[260];
+
+                    CreatePath(L".\\" GAMES_CONFIG_PATH);
                     GetConfigFileFromProcessId(cmdBuffer->CommandHeader.ProcessId, fileName);
 
                     WriteConfig(L"ButtonTriangle", cmdBuffer->Map.Triangle, fileName);
