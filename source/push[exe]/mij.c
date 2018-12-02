@@ -43,7 +43,7 @@ VOID Mij_SetButton( MOTIONINJOY_BUTTON_MAP* ButtonMapping )
 
     Memory_Clear(&options, sizeof(MOTIONINJOY_APP_OPTION));
 
-    options.CommonOption.mode = DirectInput;
+    options.CommonOption.mode = Keyboard;
     options.CommonOption.LED = 129;
     options.CommonOption.AutoOff_timeout = 0x80 | /*PushSharedMemory->ControllerTimeout*/10; //minutes
     options.CommonOption.Deadzone_LStick_X = 10;

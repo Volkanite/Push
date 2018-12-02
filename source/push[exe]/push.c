@@ -1128,6 +1128,14 @@ DWORD __stdcall PipeThread( VOID* Parameter )
 
                         Memory_Clear(&map, sizeof(map));
                         PopulateButtonMap(&map, fileName);
+
+                        // hack to allow menu navigation with ps3 controller :)
+                        map.PS = 0x349;//ins
+                        map.DpadDown = 0x0351;//arrow keys
+                        map.DpadUp = 0x0352;
+                        map.DpadLeft = 0x0350;
+                        map.DpadRight = 0x034F;
+
                         Mij_SetButton(&map);
                     }
                     
