@@ -185,7 +185,7 @@ VOID Mij_EnumerateDevices()
             deviceData.Reserved = 0;
 
             flag = SetupDiEnumDeviceInfo(deviceInfo, num, &deviceData);
-            
+
             if (flag)
             {
                 wchar_t propertyBuffer[1000];
@@ -193,18 +193,19 @@ VOID Mij_EnumerateDevices()
                 DWORD propertyDataType = 1;
 
                 if (SetupDiGetDeviceRegistryPropertyW(
-                    deviceInfo, 
-                    &deviceData, 
+                    deviceInfo,
+                    &deviceData,
                     SPDRP_HARDWAREID,
-                    &propertyDataType, 
-                    &propertyBuffer, 
-                    1000 * sizeof(wchar_t), 
+                    &propertyDataType,
+                    &propertyBuffer,
+                    1000 * sizeof(wchar_t),
                     &requiredSize))
                 {
                     BOOLEAN flag2 = FALSE;
+                    int i;
 
                     // Direct Match, definitely a device we recognize
-                    for (int i = 0; i < sizeof(KnownDevices) / sizeof(KnownDevices[0]); i++)
+                    for (i = 0; i < sizeof(KnownDevices) / sizeof(KnownDevices[0]); i++)
                     {
                         if (String_CompareIgnoreCaseN(propertyBuffer, KnownDevices[i].RegistryId, 22))
                         {
@@ -215,19 +216,19 @@ VOID Mij_EnumerateDevices()
                     }
 
                     // Possible devices that could work
-                    if (!flag2 
+                    if (!flag2
                         && SetupDiGetDeviceRegistryPropertyW(
-                            deviceInfo, 
-                            &deviceData, 
-                            SPDRP_COMPATIBLEIDS, 
+                            deviceInfo,
+                            &deviceData,
+                            SPDRP_COMPATIBLEIDS,
                             &propertyDataType,
-                            &propertyBuffer, 
-                            1000 * sizeof(wchar_t), 
+                            &propertyBuffer,
+                            1000 * sizeof(wchar_t),
                             &requiredSize))
                     {
                         //Bluetooth Device
-                        //BaseClass[0xE0] = Wireless Controller, 
-                        //SubClass[0x01] = Wireless Radio, 
+                        //BaseClass[0xE0] = Wireless Controller,
+                        //SubClass[0x01] = Wireless Radio,
                         //Protocol[0x01] = Bluetooth Programming Interface
                         //https://web.archive.org/web/20070626033649/http://www.usb.org/developers/defined_class/#BaseClassE0h
                         if (String_CompareIgnoreCaseN(propertyBuffer, L"usb\\Class_e0&subClass_01&Prot_01", 33))
@@ -289,7 +290,10 @@ void InstallDriver( HANDLE DeviceInformation, SP_DEVINFO_DATA* DeviceData )
     SP_DEVINSTALL_PARAMS_W deviceInstallParams;
     SP_DRVINFO_DATA_V2_W driverData;
     UINT32 reboot = 0;
-    
+    HANDLE module;
+    DWORD address;
+    BYTE *addr;
+
     if (!SetupDiSetSelectedDevice(DeviceInformation, DeviceData))
     {
         Log(L"Set Selected Device fail.");
@@ -297,7 +301,7 @@ void InstallDriver( HANDLE DeviceInformation, SP_DEVINFO_DATA* DeviceData )
     }
 
     Memory_Clear(&deviceInstallParams, sizeof(SP_DEVINSTALL_PARAMS_W));
-    
+
     if (sizeof(int*) == 8)
     {
         deviceInstallParams.cbSize = 584;
@@ -334,7 +338,7 @@ void InstallDriver( HANDLE DeviceInformation, SP_DEVINFO_DATA* DeviceData )
         Log(L"Select Best Compatible Driver fail.");
         return;
     }
-    
+
     Memory_Clear(&driverData, sizeof(SP_DRVINFO_DATA_V2_W));
     driverData.cbSize = sizeof(SP_DRVINFO_DATA_V2_W);
 
@@ -348,10 +352,10 @@ void InstallDriver( HANDLE DeviceInformation, SP_DEVINFO_DATA* DeviceData )
     //I don't know if this was a security restraint but there is no reason why this function
     //should not work under WOW64. All we have to do is insert one, literally one jmp patch to
     //skip the WOW64 check and the function succeeds as normal.
-    HANDLE module = Module_GetHandle(L"newdev.dll");
-    DWORD address = Module_GetProcedureAddress(module, "DiInstallDevice");
+    module = Module_GetHandle(L"newdev.dll");
+    address = Module_GetProcedureAddress(module, "DiInstallDevice");
     address += 0x134;
-    BYTE *addr = address;
+    addr = address;
 
     if ((*addr) == 0x74) //je
     {
@@ -359,7 +363,7 @@ void InstallDriver( HANDLE DeviceInformation, SP_DEVINFO_DATA* DeviceData )
 
         //We firstly have to remove page protection of course.
         VirtualProtect(addr, 1, PAGE_EXECUTE_READWRITE, &oldPageProtection);
-        
+
         //patch to jne
         *addr = 0x75;
 

@@ -1516,14 +1516,19 @@ VOID UTF8ToWchar(
 struct atom_context *amdgpu_atom_parse(struct card_info *card, void *bios)
 {
     int base;
+    struct atom_context *ctx;
+    char *str;
+    u16 idx;
+    char bios_name[70];
+    int i;
+    char lol;
+    wchar_t help[260];
+    int len;
+
     /*struct atom_context *ctx =
         kzalloc(sizeof(struct atom_context), GFP_KERNEL);*/
     AtomCtx.bios = gpubios;
-    struct atom_context *ctx;
     ctx = &AtomCtx;
-
-    char *str;
-    u16 idx;
 
     if (!ctx || !bios)
         return NULL;
@@ -1574,20 +1579,19 @@ struct atom_context *amdgpu_atom_parse(struct card_info *card, void *bios)
     str = CSTR(CU16(base + ATOM_ROM_MSG_PTR));
       while (*str && ((*str == '\n') || (*str == '\r')))
           str++;
-      char bios_name[70];
+
       /* name string isn't always 0 terminated */
-       for (int i = 0; i < 63; i++) {
+       for (i = 0; i < 63; i++) {
            bios_name[i] = str[i];
-           char lol = '-';
-           if (bios_name[i] == ' ' && str[i+1] == ' ') 
+           lol = '-';
+           if (bios_name[i] == ' ' && str[i+1] == ' ')
            {
                bios_name[i] = 0;
                break;
            }
        }
 
-      wchar_t help[260];
-      int len = strlen(bios_name);
+      len = strlen(bios_name);
       if (len > 63)
           len = 63;
       UTF8ToWchar(help, 260, str, len);

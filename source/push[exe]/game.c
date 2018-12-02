@@ -47,13 +47,13 @@ BOOLEAN SearchGame( WCHAR* ExecutablePath, WCHAR* GameId )
             if (gameList->Game->CheckSum == checkSum)
             {
                 Log(L"Found game executable at another path!");
-                
+
                 if (GameId)
                 {
                     String_Copy(GameId, gameList->Game->Id);
                 }
 
-                // Update path. 
+                // Update path.
                 Ini_WriteString(L"Games", gameList->Game->ExecutablePath, NULL, L".\\" PUSH_SETTINGS_FILE);
                 Ini_WriteString(L"Games", ExecutablePath, gameList->Game->Id, L".\\" PUSH_SETTINGS_FILE);
 
@@ -96,6 +96,8 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
     WCHAR buffer[260];
     WCHAR installPath[260];
     WCHAR *lastSlash;
+    wchar_t gameFile[260];
+    wchar_t* lastDot;
     DWORD start;
     DWORD end;
     DWORD len;
@@ -104,7 +106,7 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
         return;
 
     //Log(L"Game_Initialize(%s)", Win32Name);
-    
+
     Game->ExecutablePath = HeapedString(Win32Name);
     lastSlash = String_FindLastChar(Game->ExecutablePath, '\\');
     Game->ExecutableName = lastSlash + 1;
@@ -118,9 +120,7 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
         SearchGame(Win32Name, Game->Id);
         Log(L"Found game at new gameId: %s", Game->Id);
     }
-    wchar_t gameFile[260];
-    wchar_t* lastDot;
-    
+
     String_Copy(gameFile, L".\\games\\");
     String_Concatenate(gameFile, Game->ExecutableName);
     lastDot = String_FindLastChar(gameFile, '.');
@@ -136,27 +136,27 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
     // get default one by determing the path of the exectuble. The install directory
     // does not nessarilly have to be where the executable is located though, hence the
     // purpose of the Game::InstallPath field.
-    
+
     start = Game->ExecutablePath;
     end = lastSlash;
     len = (end - start) / sizeof(WCHAR);
 
     String_CopyN(installPath, Game->ExecutablePath, len);
-    
+
     installPath[len] = L'\0';
-    
+
     Ini_ReadSubKey(L"Settings", Game->Id, GAME_INSTALL_PATH, installPath, buffer, 260, gameFile);
-    
+
     Game->InstallPath = HeapedString(buffer);
 
     // Get checksum
     Ini_ReadSubKey(L"Game Settings", Game->Id, L"CheckSum", NULL, buffer, 260, L".\\" PUSH_SETTINGS_FILE);
-    
+
     if (buffer)
     {
         Game->CheckSum = wcstol(buffer, NULL, 16);
     }
-    
+
     if (Game->CheckSum == 0)
     {
         //update checksum

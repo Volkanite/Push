@@ -410,6 +410,8 @@ VOID OnProcessEvent( PROCESSID processID )
     UINT32 iBytesRead;
     WCHAR *result = 0;
     CHAR szCommand[] = "MUTEPIN 1 a";
+    MOTIONINJOY_APP_OPTION configuration;
+    wchar_t configFile[260];
 
     processHandle = Process_Open(processID, PROCESS_QUERY_INFORMATION | PROCESS_SUSPEND_RESUME);
 
@@ -461,9 +463,6 @@ VOID OnProcessEvent( PROCESSID processID )
             );
 
         //mij
-        MOTIONINJOY_APP_OPTION configuration;
-        wchar_t configFile[260];
-
         Memory_Clear(&configuration, sizeof(configuration));
 
         GetConfigFile(game.Name, configFile);
@@ -488,7 +487,7 @@ VOID OnProcessEvent( PROCESSID processID )
 
         configuration.InputOption.Duration = 100;
         configuration.InputOption.Interval = 400;
-        
+
         Mij_SetProfile(&configuration);
 
         if (PushSharedMemory->GameUsesRamDisk)
@@ -1138,7 +1137,7 @@ DWORD __stdcall PipeThread( VOID* Parameter )
 
                         Mij_SetButton(&map);
                     }
-                    
+
                 }break;
 
                 case CMD_SETGPUCLK:
@@ -1183,10 +1182,9 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                 case CMD_SAVEPRFL:
                 {
                     CONTROLLER_CONFIG_CMD_BUFFER *cmdBuffer;
+                    wchar_t fileName[260];
 
                     cmdBuffer = &buffer;
-
-                    wchar_t fileName[260];
 
                     CreatePath(L".\\" GAMES_CONFIG_PATH);
                     GetConfigFileFromProcessId(cmdBuffer->CommandHeader.ProcessId, fileName);
@@ -1307,10 +1305,10 @@ VOID ProcessEnum( SYSTEM_PROCESS_INFORMATION* ProcessInformation )
     {
         game = gameList->Game;
 
-        if (ProcessInformation->ImageName.Length 
+        if (ProcessInformation->ImageName.Length
             && String_CompareN(
-                game->ExecutableName, 
-                ProcessInformation->ImageName.Buffer, 
+                game->ExecutableName,
+                ProcessInformation->ImageName.Buffer,
                 ProcessInformation->ImageName.Length) == 0)
         {
             CreateOverlay((DWORD)ProcessInformation->UniqueProcessId);

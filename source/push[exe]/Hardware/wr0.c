@@ -258,6 +258,11 @@ BOOL StopDriver(WCHAR* DriverId)
 
 BOOL Wr0Rdmsr( DWORD Index, DWORD* EAX, DWORD* EDX )
 {
+    IO_STATUS_BLOCK isb;
+    NTSTATUS status;
+    BOOL    result = FALSE;
+    BYTE buffer[8];
+
     if (gHandle == INVALID_HANDLE_VALUE)
     {
         return FALSE;
@@ -267,11 +272,6 @@ BOOL Wr0Rdmsr( DWORD Index, DWORD* EAX, DWORD* EDX )
     {
         return FALSE;
     }
-
-    IO_STATUS_BLOCK isb;
-    NTSTATUS status;
-    BOOL    result = FALSE;
-    BYTE buffer[8];
 
     status = NtDeviceIoControlFile(
         gHandle,
@@ -308,6 +308,11 @@ BOOL Wr0Rdmsr( DWORD Index, DWORD* EAX, DWORD* EDX )
 
 BOOL Wr0ReadPciConfig( DWORD pciAddress, DWORD regAddress, BYTE* value, DWORD size )
 {
+    DWORD   returnedLength = 0;
+    OLS_READ_PCI_CONFIG_INPUT inBuf;
+    NTSTATUS status;
+    IO_STATUS_BLOCK isb;
+
     if (gHandle == INVALID_HANDLE_VALUE)
     {
         return FALSE;
@@ -325,11 +330,6 @@ BOOL Wr0ReadPciConfig( DWORD pciAddress, DWORD regAddress, BYTE* value, DWORD si
     {
         return FALSE;
     }
-
-    DWORD   returnedLength = 0;
-    OLS_READ_PCI_CONFIG_INPUT inBuf;
-    NTSTATUS status;
-    IO_STATUS_BLOCK isb;
 
     inBuf.PciAddress = pciAddress;
     inBuf.PciOffset = regAddress;
@@ -366,6 +366,11 @@ BOOL Wr0ReadPciConfig( DWORD pciAddress, DWORD regAddress, BYTE* value, DWORD si
 
 DWORD Wr0ReadPhysicalMemory( ULONG_PTR address, BYTE* buffer, DWORD count, DWORD unitSize )
 {
+    DWORD   size = 0;
+    OLS_READ_MEMORY_INPUT inBuf;
+    NTSTATUS status;
+    IO_STATUS_BLOCK isb;
+
     if (gHandle == INVALID_HANDLE_VALUE)
     {
         return 0;
@@ -375,11 +380,6 @@ DWORD Wr0ReadPhysicalMemory( ULONG_PTR address, BYTE* buffer, DWORD count, DWORD
     {
         return 0;
     }
-
-    DWORD   size = 0;
-    OLS_READ_MEMORY_INPUT inBuf;
-    NTSTATUS status;
-    IO_STATUS_BLOCK isb;
 
     if (sizeof(ULONG_PTR) == 4)
     {

@@ -197,6 +197,7 @@ UINT16 OsGetCpuSpeed()
 {
     SYSTEM_BASIC_INFORMATION basicInfo;
     PROCESSOR_POWER_INFORMATION *powerInformation;
+    int size;
 
     NtQuerySystemInformation(
         SystemBasicInformation,
@@ -205,7 +206,7 @@ UINT16 OsGetCpuSpeed()
         0
         );
 
-    int size = basicInfo.NumberOfProcessors * sizeof(PROCESSOR_POWER_INFORMATION);
+    size = basicInfo.NumberOfProcessors * sizeof(PROCESSOR_POWER_INFORMATION);
 
     powerInformation = (PPROCESSOR_POWER_INFORMATION)Memory_AllocateEx(
         size,

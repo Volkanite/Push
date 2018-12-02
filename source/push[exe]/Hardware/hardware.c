@@ -361,6 +361,8 @@ VOID InitGpuHardware()
     {
         if (PagedMMIO)
         {
+            int i;
+
             if (PushSharedMemory->HarwareInformation.DisplayDevice.VendorId == AMD)
             {
                 size = 4096;
@@ -370,7 +372,7 @@ VOID InitGpuHardware()
 
             mmioPages = Memory_Allocate(sizeof(void*)* (sizeof(pages) / sizeof(pages[0])));
 
-            for (int i = 0; i < sizeof(pages) / sizeof(pages[0]); i++)
+            for (i = 0; i < sizeof(pages) / sizeof(pages[0]); i++)
             {
                 ULONG address;
 
