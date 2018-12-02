@@ -142,6 +142,8 @@ typedef struct MOTIONINJOY_MACRO
 typedef enum _MOTIONINJOY_MODE
 {
     Keyboard = 0,
+    // 1 & 2 are just DirectInput(4) presets
+    VirtualDS3 = 3,
     DirectInput = 4,
     XInput = 5
 }_MOTIONINJOY_MODE;
