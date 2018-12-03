@@ -1046,6 +1046,19 @@ VOID Log(const wchar_t* Format, ...)
 }
 
 
+void SetButtonMapping( MOTIONINJOY_BUTTON_MAP* Map )
+{
+    // hack to allow menu navigation with ps3 controller :)
+    Map->PS = 0x349;//insert key
+    Map->DpadDown = 0x0351;//arrow keys
+    Map->DpadUp = 0x0352;
+    Map->DpadLeft = 0x0350;
+    Map->DpadRight = 0x034F;
+
+    Mij_SetButton(Map);
+}
+
+
 DWORD __stdcall PipeThread( VOID* Parameter )
 {
     HANDLE pipeHandle;
@@ -1127,15 +1140,7 @@ DWORD __stdcall PipeThread( VOID* Parameter )
 
                         Memory_Clear(&map, sizeof(map));
                         PopulateButtonMap(&map, fileName);
-
-                        // hack to allow menu navigation with ps3 controller :)
-                        map.PS = 0x349;//ins
-                        map.DpadDown = 0x0351;//arrow keys
-                        map.DpadUp = 0x0352;
-                        map.DpadLeft = 0x0350;
-                        map.DpadRight = 0x034F;
-
-                        Mij_SetButton(&map);
+                        SetButtonMapping(&map);
                     }
 
                 }break;
@@ -1176,7 +1181,7 @@ DWORD __stdcall PipeThread( VOID* Parameter )
 
                     cmdBuffer = &buffer;
 
-                    Mij_SetButton(&cmdBuffer->Map);
+                    SetButtonMapping(&cmdBuffer->Map);
                 }break;
 
                 case CMD_SAVEPRFL:
