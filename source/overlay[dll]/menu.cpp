@@ -487,84 +487,32 @@ WORD ControllerVarToButton( UINT32 Var )
 {
     switch (Var)
     {
-    case 1:
-        return DI_Button1;
-        break;
-    case 2:
-        return DI_Button2;
-        break;
-    case 3:
-        return DI_Button3;
-        break;
-    case 4:
-        return DI_Button4;
-        break;
-    case 5:
-        return DI_Button5;
-        break;
-    case 6:
-        return DI_Button6;
-        break;
-    case 7:
-        return DI_Button7;
-        break;
-    case 8:
-        return DI_Button8;
-        break;
-    case 9:
-        return DI_Button9;
-        break;
-    case 10:
-        return DI_Button10;
-        break;
-    case 11:
-        return DI_Button11;
-        break;
-    case 12:
-        return DI_Button12;
-        break;
-    case 13:
-        return DI_Button13;
-        break;
-    case 14:
-        return DI_DpadUp;
-        break;
-    case 15:
-        return DI_DpadRight;
-        break;
-    case 16:
-        return DI_DpadDown;
-        break;
-    case 17:
-        return DI_DpadLeft;
-        break;
-    case 18:
-        return DI_Axis_Xpos;
-        break;
-    case 19:
-        return DI_Axis_Xneg;
-        break;
-    case 20:
-        return DI_Axis_Ypos;
-        break;
-    case 21:
-        return DI_Axis_Yneg;
-        break;
-    case 22:
-        return DI_Axis_RXpos;
-        break;
-    case 23:
-        return DI_Axis_RXneg;
-        break;
-    case 24:
-        return DI_Axis_RYpos;
-        break;
-    case 25:
-        return DI_Axis_RYneg;
-        break;
-    default:
-        return 0;
-        break;
+    case 1: return DI_Button1;
+    case 2: return DI_Button2;
+    case 3: return DI_Button3;
+    case 4: return DI_Button4;
+    case 5: return DI_Button5;
+    case 6: return DI_Button6;
+    case 7: return DI_Button7;
+    case 8: return DI_Button8;
+    case 9: return DI_Button9;
+    case 10: return DI_Button10;
+    case 11: return DI_Button11;
+    case 12: return DI_Button12;
+    case 13: return DI_Button13;
+    case 14: return DI_DpadUp;
+    case 15: return DI_DpadRight;
+    case 16: return DI_DpadDown;
+    case 17: return DI_DpadLeft;
+    case 18: return DI_Axis_Xpos;
+    case 19: return DI_Axis_Xneg;
+    case 20: return DI_Axis_Ypos;
+    case 21: return DI_Axis_Yneg;
+    case 22: return DI_Axis_RXpos;
+    case 23: return DI_Axis_RXneg;
+    case 24: return DI_Axis_RYpos;
+    case 25: return DI_Axis_RYneg;
+    default: return 0;
     }
 }
 
@@ -573,84 +521,32 @@ UINT32 ControllerButtonToVar( WORD Button )
 {
     switch (Button)
     {
-    case DI_Button1:
-        return 1;
-        break;
-    case DI_Button2:
-        return 2;
-        break;
-    case DI_Button3:
-        return 3;
-        break;
-    case DI_Button4:
-        return 4;
-        break;
-    case DI_Button5:
-        return 5;
-        break;
-    case DI_Button6:
-        return 6;
-        break;
-    case DI_Button7:
-        return 7;
-        break;
-    case DI_Button8:
-        return 8;
-        break;
-    case DI_Button9:
-        return 9;
-        break;
-    case DI_Button10:
-        return 10;
-        break;
-    case DI_Button11:
-        return 11;
-        break;
-    case DI_Button12:
-        return 12;
-        break;
-    case DI_Button13:
-        return 13;
-        break;
-    case DI_DpadUp:
-        return 14;
-        break;
-    case DI_DpadRight:
-        return 15;
-        break;
-    case DI_DpadDown:
-        return 16;
-        break;
-    case DI_DpadLeft:
-        return 17;
-        break;
-    case DI_Axis_Xpos:
-        return 18;
-        break;
-    case DI_Axis_Xneg:
-        return 19;
-        break;
-    case DI_Axis_Ypos:
-        return 20;
-        break;
-    case DI_Axis_Yneg:
-        return 21;
-        break;
-    case DI_Axis_RXpos:
-        return 22;
-        break;
-    case DI_Axis_RXneg:
-        return 23;
-        break;
-    case DI_Axis_RYpos:
-        return 24;
-        break;
-    case DI_Axis_RYneg:
-        return 25;
-        break;
-    default:
-        return 0;
-        break;
+    case DI_Button1:    return 1;
+    case DI_Button2:    return 2;
+    case DI_Button3:    return 3;
+    case DI_Button4:    return 4;
+    case DI_Button5:    return 5;
+    case DI_Button6:    return 6;
+    case DI_Button7:    return 7;
+    case DI_Button8:    return 8;
+    case DI_Button9:    return 9;
+    case DI_Button10:   return 10;
+    case DI_Button11:   return 11;
+    case DI_Button12:   return 12;
+    case DI_Button13:   return 13;
+    case DI_DpadUp:     return 14;
+    case DI_DpadRight:  return 15;
+    case DI_DpadDown:   return 16;
+    case DI_DpadLeft:   return 17;
+    case DI_Axis_Xpos:  return 18;
+    case DI_Axis_Xneg:  return 19;
+    case DI_Axis_Ypos:  return 20;
+    case DI_Axis_Yneg:  return 21;
+    case DI_Axis_RXpos: return 22;
+    case DI_Axis_RXneg: return 23;
+    case DI_Axis_RYpos: return 24;
+    case DI_Axis_RYneg: return 25;
+    default:            return 0;
     }
 }
 
