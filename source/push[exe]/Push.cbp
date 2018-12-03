@@ -18,6 +18,7 @@
 					<Add option="/D_WOW64_" />
 				</Compiler>
 				<Linker>
+					<Add option="/debug" />
 					<Add option="/DEBUG" />
 					<Add option='/MANIFEST /MANIFESTDEPENDENCY:&quot;type=&apos;win32&apos; name=&apos;Microsoft.Windows.Common-Controls&apos; version=&apos;6.0.0.0&apos; processorArchitecture=&apos;*&apos; publicKeyToken=&apos;6595b64144ccf1df&apos; language=&apos;*&apos;&quot; /MANIFESTUAC:&quot;level=&apos;requireAdministrator&apos; uiAccess=&apos;false&apos;&quot;' />
 					<Add library="comctl32.lib" />
@@ -29,6 +30,8 @@
 					<Add library="user32.lib" />
 					<Add library="shell32.lib" />
 					<Add library="comdlg32.lib" />
+					<Add library="Newdev.lib" />
+					<Add library="Shlwapi.lib" />
 				</Linker>
 			</Target>
 			<Target title="Debug x64">
@@ -121,10 +124,19 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Hardware/CPU/intel.h" />
+		<Unit filename="Hardware/CPU/os_cpu.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="Hardware/GPU/AMD/AmdGpu.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="Hardware/GPU/AMD/AtomBios.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="Hardware/GPU/AMD/adl.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Hardware/GPU/AMD/atom.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Hardware/GPU/GenericGpu.h" />
@@ -164,6 +176,9 @@
 		<Unit filename="Hardware/hardware.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="Hardware/wr0.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="OSD/osd.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -171,15 +186,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="batch.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="driver.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="file.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="folder.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="game.c">
@@ -191,19 +197,10 @@
 		<Unit filename="listview.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="memory.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="mij.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="module.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="overclock.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="process.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="push.c">
@@ -215,13 +212,31 @@
 		<Unit filename="ramdisk.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="registry.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="resource.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="ring0.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="sl/driver.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="sl/file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="sl/folder.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="sl/memory.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="sl/module.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="sl/process.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="sl/registry.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="slgui.c">
