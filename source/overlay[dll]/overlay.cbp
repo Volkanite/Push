@@ -9,18 +9,22 @@
 			<Target title="MSVC x86">
 				<Option output="../../bin/overlay32" prefix_auto="1" extension_auto="1" />
 				<Option type="3" />
-				<Option compiler="msvc10" />
+				<Option compiler="microsoft_visual_c_2013" />
 				<Compiler>
-					<Add option="/Zi" />
 					<Add option="/MTd" />
+					<Add option="/Zi" />
 					<Add option="/DMSVC" />
 				</Compiler>
 				<Linker>
+					<Add option="/debug" />
 					<Add option="/DEBUG" />
 					<Add option='/NODEFAULTLIB:&quot;libcmt&quot;' />
 					<Add library="dxgi.lib" />
 					<Add library="gdiplus.lib" />
 					<Add library="libcmtd.lib" />
+					<Add library="OvRender.lib" />
+					<Add library="ole32.lib" />
+					<Add directory="../../bin" />
 				</Linker>
 			</Target>
 			<Target title="MSVC x64">
@@ -45,7 +49,7 @@
 			<Add directory="../overlay[dll]" />
 			<Add directory="../_resources/directx/dx8" />
 			<Add directory="../_resources/directx/lib/Effects11/Inc" />
-			<Add directory="../../resources/OvRender/inc" />
+			<Add directory="../../OvRender/inc" />
 			<Add directory="../../resources/detourXS" />
 			<Add directory="../../resources/OvRender/source" />
 			<Add directory="../../resources/OvRender/source/d3d8" />
@@ -67,22 +71,6 @@
 			<Add directory="../../resources/OvRender/bin" />
 			<Add directory="../../resources/sl/lib/i386" />
 		</Linker>
-		<Unit filename="../../resources/OvRender/source/d3d10/d3d10font.cpp" />
-		<Unit filename="../../resources/OvRender/source/d3d10/d3d10overlay.cpp" />
-		<Unit filename="../../resources/OvRender/source/d3d11/d3d11font.cpp" />
-		<Unit filename="../../resources/OvRender/source/d3d11/d3d11overlay.cpp" />
-		<Unit filename="../../resources/OvRender/source/d3d8/d3d8font.cpp" />
-		<Unit filename="../../resources/OvRender/source/d3d8/d3d8hook.cpp" />
-		<Unit filename="../../resources/OvRender/source/d3d8/d3d8overlay.cpp" />
-		<Unit filename="../../resources/OvRender/source/d3d9/d3d9font.cpp" />
-		<Unit filename="../../resources/OvRender/source/d3d9/d3d9hook.cpp" />
-		<Unit filename="../../resources/OvRender/source/d3d9/d3d9overlay.cpp" />
-		<Unit filename="../../resources/OvRender/source/ddraw/ddrawoverlay.cpp" />
-		<Unit filename="../../resources/OvRender/source/dxgi/dxgihook.cpp" />
-		<Unit filename="../../resources/OvRender/source/dxgi/dxgioverlay.cpp" />
-		<Unit filename="../../resources/OvRender/source/font.cpp" />
-		<Unit filename="../../resources/OvRender/source/overlay.cpp" />
-		<Unit filename="../../resources/OvRender/source/shaders.cpp" />
 		<Unit filename="../../resources/detourXS/detourxs.cpp" />
 		<Unit filename="dx10/dx10font.h" />
 		<Unit filename="dx10/dx10overlay.h" />
