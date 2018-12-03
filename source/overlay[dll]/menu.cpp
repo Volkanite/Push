@@ -40,8 +40,8 @@ WCHAR* ItemOptExt[] = { L"Off", L"On", L"Avg"};
 WCHAR* PressOpt[] = { L">>", L">>" };
 
 WCHAR* FontOpt[] = { L"Verdana", L"Consolas", L"Courier", L"DejaVu Sans Mono", L"DFKai-SB", L"DotumChe", L"FangSong",
-                     L"GulimChe", L"GungsuhChe", L"KaiTi", L"Liberation Mono", L"Lucida Console", L"MingLiU", L"Miriam Fixed", 
-                     L"MS Gothic", L"MS Mincho", L"NSimSun", L"Rod", L"SimHei", L"Simplified Arabic Fixed", L"SimSun", 
+                     L"GulimChe", L"GungsuhChe", L"KaiTi", L"Liberation Mono", L"Lucida Console", L"MingLiU", L"Miriam Fixed",
+                     L"MS Gothic", L"MS Mincho", L"NSimSun", L"Rod", L"SimHei", L"Simplified Arabic Fixed", L"SimSun",
                      L"Source Code Pro", L"Unispace" };
 
 WCHAR* ControllerOpt[] = { L"Undefined",
@@ -137,6 +137,7 @@ extern BOOLEAN StripWaitCycles;
 
 VOID ChangeVsync(BOOLEAN Setting);
 VOID SetFont(WCHAR* FontName, BOOLEAN Bold, UINT32 Size);
+void GetControllerConfig();
 
 
 VOID UpdateIntegralText( UINT32 Value, WCHAR** OptBuffer )
@@ -234,6 +235,8 @@ VOID AddItems()
 
     if (Controller[0].Var)
     {
+        static BOOLEAN initialized = FALSE;
+
         Menu->AddItem(L"Triangle", ControllerOpt, &Controller[1], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
         Menu->AddItem(L"Circle", ControllerOpt, &Controller[2], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
         Menu->AddItem(L"Cross", ControllerOpt, &Controller[3], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
@@ -260,6 +263,12 @@ VOID AddItems()
         Menu->AddItem(L"Right Stick Y+", ControllerOpt, &Controller[24], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
         Menu->AddItem(L"Right Stick Y-", ControllerOpt, &Controller[25], ID_CONTROLLER, sizeof(ControllerOpt) / sizeof(ControllerOpt[0]));
         Menu->AddItem(L"Save Profile", PressOpt, &Controller[26], ID_SAVE);
+        
+        if (!initialized)
+        {
+            GetControllerConfig();
+            initialized = TRUE;
+        }
     }
 
     Menu->AddGroup(L"Settings", GroupOpt, &Settings[0]);
@@ -277,7 +286,7 @@ VOID AddItems()
 
         //Initialize with current settings
         FontBold = PushSharedMemory->FontBold;
-        
+
         if (FontBold)
             Settings[2].Var = 1;
     }
@@ -333,15 +342,15 @@ void InitializeVolumeManager()
     CoInitialize(NULL);
     IMMDeviceEnumerator *deviceEnumerator = NULL;
     HRESULT hr;
-    
+
     hr = CoCreateInstance(
-        __uuidof(MMDeviceEnumerator), 
-        NULL, 
-        CLSCTX_INPROC_SERVER, 
-        __uuidof(IMMDeviceEnumerator), 
+        __uuidof(MMDeviceEnumerator),
+        NULL,
+        CLSCTX_INPROC_SERVER,
+        __uuidof(IMMDeviceEnumerator),
         (LPVOID *)&deviceEnumerator
         );
-        
+
     IMMDevice *defaultDevice = NULL;
 
     hr = deviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &defaultDevice);
@@ -380,7 +389,7 @@ void InitializeVolumeManager()
 
         DWORD sessionProcessId;
         pSessionControl2->GetProcessId(&sessionProcessId);
-        
+
         if (sessionProcessId == thisPID)
         {
             hr = pSessionControl->QueryInterface(__uuidof(ISimpleAudioVolume), (void**)&SessionVolume);
@@ -401,7 +410,7 @@ int GetVolume()
     float level = 0;
 
     EndpointVolume->GetMasterVolumeLevelScalar(&level);
-    
+
     level *= 100.0f;
     level = roundf(level);
 
@@ -437,7 +446,7 @@ void SetSessionVolume( int Level )
 void SetAmbientVolume( int Level )
 {
     INT nSessionCount;
-    
+
     AudioSessionEnumerator->GetCount(&nSessionCount);
 
     DWORD thisPID = GetCurrentProcessId();
@@ -560,6 +569,92 @@ WORD ControllerVarToButton( UINT32 Var )
 }
 
 
+UINT32 ControllerButtonToVar( WORD Button )
+{
+    switch (Button)
+    {
+    case DI_Button1:
+        return 1;
+        break;
+    case DI_Button2:
+        return 2;
+        break;
+    case DI_Button3:
+        return 3;
+        break;
+    case DI_Button4:
+        return 4;
+        break;
+    case DI_Button5:
+        return 5;
+        break;
+    case DI_Button6:
+        return 6;
+        break;
+    case DI_Button7:
+        return 7;
+        break;
+    case DI_Button8:
+        return 8;
+        break;
+    case DI_Button9:
+        return 9;
+        break;
+    case DI_Button10:
+        return 10;
+        break;
+    case DI_Button11:
+        return 11;
+        break;
+    case DI_Button12:
+        return 12;
+        break;
+    case DI_Button13:
+        return 13;
+        break;
+    case DI_DpadUp:
+        return 14;
+        break;
+    case DI_DpadRight:
+        return 15;
+        break;
+    case DI_DpadDown:
+        return 16;
+        break;
+    case DI_DpadLeft:
+        return 17;
+        break;
+    case DI_Axis_Xpos:
+        return 18;
+        break;
+    case DI_Axis_Xneg:
+        return 19;
+        break;
+    case DI_Axis_Ypos:
+        return 20;
+        break;
+    case DI_Axis_Yneg:
+        return 21;
+        break;
+    case DI_Axis_RXpos:
+        return 22;
+        break;
+    case DI_Axis_RXneg:
+        return 23;
+        break;
+    case DI_Axis_RYpos:
+        return 24;
+        break;
+    case DI_Axis_RYneg:
+        return 25;
+        break;
+    default:
+        return 0;
+        break;
+    }
+}
+
+
 void SendControllerConfig( int CommandIndex )
 {
     CONTROLLER_CONFIG_CMD_BUFFER cmdBuffer;
@@ -593,6 +688,36 @@ void SendControllerConfig( int CommandIndex )
 
 
     CallPipe((BYTE*)&cmdBuffer, sizeof(cmdBuffer), NULL);
+}
+
+
+void GetControllerConfig()
+{
+    MOTIONINJOY_BUTTON_MAP map;
+
+    memcpy(&map, PushSharedMemory->ButtonMap, sizeof(map));
+
+    Controller[1].Var = ControllerButtonToVar(map.Triangle);
+    Controller[2].Var = ControllerButtonToVar(map.Circle);
+    Controller[3].Var = ControllerButtonToVar(map.Cross);
+    Controller[4].Var = ControllerButtonToVar(map.Square);
+    Controller[5].Var = ControllerButtonToVar(map.L1);
+    Controller[6].Var = ControllerButtonToVar(map.R1);
+    Controller[7].Var = ControllerButtonToVar(map.L2);
+    Controller[8].Var = ControllerButtonToVar(map.R2);
+    Controller[9].Var = ControllerButtonToVar(map.Select);
+    Controller[10].Var = ControllerButtonToVar(map.Start);
+    Controller[11].Var = ControllerButtonToVar(map.L3);
+    Controller[12].Var = ControllerButtonToVar(map.R3);
+    Controller[13].Var = ControllerButtonToVar(map.PS);
+    Controller[14].Var = ControllerButtonToVar(map.DpadUp);
+    Controller[15].Var = ControllerButtonToVar(map.DpadRight);
+    Controller[16].Var = ControllerButtonToVar(map.DpadDown);
+    Controller[17].Var = ControllerButtonToVar(map.DpadLeft);
+    Controller[18].Var = ControllerButtonToVar(map.LStick_Xpos);
+    Controller[19].Var = ControllerButtonToVar(map.LStick_Xneg);
+    Controller[20].Var = ControllerButtonToVar(map.LStick_Ypos);
+    Controller[21].Var = ControllerButtonToVar(map.LStick_Yneg);
 }
 
 
@@ -805,7 +930,7 @@ VOID ProcessOptions( MenuItems* Item, WPARAM Key )
             {
                 FrameLimit--;
             }
-            
+
             UpdateIntegralText(FrameLimit, Item->Options);
         }
         break;
@@ -962,7 +1087,7 @@ VOID ProcessOptions( MenuItems* Item, WPARAM Key )
     case ID_CONTROLLER:
         SendControllerConfig(CMD_CONTROLLERCFG);
         break;
-    
+
     case ID_SAVE:
         SendControllerConfig(CMD_SAVEPRFL);
         break;
@@ -1104,11 +1229,11 @@ BOOLEAN Menu_IsVisible()
 OverlayMenu::OverlayMenu( int OptionsX )
 {
     OpX = OptionsX;
-    
+
     mSet.Show = FALSE;
     mSet.MaxItems = 0;
     mSet.SeletedIndex = 0;
-    
+
     OvmMenu = this;
     MenuProcessHeap = GetProcessHeap();
 }
@@ -1217,7 +1342,7 @@ VOID OverlayMenu::Render( int X, int Y, OvOverlay* Overlay )
             if (Items[i].Options)
                 Overlay->DrawText(Items[i].Options[ValueTwo], 200, Y, ColorTwo);
         }
-            
+
 
         if (Items[i].Type == ITEM)
         {

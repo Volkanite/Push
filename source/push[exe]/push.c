@@ -1140,6 +1140,7 @@ DWORD __stdcall PipeThread( VOID* Parameter )
 
                         Memory_Clear(&map, sizeof(map));
                         PopulateButtonMap(&map, fileName);
+                        Memory_Copy(PushSharedMemory->ButtonMap, &map, sizeof(map));
                         SetButtonMapping(&map);
                     }
 
