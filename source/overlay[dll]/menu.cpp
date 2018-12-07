@@ -551,7 +551,7 @@ UINT32 ControllerButtonToVar( WORD Button )
 }
 
 
-void SendControllerConfig( int CommandIndex )
+void SendControllerConfig( int CommandIndex, MOTIONINJOY_BUTTON_MAP* Map )
 {
     CONTROLLER_CONFIG_CMD_BUFFER cmdBuffer;
 
@@ -582,6 +582,10 @@ void SendControllerConfig( int CommandIndex )
     cmdBuffer.Map.LStick_Ypos = ControllerVarToButton(Controller[20].Var);
     cmdBuffer.Map.LStick_Yneg = ControllerVarToButton(Controller[21].Var);
 
+    if (Map)
+    {
+        memcpy(&cmdBuffer.Map, Map, sizeof(cmdBuffer.Map));
+    }
 
     CallPipe((BYTE*)&cmdBuffer, sizeof(cmdBuffer), NULL);
 }
@@ -981,11 +985,11 @@ VOID ProcessOptions( MenuItems* Item, WPARAM Key )
     break;
 
     case ID_CONTROLLER:
-        SendControllerConfig(CMD_CONTROLLERCFG);
+        SendControllerConfig(CMD_CONTROLLERCFG, NULL);
         break;
 
     case ID_SAVE:
-        SendControllerConfig(CMD_SAVEPRFL);
+        SendControllerConfig(CMD_SAVEPRFL, NULL);
         break;
 
     default:
@@ -1032,10 +1036,32 @@ VOID Menu_KeyboardHook( WPARAM Key )
     switch (Key)
     {
     case VK_INSERT:
+    {
+        MOTIONINJOY_BUTTON_MAP map;
 
         OvmMenu->mSet.Show = !OvmMenu->mSet.Show;
 
-        break;
+        memcpy(&map, PushSharedMemory->ButtonMap, sizeof(map));
+
+        if (OvmMenu->mSet.Show)
+        {
+            //Dinput:Dpad => KB:Arrow Keys
+            map.DpadUp = 0x0352;
+            map.DpadRight = 0x034F;
+            map.DpadDown = 0x0351;
+            map.DpadLeft = 0x0350;
+        }
+        else
+        {
+            //KB:Arrow Keys => Dinput:Dpad
+            map.DpadUp = DI_DpadUp;
+            map.DpadRight = DI_DpadRight;
+            map.DpadDown = DI_DpadDown;
+            map.DpadLeft = DI_DpadLeft;
+        }
+
+        SendControllerConfig(CMD_CONTROLLERCFG, &map);
+    } break;
 
     case VK_UP:
     {

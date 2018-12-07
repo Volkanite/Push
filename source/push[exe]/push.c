@@ -1050,10 +1050,6 @@ void SetButtonMapping( MOTIONINJOY_BUTTON_MAP* Map )
 {
     // hack to allow menu navigation with ps3 controller :)
     Map->PS = 0x349;//insert key
-    Map->DpadDown = 0x0351;//arrow keys
-    Map->DpadUp = 0x0352;
-    Map->DpadLeft = 0x0350;
-    Map->DpadRight = 0x034F;
 
     Mij_SetButton(Map);
 }
