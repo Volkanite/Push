@@ -199,16 +199,21 @@ VOID RunFrameStatistics()
         {
             if (!DisableAutoOverclock && IsGpuLag() && PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock != 0)
             {
-                PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
-                PushSharedMemory->OSDFlags |= OSD_GPU_M_CLK;
-                PushSharedMemory->Overloads |= OSD_GPU_E_CLK;
-                PushSharedMemory->Overloads |= OSD_GPU_M_CLK;
-
                 if (PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax < PushSharedMemory->HarwareInformation.DisplayDevice.EngineOverclock)
+                {
+                    PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
+                    PushSharedMemory->Overloads |= OSD_GPU_E_CLK;
+
                     ClockStep(OC_ENGINE, Up);
+                }
 
                 if (PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax < PushSharedMemory->HarwareInformation.DisplayDevice.MemoryOverclock)
+                {
+                    PushSharedMemory->OSDFlags |= OSD_GPU_M_CLK;
+                    PushSharedMemory->Overloads |= OSD_GPU_M_CLK;
+
                     ClockStep(OC_MEMORY, Up);
+                }
             }
         }
     }
