@@ -35,5 +35,6 @@ VOID RemoveThreadEntry(
 
 UINT16 GetDiskResponseTime(UINT32 ProcessId);
 VOID GetDisplayAdapterDevicePath(WCHAR* Buffer);
+void SetBrightness(int Brightness);
 
 

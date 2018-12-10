@@ -1219,6 +1219,16 @@ DWORD __stdcall PipeThread( VOID* Parameter )
 
                 }break;
 
+                case CMD_BRIGHTNESS:
+                {
+                    CMD_BUFFER_BRIGHTNESS* cmdBuffer;
+
+                    cmdBuffer = &buffer;
+
+                    SetBrightness(cmdBuffer->Brightness);
+
+                }break;
+
                 }
             }
         }

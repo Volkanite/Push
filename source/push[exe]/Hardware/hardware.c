@@ -580,10 +580,17 @@ VOID GetHardwareInfo()
 #define VCP_POWER_MODE              0xD6
 
 
+void SetBrightness( int Brightness )
+{
+    DDCCISetVCPFeature(MonitorHandles[1], VCP_BRIGHTNESS, Brightness);
+}
+
+
 VOID RefreshHardwareInfo()
 {
     GPU_INFO gpuInfo;
     MC_TIMING_REPORT timingReport;
+    DWORD brightness;
 
     Memory_Clear(&gpuInfo, sizeof(GPU_INFO));
     PhpUpdateCpuInformation();
@@ -609,8 +616,10 @@ VOID RefreshHardwareInfo()
         PushSharedMemory->HarwareInformation.Disk.ReadWriteRate             = GetDiskReadWriteRate();
 
     DDCCIGetTimingReport(MonitorHandles[1], &timingReport);
-
     PushSharedMemory->HarwareInformation.Display.RefreshRate = timingReport.dwVerticalFrequencyInHZ / 100;
+
+    DDCCIGetVCPFeature(MonitorHandles[1], VCP_BRIGHTNESS, NULL, &brightness, NULL);
+    PushSharedMemory->HarwareInformation.Display.Brightness = brightness;
 }
 
 

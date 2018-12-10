@@ -68,6 +68,7 @@
 #define CMD_GETDSKRSP       6
 #define CMD_CONTROLLERCFG   7
 #define CMD_SAVEPRFL        8
+#define CMD_BRIGHTNESS      9
 
 
 #define IMDISK_VERSION                 0x0160
@@ -207,6 +208,7 @@ typedef struct _PUSH_HARDWARE_INFORMATION
     struct
     {
         UINT8 RefreshRate;
+        UINT8 Brightness;
 
     }Display;
 
@@ -340,6 +342,12 @@ typedef struct GPU_CONFIG_CMD_BUFFER
     UINT32 MemoryClock;
     UINT32 Voltage;
 }GPU_CONFIG_CMD_BUFFER;
+
+typedef struct CMD_BUFFER_BRIGHTNESS
+{
+    COMMAND_HEADER CommandHeader;
+    int Brightness;
+}CMD_BUFFER_BRIGHTNESS;
 
 #pragma pack(pop)
 

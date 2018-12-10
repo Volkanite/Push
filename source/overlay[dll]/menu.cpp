@@ -129,6 +129,7 @@ extern BOOLEAN StripWaitCycles;
 #define ID_RESOLUTION       OSD_LAST_ITEM+30
 #define ID_CONTROLLER       OSD_LAST_ITEM+31
 #define ID_SAVE             OSD_LAST_ITEM+32
+#define ID_BRIGHTNESS       OSD_LAST_ITEM+33
 
 
 #include <stdio.h>
@@ -283,6 +284,7 @@ VOID AddItems()
         Menu->AddItem(L"Master Volume", NULL, &Settings[4], ID_MVOLUME, 1);
         Menu->AddItem(L"Game Volume", NULL, &Settings[5], ID_GVOLUME, 1);
         Menu->AddItem(L"Ambient Volume", NULL, &Settings[6], ID_AVOLUME, 1);
+        Menu->AddItem(L"Brightness", NULL, &Settings[7], ID_BRIGHTNESS, 1);
 
         //Initialize with current settings
         FontBold = PushSharedMemory->FontBold;
@@ -618,6 +620,21 @@ void GetControllerConfig()
     Controller[19].Var = ControllerButtonToVar(map.LStick_Xneg);
     Controller[20].Var = ControllerButtonToVar(map.LStick_Ypos);
     Controller[21].Var = ControllerButtonToVar(map.LStick_Yneg);
+}
+
+
+void SetBrightness( int Brightness )
+{
+    CMD_BUFFER_BRIGHTNESS cmdBuffer;
+
+    memset(&cmdBuffer, 0, sizeof(cmdBuffer));
+
+    cmdBuffer.CommandHeader.CommandIndex = CMD_BRIGHTNESS;
+    cmdBuffer.CommandHeader.ProcessId = GetCurrentProcessId();
+    
+    cmdBuffer.Brightness = Brightness;
+
+    CallPipe((BYTE*)&cmdBuffer, sizeof(cmdBuffer), NULL);
 }
 
 
@@ -992,6 +1009,24 @@ VOID ProcessOptions( MenuItems* Item, WPARAM Key )
         SendControllerConfig(CMD_SAVEPRFL, NULL);
         break;
 
+    case ID_BRIGHTNESS:
+    {
+        if (Key == VK_LEFT)
+            --PushSharedMemory->HarwareInformation.Display.Brightness;
+        else if (Key == VK_RIGHT)
+            ++PushSharedMemory->HarwareInformation.Display.Brightness;
+
+        // Sanity checks
+        if (PushSharedMemory->HarwareInformation.Display.Brightness < 1)
+            PushSharedMemory->HarwareInformation.Display.Brightness = 1;
+        if (PushSharedMemory->HarwareInformation.Display.Brightness > 100)
+            PushSharedMemory->HarwareInformation.Display.Brightness = 100;
+
+        SetBrightness(PushSharedMemory->HarwareInformation.Display.Brightness);
+        UpdateIntegralText(PushSharedMemory->HarwareInformation.Display.Brightness, Item->Options);
+    }
+    break;
+
     default:
         if (*Item->Id <= OSD_LAST_ITEM)
         {
@@ -1219,6 +1254,10 @@ VOID OverlayMenu::AddItemToMenu( WCHAR* Title, WCHAR** Options, MenuVars* Variab
     case ID_AVOLUME:
         Items[mSet.MaxItems].Options = AllocateOptionsBuffer();
         UpdateIntegralText(AmbientVolumeLevel, Items[mSet.MaxItems].Options);
+        break;
+    case ID_BRIGHTNESS:
+        Items[mSet.MaxItems].Options = AllocateOptionsBuffer();
+        UpdateIntegralText(PushSharedMemory->HarwareInformation.Display.Brightness, Items[mSet.MaxItems].Options);
         break;
     default:
         break;
