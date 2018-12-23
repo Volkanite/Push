@@ -146,7 +146,16 @@ VOID UpdateIntegralText( UINT32 Value, WCHAR** OptBuffer )
     swprintf(OptBuffer[0], 20, L"%i", Value);
 }
 
+typedef struct _CUSTOM_MENU_ITEM CUSTOM_MENU_ITEM;
+typedef struct _CUSTOM_MENU_ITEM
+{
+    WCHAR GroupName[10];
+    WCHAR ItemName[13];
+    MenuVars Variables;
+    CUSTOM_MENU_ITEM* NextEntry;
 
+} CUSTOM_MENU_ITEM;
+CUSTOM_MENU_ITEM *CustomMenuItems;
 VOID AddItems()
 {
     Menu->AddGroup(L"OSD", GroupOpt, &MenuOsd[0]);
@@ -292,6 +301,69 @@ VOID AddItems()
         if (FontBold)
             Settings[2].Var = 1;
     }
+
+    if (CustomMenuItems)
+    {
+        Menu->AddGroup(CustomMenuItems->GroupName, GroupOpt, &CustomMenuItems->Variables);
+
+        if (CustomMenuItems->Variables.Var)
+        {
+            CUSTOM_MENU_ITEM *menuItem;
+            menuItem = CustomMenuItems;
+
+            while (menuItem->NextEntry)
+            {
+                menuItem = menuItem->NextEntry;
+                Menu->AddItem(menuItem->ItemName, ItemOpt, &menuItem->Variables, menuItem->Variables.Id);
+            }
+        }
+    }
+}
+
+
+extern "C" __declspec(dllexport) VOID Menu_AddItem( WCHAR* GroupName, WCHAR* ItemName, DWORD Id )
+{
+    CUSTOM_MENU_ITEM *menuItem;
+    HANDLE heapHandle;
+    CUSTOM_MENU_ITEM *itemAddStart;
+    
+
+    heapHandle = GetProcessHeap();
+
+    itemAddStart = CustomMenuItems;
+
+    if (!itemAddStart)
+        return;
+
+    while (itemAddStart->NextEntry)
+        itemAddStart = itemAddStart->NextEntry;
+
+    menuItem = (CUSTOM_MENU_ITEM*)HeapAlloc(heapHandle, HEAP_ZERO_MEMORY, sizeof(CUSTOM_MENU_ITEM));
+    itemAddStart->NextEntry = menuItem;
+
+    wcsncpy(menuItem->GroupName, GroupName, 10);
+    wcsncpy(menuItem->ItemName, ItemName, 10);
+    menuItem->Variables.Id = Id;
+}
+
+
+typedef VOID(*MENU_ITEM_CALLBACK)(DWORD ItemId, DWORD Key);
+MENU_ITEM_CALLBACK CustomCallback;
+extern "C" __declspec(dllexport) VOID Menu_AddGroup( WCHAR* GroupName, MENU_ITEM_CALLBACK Callback )
+{
+    CUSTOM_MENU_ITEM *menuItem;
+    HANDLE heapHandle;
+
+    heapHandle = GetProcessHeap();
+
+    menuItem = (CUSTOM_MENU_ITEM*)HeapAlloc(heapHandle, HEAP_ZERO_MEMORY, sizeof(CUSTOM_MENU_ITEM));
+
+    wcsncpy(menuItem->GroupName, GroupName, 10);
+
+    if (!CustomMenuItems)
+        CustomMenuItems = menuItem;
+
+    CustomCallback = Callback;
 }
 
 
@@ -640,6 +712,10 @@ void SetBrightness( int Brightness )
 
 VOID ProcessOptions( MenuItems* Item, WPARAM Key )
 {
+    // Handle custom menu items
+    if (*Item->Id > ID_BRIGHTNESS && CustomCallback)
+        CustomCallback(*Item->Id, Key);
+
     switch (*Item->Id)
     {
     case ID_KEEP_FPS:
