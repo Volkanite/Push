@@ -24,6 +24,8 @@ MenuVars Capture[5];
 MenuVars Controller[30];
 MenuVars Settings[10];
 
+float MenuPosY;
+
 #define GROUP 1
 #define ITEM  2
 #define HEIGHT 16
@@ -130,6 +132,8 @@ extern BOOLEAN StripWaitCycles;
 #define ID_CONTROLLER       OSD_LAST_ITEM+31
 #define ID_SAVE             OSD_LAST_ITEM+32
 #define ID_BRIGHTNESS       OSD_LAST_ITEM+33
+#define ID_MENU_Y           OSD_LAST_ITEM+34
+#define OSD_LAST_ID         OSD_LAST_ITEM+35 //Update me!
 
 
 #include <stdio.h>
@@ -144,6 +148,11 @@ void GetControllerConfig();
 VOID UpdateIntegralText( UINT32 Value, WCHAR** OptBuffer )
 {
     swprintf(OptBuffer[0], 20, L"%i", Value);
+}
+
+VOID UpdateDecimalText( FLOAT Value, WCHAR** OptBuffer )
+{
+    swprintf(OptBuffer[0], 20, L"%0.2f", Value);
 }
 
 typedef struct _CUSTOM_MENU_ITEM CUSTOM_MENU_ITEM;
@@ -294,6 +303,7 @@ VOID AddItems()
         Menu->AddItem(L"Game Volume", NULL, &Settings[5], ID_GVOLUME, 1);
         Menu->AddItem(L"Ambient Volume", NULL, &Settings[6], ID_AVOLUME, 1);
         Menu->AddItem(L"Brightness", NULL, &Settings[7], ID_BRIGHTNESS, 1);
+        Menu->AddItem(L"Menu Y Pos", NULL, &Settings[8], ID_MENU_Y, 1);
 
         //Initialize with current settings
         FontBold = PushSharedMemory->FontBold;
@@ -713,7 +723,7 @@ void SetBrightness( int Brightness )
 VOID ProcessOptions( MenuItems* Item, WPARAM Key )
 {
     // Handle custom menu items
-    if (*Item->Id > ID_BRIGHTNESS && CustomCallback)
+    if (*Item->Id > OSD_LAST_ID && CustomCallback)
         CustomCallback(*Item->Id, Key);
 
     switch (*Item->Id)
@@ -1103,6 +1113,17 @@ VOID ProcessOptions( MenuItems* Item, WPARAM Key )
     }
     break;
 
+    case ID_MENU_Y:
+    {
+        if (Key == VK_LEFT)
+            MenuPosY -= 0.01;
+        else if (Key == VK_RIGHT)
+            MenuPosY += 0.01;
+
+        UpdateDecimalText(MenuPosY, Item->Options);
+    }
+    break;
+
     default:
         if (*Item->Id <= OSD_LAST_ITEM)
         {
@@ -1122,6 +1143,7 @@ VOID Menu_Render( OvOverlay* Overlay )
     {
         Menu = new OverlayMenu(300);
         MnuInitialized = TRUE;
+        MenuPosY = 5.25f;
     }
 
     if( Menu->mSet.MaxItems == 0 )
@@ -1135,7 +1157,7 @@ VOID Menu_Render( OvOverlay* Overlay )
     //we do this because @ lower resolutions, the menu starts
     //getting to far to bottom of screen. This formula ensures
     //that it stays at a reasonable place on the vertical axis
-    Menu->Render(100, Overlay->BackBufferHeight / 5.25f, Overlay);
+    Menu->Render(100, Overlay->BackBufferHeight / MenuPosY, Overlay);
 }
 
 
@@ -1342,6 +1364,9 @@ VOID OverlayMenu::AddItemToMenu( WCHAR* Title, WCHAR** Options, MenuVars* Variab
         Items[mSet.MaxItems].Options = AllocateOptionsBuffer();
         UpdateIntegralText(PushSharedMemory->HarwareInformation.Display.Brightness, Items[mSet.MaxItems].Options);
         break;
+    case ID_MENU_Y:
+        Items[mSet.MaxItems].Options = AllocateOptionsBuffer();
+        UpdateDecimalText(MenuPosY, Items[mSet.MaxItems].Options);
     default:
         break;
     }
