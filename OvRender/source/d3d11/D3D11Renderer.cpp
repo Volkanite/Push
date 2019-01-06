@@ -44,8 +44,8 @@ ID3D11RasterizerState*                  RasterizerState;
 
 extern ID3D11RenderTargetView  *RenderTarget;
 
-extern UINT32 BackBufferWidth;
-extern UINT32 BackBufferHeight;
+//extern UINT32 BackBufferWidth;
+//extern UINT32 BackBufferHeight;
 
 BOOLEAN Initialized;
 
@@ -433,8 +433,8 @@ Dx11Font::DrawBatch(
     deviceContext->Unmap(VB, 0);
     deviceContext->DrawIndexed(spriteCount * 6, 0, 0);
 }
-
-
+#include "d3d11overlay.h"
+extern Dx11Overlay* D3D11Overlay;
 VOID Dx11Font::EndBatch( )
 {
     UINT stride, offset, spritesToDraw;
@@ -457,8 +457,8 @@ VOID Dx11Font::EndBatch( )
     ID3D11RenderTargetView *pRenderTargetViews[1];
     ID3D11DepthStencilView *pDepthStencilView;
 
-    viewport.Width = (float)BackBufferWidth;
-    viewport.Height = (float)BackBufferHeight;
+    viewport.Width = (float)D3D11Overlay->BackBufferWidth;
+    viewport.Height = (float)D3D11Overlay->BackBufferHeight;
     viewport.MaxDepth = 1.f;
 
     ScreenWidth = viewport.Width;

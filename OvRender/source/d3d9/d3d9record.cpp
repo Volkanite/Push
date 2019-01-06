@@ -77,8 +77,10 @@ public:
 static D3DFORMAT s_bbFormat;
 VOID Log(const wchar_t* Format, ...);
 extern IDirect3DDevice9* Dx9OvDevice;
-extern UINT32 BackBufferWidth;
-extern UINT32 BackBufferHeight;
+#include "d3d9overlay.h"
+extern Dx9Overlay* D3D9Overlay;
+//extern UINT32 BackBufferWidth;
+//extern UINT32 BackBufferHeight;
 bool CVideoFrame::AllocForm(const CVideoFrameForm& FrameForm)
 {
     // allocate space for a frame of a certain format.
@@ -305,7 +307,7 @@ HRESULT GetFrame(CVideoFrame& frame, bool bHalfSize)
     // is faster if done directly.
     IDirect3DSurface9* pSurfTemp;
     hRes = Dx9OvDevice->CreateOffscreenPlainSurface(
-        BackBufferWidth, BackBufferHeight,
+        D3D9Overlay->BackBufferWidth, D3D9Overlay->BackBufferHeight,
         s_bbFormat, D3DPOOL_SYSTEMMEM, &pSurfTemp, NULL);
 
     if (FAILED(hRes))
@@ -329,7 +331,7 @@ HRESULT GetFrame(CVideoFrame& frame, bool bHalfSize)
     //CLOCK_START(b);
 
     D3DLOCKED_RECT lockedSrcRect;
-    RECT newRect = { 0, 0, BackBufferWidth, BackBufferHeight };
+    RECT newRect = { 0, 0, D3D9Overlay->BackBufferWidth, D3D9Overlay->BackBufferHeight };
     hRes = pSurfTemp->LockRect(&lockedSrcRect, &newRect, 0);
 
     if (FAILED(hRes))
@@ -370,7 +372,7 @@ HRESULT MakeScreenShot(bool bHalfSize)
 
     // allocate buffer for pixel data
     CVideoFrame frame;
-    frame.AllocPadXY(BackBufferWidth / iDiv, BackBufferHeight / iDiv);
+    frame.AllocPadXY(D3D9Overlay->BackBufferWidth / iDiv, D3D9Overlay->BackBufferHeight / iDiv);
 
     // get pixels from the backbuffer into the new buffer
     HRESULT hRes = GetFrame(frame, bHalfSize);  // virtual
@@ -697,8 +699,8 @@ int InitFileHeader(AVI_FILE_HEADER& afh)
     afh.m_AviHeader.dwStreams = 1;
     afh.m_AviHeader.dwFlags = 0x10; // uses index
     afh.m_AviHeader.dwSuggestedBufferSize = 8;
-    afh.m_AviHeader.dwWidth = BackBufferWidth;
-    afh.m_AviHeader.dwHeight = BackBufferHeight;    // ?? was /2 ?
+    afh.m_AviHeader.dwWidth = D3D9Overlay->BackBufferWidth;
+    afh.m_AviHeader.dwHeight = D3D9Overlay->BackBufferHeight;    // ?? was /2 ?
 
     // fill-in AVIStreamHeader (video header)
     afh.m_StreamHeader.fccType = streamtypeVIDEO; // 'vids' - NOT m_VideoCodec.m_v.fccType; = 'vidc'
@@ -709,8 +711,8 @@ int InitFileHeader(AVI_FILE_HEADER& afh)
     afh.m_StreamHeader.dwLength = m_dwTotalFrames;
     //afh.m_StreamHeader.dwQuality = m_VideoCodec.m_v.lQ;
     afh.m_StreamHeader.dwSuggestedBufferSize = afh.m_AviHeader.dwSuggestedBufferSize;
-    afh.m_StreamHeader.rcFrame.right = BackBufferWidth;
-    afh.m_StreamHeader.rcFrame.bottom = BackBufferHeight;
+    afh.m_StreamHeader.rcFrame.right = D3D9Overlay->BackBufferWidth;
+    afh.m_StreamHeader.rcFrame.bottom = D3D9Overlay->BackBufferHeight;
 
     BITMAPINFOHEADER bitmapInfoHeader;
 
@@ -1054,7 +1056,7 @@ bool RecordFrame()
 
     // allocate buffer for pixel data
     CVideoFrame frame;
-    frame.AllocPadXY(BackBufferWidth, BackBufferHeight);
+    frame.AllocPadXY(D3D9Overlay->BackBufferWidth, D3D9Overlay->BackBufferHeight);
 
     // get pixels from the backbuffer into the new buffer
     HRESULT hRes = GetFrame(frame, false);

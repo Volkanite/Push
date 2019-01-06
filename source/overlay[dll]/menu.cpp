@@ -1128,7 +1128,14 @@ VOID Menu_Render( OvOverlay* Overlay )
         AddItems();
 
     //Call drawing and navigation functions
-    Menu->Render(100, 200, Overlay);
+    //Y use to be 200
+    //@1680*[1050] this was descent, so we use this scale
+    //scale taken from @1680*[1050], Y = 200
+    //1050 / 200 = 5.25
+    //we do this because @ lower resolutions, the menu starts
+    //getting to far to bottom of screen. This formula ensures
+    //that it stays at a reasonable place on the vertical axis
+    Menu->Render(100, Overlay->BackBufferHeight / 5.25f, Overlay);
 }
 
 

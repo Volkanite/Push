@@ -125,8 +125,8 @@ VOID UpdatePresentationParameters( D3DPRESENT_PARAMETERS* PresentationParameters
         PresentationParameters->Windowed = FALSE;
     }
 
-    BackBufferHeight = PresentationParameters->BackBufferHeight;
-    BackBufferWidth = PresentationParameters->BackBufferWidth;
+    D3D9Overlay->BackBufferHeight = PresentationParameters->BackBufferHeight;
+    D3D9Overlay->BackBufferWidth = PresentationParameters->BackBufferWidth;
     BackBufferCount = PresentationParameters->BackBufferCount;
 }
 
@@ -176,6 +176,9 @@ VOID Dx9OvRender( IDirect3DDevice9* Device )
     {
         D3D9Font = new Dx9Font(Device, &D3D9Overlay->FontProperties);
         D3D9Font->RestoreDeviceObjects();
+
+        D3D9Overlay->BackBufferWidth = 0;
+        D3D9Overlay->BackBufferHeight = 0;
         
         Dx9OvDevice = Device;
     }
@@ -193,10 +196,10 @@ VOID Dx9OvRender( IDirect3DDevice9* Device )
         backBuffer->GetDesc(&backBufferDesc);
 
     //steal some info
-    if (BackBufferWidth == 0 && BackBufferHeight == 0)
+    if (D3D9Overlay->BackBufferWidth == 0 && D3D9Overlay->BackBufferHeight == 0)
     {
-        BackBufferWidth = backBufferDesc.Width;
-        BackBufferHeight = backBufferDesc.Height;
+        D3D9Overlay->BackBufferWidth = backBufferDesc.Width;
+        D3D9Overlay->BackBufferHeight = backBufferDesc.Height;
     }
 
     if (backBufferDesc.Width != 1 && backBufferDesc.Height != 1)

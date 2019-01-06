@@ -53,6 +53,8 @@ public:
     OV_RENDER               UserRenderFunction;
     OV_VSYNC_OVERRIDE_MODE  VsyncOverrideMode;
     FONT_PROPERTIES         FontProperties;
+    UINT32 BackBufferWidth;
+    UINT32 BackBufferHeight;
 
     OvOverlay();
     VOID Render();
@@ -72,8 +74,8 @@ VOID DestroyOverlay();
 
 VOID Log(const wchar_t* Format, ...);
 
-extern UINT32 BackBufferWidth;
-extern UINT32 BackBufferHeight;
+//extern UINT32 BackBufferWidth;
+//extern UINT32 BackBufferHeight;
 extern OV_GRAPHICS_API GraphicsApi;
 
 

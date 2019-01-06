@@ -6,8 +6,8 @@
 #include "osd.h"
 
 
-extern UINT32 BackBufferWidth;
-extern UINT32 BackBufferHeight;
+//extern UINT32 BackBufferWidth;
+//extern UINT32 BackBufferHeight;
 extern UINT32 BackBufferCount;
 
 extern double FrameTimeAvg;
@@ -96,7 +96,7 @@ VOID Osd_Draw( OvOverlay* Overlay )
 
     if (Variables.Resolution)
     {
-        swprintf(buffer, 100, L"Resolution : %i x %i", BackBufferWidth, BackBufferHeight);
+        swprintf(buffer, 100, L"Resolution : %i x %i", Overlay->BackBufferWidth, Overlay->BackBufferHeight);
         Overlay->DrawText(buffer);
     }
 

@@ -12,8 +12,8 @@ Dx9Overlay*     D3D9Overlay;
 DxgiOverlay*    DXGIOverlay;
 DDrawOverlay*   DirectDrawOverlay;
 
-UINT32 BackBufferWidth;
-UINT32 BackBufferHeight;
+//UINT32 BackBufferWidth;
+//UINT32 BackBufferHeight;
 OV_GRAPHICS_API GraphicsApi;
 
 extern CRITICAL_SECTION OvCriticalSection;
