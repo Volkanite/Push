@@ -644,6 +644,14 @@ void SendControllerConfig( int CommandIndex, MOTIONINJOY_BUTTON_MAP* Map )
     cmdBuffer.CommandHeader.CommandIndex = CommandIndex;
     cmdBuffer.CommandHeader.ProcessId = GetCurrentProcessId();
 
+    static BOOL inited = FALSE;
+
+    if (!inited)
+    {
+        GetControllerConfig();
+        inited = TRUE;
+    }
+
     cmdBuffer.Map.Triangle = ControllerVarToButton(Controller[1].Var);
     cmdBuffer.Map.Circle = ControllerVarToButton(Controller[2].Var);
     cmdBuffer.Map.Cross = ControllerVarToButton(Controller[3].Var);
@@ -1197,13 +1205,13 @@ VOID Menu_KeyboardHook( WPARAM Key )
     {
     case VK_INSERT:
     {
-        MOTIONINJOY_BUTTON_MAP map;
+        //MOTIONINJOY_BUTTON_MAP map;
 
         OvmMenu->mSet.Show = !OvmMenu->mSet.Show;
 
-        memcpy(&map, PushSharedMemory->ButtonMap, sizeof(map));
+        //memcpy(&map, PushSharedMemory->ButtonMap, sizeof(map));
 
-        SendControllerConfig(CMD_CONTROLLERCFG, &map);
+        SendControllerConfig(CMD_CONTROLLERCFG, NULL);
     } break;
 
     case VK_UP:
