@@ -671,6 +671,26 @@ void SendControllerConfig( int CommandIndex, MOTIONINJOY_BUTTON_MAP* Map )
         memcpy(&cmdBuffer.Map, Map, sizeof(cmdBuffer.Map));
     }
 
+    if (CommandIndex == CMD_CONTROLLERCFG)
+    {
+        if (OvmMenu->mSet.Show)
+        {
+            //Dinput:Dpad => KB:Arrow Keys
+            cmdBuffer.Map.DpadUp = 0x0352;
+            cmdBuffer.Map.DpadRight = 0x034F;
+            cmdBuffer.Map.DpadDown = 0x0351;
+            cmdBuffer.Map.DpadLeft = 0x0350;
+        }
+        else
+        {
+            //KB:Arrow Keys => Dinput:Dpad
+            cmdBuffer.Map.DpadUp = DI_DpadUp;
+            cmdBuffer.Map.DpadRight = DI_DpadRight;
+            cmdBuffer.Map.DpadDown = DI_DpadDown;
+            cmdBuffer.Map.DpadLeft = DI_DpadLeft;
+        }
+    }
+
     CallPipe((BYTE*)&cmdBuffer, sizeof(cmdBuffer), NULL);
 }
 
@@ -1182,23 +1202,6 @@ VOID Menu_KeyboardHook( WPARAM Key )
         OvmMenu->mSet.Show = !OvmMenu->mSet.Show;
 
         memcpy(&map, PushSharedMemory->ButtonMap, sizeof(map));
-
-        if (OvmMenu->mSet.Show)
-        {
-            //Dinput:Dpad => KB:Arrow Keys
-            map.DpadUp = 0x0352;
-            map.DpadRight = 0x034F;
-            map.DpadDown = 0x0351;
-            map.DpadLeft = 0x0350;
-        }
-        else
-        {
-            //KB:Arrow Keys => Dinput:Dpad
-            map.DpadUp = DI_DpadUp;
-            map.DpadRight = DI_DpadRight;
-            map.DpadDown = DI_DpadDown;
-            map.DpadLeft = DI_DpadLeft;
-        }
 
         SendControllerConfig(CMD_CONTROLLERCFG, &map);
     } break;
