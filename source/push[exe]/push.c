@@ -526,8 +526,9 @@ VOID OnProcessEvent( PROCESSID ProcessId )
 
     if (processId)
     {
-        HANDLE processHandle = Process_Open(processId, PROCESS_TERMINATE);
+        processHandle = Process_Open(processId, PROCESS_TERMINATE);
         Process_Terminate(processHandle);
+        Process_Close(processHandle);
     }
 
     PushSharedMemory->OSDFlags |= OSD_FPS; //enable fps counter
