@@ -258,7 +258,7 @@
 
 #define SERVICE_STOPPED     0x00000001
 
-
+#define PROCESS_TERMINATE           (0x0001)
 #define PROCESS_CREATE_THREAD       (0x0002)
 #define PROCESS_VM_OPERATION        (0x0008)
 #define PROCESS_VM_READ             (0x0010)

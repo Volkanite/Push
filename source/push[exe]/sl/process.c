@@ -356,8 +356,13 @@ VOID Process_WriteMemory( HANDLE ProcessHandle, VOID* BaseAddress, VOID* Buffer,
 }
 
 
-long __stdcall NtSuspendProcess( VOID* hProcessHandle );
-long __stdcall NtResumeProcess( VOID* hProcessHandle );
+NTSTATUS __stdcall NtSuspendProcess( HANDLE hProcessHandle );
+NTSTATUS __stdcall NtResumeProcess( HANDLE hProcessHandle );
+
+NTSTATUS __stdcall NtTerminateProcess(
+    HANDLE ProcessHandle,
+    NTSTATUS ExitStatus
+    );
 
 
 VOID Process_Suspend( HANDLE ProcessHandle )
@@ -369,6 +374,12 @@ VOID Process_Suspend( HANDLE ProcessHandle )
 VOID Process_Resume( HANDLE ProcessHandle )
 {
     NtResumeProcess( ProcessHandle );
+}
+
+
+VOID Process_Terminate( HANDLE ProcessHandle )
+{
+    NtTerminateProcess(ProcessHandle, 1);
 }
 
 

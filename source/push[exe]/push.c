@@ -1140,6 +1140,15 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                         SetButtonMapping(&map);
                     }
 
+                    //terminate Xpadder
+                    unsigned int processId = Process_GetId(L"Xpadder.exe", 0);
+
+                    if (processId)
+                    {
+                        HANDLE processHandle = Process_Open(processId, PROCESS_TERMINATE);
+                        Process_Terminate(processHandle);
+                    }
+
                 }break;
 
                 case CMD_SETGPUCLK:

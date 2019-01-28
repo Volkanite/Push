@@ -12,5 +12,6 @@ BOOLEAN Process_GetFileNameByProcessId(UINT32 processID, WCHAR* buffer);
 VOID Process_WriteMemory(HANDLE ProcessHandle, VOID* BaseAddress, VOID* Buffer, SIZE_T Size);
 VOID Process_Suspend(HANDLE ProcessHandle);
 VOID Process_Resume(HANDLE ProcessHandle);
+VOID Process_Terminate(HANDLE ProcessHandle);
 BOOLEAN Process_IsWow64(HANDLE ProcessHandle);
 VOID Process_EnumProcesses( ENUM_PROCESSES_CALLBACK Callback );
