@@ -153,6 +153,7 @@ NTSTATUS __stdcall NtTerminateThread(
     );
 
 VOID CreatePath(WCHAR* Path);
+void SetButtonMapping(MOTIONINJOY_BUTTON_MAP* Map);
 
 #define MB_TOPMOST          0x00040000L
 
@@ -403,7 +404,7 @@ void PopulateButtonMap(MOTIONINJOY_BUTTON_MAP *Map, wchar_t *FileName)
 }
 
 
-VOID OnProcessEvent( PROCESSID processID )
+VOID OnProcessEvent( PROCESSID ProcessId )
 {
     WCHAR fileName[260];
     VOID *processHandle = NULL;
@@ -413,7 +414,7 @@ VOID OnProcessEvent( PROCESSID processID )
     MOTIONINJOY_APP_OPTION configuration;
     wchar_t configFile[260];
 
-    processHandle = Process_Open(processID, PROCESS_QUERY_INFORMATION | PROCESS_SUSPEND_RESUME);
+    processHandle = Process_Open(ProcessId, PROCESS_QUERY_INFORMATION | PROCESS_SUSPEND_RESUME);
 
     if (!processHandle)
         return;
@@ -500,6 +501,34 @@ VOID OnProcessEvent( PROCESSID processID )
     }
 
     Process_Close(processHandle);
+
+    //start timer
+    SetTimer(PushMainWindow->Handle, 0, 1000, 0);
+
+    // Start disk monitoring;
+    if (!DiskMonitorInitialized)
+        DiskStartMonitoring();
+
+    GetConfigFileFromProcessId(ProcessId, fileName);
+
+    if (File_Exists(fileName))
+    {
+        MOTIONINJOY_BUTTON_MAP map;
+
+        Memory_Clear(&map, sizeof(map));
+        PopulateButtonMap(&map, fileName);
+        Memory_Copy(PushSharedMemory->ButtonMap, &map, sizeof(map));
+        SetButtonMapping(&map);
+    }
+
+    //terminate Xpadder
+    unsigned int processId = Process_GetId(L"Xpadder.exe", 0);
+
+    if (processId)
+    {
+        HANDLE processHandle = Process_Open(processId, PROCESS_TERMINATE);
+        Process_Terminate(processHandle);
+    }
 
     PushSharedMemory->OSDFlags |= OSD_FPS; //enable fps counter
 }
@@ -1119,35 +1148,7 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                 {
                 case CMD_STARTHWMON:
                 {
-                    wchar_t fileName[260];
-
-                    //start timer
-                    SetTimer(PushMainWindow->Handle, 0, 1000, 0);
-
-                    // Start disk monitoring;
-                    if (!DiskMonitorInitialized)
-                       DiskStartMonitoring();
-
-                    GetConfigFileFromProcessId(cmdBuffer->ProcessId, fileName);
-
-                    if (File_Exists(fileName))
-                    {
-                        MOTIONINJOY_BUTTON_MAP map;
-
-                        Memory_Clear(&map, sizeof(map));
-                        PopulateButtonMap(&map, fileName);
-                        Memory_Copy(PushSharedMemory->ButtonMap, &map, sizeof(map));
-                        SetButtonMapping(&map);
-                    }
-
-                    //terminate Xpadder
-                    unsigned int processId = Process_GetId(L"Xpadder.exe", 0);
-
-                    if (processId)
-                    {
-                        HANDLE processHandle = Process_Open(processId, PROCESS_TERMINATE);
-                        Process_Terminate(processHandle);
-                    }
+                    OnProcessEvent(cmdBuffer->ProcessId);
 
                 }break;
 
