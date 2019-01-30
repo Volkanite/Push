@@ -4,6 +4,8 @@
 #include <detourxs.h>
 
 #include "d3d9hook.h"
+
+#define DIRECTINPUT_VERSION 0x800
 #include <dinput.h>
 
 typedef struct _HOOK_PARAMS
