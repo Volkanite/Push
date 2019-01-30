@@ -98,7 +98,8 @@
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <ImportLibrary>$(TEMP)\overlay\overlay.lib</ImportLibrary>
+      <ImportLibrary>
+      </ImportLibrary>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <AdditionalOptions>/OPT:NOLBR %(AdditionalOptions)</AdditionalOptions>
     </Link>
