@@ -141,7 +141,13 @@ IDXGISwapChain* BuildDevice()
     windowClass.lpszClassName = L"JustGimmeADamnWindow";
     windowClass.cbSize = sizeof(WNDCLASSEX);
 
-    RegisterClassExW(&windowClass);
+    ATOM classy = RegisterClassExW(&windowClass);
+
+    if (!classy)
+    {
+        Log(L"RegisterClassExW failed with 0x%i", GetLastError());
+        return NULL;
+    }
 
     windowHandle = CreateWindowExW(
         0,
@@ -154,6 +160,12 @@ IDXGISwapChain* BuildDevice()
         300,
         0, 0, 0, 0
         );
+
+    if (!windowHandle)
+    {
+        Log(L"CreateWindowExW failed with 0x%i", GetLastError());
+        return NULL;
+    }
 
     // Now create the thing
 
@@ -171,9 +183,13 @@ IDXGISwapChain* BuildDevice()
 
     if (FAILED(hr))
     {
-        Log(L"IDXGIFactory::CreateSwapChain failed!");
+        Log(L"IDXGIFactory::CreateSwapChain failed! hr=0x%X",hr);
         return NULL;
     }
+
+    // Destroy window
+    DestroyWindow(windowHandle);
+    UnregisterClassW(L"JustGimmeADamnWindow", GetModuleHandleW(NULL));
 
     return swapChain;
 }
@@ -213,6 +229,10 @@ VOID DxgiHook_Initialize( IDXGISWAPCHAIN_HOOK* HookParameters )
     HkIDXGISwapChain_ResizeBuffersCallback = (HK_IDXGISWAPCHAIN_CALLBACK) HookParameters->ResizeBuffersCallback;
 
     swapChain = BuildDevice();
+
+    if (!swapChain)
+        return;
+
     vmt = (VOID**) swapChain;
     vmt = (VOID**) vmt[0];
 
