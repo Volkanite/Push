@@ -1144,9 +1144,9 @@ VOID ProcessOptions( MenuItems* Item, WPARAM Key )
     case ID_MENU_Y:
     {
         if (Key == VK_LEFT)
-            MenuPosY -= 0.01;
+            MenuPosY -= 0.01f;
         else if (Key == VK_RIGHT)
-            MenuPosY += 0.01;
+            MenuPosY += 0.01f;
 
         UpdateDecimalText(MenuPosY, Item->Options);
     }
