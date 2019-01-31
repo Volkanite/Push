@@ -19,6 +19,7 @@ ThreadMonitor* PushThreadMonitor;
 HANDLE PushProcessHeap;
 CRITICAL_SECTION OvCriticalSection;
 extern HANDLE RenderThreadHandle;
+extern BOOLEAN SpoofControllerType;
 HANDLE ImageMonitoringThreadHandle;
 
 
@@ -241,6 +242,15 @@ BOOL __stdcall DllMain(
                 PUSH_SECTION_NAME, 
                 sizeof(PUSH_SHARED_MEMORY)
                 );
+
+            COMMAND_HEADER cmdBuffer;
+            cmdBuffer.CommandIndex = CMD_NOTIFY;
+            cmdBuffer.ProcessId = GetCurrentProcessId();
+            WORD result;
+            CallPipe((BYTE*)&cmdBuffer, sizeof(cmdBuffer), &result);
+
+            if (PushSharedMemory->SpoofControllerType)
+                SpoofControllerType = TRUE;
 
             PushImageEvent = OpenEventW(
                 SYNCHRONIZE,

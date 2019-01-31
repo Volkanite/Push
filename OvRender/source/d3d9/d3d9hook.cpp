@@ -177,6 +177,7 @@ HOOK_PARAMS hookParams;
 D3DPRESENT_PARAMETERS PresentParams;
 HOOK_METHOD D3D9Hook_HookMethod = HOOK_METHOD_DETOUR;
 BOOLEAN D3D9Hook_ForceReset = FALSE;
+BOOLEAN SpoofControllerType;
 IDirect3DDevice9*   D3D9Hook_IDirect3DDevice9;
 
 
@@ -641,22 +642,17 @@ DetourXS *dinptdt;
 LPDIENUMDEVICESCALLBACKA D3D9Hook_enumcallbck;
 
 
-BOOL __stdcall enumCallbackDetour(const DIDEVICEINSTANCEA* instance, VOID* context)
+BOOL __stdcall enumCallbackDetour( const DIDEVICEINSTANCEA* instance, VOID* context )
 {
     BOOL result;
-    DIDEVICEINSTANCEA *lolstance;
 
-    lolstance = (DIDEVICEINSTANCEA*) instance;
     unsigned int type = GET_DIDEVICE_TYPE(instance->dwDevType);
     unsigned int subtype = GET_DIDEVICE_SUBTYPE(instance->dwDevType);
 
     if (type == DI8DEVTYPE_1STPERSON && subtype == DI8DEVTYPE1STPERSON_SIXDOF)
     {
-        Log(L"dwDevType: 0x%X", instance->dwDevType);
-        Log(L"type: 0x%X", GET_DIDEVICE_TYPE(instance->dwDevType));
-        Log(L"subtype: 0x%X", GET_DIDEVICE_SUBTYPE(instance->dwDevType));
-
-        //lolstance->dwDevType = 0x10215; //DI8DEVTYPE_GAMEPAD | DI8DEVTYPEGAMEPAD_STANDARD
+        if (SpoofControllerType)
+            ((DIDEVICEINSTANCEA*)instance)->dwDevType = 0x10215; //DI8DEVTYPE_GAMEPAD | DI8DEVTYPEGAMEPAD_STANDARD
     }
 
     result = D3D9Hook_enumcallbck(instance, context);

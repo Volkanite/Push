@@ -69,6 +69,7 @@
 #define CMD_CONTROLLERCFG   7
 #define CMD_SAVEPRFL        8
 #define CMD_BRIGHTNESS      9
+#define CMD_NOTIFY          10
 
 
 #define IMDISK_VERSION                 0x0160
@@ -324,6 +325,7 @@ typedef struct _PUSH_SHARED_MEMORY
     WCHAR                       FontName[60];
     BOOLEAN                     FontBold;
     BOOLEAN                     HasConfig;
+    BOOLEAN                     SpoofControllerType;
     UINT16                      ButtonMap[48];
     OSD_ITEM                    OsdItems[1];
 

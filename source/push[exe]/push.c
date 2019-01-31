@@ -404,6 +404,17 @@ void PopulateButtonMap(MOTIONINJOY_BUTTON_MAP *Map, wchar_t *FileName)
 }
 
 
+VOID OnRenderEvent()
+{
+    //start timer
+    SetTimer(PushMainWindow->Handle, 0, 1000, 0);
+
+    // Start disk monitoring;
+    if (!DiskMonitorInitialized)
+        DiskStartMonitoring();
+}
+
+
 VOID OnProcessEvent( PROCESSID ProcessId )
 {
     WCHAR fileName[260];
@@ -502,13 +513,6 @@ VOID OnProcessEvent( PROCESSID ProcessId )
 
     Process_Close(processHandle);
 
-    //start timer
-    SetTimer(PushMainWindow->Handle, 0, 1000, 0);
-
-    // Start disk monitoring;
-    if (!DiskMonitorInitialized)
-        DiskStartMonitoring();
-
     GetConfigFileFromProcessId(ProcessId, fileName);
 
     if (File_Exists(fileName))
@@ -521,6 +525,10 @@ VOID OnProcessEvent( PROCESSID ProcessId )
         SetButtonMapping(&map);
 
         PushSharedMemory->HasConfig = TRUE;
+        DWORD bird = GetConfig(L"Spoof", fileName);
+        
+        if (bird)
+            PushSharedMemory->SpoofControllerType = TRUE;
     }
 
     //terminate Xpadder
@@ -1151,8 +1159,15 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                 {
                 case CMD_STARTHWMON:
                 {
-                    OnProcessEvent(cmdBuffer->ProcessId);
+                    OnRenderEvent();
 
+                }break;
+
+                case CMD_NOTIFY:
+                {
+                    UINT16 responseTime;
+                    OnProcessEvent(cmdBuffer->ProcessId);
+                    File_Write(pipeHandle, &responseTime, 2);
                 }break;
 
                 case CMD_SETGPUCLK:
