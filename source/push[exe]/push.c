@@ -519,6 +519,8 @@ VOID OnProcessEvent( PROCESSID ProcessId )
         PopulateButtonMap(&map, fileName);
         Memory_Copy(PushSharedMemory->ButtonMap, &map, sizeof(map));
         SetButtonMapping(&map);
+
+        PushSharedMemory->HasConfig = TRUE;
     }
 
     //terminate Xpadder

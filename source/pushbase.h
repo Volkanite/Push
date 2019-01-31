@@ -323,6 +323,7 @@ typedef struct _PUSH_SHARED_MEMORY
     PUSH_HARDWARE_INFORMATION   HarwareInformation;
     WCHAR                       FontName[60];
     BOOLEAN                     FontBold;
+    BOOLEAN                     HasConfig;
     UINT16                      ButtonMap[48];
     OSD_ITEM                    OsdItems[1];
 

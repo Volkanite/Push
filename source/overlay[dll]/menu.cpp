@@ -1205,13 +1205,10 @@ VOID Menu_KeyboardHook( WPARAM Key )
     {
     case VK_INSERT:
     {
-        //MOTIONINJOY_BUTTON_MAP map;
-
         OvmMenu->mSet.Show = !OvmMenu->mSet.Show;
 
-        //memcpy(&map, PushSharedMemory->ButtonMap, sizeof(map));
-
-        SendControllerConfig(CMD_CONTROLLERCFG, NULL);
+        if (PushSharedMemory->HasConfig)
+            SendControllerConfig(CMD_CONTROLLERCFG, NULL);
     } break;
 
     case VK_UP:
