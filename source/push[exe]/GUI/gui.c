@@ -64,6 +64,7 @@ VOID SlTrayGetMenuHandles(VOID** Menu, VOID** hSubMenu)
     AppendMenuW(subMenu, MF_STRING, BUTTON_MANUALADD, L"Manual Add");
     AppendMenuW(subMenu, MF_STRING, MENU_OVERCLOCK, L"Overclock");
     AppendMenuW(subMenu, MF_STRING, MENU_CACHE, L"Cache");
+    AppendMenuW(subMenu, MF_STRING, MENU_MIJ, L"Install MIJ");
     AppendMenuW(subMenu, MF_STRING, IDM_EXIT, L"Exit");
 
     *hSubMenu = GetSubMenu(*Menu, 0);

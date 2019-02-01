@@ -23,6 +23,7 @@ enum CONTROLS
 #define IDR_POPUP_MENU  130
 #define MENU_OVERCLOCK  131
 #define MENU_CACHE      132
+#define MENU_MIJ        133
 
 
 typedef struct _WINDOW{

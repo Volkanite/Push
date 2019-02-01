@@ -407,6 +407,9 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
             case MENU_CACHE:
                 OpenCacheWindow();
                 break;
+            case MENU_MIJ:
+                Mij_EnumerateDevices();
+                break;
             case BUTTON_RESET_GPU:
                 PushSharedMemory->Overloads = 0;
                 break;
