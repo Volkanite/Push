@@ -170,8 +170,8 @@ VOID CallPipe( BYTE* CommandBuffer, UINT32 CommandBufferSize, UINT16* Output )
             ReadFile(pipeHandle, Output, 2, &bytesRead, NULL);
         }
 
-
-        //CloseHandle(pipeHandle);
+        CloseHandle(pipeHandle);
+        pipeHandle = INVALID_HANDLE_VALUE;
     }
     else
     {
