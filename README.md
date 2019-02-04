@@ -43,5 +43,5 @@ Notes
 - Press [Insert] to bring up the in-game settings menu and use the arrow keys to navigate. Be warned it is poorly implemented. When this project has matured a bit more, it can be used to change gpu clocks and fan speeds while in-game :)
 
 <p align="right">
-<a href="https://www.buymeacoffee.com/a82Rd1BTv" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
+<a href="https://www.buymeacoffee.com/volkanite" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
 </p>
