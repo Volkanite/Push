@@ -246,7 +246,10 @@ VOID Mij_EnumerateDevices()
                     if (flag2)
                     {
                         //Callback(&deviceData);
-                        GetDeviceDetail(deviceInfo, &deviceData);
+                        //GetDeviceDetail(deviceInfo, &deviceData);
+                        Log(L"Installing driver...");
+                        InstallDriver(deviceInfo, &deviceData);
+                        Log(L"Finished Installing driver...");
                     }
                 }
             }
