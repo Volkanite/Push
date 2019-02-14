@@ -1,0 +1,1 @@
+"C:\Program Files (x86)\MSBuild\12.0\Bin\MSBuild.exe" Push_2013.sln /verbosity:minimal
