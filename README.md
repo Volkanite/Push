@@ -41,7 +41,3 @@ Notes
 -----
 - Allot of stuff not found in the gui can be enabled via the ini file. I wanted to keep it as simple as possible so only important stuff are kept in the gui. If you need information on how to use something just ask.
 - Press [Insert] to bring up the in-game settings menu and use the arrow keys to navigate. Be warned it is poorly implemented. When this project has matured a bit more, it can be used to change gpu clocks and fan speeds while in-game :)
-
-<p align="right">
-<a href="https://www.buymeacoffee.com/volkanite" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
-</p>
