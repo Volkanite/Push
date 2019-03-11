@@ -1,10 +1,15 @@
-Push
-====
+<h1 align="center">Push</h1>
 
-Gaming tools. Monitor GPU/CPU/RAM usage in-game.
+<p align="center">Gaming tools. Monitor GPU/CPU/RAM usage in-game.</p>
 
-[![Build status](https://ci.appveyor.com/api/projects/status/xty9844w2ps6m2dd?svg=true)](https://ci.appveyor.com/project/Volkanite/push)
-[![Github All Releases](https://img.shields.io/github/downloads/Volkanite/Push/total.svg?style=flat)](https://github.com/Volkanite/Push/releases) 
+<p align="center">
+  <a href="https://ci.appveyor.com/project/Volkanite/push">
+    <img src="https://ci.appveyor.com/api/projects/status/xty9844w2ps6m2dd?svg=true">
+  </a>
+  <a href="https://github.com/Volkanite/Push/releases">
+    <img src="https://img.shields.io/github/downloads/Volkanite/Push/total.svg?style=flat">
+  </a>
+</p>
 
 Features
 --------
