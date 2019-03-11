@@ -4,6 +4,7 @@ Push
 Gaming tools. Monitor GPU/CPU/RAM usage in-game.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/xty9844w2ps6m2dd?svg=true)](https://ci.appveyor.com/project/Volkanite/push)
+[![Github All Releases](https://img.shields.io/github/downloads/Volkanite/Push/total.svg?style=flat)]() 
 
 Features
 --------
