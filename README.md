@@ -4,7 +4,7 @@ Push
 Gaming tools. Monitor GPU/CPU/RAM usage in-game.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/xty9844w2ps6m2dd?svg=true)](https://ci.appveyor.com/project/Volkanite/push)
-[![Github All Releases](https://img.shields.io/github/downloads/Volkanite/Push/total.svg?style=flat)]() 
+[![Github All Releases](https://img.shields.io/github/downloads/Volkanite/Push/total.svg?style=flat)](https://github.com/Volkanite/Push/releases) 
 
 Features
 --------
@@ -42,3 +42,9 @@ Notes
 -----
 - Allot of stuff not found in the gui can be enabled via the ini file. I wanted to keep it as simple as possible so only important stuff are kept in the gui. If you need information on how to use something just ask.
 - Press [Insert] to bring up the in-game settings menu and use the arrow keys to navigate. Be warned it is poorly implemented. When this project has matured a bit more, it can be used to change gpu clocks and fan speeds while in-game :)
+
+<p align="right">
+  <a href="http://hits.dwyl.io/Volkanite/Push">
+	  <img src="http://hits.dwyl.io/Volkanite/Push.svg">
+  </a>
+</p>
