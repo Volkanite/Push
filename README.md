@@ -1,7 +1,5 @@
 <h1 align="center">Push</h1>
 
-<p align="center">Gaming tools. Monitor GPU/CPU/RAM usage in-game.</p>
-
 <p align="center">
   <a href="https://ci.appveyor.com/project/Volkanite/push">
     <img src="https://ci.appveyor.com/api/projects/status/xty9844w2ps6m2dd?svg=true">
@@ -10,6 +8,9 @@
     <img src="https://img.shields.io/github/downloads/Volkanite/Push/total.svg?style=flat">
   </a>
 </p>
+
+
+<p align="center">Gaming tools. Monitor GPU/CPU/RAM usage in-game.</p>
 
 Features
 --------
