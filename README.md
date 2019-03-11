@@ -9,6 +9,9 @@
   <a href="https://github.com/Volkanite/Push/releases">
     <img src="https://img.shields.io/github/downloads/Volkanite/Push/total.svg?style=flat">
   </a>
+  <a href="https://discord.gg/5822XFU">
+    <img src="https://img.shields.io/discord/554456848347037711.svg?logo=discord&label=Chat">
+  </a
 </p>
 
 Features
