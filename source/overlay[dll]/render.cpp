@@ -104,7 +104,7 @@ VOID RunFrameStatistics()
         EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &devMode);
 
         DisplayFrequency = devMode.dmDisplayFrequency;
-        acceptableFrameTime = (double)1000 / (double)(devMode.dmDisplayFrequency - 1);
+        acceptableFrameTime = (double)1000 / (double)(devMode.dmDisplayFrequency - 2);
 
         if (PushSharedMemory->FrameLimit > 1)
         {
