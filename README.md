@@ -13,6 +13,8 @@
     <img src="https://img.shields.io/discord/554456848347037711.svg?logo=discord&label=Chat">
   </a
 </p>
+	  
+![Img1](https://i.imgur.com/BFvGwl4.jpg)
 
 Features
 --------
