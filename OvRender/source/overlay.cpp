@@ -46,7 +46,7 @@ VOID SetOverlayProperties( OvOverlay* Overlay, OV_HOOK_PARAMS* HookParameters )
 }
 
 
-ULONG __stdcall CreateOverlay( LPVOID Param )
+ULONG __stdcall CreateOverlayInternal( LPVOID Param )
 {
     EnterCriticalSection(&OvCriticalSection);
 
@@ -133,7 +133,7 @@ VOID OvCreateOverlayEx( OV_HOOK_PARAMS* HookParameters )
 
     memcpy(hookParams, HookParameters, sizeof(OV_HOOK_PARAMS));
 
-    CreateThread(0, 0, &CreateOverlay, hookParams, 0, 0);
+    CreateThread(0, 0, &CreateOverlayInternal, hookParams, 0, 0);
 }
 
 

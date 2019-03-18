@@ -201,13 +201,31 @@ VOID* OpenSection( WCHAR* SectionName, SIZE_T SectionSize )
 HINSTANCE OverlayInstance;
 HHOOK Hook;
 WCHAR ModuleName[260];
-
+ULONG __stdcall CreateOverlayInternal(LPVOID Param);
 LRESULT CALLBACK OverlayCBTProc(
     _In_ int    nCode,
     _In_ WPARAM wParam,
     _In_ LPARAM lParam
     )
 {
+    if (!RenderThreadHandle)
+    {
+        OV_HOOK_PARAMS hookParams = { 0 };
+
+        hookParams.RenderFunction = RnRender;
+
+        if (PushSharedMemory->VsyncOverrideMode == PUSH_VSYNC_FORCE_ON)
+        {
+            hookParams.VsyncOverrideMode = VSYNC_FORCE_ON;
+        }
+        else if (PushSharedMemory->VsyncOverrideMode == PUSH_VSYNC_FORCE_OFF)
+            hookParams.VsyncOverrideMode = VSYNC_FORCE_OFF;
+
+        hookParams.FontName = PushSharedMemory->FontName;
+        hookParams.FontBold = PushSharedMemory->FontBold;
+        CreateOverlayInternal(&hookParams);
+    }
+    
     return CallNextHookEx(Hook, nCode, wParam, lParam);
 }
 extern "C" __declspec(dllexport) VOID InstallOverlayHook()
