@@ -74,27 +74,6 @@ DWORD GetOverlayMask()
 }
 
 
-VOID CreateOverlay()
-{
-    OV_HOOK_PARAMS hookParams = { 0 };
-
-    hookParams.RenderFunction = RnRender;
-
-    if (PushSharedMemory->VsyncOverrideMode == PUSH_VSYNC_FORCE_ON)
-    {
-        hookParams.VsyncOverrideMode = VSYNC_FORCE_ON;
-    }
-    else if (PushSharedMemory->VsyncOverrideMode == PUSH_VSYNC_FORCE_OFF)
-        hookParams.VsyncOverrideMode = VSYNC_FORCE_OFF;
-
-    hookParams.FontName = PushSharedMemory->FontName;
-    hookParams.FontBold = PushSharedMemory->FontBold;
-    hookParams.InterfaceFlags = GetOverlayMask();
-
-    OvCreateOverlay(&hookParams);
-}
-
-
 extern HHOOK KeyboardHookHandle;
 
 
@@ -114,24 +93,6 @@ VOID InitializeKeyboardHook()
     {
         Keyboard_Hook(PushSharedMemory->KeyboardHookType);
     }
-}
-
-
-ULONG __stdcall ImageMonitorThread(LPVOID Params)
-{
-    while (PushImageEvent)
-    {
-        WaitForSingleObject(PushImageEvent, INFINITE);
-        CreateOverlay();
-    }
-
-    return NULL;
-}
-
-
-VOID StopImageMonitoring()
-{
-    TerminateThread(ImageMonitoringThreadHandle, 0);
 }
 
 
@@ -301,13 +262,6 @@ BOOL __stdcall DllMain(
                 );
 
             InitializeCriticalSection(&OvCriticalSection);
-            CreateOverlay();
-            
-            ImageMonitoringThreadHandle = CreateThread(
-                0, 0, 
-                &ImageMonitorThread, 
-                0, 0, 0
-                );
 
             PushProcessHeap = GetProcessHeap();
 
