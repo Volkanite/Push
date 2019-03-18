@@ -33,12 +33,19 @@ typedef enum OV_GRAPHICS_API
     
 } OV_GRAPHICS_API;
 
+#define OV_D3D8            0x00000001
+#define OV_D3D9        0x00000002
+#define OV_DXGI        0x00000004
+#define OV_DDRAW        0x00000008
+#define OV_OGL        0x00000010
+
 typedef struct OV_HOOK_PARAMS{
     OV_RENDER               RenderFunction;
     OV_VSYNC_OVERRIDE_MODE  VsyncOverrideMode;
     BOOLEAN                 ForceTrippleBuffering;
     WCHAR*                  FontName;
     BOOLEAN                 FontBold;
+    DWORD                   InterfaceFlags;
 }OV_HOOK_PARAMS;
 
 typedef struct _FONT_PROPERTIES{
@@ -68,8 +75,7 @@ public:
 };
 
 
-VOID OvCreateOverlay( OV_RENDER RenderFunction );
-VOID OvCreateOverlayEx( OV_HOOK_PARAMS* HookParameters );
+VOID OvCreateOverlay( OV_HOOK_PARAMS* HookParameters );
 VOID DestroyOverlay();
 
 VOID Log(const wchar_t* Format, ...);

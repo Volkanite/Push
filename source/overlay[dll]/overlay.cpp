@@ -54,6 +54,25 @@ PushGetMaxThreadUsage()
     return PushThreadMonitor->GetMaxThreadUsage();
 }
 
+DWORD GetOverlayMask()
+{
+    DWORD mask = 0;
+
+    if (GetModuleHandleW(L"d3d8.dll"))
+        mask |= OV_D3D8;
+
+    if (GetModuleHandleW(L"d3d9.dll"))
+        mask |= OV_D3D9;
+
+    if (GetModuleHandleW(L"dxgi.dll"))
+        mask |= OV_DXGI;
+
+    if (GetModuleHandleW(L"ddraw.dll"))
+        mask |= OV_DDRAW;
+
+    return mask;
+}
+
 
 VOID CreateOverlay()
 {
@@ -70,8 +89,9 @@ VOID CreateOverlay()
 
     hookParams.FontName = PushSharedMemory->FontName;
     hookParams.FontBold = PushSharedMemory->FontBold;
+    hookParams.InterfaceFlags = GetOverlayMask();
 
-    OvCreateOverlayEx(&hookParams);
+    OvCreateOverlay(&hookParams);
 }
 
 
@@ -202,6 +222,8 @@ HINSTANCE OverlayInstance;
 HHOOK Hook;
 WCHAR ModuleName[260];
 ULONG __stdcall CreateOverlayInternal(LPVOID Param);
+
+
 LRESULT CALLBACK OverlayCBTProc(
     _In_ int    nCode,
     _In_ WPARAM wParam,
@@ -223,6 +245,7 @@ LRESULT CALLBACK OverlayCBTProc(
 
         hookParams.FontName = PushSharedMemory->FontName;
         hookParams.FontBold = PushSharedMemory->FontBold;
+        hookParams.InterfaceFlags = GetOverlayMask();
         CreateOverlayInternal(&hookParams);
     }
     

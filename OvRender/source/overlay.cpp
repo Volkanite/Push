@@ -51,51 +51,29 @@ ULONG __stdcall CreateOverlayInternal( LPVOID Param )
     EnterCriticalSection(&OvCriticalSection);
 
     OV_HOOK_PARAMS *hookParams = (OV_HOOK_PARAMS*) Param;
-    BOOLEAN d3d8, d3d9, dxgi, ddraw;
+    DWORD flags = hookParams->InterfaceFlags;
 
-    d3d8 = d3d9 = dxgi = ddraw = FALSE;
-
-    if (GetModuleHandleW(L"d3d8.dll"))
-    {
-        d3d8 = TRUE;
-    }
-
-    if (GetModuleHandleW(L"d3d9.dll"))
-    {
-        d3d9 = TRUE;
-    }
-
-    if (GetModuleHandleW(L"dxgi.dll"))
-    {
-        dxgi = TRUE;
-    }
-
-    if (GetModuleHandleW(L"ddraw.dll"))
-    {
-        ddraw = TRUE;
-    }
-
-    if (d3d8 && D3D8Overlay == NULL)
+    if ((flags & OV_D3D8) && D3D8Overlay == NULL)
     {
         Log(L"Hooking d3d8...");
         D3D8Overlay = new Dx8Overlay(hookParams->RenderFunction);
     }
 
-    if (d3d9 && D3D9Overlay == NULL)
+    if ((flags & OV_D3D9) && D3D9Overlay == NULL)
     {
         Log(L"Hooking d3d9...");
         D3D9Overlay = new Dx9Overlay( hookParams->RenderFunction );
         SetOverlayProperties(D3D9Overlay, hookParams);
     }
 
-    if (dxgi && DXGIOverlay == NULL)
+    if ((flags & OV_DXGI) && DXGIOverlay == NULL)
     {
         Log(L"Hooking dxgi...");
         DXGIOverlay = new DxgiOverlay(hookParams->RenderFunction);
         SetOverlayProperties(DXGIOverlay, hookParams);
     }
 
-    if (ddraw && DirectDrawOverlay == NULL)
+    if ((flags & OV_DDRAW) && DirectDrawOverlay == NULL)
     {
         Log(L"Hooking ddraw...");
         DirectDrawOverlay = new DDrawOverlay(hookParams->RenderFunction);
@@ -107,18 +85,7 @@ ULONG __stdcall CreateOverlayInternal( LPVOID Param )
 }
 
 
-VOID
-OvCreateOverlay( OV_RENDER RenderFunction )
-{
-    OV_HOOK_PARAMS hookParams = {0};
-
-    hookParams.RenderFunction = RenderFunction;
-
-    OvCreateOverlayEx(&hookParams);
-}
-
-
-VOID OvCreateOverlayEx( OV_HOOK_PARAMS* HookParameters )
+VOID OvCreateOverlay( OV_HOOK_PARAMS* HookParameters )
 {
     OV_HOOK_PARAMS *hookParams;
     
