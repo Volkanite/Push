@@ -182,7 +182,6 @@ VOID* OpenSection( WCHAR* SectionName, SIZE_T SectionSize )
 HINSTANCE OverlayInstance;
 HHOOK Hook;
 WCHAR ModuleName[260];
-ULONG __stdcall CreateOverlayInternal(LPVOID Param);
 
 
 LRESULT CALLBACK OverlayCBTProc(
@@ -207,7 +206,8 @@ LRESULT CALLBACK OverlayCBTProc(
         hookParams.FontName = PushSharedMemory->FontName;
         hookParams.FontBold = PushSharedMemory->FontBold;
         hookParams.InterfaceFlags = GetOverlayMask();
-        CreateOverlayInternal(&hookParams);
+
+        OvCreateOverlay(&hookParams);
     }
     
     return CallNextHookEx(Hook, nCode, wParam, lParam);

@@ -46,11 +46,11 @@ VOID SetOverlayProperties( OvOverlay* Overlay, OV_HOOK_PARAMS* HookParameters )
 }
 
 
-ULONG __stdcall CreateOverlayInternal( LPVOID Param )
+VOID OvCreateOverlay( OV_HOOK_PARAMS* HookParameters )
 {
     EnterCriticalSection(&OvCriticalSection);
 
-    OV_HOOK_PARAMS *hookParams = (OV_HOOK_PARAMS*) Param;
+    OV_HOOK_PARAMS *hookParams = (OV_HOOK_PARAMS*)HookParameters;
     DWORD flags = hookParams->InterfaceFlags;
 
     if ((flags & OV_D3D8) && D3D8Overlay == NULL)
@@ -80,27 +80,6 @@ ULONG __stdcall CreateOverlayInternal( LPVOID Param )
     }   
 
     LeaveCriticalSection(&OvCriticalSection);
-
-    return NULL;
-}
-
-
-VOID OvCreateOverlay( OV_HOOK_PARAMS* HookParameters )
-{
-    OV_HOOK_PARAMS *hookParams;
-    
-    hookParams = (OV_HOOK_PARAMS*) HeapAlloc(
-        GetProcessHeap(),
-        HEAP_ZERO_MEMORY,
-        sizeof(OV_HOOK_PARAMS)
-        );
-    
-    //hookParams->RenderFunction = HookParameters->RenderFunction;
-    //hookParams->VsyncOverrideMode = HookParameters->VsyncOverrideMode;
-
-    memcpy(hookParams, HookParameters, sizeof(OV_HOOK_PARAMS));
-
-    CreateThread(0, 0, &CreateOverlayInternal, hookParams, 0, 0);
 }
 
 
