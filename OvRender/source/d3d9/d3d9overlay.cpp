@@ -311,8 +311,8 @@ Dx9Overlay::~Dx9Overlay()
 {
     Dx9Hook_Destroy();
 
-    if (D3D9Font)
-        D3D9Font->~Dx9Font();
+    /*if (D3D9Font)
+        D3D9Font->~Dx9Font();*/
 }
 
 
