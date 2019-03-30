@@ -17,11 +17,13 @@
 #endif
 
 #ifdef _M_IX86
-    #pragma comment(lib, "LDE64")
-    extern "C" size_t __stdcall LDE(const LPVOID lpData, unsigned int size);
+    #include "./hde/hde32.h"
+    typedef hde32s HDE;
+    #define HDE_DISASM(code, hs) hde32_disasm(code, hs)
 #else
-    #pragma comment(lib, "LDE64x64")
-    extern "C" size_t __fastcall LDE(const LPVOID lpData, unsigned int size);
+    #include "./hde/hde64.h"
+    typedef hde64s HDE;
+    #define HDE_DISASM(code, hs) hde64_disasm(code, hs)
 #endif
 
 class DetourXS

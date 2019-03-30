@@ -205,7 +205,9 @@ size_t DetourXS::GetDetourLenAuto(const LPVOID lpStart, AddressingMode jmpType)
 
     while(totalLen < jmpType)
     {
-        size_t len = LDE(reinterpret_cast<LPVOID>(lpbDataPos), 0);
+        HDE hs;
+
+        size_t len = HDE_DISASM(reinterpret_cast<LPVOID>(lpbDataPos), &hs);
         lpbDataPos += len;
         totalLen += len;
     }

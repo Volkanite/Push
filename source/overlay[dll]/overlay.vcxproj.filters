@@ -56,5 +56,8 @@
     <ClCompile Include="kbhook.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\resources\detourXS\hde\hde32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
