@@ -1489,7 +1489,7 @@ INT32 __stdcall start( )
             Ini_GetString(L"Settings", L"ControllerTimeout", NULL, buffer, 5, L".\\" PUSH_SETTINGS_FILE);
             PushSharedMemory->ControllerTimeout = _wtoi(buffer);
 
-            Ini_GetString(L"Settings", L"FontName", NULL, buffer, 100, L".\\" PUSH_SETTINGS_FILE);
+            Ini_GetString(L"Settings", L"FontName", L"Verdana", buffer, 100, L".\\" PUSH_SETTINGS_FILE);
             String_Copy(PushSharedMemory->FontName, buffer);
 
             Memory_Free(buffer);
