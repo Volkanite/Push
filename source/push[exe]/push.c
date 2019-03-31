@@ -419,9 +419,6 @@ VOID OnProcessEvent( PROCESSID ProcessId )
 {
     WCHAR fileName[260];
     VOID *processHandle = NULL;
-    UINT32 iBytesRead;
-    WCHAR *result = 0;
-    CHAR szCommand[] = "MUTEPIN 1 a";
 
     processHandle = Process_Open(ProcessId, PROCESS_QUERY_INFORMATION | PROCESS_SUSPEND_RESUME);
 
@@ -474,18 +471,6 @@ VOID OnProcessEvent( PROCESSID ProcessId )
         {
             Hardware_ForceMaxClocks();
         }
-
-        // i used this to disable one of my audio ports while gaming but of course it probably only
-        // works for IDT audio devices
-        CallNamedPipeW(
-            L"\\\\.\\pipe\\stacsv",
-            szCommand,
-            sizeof(szCommand),
-            0,
-            0,
-            &iBytesRead,
-            NMPWAIT_WAIT_FOREVER
-            );
 
         if (PushSharedMemory->GameUsesRamDisk)
             //resume process
