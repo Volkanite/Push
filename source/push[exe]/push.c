@@ -503,100 +503,6 @@ DWORD64 GetRemoteProcAddress(HANDLE ProcessHandle, DWORD64 BaseAddress, const ch
 DWORD64 NtCreateThreadEx64(HANDLE ProcessHandle, DWORD64 StartRoutine, DWORD RemoteMemory);
 
 
-VOID Inject( HANDLE ProcessHandle )
-{
-    VOID *remoteMemory;
-    DWORD64 kernel32Base;
-    DWORD64 threadHandle;
-    WCHAR modulePath[260], *pszLastSlash;
-    UINT32 regionSize;
-    BOOLEAN x64 = FALSE;
-
-    if (!ProcessHandle) return;
-
-    if (!Process_IsWow64(ProcessHandle))
-    {
-        x64 = TRUE;
-    }
-
-    Resource_Extract(x64 ? L"OVERLAY64" : L"OVERLAY32", x64 ? PUSH_LIB_NAME_64 : PUSH_LIB_NAME_32);
-    String_Copy(modulePath, PushFilePath);
-
-    pszLastSlash = String_FindLastChar(modulePath, '\\');
-    pszLastSlash[1] = '\0';
-
-    String_Concatenate(modulePath, x64 ? PUSH_LIB_NAME_64 : PUSH_LIB_NAME_32);
-
-    // Allocate memory in the remote process's address space.
-    remoteMemory = NULL;
-    regionSize = sizeof(modulePath);
-
-    NtAllocateVirtualMemory(ProcessHandle, &remoteMemory, 0, &regionSize, MEM_COMMIT, PAGE_READWRITE);
-
-    // Copy library name
-    Process_WriteMemory(ProcessHandle, remoteMemory, modulePath, sizeof(modulePath));
-
-    // Load dll into the remote process
-    if (x64)
-    {
-        DWORD64 _LoadLibraryW;
-
-        kernel32Base = GetRemoteModuleHandle(ProcessHandle, L"kernel32.dll");
-
-        if (!kernel32Base)
-        {
-            Log(L"Failed to get kernel32.dll base address");
-            return;
-        }
-
-        _LoadLibraryW = GetRemoteProcAddress(ProcessHandle, kernel32Base, "LoadLibraryW");
-
-        if (!_LoadLibraryW)
-        {
-            Log(L"Failed to get address of LoadLibraryW");
-            return;
-        }
-
-        threadHandle = NtCreateThreadEx64(ProcessHandle, _LoadLibraryW, (DWORD)remoteMemory);
-
-        Log(L"threadHandle: 0x%llX", threadHandle);
-    }
-    else
-    {
-        HANDLE _threadHandle;
-        void* _LoadLibraryW;
-
-        kernel32Base = Module_GetHandle(L"kernel32.dll");
-        _LoadLibraryW = Module_GetProcedureAddress((VOID*)kernel32Base, "LoadLibraryW");
-
-        NtCreateThreadEx(
-            &_threadHandle,
-            THREAD_ALL_ACCESS,
-            NULL,
-            ProcessHandle,
-            _LoadLibraryW,
-            remoteMemory,
-            NoThreadFlags,
-            0, 0, 0,
-            NULL
-            );
-
-        threadHandle = _threadHandle;
-    }
-
-    NtWaitForSingleObject((VOID*)threadHandle, FALSE, NULL);
-
-    // Clean up
-
-    NtClose((HANDLE)threadHandle);
-
-    // Free the memory we allocated inside the remote process
-    regionSize = 0;
-
-    NtFreeVirtualMemory(ProcessHandle, &remoteMemory, &regionSize, MEM_RELEASE);
-}
-
-
 typedef struct _SECURITY_DESCRIPTOR {
     UCHAR Revision;
     UCHAR Sbz1;
@@ -784,7 +690,7 @@ VOID CreateOverlay( DWORD ProcessId )
 
     if (PushOverlayInterface == OVERLAY_INTERFACE_PURE)
     {
-        Inject(processHandle);
+        //Inject(processHandle);
     }
     else
     {
