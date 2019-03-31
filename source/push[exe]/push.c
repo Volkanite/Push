@@ -422,8 +422,6 @@ VOID OnProcessEvent( PROCESSID ProcessId )
     UINT32 iBytesRead;
     WCHAR *result = 0;
     CHAR szCommand[] = "MUTEPIN 1 a";
-    MOTIONINJOY_APP_OPTION configuration;
-    wchar_t configFile[260];
 
     processHandle = Process_Open(ProcessId, PROCESS_QUERY_INFORMATION | PROCESS_SUSPEND_RESUME);
 
@@ -439,6 +437,7 @@ VOID OnProcessEvent( PROCESSID ProcessId )
         MOTIONINJOY_BUTTON_MAP map;
         PUSH_GAME game = { 0 };
 
+        //MiJ
         Memory_Clear(&map, sizeof(map));
         PopulateButtonMap(&map, fileName);
         Memory_Copy(PushSharedMemory->ButtonMap, &map, sizeof(map));
@@ -487,34 +486,6 @@ VOID OnProcessEvent( PROCESSID ProcessId )
             &iBytesRead,
             NMPWAIT_WAIT_FOREVER
             );
-
-        //mij
-        Memory_Clear(&configuration, sizeof(configuration));
-
-        GetConfigFile(game.Name, configFile);
-        PopulateButtonMap(&configuration.InputOption.Maping, configFile);
-
-        /*if (settingsFile[0] == '0')
-            options.CommonOption.mode = Keyboard;
-        else if (settingsFile[0] == '4')
-            options.CommonOption.mode = DirectInput;
-        else if (settingsFile[0] == '5')
-            options.CommonOption.mode = XInput;*/
-
-        configuration.CommonOption.mode = DirectInput;
-
-        if (!PushSharedMemory->ControllerTimeout)
-            PushSharedMemory->ControllerTimeout = 10;
-
-        configuration.CommonOption.LED = 129;
-        configuration.CommonOption.AutoOff_timeout = 0x80 | PushSharedMemory->ControllerTimeout;
-        configuration.CommonOption.Deadzone_LStick_X = 10;
-        configuration.CommonOption.Deadzone_LStick_Y = 10;
-
-        configuration.InputOption.Duration = 100;
-        configuration.InputOption.Interval = 400;
-
-        Mij_SetProfile(&configuration);
 
         if (PushSharedMemory->GameUsesRamDisk)
             //resume process
