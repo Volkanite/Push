@@ -238,14 +238,6 @@ VOID DxgiHook_Initialize( IDXGISWAPCHAIN_HOOK* HookParameters )
 
     if (!HkIDXGISwapChain_Present)
     {
-        // Backup
-        //HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present)vmt[8];
-        //HkIDXGISwapChain_ResizeBuffers = (TYPE_IDXGISwapChain_ResizeBuffers)vmt[13];
-    
-        //Overwrite
-        //ReplaceVirtualMethod(vmt, 8, IDXGISwapChain_PresentHook);
-        //ReplaceVirtualMethod(vmt, 13, IDXGISwapChain_ResizeBuffersHook);
-        
         DetourDXGIPresent = new DetourXS(vmt[8], IDXGISwapChain_PresentHook);
         HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present)DetourDXGIPresent->GetTrampoline();
         
@@ -257,6 +249,9 @@ VOID DxgiHook_Initialize( IDXGISWAPCHAIN_HOOK* HookParameters )
 
 VOID DxgiHook_Destroy()
 {
-    DetourDXGIPresent->Destroy();
-    DetourDXGIResizeBuffers->Destroy();
+    if (DetourDXGIPresent)
+        DetourDXGIPresent->Destroy();
+
+    if (DetourDXGIResizeBuffers)
+        DetourDXGIResizeBuffers->Destroy();
 }
