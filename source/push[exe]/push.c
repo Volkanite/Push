@@ -432,9 +432,23 @@ VOID OnProcessEvent( PROCESSID ProcessId )
 
     Process_GetFileNameByHandle(processHandle, fileName);
 
-    if (Game_IsGame(fileName))
+    GetConfigFileFromProcessId(ProcessId, fileName);
+
+    if (File_Exists(fileName))
     {
+        MOTIONINJOY_BUTTON_MAP map;
         PUSH_GAME game = { 0 };
+
+        Memory_Clear(&map, sizeof(map));
+        PopulateButtonMap(&map, fileName);
+        Memory_Copy(PushSharedMemory->ButtonMap, &map, sizeof(map));
+        SetButtonMapping(&map);
+
+        PushSharedMemory->HasConfig = TRUE;
+        DWORD bird = GetConfig(L"Spoof", fileName);
+
+        if (bird)
+            PushSharedMemory->SpoofControllerType = TRUE;
 
         Game_Initialize(fileName, &game);
 
@@ -512,24 +526,6 @@ VOID OnProcessEvent( PROCESSID ProcessId )
     }
 
     Process_Close(processHandle);
-
-    GetConfigFileFromProcessId(ProcessId, fileName);
-
-    if (File_Exists(fileName))
-    {
-        MOTIONINJOY_BUTTON_MAP map;
-
-        Memory_Clear(&map, sizeof(map));
-        PopulateButtonMap(&map, fileName);
-        Memory_Copy(PushSharedMemory->ButtonMap, &map, sizeof(map));
-        SetButtonMapping(&map);
-
-        PushSharedMemory->HasConfig = TRUE;
-        DWORD bird = GetConfig(L"Spoof", fileName);
-        
-        if (bird)
-            PushSharedMemory->SpoofControllerType = TRUE;
-    }
 
     //terminate Xpadder
     unsigned int processId = Process_GetId(L"Xpadder.exe", 0);
