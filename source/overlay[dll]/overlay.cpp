@@ -182,7 +182,7 @@ VOID* OpenSection( WCHAR* SectionName, SIZE_T SectionSize )
 HINSTANCE OverlayInstance;
 HHOOK Hook;
 WCHAR ModuleName[260];
-
+BOOLEAN Guard;
 
 LRESULT CALLBACK OverlayCBTProc(
     _In_ int    nCode,
@@ -190,8 +190,9 @@ LRESULT CALLBACK OverlayCBTProc(
     _In_ LPARAM lParam
     )
 {
-    if (!RenderThreadHandle)
+    if (!RenderThreadHandle && !Guard)
     {
+        Guard = TRUE;
         OV_HOOK_PARAMS hookParams = { 0 };
 
         hookParams.RenderFunction = RnRender;
@@ -208,6 +209,7 @@ LRESULT CALLBACK OverlayCBTProc(
         hookParams.InterfaceFlags = GetOverlayMask();
 
         OvCreateOverlay(&hookParams);
+        Guard = FALSE;
     }
     
     return CallNextHookEx(Hook, nCode, wParam, lParam);
