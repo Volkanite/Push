@@ -1,7 +1,7 @@
 #include <Windows.h>
 #include <DXGI.h>
 #include <D3D10.h>
-#include <detourxs.h>
+#include <hexus.h>
 
 #include "dxgihook.h"
 
@@ -216,8 +216,8 @@ VOID* FindDevice()
 }
 
 
-DetourXS *DetourDXGIPresent;
-DetourXS *DetourDXGIResizeBuffers;
+DETOUR_PROPERTIES DetourDXGIPresent;
+DETOUR_PROPERTIES DetourDXGIResizeBuffers;
 
 
 VOID DxgiHook_Initialize( IDXGISWAPCHAIN_HOOK* HookParameters )
@@ -238,20 +238,20 @@ VOID DxgiHook_Initialize( IDXGISWAPCHAIN_HOOK* HookParameters )
 
     if (!HkIDXGISwapChain_Present)
     {
-        DetourDXGIPresent = new DetourXS(vmt[8], IDXGISwapChain_PresentHook);
-        HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present)DetourDXGIPresent->GetTrampoline();
+        DetourCreate(vmt[8], IDXGISwapChain_PresentHook, &DetourDXGIPresent);
+        HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present)DetourDXGIPresent.Trampoline;
         
-        DetourDXGIResizeBuffers = new DetourXS(vmt[13], IDXGISwapChain_ResizeBuffersHook);
-        HkIDXGISwapChain_ResizeBuffers = (TYPE_IDXGISwapChain_ResizeBuffers)DetourDXGIResizeBuffers->GetTrampoline();
+        DetourCreate(vmt[13], IDXGISwapChain_ResizeBuffersHook, &DetourDXGIResizeBuffers);
+        HkIDXGISwapChain_ResizeBuffers = (TYPE_IDXGISwapChain_ResizeBuffers)DetourDXGIResizeBuffers.Trampoline;
     }
 }
 
 
 VOID DxgiHook_Destroy()
 {
-    if (DetourDXGIPresent)
-        DetourDXGIPresent->Destroy();
+    if (DetourDXGIPresent.Trampoline)
+        DetourDestroy(&DetourDXGIPresent);
 
-    if (DetourDXGIResizeBuffers)
-        DetourDXGIResizeBuffers->Destroy();
+    if (DetourDXGIResizeBuffers.Trampoline)
+        DetourDestroy(&DetourDXGIResizeBuffers);
 }

@@ -50,13 +50,13 @@
     <ClCompile Include="menu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\resources\detourXS\detourxs.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="kbhook.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\resources\detourXS\hde\hde32.c">
+    <ClCompile Include="..\..\resources\hexus\hexus.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\resources\hexus\hde\hde32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

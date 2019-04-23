@@ -1,11 +1,11 @@
 #include <Windows.h>
 #include "overlay.h"
 #include <OvRender.h>
-#include <detourxs.h>
+
 
 #include "menu.h"
 #include "kbhook.h"
-
+#include <hexus.h>
 
 typedef struct _KEYBOARD_HOOK_PARAMS
 {
@@ -19,7 +19,7 @@ HANDLE ProcessHeap;
 HHOOK KeyboardHookHandle;
 WNDPROC OldWNDPROC;
 BOOLEAN RawInputProcessed;
-DetourXS *RawInputDetour;
+DETOUR_PROPERTIES RawInputDetour;
 
 typedef BOOL(WINAPI* TYPE_PeekMessageW)(
     LPMSG lpMsg,
@@ -107,8 +107,8 @@ BOOLEAN MessageHook( LPMSG Message )
         {           
             //Unhook raw hook since this message hook is sufficient
             Log(L"KEYBOARD_HOOK_RAW::Destroy()");
-            RawInputDetour->Destroy();
-            RawInputDetour = NULL;
+            DetourDestroy(&RawInputDetour);
+            //RawInputDetour = NULL;
             OverlayGetRawInputData = NULL;
 
             //Check if raw input already processed this request or we'll
@@ -437,9 +437,9 @@ void Keyboard_Hook( PUSH_KEYBOARD_HOOK_TYPE HookType )
             address = (DWORD)GetProcAddress(moduleHandle, "GetRawInputData");
 
             functionStart = (BYTE*)address;
-            RawInputDetour = new DetourXS(functionStart, (BYTE*)GetRawInputDataHook);
+            DetourCreate(functionStart, (BYTE*)GetRawInputDataHook, &RawInputDetour);
 
-            OverlayGetRawInputData = (TYPE_GetRawInputData)RawInputDetour->GetTrampoline();
+            OverlayGetRawInputData = (TYPE_GetRawInputData)RawInputDetour.Trampoline;
 #endif 
         }
         break;
@@ -451,8 +451,8 @@ void Keyboard_Hook( PUSH_KEYBOARD_HOOK_TYPE HookType )
 
 VOID Keyboard_UnHook()
 {
-    if (RawInputDetour)
-        RawInputDetour->Destroy();
+    if (RawInputDetour.Trampoline)
+        DetourDestroy(&RawInputDetour);
 
     if (KeyboardHookHandle)
         UnhookWindowsHookEx(KeyboardHookHandle);

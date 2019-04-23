@@ -1,7 +1,7 @@
 #include <Windows.h>
 #include <d3d9.h>
 #include <slmodule.h>
-#include <detourxs.h>
+#include <hexus.h>
 
 #include "d3d9hook.h"
 
@@ -488,16 +488,16 @@ HRESULT __stdcall IDirect3D9_CreateDevice_Detour(
 #define MASK_D3D9SWAPCHAINPRESENT   "xxxxxxxx"
 
 
-DetourXS *DetourTestCooperativeLevel;
-DetourXS *DetourReset;
-DetourXS *DetourPresent;
-DetourXS *DetourResetEx;
-DetourXS *DetourPresentEx;
-DetourXS *DetourSwapChainPresent;
-DetourXS *Detour_DirectInput_CreateDevice;
-DetourXS *Detour_DirectInput_EnumDevices;
-DetourXS *Detour_DirectInputDevice_GetCapabilities;
-DetourXS *Detour_DirectInputDevice_GetDeviceInfo;
+DETOUR_PROPERTIES DetourTestCooperativeLevel;
+DETOUR_PROPERTIES DetourReset;
+DETOUR_PROPERTIES DetourPresent;
+DETOUR_PROPERTIES DetourResetEx;
+DETOUR_PROPERTIES DetourPresentEx;
+DETOUR_PROPERTIES DetourSwapChainPresent;
+DETOUR_PROPERTIES Detour_DirectInput_CreateDevice;
+DETOUR_PROPERTIES Detour_DirectInput_EnumDevices;
+DETOUR_PROPERTIES Detour_DirectInputDevice_GetCapabilities;
+DETOUR_PROPERTIES Detour_DirectInputDevice_GetDeviceInfo;
 
 
 VOID ApplyDetourXsHooks( IDirect3DDevice9Ex* Device )
@@ -509,20 +509,20 @@ VOID ApplyDetourXsHooks( IDirect3DDevice9Ex* Device )
     virtualMethodTable = (VOID**)Device;
     virtualMethodTable = (VOID**)virtualMethodTable[0];
 
-    DetourTestCooperativeLevel = new DetourXS(virtualMethodTable[3], IDirect3DDevice9_TestCooperativeLevel_Detour);
-    D3D9Hook_IDirect3DDevice9_TestCooperativeLevel = (TYPE_IDirect3DDevice9_TestCooperativeLevel)DetourTestCooperativeLevel->GetTrampoline();
+    DetourCreate(virtualMethodTable[3], IDirect3DDevice9_TestCooperativeLevel_Detour, &DetourTestCooperativeLevel);
+    D3D9Hook_IDirect3DDevice9_TestCooperativeLevel = (TYPE_IDirect3DDevice9_TestCooperativeLevel)DetourTestCooperativeLevel.Trampoline;
 
-    DetourReset = new DetourXS(virtualMethodTable[16], IDirect3DDevice9_Reset_Detour);
-    D3D9Hook_IDirect3DDevice9_Reset = (TYPE_IDirect3DDevice9_Reset)DetourReset->GetTrampoline();
+    DetourCreate(virtualMethodTable[16], IDirect3DDevice9_Reset_Detour, &DetourReset);
+    D3D9Hook_IDirect3DDevice9_Reset = (TYPE_IDirect3DDevice9_Reset)DetourReset.Trampoline;
 
-    DetourPresent = new DetourXS(virtualMethodTable[17], IDirect3DDevice9_Present_Detour);
-    D3D9Hook_IDirect3DDevice9_Present = (TYPE_IDirect3DDevice9_Present)DetourPresent->GetTrampoline();
+    DetourCreate(virtualMethodTable[17], IDirect3DDevice9_Present_Detour, &DetourPresent);
+    D3D9Hook_IDirect3DDevice9_Present = (TYPE_IDirect3DDevice9_Present)DetourPresent.Trampoline;
 
-    DetourPresentEx = new DetourXS(virtualMethodTable[121], IDirect3DDevice9Ex_PresentEx_Detour);
-    Dx9Hook_IDirect3DDevice9Ex_PresentEx = (TYPE_IDirect3DDevice9Ex_PresentEx)DetourPresentEx->GetTrampoline();
+    DetourCreate(virtualMethodTable[121], IDirect3DDevice9Ex_PresentEx_Detour, &DetourPresentEx);
+    Dx9Hook_IDirect3DDevice9Ex_PresentEx = (TYPE_IDirect3DDevice9Ex_PresentEx)DetourPresentEx.Trampoline;
 
-    DetourResetEx = new DetourXS(virtualMethodTable[132], Dx9Hook_IDirect3DDevice9Ex_ResetEx_Detour);
-    Dx9Hook_IDirect3DDevice9Ex_ResetEx = (TYPE_IDirect3DDevice9Ex_ResetEx)DetourResetEx->GetTrampoline();
+    DetourCreate(virtualMethodTable[132], Dx9Hook_IDirect3DDevice9Ex_ResetEx_Detour, &DetourResetEx);
+    Dx9Hook_IDirect3DDevice9Ex_ResetEx = (TYPE_IDirect3DDevice9Ex_ResetEx)DetourResetEx.Trampoline;
 
 #ifdef _M_IX86
 
@@ -536,8 +536,8 @@ VOID ApplyDetourXsHooks( IDirect3DDevice9Ex* Device )
         virtualMethodTable = (VOID**)swapChain;
         virtualMethodTable = (VOID**)virtualMethodTable[0];
 
-        DetourSwapChainPresent = new DetourXS((VOID*)virtualMethodTable[3], IDirect3DSwapChain9_Present_Detour);
-        D3D9Hook_IDirect3DSwapChain9_Present = (TYPE_IDirect3DSwapChain9_Present)DetourSwapChainPresent->GetTrampoline();
+        DetourCreate((VOID*)virtualMethodTable[3], IDirect3DSwapChain9_Present_Detour, &DetourSwapChainPresent);
+        D3D9Hook_IDirect3DSwapChain9_Present = (TYPE_IDirect3DSwapChain9_Present)DetourSwapChainPresent.Trampoline;
     }
 
     //vmt = (VOID**) d3d9ex;
@@ -556,12 +556,24 @@ VOID DestroyDetourXsHooks()
 {
     Log(L"=> DestroyDetourXsHooks()");
 
-    DetourTestCooperativeLevel->Destroy();
-    DetourReset->Destroy();
-    DetourPresent->Destroy();
-    DetourResetEx->Destroy();
-    DetourPresentEx->Destroy();
-    DetourSwapChainPresent->Destroy();
+    Log(L"destroying DetourTestCooperativeLevel @0x%X", DetourTestCooperativeLevel);
+    //DebugBreak();
+    DetourDestroy(&DetourTestCooperativeLevel);
+
+    Log(L"destroying DetourReset");
+    DetourDestroy(&DetourReset);
+
+    Log(L"destroying DetourPresent");
+    DetourDestroy(&DetourPresent);
+
+    Log(L"destroying DetourResetEx");
+    DetourDestroy(&DetourResetEx);
+
+    Log(L"destroying DetourPresentEx");
+    DetourDestroy(&DetourPresentEx);
+
+    Log(L"destroying DetourSwapChainPresent");
+    DetourDestroy(&DetourSwapChainPresent);
 
     Log(L"<= DestroyDetourXsHooks()");
 }
@@ -638,7 +650,7 @@ IDirect3DDevice9Ex* BuildDevice()
 }
 
 
-DetourXS *dinptdt;
+DETOUR_PROPERTIES dinptdt;
 LPDIENUMDEVICESCALLBACKA D3D9Hook_enumcallbck;
 
 
@@ -718,8 +730,8 @@ HRESULT __stdcall  DirectInput8Create_Detour(
         //DWORD oldCreateDevice = *((DWORD*)(dwFuncTable + 0x0C)); //4 * 3 (virtualMethodTable[3]) = 12 = 0x0C
         DWORD oldEnumDevice = *((DWORD*)(dwFuncTable + 0x10)); //4 * 4 (virtualMethodTable[4]) = 16 = 0x10
 
-        Detour_DirectInput_EnumDevices = new DetourXS(/*virtualMethodTable[4]*/(VOID*)oldEnumDevice, IDirectInput8_EnumDevices_Detour);
-        D3D9Hook_IDirectInput8_EnumDevices = (TYPE_IDirectInput8_EnumDevices) Detour_DirectInput_EnumDevices->GetTrampoline();
+        DetourCreate(/*virtualMethodTable[4]*/(VOID*)oldEnumDevice, IDirectInput8_EnumDevices_Detour, &Detour_DirectInput_EnumDevices);
+        D3D9Hook_IDirectInput8_EnumDevices = (TYPE_IDirectInput8_EnumDevices) Detour_DirectInput_EnumDevices.Trampoline;
     }
 
     return result;
@@ -769,8 +781,8 @@ VOID Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
 
     Log(L"got DirectInput8Create...");
 
-    dinptdt = new DetourXS((VOID*)func, DirectInput8Create_Detour);
-    D3D9Hook_DirectInput8Create = (TYPE_DirectInput8Create) dinptdt->GetTrampoline();
+    DetourCreate((VOID*)func, DirectInput8Create_Detour, &dinptdt);
+    D3D9Hook_DirectInput8Create = (TYPE_DirectInput8Create) dinptdt.Trampoline;
 }
 
 

@@ -1,7 +1,7 @@
 #include <Windows.h>
 #include <d3d8.h>
 #include <slmodule.h>
-#include <detourxs.h>
+#include <hexus.h>
 #include "d3d8hook.h"
 
 
@@ -33,8 +33,8 @@ TYPE_IDirect3DDevice8_Reset     HkIDirect3DDevice8_Reset;
 HK_IDIRECT3DDEVICE8_PRESENT_CALLBACK    HkIDirect3DDevice8_PresentCallback;
 HK_IDIRECT3DDEVICE8_RESET_CALLBACK      HkIDirect3DDevice8_ResetCallback;
 
-DetourXS *DetourPresent8;
-DetourXS *DetourReset8;
+DETOUR_PROPERTIES DetourPresent8;
+DETOUR_PROPERTIES DetourReset8;
 
 
 LONG WINAPI IDirect3DDevice8_PresentHook(
@@ -123,14 +123,14 @@ VOID HookD3D8(
 
     if (IDirect3DDevice8_PresentCallback)
     {
-        DetourPresent8 = new DetourXS(vmt[15], IDirect3DDevice8_PresentHook);
-        HkIDirect3DDevice8_Present = (TYPE_IDirect3DDevice8_Present)DetourPresent8->GetTrampoline();
+        DetourCreate(vmt[15], IDirect3DDevice8_PresentHook, &DetourPresent8);
+        HkIDirect3DDevice8_Present = (TYPE_IDirect3DDevice8_Present)DetourPresent8.Trampoline;
     }
 
     if (IDirect3DDevice8_ResetCallback)
     {
-        DetourReset8 = new DetourXS(vmt[14], IDirect3DDevice8_ResetHook);
-        HkIDirect3DDevice8_Reset = (TYPE_IDirect3DDevice8_Reset)DetourReset8->GetTrampoline();
+        DetourCreate(vmt[14], IDirect3DDevice8_ResetHook, &DetourReset8);
+        HkIDirect3DDevice8_Reset = (TYPE_IDirect3DDevice8_Reset)DetourReset8.Trampoline;
     }
 }
 
@@ -139,8 +139,8 @@ VOID Dx8Hook_Destroy()
 {
     Log(L"=> DestroyDetourXsHooks()");
 
-    DetourReset8->Destroy();
-    DetourPresent8->Destroy();
+    DetourDestroy(&DetourReset8);
+    DetourDestroy(&DetourPresent8);
 
     Log(L"<= DestroyDetourXsHooks()");
 }

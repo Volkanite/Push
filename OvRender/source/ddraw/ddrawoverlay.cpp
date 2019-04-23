@@ -1,5 +1,5 @@
 #include "ddrawoverlay.h"
-#include <detourxs.h>
+#include <hexus.h>
 #include <ddraw.h>
 
 
@@ -31,16 +31,17 @@ HRESULT WINAPI DirectDrawCreate_Hook(
 DDrawOverlay::DDrawOverlay( OV_RENDER RenderFunction )
 {
     HMODULE base;
-    DetourXS *detour;
+    DETOUR_PROPERTIES detour;
 
     base = (HMODULE)LoadLibraryW(L"ddraw.dll");
     
-    detour = new DetourXS(
+    DetourCreate(
         GetProcAddress(base, "DirectDrawCreate"),
-        DirectDrawCreate_Hook
+        DirectDrawCreate_Hook,
+        &detour
         );
 
-    pDirectDrawCreate = (TYPE_DirectDrawCreate)detour->GetTrampoline();
+    pDirectDrawCreate = (TYPE_DirectDrawCreate)detour.Trampoline;
 
     UserRenderFunction = RenderFunction;
 }

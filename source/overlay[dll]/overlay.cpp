@@ -1,6 +1,5 @@
 #include <Windows.h>
 #include <stdio.h>
-#include <detourxs.h>
 
 #include "overlay.h"
 #include <OvRender.h>
@@ -8,6 +7,7 @@
 #include "thread.h"
 #include "menu.h"
 #include "kbhook.h"
+#include <hexus.h>
 
 
 CHAR *pszModuleName;
@@ -101,7 +101,7 @@ VOID* DetourApi( WCHAR* dllName, CHAR* apiName, BYTE* NewFunction )
     BYTE *functionStart = NULL;
     HMODULE moduleHandle;
     DWORD address = 0;
-    DetourXS *detour;
+    DETOUR_PROPERTIES detour;
 
     // Get the API address
     moduleHandle = GetModuleHandleW(dllName);
@@ -111,9 +111,9 @@ VOID* DetourApi( WCHAR* dllName, CHAR* apiName, BYTE* NewFunction )
         return NULL;
 
     functionStart = (BYTE*)address;
-    detour = new DetourXS(functionStart, NewFunction);
+    DetourCreate(functionStart, NewFunction, &detour);
 
-     return detour->GetTrampoline();
+     return detour.Trampoline;
 }
 
 
