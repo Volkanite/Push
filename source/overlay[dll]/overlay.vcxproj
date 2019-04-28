@@ -71,7 +71,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)$(PlatformArchitecture)\</IntDir>
-    <IncludePath>$(SolutionDir)OvRender\inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\detourXS;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)OvRender\inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\hexus;$(ProjectDir);$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)resources\sl\lib\i386;$(SolutionDir)bin;$(SolutionDir)resources\detourXS;$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
     <TargetName>overlay32</TargetName>
   </PropertyGroup>
