@@ -215,7 +215,7 @@ void* DetourCreate( LPVOID FunctionOrig,  LPVOID FunctionDetour, DETOUR_PROPERTI
 }
 
 
-BOOL DetourDestroy(DETOUR_PROPERTIES* Properties)
+BOOL DetourDestroy( DETOUR_PROPERTIES* Properties )
 {
     DWORD dwProt = 0;
 
