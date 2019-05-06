@@ -4,14 +4,6 @@
 #include "font.h"
 
 
-extern "C" VOID* __stdcall RtlReAllocateHeap(
-    VOID*   HeapHandle,
-    DWORD   Flags,
-    VOID*   MemoryPointer,
-    UINT32  Size
-    );
-
-
 Font::Font()
 {
     WCHAR strFontName[] = L"Verdana";
