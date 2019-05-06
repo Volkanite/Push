@@ -171,7 +171,7 @@ BOOLEAN Dx10Font::InitD3D10Sprite( )
 
     HeapHandle = GetProcessHeap();
 
-    Sprites = (Sprite*) RtlAllocateHeap(
+    Sprites = (Sprite*) HeapAlloc(
         HeapHandle,
         HEAP_GENERATE_EXCEPTIONS,
         sizeof(Sprite)

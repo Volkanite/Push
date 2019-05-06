@@ -244,7 +244,7 @@ BOOLEAN Dx11Font::InitD3D11Sprite( )
     device->CreateRasterizerState(&rasterizerDescription, &RasterizerState);
 
     HeapHandle = GetProcessHeap();
-    Sprites = (Sprite*) RtlAllocateHeap(HeapHandle, 0, sizeof(Sprite));
+    Sprites = (Sprite*) HeapAlloc(HeapHandle, 0, sizeof(Sprite));
 
     Initialized = TRUE;
 
