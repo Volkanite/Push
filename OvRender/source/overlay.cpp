@@ -17,8 +17,6 @@ DDrawOverlay*   DirectDrawOverlay;
 //UINT32 BackBufferHeight;
 OV_GRAPHICS_API GraphicsApi;
 
-extern CRITICAL_SECTION OvCriticalSection;
-
 
 OvOverlay::OvOverlay()
 {
@@ -49,8 +47,6 @@ VOID SetOverlayProperties( OvOverlay* Overlay, OV_HOOK_PARAMS* HookParameters )
 
 VOID OvCreateOverlay( OV_HOOK_PARAMS* HookParameters )
 {
-    EnterCriticalSection(&OvCriticalSection);
-
     OV_HOOK_PARAMS *hookParams = (OV_HOOK_PARAMS*)HookParameters;
     DWORD flags = hookParams->InterfaceFlags;
 
@@ -78,9 +74,7 @@ VOID OvCreateOverlay( OV_HOOK_PARAMS* HookParameters )
     {
         OvLog(L"Hooking ddraw...");
         DirectDrawOverlay = new DDrawOverlay(hookParams->RenderFunction);
-    }   
-
-    LeaveCriticalSection(&OvCriticalSection);
+    }
 }
 
 
@@ -181,15 +175,15 @@ void ReplaceVirtualMethod(void **VTable, int Function, void *Detour)
 
 VOID OvLog(const wchar_t* Format, ...)
 {
-	wchar_t buffer[260];
-	wchar_t output[260] = L"[OVRENDER] ";
-	va_list _Arglist;
+    wchar_t buffer[260];
+    wchar_t output[260] = L"[OVRENDER] ";
+    va_list _Arglist;
 
-	_crt_va_start(_Arglist, Format);
-	_vswprintf_c_l(buffer, 260, Format, NULL, _Arglist);
-	_crt_va_end(_Arglist);
+    _crt_va_start(_Arglist, Format);
+    _vswprintf_c_l(buffer, 260, Format, NULL, _Arglist);
+    _crt_va_end(_Arglist);
 
-	wcsncat(output, buffer, 260);
-	OutputDebugStringW(output);
+    wcsncat(output, buffer, 260);
+    OutputDebugStringW(output);
 }
 
