@@ -205,13 +205,6 @@ VOID Dx9OvRender( IDirect3DDevice9* Device )
     if (backBufferDesc.Width != 1 && backBufferDesc.Height != 1)
     {
         Device->SetRenderTarget(0, backBuffer);
-
-        // quick fix for black borders that don't update
-        if (viewport.Height < backBufferDesc.Height)
-        {
-            D3DRECT rec = { 0, 0, backBufferDesc.Width, (backBufferDesc.Height - viewport.Height) / 2 };
-            Device->Clear(1, &rec, D3DCLEAR_TARGET, D3DCOLOR_ARGB(255, 0, 0, 0), 0, 0);
-        }
     }
         
     // Render our stuff.
