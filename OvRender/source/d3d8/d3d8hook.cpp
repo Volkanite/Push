@@ -22,7 +22,7 @@ typedef HRESULT (WINAPI *TYPE_IDirect3DDevice8_Reset) (
     D3DPRESENT_PARAMETERS* pPresentationParameters
     );
 
-VOID Log(const wchar_t* Format, ...);
+VOID OvLog(const wchar_t* Format, ...);
 
 
 
@@ -137,10 +137,10 @@ VOID HookD3D8(
 
 VOID Dx8Hook_Destroy()
 {
-    Log(L"=> DestroyDetourXsHooks()");
+    OvLog(L"=> DestroyDetourXsHooks()");
 
     DetourDestroy(&DetourReset8);
     DetourDestroy(&DetourPresent8);
 
-    Log(L"<= DestroyDetourXsHooks()");
+    OvLog(L"<= DestroyDetourXsHooks()");
 }

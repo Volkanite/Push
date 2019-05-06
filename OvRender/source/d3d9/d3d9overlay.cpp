@@ -25,7 +25,7 @@ ULONG __stdcall CloseAVI(LPVOID Params);
 DWORD InitializeAviFile();
 bool InitFreqUnits();
 
-VOID Log(const wchar_t* Format, ...);
+VOID OvLog(const wchar_t* Format, ...);
 
 
 VOID DebugRec()
@@ -83,7 +83,7 @@ WCHAR* GetVsyncChar( OV_VSYNC_OVERRIDE_MODE Mode )
 VOID UpdatePresentationParameters( D3DPRESENT_PARAMETERS* PresentationParameters )
 {
     // Force vsync?
-    Log(L"UpdatePresentationParameters(%s)", GetVsyncChar(D3D9Overlay->VsyncOverrideMode));
+    OvLog(L"UpdatePresentationParameters(%s)", GetVsyncChar(D3D9Overlay->VsyncOverrideMode));
 
     if (D3D9Overlay->VsyncOverrideMode == VSYNC_FORCE_ON)
     {
@@ -133,7 +133,7 @@ VOID UpdatePresentationParameters( D3DPRESENT_PARAMETERS* PresentationParameters
 
 VOID Dx9Overlay_CreateDevice( D3DPRESENT_PARAMETERS* PresentationParameters )
 {
-    Log(L"Dx9Overlay_CreateDevice()");
+    OvLog(L"Dx9Overlay_CreateDevice()");
     UpdatePresentationParameters(PresentationParameters);
 }
 
@@ -152,7 +152,7 @@ VOID DeleteFont()
 
 VOID Dx9Overlay_Reset( D3DPRESENT_PARAMETERS* PresentationParameters )
 {
-    Log(L"Dx9Overlay_Reset()");
+    OvLog(L"Dx9Overlay_Reset()");
 
     DeleteFont();
     UpdatePresentationParameters(PresentationParameters);
@@ -270,7 +270,7 @@ VOID Dx9Overlay_Present( IDirect3DDevice9* Device )
 
         if (!result)
         {
-            Log(L"Dx9Overlay_Present: Failed to record frame");
+            OvLog(L"Dx9Overlay_Present: Failed to record frame");
         }
 
         DebugRec(); //Put this after RecordFrame() to exclude it from recorded video.
@@ -299,7 +299,7 @@ Dx9Overlay::Dx9Overlay( OV_RENDER RenderFunction )
     hookParams.ResetCallback = Dx9Overlay_Reset;
     hookParams.CreateDeviceCallback = Dx9Overlay_CreateDevice;
 
-    Log(L"Dx9Overlay::Dx9Overlay( => )");
+    OvLog(L"Dx9Overlay::Dx9Overlay( => )");
 
     Dx9Hook_Initialize(&hookParams);
 
@@ -327,7 +327,7 @@ VOID
 Dx9Overlay::DrawText( WCHAR* Text, DWORD Color )
 {
     DrawText(Text, 20, Line, Color);
-    //Log(L"DrawText: %s", Text);
+    //OvLog(L"DrawText: %s", Text);
     dsec++;
     Line += 15;
 }
@@ -349,7 +349,7 @@ Dx9Overlay::Begin()
 VOID
 Dx9Overlay::End()
 {
-    //Log(L"dsec %u", dsec);
+    //OvLog(L"dsec %u", dsec);
 }
 
 

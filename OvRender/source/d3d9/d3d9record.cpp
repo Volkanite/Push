@@ -75,7 +75,7 @@ public:
 #include <d3d9types.h>
 #include <d3d9.h>
 static D3DFORMAT s_bbFormat;
-VOID Log(const wchar_t* Format, ...);
+VOID OvLog(const wchar_t* Format, ...);
 extern IDirect3DDevice9* Dx9OvDevice;
 #include "d3d9overlay.h"
 extern Dx9Overlay* D3D9Overlay;
@@ -127,7 +127,7 @@ HRESULT CVideoFrame::SaveAsBMP(WCHAR* pszFileName) const
     if (File == INVALID_HANDLE_VALUE)
     {
         HRESULT hRes = GetLastError();
-        Log(L"CVideoFrame::SaveAsBMP: FAILED save to file. 0x%x", hRes);
+        OvLog(L"CVideoFrame::SaveAsBMP: FAILED save to file. 0x%x", hRes);
         return hRes;    // 
     }
 
@@ -279,7 +279,7 @@ HRESULT GetFrame(CVideoFrame& frame, bool bHalfSize)
 
     if (FAILED(hRes))
     {
-        Log(L"GetFramePrep: FAILED to get back-buffer 0x%x", hRes);
+        OvLog(L"GetFramePrep: FAILED to get back-buffer 0x%x", hRes);
         return hRes;
     }
 
@@ -297,7 +297,7 @@ HRESULT GetFrame(CVideoFrame& frame, bool bHalfSize)
     case D3DFMT_X1R5G5B5:
         break;
     default:
-        Log(L"GetFrameFullSize: surface format=0x%x not supported.", s_bbFormat);
+        OvLog(L"GetFrameFullSize: surface format=0x%x not supported.", s_bbFormat);
         return HRESULT_FROM_WIN32(ERROR_CTX_BAD_VIDEO_MODE);
     }
 
@@ -312,7 +312,7 @@ HRESULT GetFrame(CVideoFrame& frame, bool bHalfSize)
 
     if (FAILED(hRes))
     {
-        Log(L"GetFramePrep: FAILED to create image surface. 0x%x", hRes);
+        OvLog(L"GetFramePrep: FAILED to create image surface. 0x%x", hRes);
         return hRes;
     }
 
@@ -324,7 +324,7 @@ HRESULT GetFrame(CVideoFrame& frame, bool bHalfSize)
         // The render target is multisampled.
         // The source render target is a different size than the destination surface.
         // The source render target and destination surface formats do not match.
-        Log(L"GetFramePrep: GetRenderTargetData() FAILED for image surface.(0x%x)", hRes);
+        OvLog(L"GetFramePrep: GetRenderTargetData() FAILED for image surface.(0x%x)", hRes);
         return hRes;
     }
 
@@ -336,12 +336,12 @@ HRESULT GetFrame(CVideoFrame& frame, bool bHalfSize)
 
     if (FAILED(hRes))
     {
-        Log(L"GetFramePrep: FAILED to lock source rect. (0x%x)", hRes);
+        OvLog(L"GetFramePrep: FAILED to lock source rect. (0x%x)", hRes);
         return hRes;
     }
     // If a capture is successful, colors other than black(0x00000000) should enter. 
     /*for (int i = 0; i < 100; i++){
-        Log(L"%02X ", *((BYTE*)lockedSrcRect.pBits + i));
+        OvLog(L"%02X ", *((BYTE*)lockedSrcRect.pBits + i));
     }*/
     //CLOCK_STOP(b, "CTaksiDX9::LockRect clock=%d");
 
@@ -379,7 +379,7 @@ HRESULT MakeScreenShot(bool bHalfSize)
 
     if (FAILED(hRes))
     {
-        Log(L"MakeScreenShot: unable to get RGB-data. 0%x", hRes);
+        OvLog(L"MakeScreenShot: unable to get RGB-data. 0%x", hRes);
         return hRes;
     }
 
@@ -391,12 +391,12 @@ HRESULT MakeScreenShot(bool bHalfSize)
     hRes = frame.SaveAsBMP(szFileName);
     if (FAILED(hRes))
     {
-        Log(L"MakeScreenShot(%d) SaveAsBMP '%s' failed. 0%x",
+        OvLog(L"MakeScreenShot(%d) SaveAsBMP '%s' failed. 0%x",
             bHalfSize, szFileName, hRes);
         return hRes;
     }
 
-    Log(L"MakeScreenShot(%d) '%s' OK", bHalfSize, szFileName);
+    OvLog(L"MakeScreenShot(%d) '%s' OK", bHalfSize, szFileName);
 
     return S_OK;
 }
@@ -644,7 +644,7 @@ int InitFileHeader(AVI_FILE_HEADER& afh)
 {
     // build the AVI file header structure
 
-    Log(L"CAVIFile:InitFileHeader framerate=%g", RECORD_FRAMERATE);
+    OvLog(L"CAVIFile:InitFileHeader framerate=%g", RECORD_FRAMERATE);
     ZeroMemory(&afh, sizeof(afh));
 
     afh.fccRiff = FOURCC_RIFF; // "RIFF"
@@ -784,7 +784,7 @@ void CAVIIndex::FlushIndexChunk(HANDLE hFile)
             p = q;
             iCount++;
         }
-        Log(L"CAVIIndex::FlushIndex() %d", iCount);
+        OvLog(L"CAVIIndex::FlushIndex() %d", iCount);
     }
 
     m_dwFramesTotal = 0;
@@ -810,7 +810,7 @@ DWORD InitializeAviFile()
     if (AviFileHandle == INVALID_HANDLE_VALUE)
     {
         HRESULT hRes = GetLastError();
-        Log(L"CVideoFrame::SaveAsBMP: FAILED save to file. 0x%x", hRes);
+        OvLog(L"CVideoFrame::SaveAsBMP: FAILED save to file. 0x%x", hRes);
         return hRes;    // 
     }
 
@@ -822,7 +822,7 @@ DWORD InitializeAviFile()
     if (dwBytesWritten != sizeof(afh))
     {
         HRESULT hRes = GetLastError();
-        Log(L"CAVIFile:OpenAVIFile WriteFile FAILED %d", hRes);
+        OvLog(L"CAVIFile:OpenAVIFile WriteFile FAILED %d", hRes);
         return hRes;
     }
 
@@ -907,7 +907,7 @@ DWORD WriteVideoFrame( CVideoFrame& frame, int FrameDups )
 {
     if (AviFileHandle == INVALID_HANDLE_VALUE)
     {
-        Log(L"Invalid AVI file handle");
+        OvLog(L"Invalid AVI file handle");
         return 0;
     }
 
@@ -939,7 +939,7 @@ DWORD WriteVideoFrame( CVideoFrame& frame, int FrameDups )
         if (dwBytesWritten != sizeof(dwTags))
         {
             DWORD error = GetLastError();
-            Log(L"CAVIFile:WriteVideoFrame:WriteFile FAIL=0x%x", error);
+            OvLog(L"CAVIFile:WriteVideoFrame:WriteFile FAIL=0x%x", error);
             return error;
         }
 
@@ -985,11 +985,11 @@ bool InitFreqUnits()
     LARGE_INTEGER freq = { 0, 0 };
     if (::QueryPerformanceFrequency(&freq))
     {
-        Log(L"QueryPerformanceFrequency hi=%u, lo=%u", freq.HighPart, freq.LowPart);
+        OvLog(L"QueryPerformanceFrequency hi=%u, lo=%u", freq.HighPart, freq.LowPart);
     }
     else
     {
-        Log(L"QueryPerformanceFrequency FAILED!");
+        OvLog(L"QueryPerformanceFrequency FAILED!");
         m_dwFreqUnits = 0;
         return false;   // this cant work!
     }
@@ -1063,7 +1063,7 @@ bool RecordFrame()
 
     if (FAILED(hRes))
     {
-        Log(L"RecordFrame: unable to get RGB-data. 0%x", hRes);
+        OvLog(L"RecordFrame: unable to get RGB-data. 0%x", hRes);
         return false;
     }
 
@@ -1072,7 +1072,7 @@ bool RecordFrame()
 
     if (result != ERROR_SUCCESS)
     {
-        Log(L"RecordFrame: failed to write video frame. 0x%x", result);
+        OvLog(L"RecordFrame: failed to write video frame. 0x%x", result);
         return false;
     }
 

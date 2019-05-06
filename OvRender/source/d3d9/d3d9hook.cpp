@@ -193,7 +193,7 @@ DWORD64 FindPattern64(WCHAR* Module, char pattern[], char mask[]);
 
 void ReplaceVirtualMethod(void **VTable, int Function, void *Detour);
 VOID ReplaceVirtualMethods(IDirect3DDevice9* Device);
-VOID Log(const wchar_t* Format, ...);
+VOID OvLog(const wchar_t* Format, ...);
 
 
 HRESULT __stdcall IDirect3DDevice9_Present_Detour(
@@ -211,7 +211,7 @@ HRESULT __stdcall IDirect3DDevice9_Present_Detour(
     {
         init = TRUE;
 
-        Log(L"Hook called @ IDirect3DDevice9_Present");
+        OvLog(L"Hook called @ IDirect3DDevice9_Present");
     }
 
     Dx9Hook_Present( Device );
@@ -249,7 +249,7 @@ HRESULT __stdcall IDirect3DDevice9Ex_PresentEx_Detour(
     {
         init = TRUE;
 
-        Log(L"Hook called @ IDirect3DDevice9Ex_PresentEx");
+        OvLog(L"Hook called @ IDirect3DDevice9Ex_PresentEx");
     }
 
     Dx9Hook_Present( Device );
@@ -290,7 +290,7 @@ HRESULT __stdcall IDirect3DSwapChain9_Present_Detour(
     {
         init = TRUE;
 
-        Log(L"Hook called @ IDirect3DSwapChain9_Present");
+        OvLog(L"Hook called @ IDirect3DSwapChain9_Present");
     }
     
     if (!backupSwap || !device)
@@ -504,7 +504,7 @@ VOID ApplyDetourXsHooks( IDirect3DDevice9Ex* Device )
 {
     VOID **virtualMethodTable;
     
-    Log(L"=> ApplyDetourXsHooks()");
+    OvLog(L"=> ApplyDetourXsHooks()");
     
     virtualMethodTable = (VOID**)Device;
     virtualMethodTable = (VOID**)virtualMethodTable[0];
@@ -548,34 +548,34 @@ VOID ApplyDetourXsHooks( IDirect3DDevice9Ex* Device )
     //Dx9Hook_IDirect3D9_CreateDevice = (TYPE_IDirect3D9_CreateDevice)detour->GetTrampoline();
 #endif
 
-    Log(L"<= ApplyDetourXsHooks()");
+    OvLog(L"<= ApplyDetourXsHooks()");
 }
 
 
 VOID DestroyDetourXsHooks()
 {
-    Log(L"=> DestroyDetourXsHooks()");
+    OvLog(L"=> DestroyDetourXsHooks()");
 
-    Log(L"destroying DetourTestCooperativeLevel @0x%X", DetourTestCooperativeLevel);
+    OvLog(L"destroying DetourTestCooperativeLevel @0x%X", DetourTestCooperativeLevel);
     //DebugBreak();
     DetourDestroy(&DetourTestCooperativeLevel);
 
-    Log(L"destroying DetourReset");
+    OvLog(L"destroying DetourReset");
     DetourDestroy(&DetourReset);
 
-    Log(L"destroying DetourPresent");
+    OvLog(L"destroying DetourPresent");
     DetourDestroy(&DetourPresent);
 
-    Log(L"destroying DetourResetEx");
+    OvLog(L"destroying DetourResetEx");
     DetourDestroy(&DetourResetEx);
 
-    Log(L"destroying DetourPresentEx");
+    OvLog(L"destroying DetourPresentEx");
     DetourDestroy(&DetourPresentEx);
 
-    Log(L"destroying DetourSwapChainPresent");
+    OvLog(L"destroying DetourSwapChainPresent");
     DetourDestroy(&DetourSwapChainPresent);
 
-    Log(L"<= DestroyDetourXsHooks()");
+    OvLog(L"<= DestroyDetourXsHooks()");
 }
 
 
@@ -591,10 +591,10 @@ IDirect3DDevice9Ex* FindDevice(VOID)
 #ifdef _M_IX86
     pattern = FindPattern(L"d3d9.dll", PATT_CD3DHAL_VFTABLE_x86, MASK_CD3DHAL_VFTABLE_x86);
     pattern += 2;
-    Log(L"device: 0x%X", pattern);
+    OvLog(L"device: 0x%X", pattern);
 #else
     pattern = FindPattern64(L"d3d9.dll", PATT_CD3DHAL_VFTABLE_x64, MASK_CD3DHAL_VFTABLE_x64);
-    Log(L"device: 0x%llX", pattern);
+    OvLog(L"device: 0x%llX", pattern);
 #endif
 
     return (IDirect3DDevice9Ex*) pattern;
@@ -717,8 +717,8 @@ HRESULT __stdcall  DirectInput8Create_Detour(
 
         di = (LPDIRECTINPUT8A) (DWORD)*((DWORD*)*ppvOut);
 
-        //Log(L"di 0x%x", di);
-        //Log(L"dwFuncTable 0x%x!", dwFuncTable);
+        //OvLog(L"di 0x%x", di);
+        //OvLog(L"dwFuncTable 0x%x!", dwFuncTable);
 
         VOID **virtualMethodTable;
 
@@ -775,11 +775,11 @@ VOID Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
 
     if (!func)
     {
-        Log(L"not DirectInput8Create!");
+        OvLog(L"not DirectInput8Create!");
         return;
     }
 
-    Log(L"got DirectInput8Create...");
+    OvLog(L"got DirectInput8Create...");
 
     DetourCreate((VOID*)func, DirectInput8Create_Detour, &dinptdt);
     D3D9Hook_DirectInput8Create = (TYPE_DirectInput8Create) dinptdt.Trampoline;

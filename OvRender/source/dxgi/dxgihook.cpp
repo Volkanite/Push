@@ -31,7 +31,7 @@ HK_IDXGISWAPCHAIN_CALLBACK HkIDXGISwapChain_PresentCallback;
 HK_IDXGISWAPCHAIN_CALLBACK HkIDXGISwapChain_ResizeBuffersCallback;
 
 
-VOID Log(const wchar_t* Format, ...);
+VOID OvLog(const wchar_t* Format, ...);
 DWORD FindPattern(WCHAR* Module, char pattern[], char mask[]);
 DWORD64 FindPattern64(WCHAR* Module, char pattern[], char mask[]);
 void ReplaceVirtualMethod(void **VTable, int Function, void *Detour);
@@ -49,7 +49,7 @@ HRESULT __stdcall IDXGISwapChain_PresentHook(
     {
         init = TRUE;
 
-        Log(L"Hook called @ IDXGISwapChain_Present");
+        OvLog(L"Hook called @ IDXGISwapChain_Present");
     }
 
     if (HkIDXGISwapChain_PresentCallback)
@@ -145,7 +145,7 @@ IDXGISwapChain* BuildDevice()
 
     if (!classy)
     {
-        Log(L"RegisterClassExW failed with 0x%i", GetLastError());
+        OvLog(L"RegisterClassExW failed with 0x%i", GetLastError());
         return NULL;
     }
 
@@ -163,7 +163,7 @@ IDXGISwapChain* BuildDevice()
 
     if (!windowHandle)
     {
-        Log(L"CreateWindowExW failed with 0x%i", GetLastError());
+        OvLog(L"CreateWindowExW failed with 0x%i", GetLastError());
         return NULL;
     }
 
@@ -183,7 +183,7 @@ IDXGISwapChain* BuildDevice()
 
     if (FAILED(hr))
     {
-        Log(L"IDXGIFactory::CreateSwapChain failed! hr=0x%X",hr);
+        OvLog(L"IDXGIFactory::CreateSwapChain failed! hr=0x%X",hr);
         return NULL;
     }
 
@@ -208,9 +208,9 @@ VOID* FindDevice()
     DWORD64 base = (DWORD64)LoadLibraryW(L"dxgi.dll");
 
     pattern = base + 0x5AE0;
-    Log(L"pattern 0x%llX", pattern);
+    OvLog(L"pattern 0x%llX", pattern);
     vmt = (VOID**)pattern;
-    Log(L"vmt[8].new 0x%llX", vmt[8]);
+    OvLog(L"vmt[8].new 0x%llX", vmt[8]);
     return (VOID*)pattern;
 #endif
 }

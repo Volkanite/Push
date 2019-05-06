@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <OvRender.h>
+#include <stdio.h>
 
 #include "d3d8\d3d8overlay.h"
 #include "d3d9\d3d9overlay.h"
@@ -55,27 +56,27 @@ VOID OvCreateOverlay( OV_HOOK_PARAMS* HookParameters )
 
     if ((flags & OV_D3D8) && D3D8Overlay == NULL)
     {
-        Log(L"Hooking d3d8...");
+        OvLog(L"Hooking d3d8...");
         D3D8Overlay = new Dx8Overlay(hookParams->RenderFunction);
     }
 
     if ((flags & OV_D3D9) && D3D9Overlay == NULL)
     {
-        Log(L"Hooking d3d9...");
+        OvLog(L"Hooking d3d9...");
         D3D9Overlay = new Dx9Overlay( hookParams->RenderFunction );
         SetOverlayProperties(D3D9Overlay, hookParams);
     }
 
     if ((flags & OV_DXGI) && DXGIOverlay == NULL)
     {
-        Log(L"Hooking dxgi...");
+        OvLog(L"Hooking dxgi...");
         DXGIOverlay = new DxgiOverlay(hookParams->RenderFunction);
         SetOverlayProperties(DXGIOverlay, hookParams);
     }
 
     if ((flags & OV_DDRAW) && DirectDrawOverlay == NULL)
     {
-        Log(L"Hooking ddraw...");
+        OvLog(L"Hooking ddraw...");
         DirectDrawOverlay = new DDrawOverlay(hookParams->RenderFunction);
     }   
 
@@ -175,5 +176,20 @@ void ReplaceVirtualMethod(void **VTable, int Function, void *Detour)
     VirtualProtect(&(VTable[Function]), sizeof(void*), PAGE_EXECUTE_READWRITE, &old);
     VTable[Function] = Detour;
     VirtualProtect(&(VTable[Function]), sizeof(void*), old, &old);
+}
+
+
+VOID OvLog(const wchar_t* Format, ...)
+{
+	wchar_t buffer[260];
+	wchar_t output[260] = L"[OVRENDER] ";
+	va_list _Arglist;
+
+	_crt_va_start(_Arglist, Format);
+	_vswprintf_c_l(buffer, 260, Format, NULL, _Arglist);
+	_crt_va_end(_Arglist);
+
+	wcsncat(output, buffer, 260);
+	OutputDebugStringW(output);
 }
 
