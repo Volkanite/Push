@@ -4,7 +4,9 @@
 #include <hexus.h>
 
 #include "dxgihook.h"
+
 #pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "d3d10.lib")
 
 
 typedef HRESULT (__stdcall* TYPE_IDXGISwapChain_Present) (
