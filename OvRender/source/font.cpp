@@ -259,7 +259,7 @@ VOID AddSprite( Sprite *sprite )
     if ( (NumberOfSprites + 1) * sizeof(Sprite) > SpriteListSize )
         // resize sprite list
     {
-        Sprites = (Sprite*) RtlReAllocateHeap(
+        Sprites = (Sprite*) HeapReAlloc(
             HeapHandle,
             HEAP_GENERATE_EXCEPTIONS,
             Sprites,
