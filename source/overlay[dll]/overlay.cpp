@@ -183,6 +183,7 @@ HINSTANCE OverlayInstance;
 HHOOK Hook;
 WCHAR ModuleName[260];
 BOOLEAN Guard;
+void HookDirectInput();
 
 LRESULT CALLBACK OverlayCBTProc(
     _In_ int    nCode,
@@ -209,6 +210,7 @@ LRESULT CALLBACK OverlayCBTProc(
         hookParams.InterfaceFlags = GetOverlayMask();
 
         OvCreateOverlay(&hookParams);
+        //HookDirectInput();
         Guard = FALSE;
     }
     

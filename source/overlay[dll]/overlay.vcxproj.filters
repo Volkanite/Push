@@ -59,5 +59,8 @@
     <ClCompile Include="..\..\resources\hexus\hde\hde32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="dinputhook.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

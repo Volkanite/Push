@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\resources\hexus\hde\hde32.c" />
     <ClCompile Include="..\..\resources\hexus\hexus.c" />
+    <ClCompile Include="dinputhook.cpp" />
     <ClCompile Include="kbhook.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="osd.cpp" />
