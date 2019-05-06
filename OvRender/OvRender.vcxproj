@@ -85,7 +85,7 @@
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)$(PlatformArchitecture)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\sl;$(ProjectDir)resources\d3dx;$(SolutionDir)resources\detourXS;$(ProjectDir)source;$(ProjectDir)source\d3d11;$(ProjectDir)source\d3d10;$(ProjectDir)source\d3d9;$(ProjectDir)source\d3d8;$(ProjectDir)source\dxgi;$(ProjectDir)..\resources\d3dx;$(ProjectDir)inc;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)resources\Effects11\Inc;$(SolutionDir)resources\sl;$(ProjectDir)resources\d3dx;$(SolutionDir)resources\hexus;$(ProjectDir)source;$(ProjectDir)source\d3d11;$(ProjectDir)source\d3d10;$(ProjectDir)source\d3d9;$(ProjectDir)source\d3d8;$(ProjectDir)source\dxgi;$(ProjectDir)..\resources\d3dx;$(ProjectDir)inc;$(IncludePath)</IncludePath>
     <TargetName>OvRender</TargetName>
     <LibraryPath>$(SolutionDir)$(Configuration);$(DXSDK_DIR)Lib\x86;$(SolutionDir)resources\sl\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\</OutDir>

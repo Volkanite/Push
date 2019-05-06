@@ -70,7 +70,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)$(PlatformArchitecture)\</IntDir>
-    <IncludePath>$(SolutionDir)OvRender\inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\detourXS;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)OvRender\inc;$(SolutionDir)resources\sl;$(SolutionDir)resources\hexus;$(ProjectDir);$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)resources\sl\lib\AMD64;$(SolutionDir)bin;$(SolutionDir)resources\detourXS;$(DXSDK_DIR)lib\x64;$(LibraryPath)</LibraryPath>
     <TargetName>overlay64</TargetName>
   </PropertyGroup>

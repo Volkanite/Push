@@ -215,7 +215,7 @@ void* DetourCreate( LPVOID FunctionOrig,  LPVOID FunctionDetour, DETOUR_PROPERTI
 }
 
 
-BOOL DetourDestroy(DETOUR_PROPERTIES* Properties)
+BOOL DetourDestroy( DETOUR_PROPERTIES* Properties )
 {
     DWORD dwProt = 0;
 
@@ -224,7 +224,7 @@ BOOL DetourDestroy(DETOUR_PROPERTIES* Properties)
     memcpy(Properties->Origin, Properties->Trampoline, Properties->Length);
     VirtualProtect(Properties->Origin, Properties->Length, dwProt, &dwProt);
 
-    //m_trampoline.clear();
+    HeapFree(GetProcessHeap(), 0, Properties->Trampoline);
     Properties->Length = 0;
     return TRUE;
 }
