@@ -84,56 +84,6 @@ GetAlpha( DWORD Argb )
 }
 
 
-INT32 GetCharMinX( GpBitmap *bitmap )
-{
-    UINT width, height;
-    UINT x, y;
-
-    GdipGetImageWidth( (GpImage*) bitmap, &width );
-    GdipGetImageHeight( (GpImage*) bitmap, &height );
-
-    for( x = 0; x < width; ++x )
-    {
-        for( y = 0; y < height; ++y )
-        {
-            DWORD color;
-
-            GdipBitmapGetPixel(bitmap, x, y, &color);
-
-            if ( GetAlpha(color) > 0 )
-                 return x;
-        }
-    }
-
-    return 0;
-}
-
-
-INT32 GetCharMaxX( GpBitmap *bitmap )
-{
-    UINT width, height;
-    UINT x, y;
-
-    GdipGetImageWidth( (GpImage*) bitmap, &width);
-    GdipGetImageHeight( (GpImage*) bitmap, &height);
-
-    for( x = width - 1; x >= 0; --x )
-    {
-        for( y = 0; y < height; ++y )
-        {
-            DWORD color;
-
-            GdipBitmapGetPixel(bitmap, x, y, &color);
-
-            if ( GetAlpha(color) > 0 )
-                 return x;
-        }
-    }
-
-    return width - 1;
-}
-
-
 BOOLEAN Dx11Font::InitD3D11Sprite( )
 {
     WORD indices[3072];
