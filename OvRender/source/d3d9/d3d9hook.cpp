@@ -452,7 +452,7 @@ DETOUR_PROPERTIES DetourPresentEx;
 DETOUR_PROPERTIES DetourSwapChainPresent;
 
 
-VOID ApplyDetourXsHooks( IDirect3DDevice9Ex* Device )
+VOID ApplyDetourXsHooks( IDirect3DDevice9Ex* Device, BOOLEAN vTable )
 {
     VOID **virtualMethodTable;
     
@@ -478,18 +478,21 @@ VOID ApplyDetourXsHooks( IDirect3DDevice9Ex* Device )
 
 #ifdef _M_IX86
 
-    IDirect3DSwapChain9 *swapChain;
-    HRESULT result;
-
-    result = Device->GetSwapChain(0, &swapChain);
-
-    if (result == S_OK)
+    if (!vTable)
     {
-        virtualMethodTable = (VOID**)swapChain;
-        virtualMethodTable = (VOID**)virtualMethodTable[0];
+        IDirect3DSwapChain9 *swapChain;
+        HRESULT result;
 
-        DetourCreate((VOID*)virtualMethodTable[3], IDirect3DSwapChain9_Present_Detour, &DetourSwapChainPresent);
-        D3D9Hook_IDirect3DSwapChain9_Present = (TYPE_IDirect3DSwapChain9_Present)DetourSwapChainPresent.Trampoline;
+        result = Device->GetSwapChain(0, &swapChain);
+
+        if (result == S_OK)
+        {
+            virtualMethodTable = (VOID**)swapChain;
+            virtualMethodTable = (VOID**)virtualMethodTable[0];
+
+            DetourCreate((VOID*)virtualMethodTable[3], IDirect3DSwapChain9_Present_Detour, &DetourSwapChainPresent);
+            D3D9Hook_IDirect3DSwapChain9_Present = (TYPE_IDirect3DSwapChain9_Present)DetourSwapChainPresent.Trampoline;
+        }
     }
 
     //vmt = (VOID**) d3d9ex;
@@ -595,6 +598,8 @@ IDirect3DDevice9Ex* BuildDevice()
         &device
         );
 
+    OvLog(L"CreateDeviceEx 0x%X", result);
+
     if (FAILED(result))
         return NULL;
 
@@ -605,12 +610,21 @@ IDirect3DDevice9Ex* BuildDevice()
 VOID Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
 {
     IDirect3DDevice9Ex *device;
+    BOOLEAN vtable = FALSE;
 
     Dx9Hook_Present = HookParams->PresentCallback;
     Dx9Hook_Reset = HookParams->ResetCallback;
     Dx9Hook_CreateDevice = HookParams->CreateDeviceCallback;
 
     device = BuildDevice();
+
+    if (!device)
+    {
+        OvLog(L"Building device failed, using code pattern!");
+
+        vtable = TRUE;
+        device = FindDevice();
+    }
     
     // if fail then no hooks for you.
     if (!device)
@@ -622,7 +636,7 @@ VOID Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
     }
     else if (D3D9Hook_HookMethod == HOOK_METHOD_DETOUR)
     {
-        ApplyDetourXsHooks(device);
+        ApplyDetourXsHooks(device, vtable);
     }
 }
 
