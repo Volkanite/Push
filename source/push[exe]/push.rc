@@ -1,4 +1,3 @@
 PUSH_ICON   ICON		"push.ico"
 OVERLAY32   OVERLAY32	"..\..\bin\overlay32.dll"
 OVERLAY64   OVERLAY64	"..\..\bin\overlay64.dll"
-DRIVERALT	DRIVERALT	"..\..\\resources\WinRing0\WinRing0x64.sys"

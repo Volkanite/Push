@@ -157,6 +157,7 @@
     <ClCompile Include="Hardware\wr0.c">
       <Filter>Hardware</Filter>
     </ClCompile>
+    <ClCompile Include="wr0shell.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\cache.h">

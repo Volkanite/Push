@@ -68,6 +68,7 @@
     <ClCompile Include="ring0.c" />
     <ClCompile Include="slgui.c" />
     <ClCompile Include="string.c" />
+    <ClCompile Include="wr0shell.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="batch.h" />
