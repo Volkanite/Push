@@ -188,7 +188,7 @@ typedef INT32(*TYPE_NvAPI_GPU_GetTachReading)(HANDLE PhysicalGPU, UINT32* pValue
 
 
 BOOLEAN Nvapi_Initialize();
-UINT8 Nvapi_GetActivity();
+UINT8 Nvapi_GetLoad();
 UINT16 Nvapi_GetEngineClock();
 UINT16 Nvapi_GetMemoryClock();
 UINT16 Nvapi_GetMaxEngineClock();

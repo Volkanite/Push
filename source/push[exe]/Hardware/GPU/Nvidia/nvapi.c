@@ -50,7 +50,7 @@ BOOLEAN Nvapi_Initialize()
 }
 
 
-UINT8 Nvapi_GetActivity()
+UINT8 Nvapi_GetLoad()
 {
     NV_USAGES usages;
 

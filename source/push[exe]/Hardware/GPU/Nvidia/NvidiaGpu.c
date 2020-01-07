@@ -111,7 +111,7 @@ UINT64 NvidiaGpu_GetFreeMemory()
 
 UINT8 NvidiaGpu_GetLoad()
 {
-    return OpenNvapi_GetLoad();
+    return Nvapi_GetLoad();
 }
 
 
