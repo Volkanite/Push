@@ -1218,6 +1218,51 @@ VOID ProcessEnum( SYSTEM_PROCESS_INFORMATION* ProcessInformation )
     }
 }
 
+extern unsigned char WinRing0x64Shell[1];
+
+BOOLEAN DropWinRing0( WCHAR* OutputPath )
+{
+	NTSTATUS status;
+	HANDLE fileHandle;
+	IO_STATUS_BLOCK isb;
+
+	status = File_Create(
+		&fileHandle,
+		OutputPath,
+		FILE_READ_ATTRIBUTES | GENERIC_READ | GENERIC_WRITE | SYNCHRONIZE,
+		FILE_SHARE_READ | FILE_SHARE_WRITE,
+		FILE_CREATE,
+		FILE_NON_DIRECTORY_FILE | FILE_SYNCHRONOUS_IO_NONALERT,
+		NULL
+		);
+
+	if (!NT_SUCCESS(status))
+	{
+		return FALSE;
+	}
+
+	status = NtWriteFile(
+		fileHandle,
+		NULL,
+		NULL,
+		NULL,
+		&isb,
+		WinRing0x64Shell,
+		14544,
+		NULL,
+		NULL
+		);
+
+	if (!NT_SUCCESS(status))
+	{
+		return FALSE;
+	}
+
+	NtClose(fileHandle);
+
+	return TRUE;
+}
+
 
 INT32 __stdcall start( )
 {
@@ -1404,7 +1449,8 @@ INT32 __stdcall start( )
     {
         wchar_t driverPath[260];
 
-        Resource_Extract(L"DRIVERALT", L"WinRing0x64.sys");
+        //Resource_Extract(L"DRIVERALT", L"WinRing0x64.sys");
+		DropWinRing0(L"WinRing0x64.sys");
         GetDriverPath(L"WinRing0x64.sys", driverPath);
         Wr0DriverLoaded = Wr0Initialize(driverPath);
     }
