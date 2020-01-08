@@ -93,7 +93,8 @@ UINT16 NvidiaGpu_GetMemoryClock()
 
 UINT8 NvidiaGpu_GetTemperature()
 {
-    return ReadGpuRegister(0x20400);
+    //return ReadGpuRegister(0x20400);
+	return Nvapi_GetTemperature();
 }
 
 

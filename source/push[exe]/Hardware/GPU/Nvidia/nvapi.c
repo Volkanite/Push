@@ -152,7 +152,9 @@ UINT64 Nvapi_GetFreeMemory()
 
 UINT8 Nvapi_GetTemperature()
 {
-    NV_GPU_THERMAL_SETTINGS thermalInfo = {0};
+	NV_GPU_THERMAL_SETTINGS thermalInfo;
+
+	Memory_Clear(&thermalInfo, sizeof(NV_GPU_THERMAL_SETTINGS));
 
     thermalInfo.Version = sizeof(NV_GPU_THERMAL_SETTINGS) | 0x20000;
     thermalInfo.Count = 0;
