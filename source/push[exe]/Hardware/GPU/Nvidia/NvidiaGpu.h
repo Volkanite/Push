@@ -8,6 +8,7 @@ UINT16 NvidiaGpu_GetMemoryClockMax();
 UINT8 NvidiaGpu_GetTemperature();
 UINT8 NvidiaGpu_GetLoad();
 UINT16 NvidiaGpu_GetFanSpeed();
+UINT16 NvidiaGpu_GetFanDutyCycle();
 UINT64 NvidiaGpu_GetTotalMemory();
 UINT64 NvidiaGpu_GetFreeMemory();
 UINT16 NvidiaGpu_GetVoltage();

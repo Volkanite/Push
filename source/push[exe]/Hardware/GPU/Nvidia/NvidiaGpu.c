@@ -138,7 +138,14 @@ UINT16 NvidiaGpu_GetVoltage()
     return Nvapi_GetVoltage();
 }
 
+
 UINT16 NvidiaGpu_GetFanSpeed()
 {
     return Nvapi_GetFanSpeed();
+}
+
+
+UINT16 NvidiaGpu_GetFanDutyCycle()
+{
+	return Nvapi_GetFanDutyCycle();
 }

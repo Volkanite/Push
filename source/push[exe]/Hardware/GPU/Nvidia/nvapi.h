@@ -174,6 +174,34 @@ typedef struct _NV_VOLTAGES
 } NV_VOLTAGES;
 
 
+typedef struct _NV_GPU_COOLER_SETTINGS_COOLER
+{
+	INT32 Type;
+	INT32 Controller;
+	UINT32 DefaultMinLevel;
+	UINT32 DefaultMaxLevel;
+	UINT32 CurrentMinLevel;
+	UINT32 CurrentMaxLevel;
+	UINT32 CurrentLevel;
+	INT32 DefaultPolicy;
+	INT32 CurrentPolicy;
+	INT32 Target;
+	INT32 ControlType;
+	INT32 Active;
+
+}NV_GPU_COOLER_SETTINGS_COOLER;
+
+#define NVAPI_MAX_COOLER_PER_GPU 20
+
+typedef struct _NV_GPU_COOLER_SETTINGS_V1
+{
+	UINT32 Version;
+	UINT32 Count;
+	NV_GPU_COOLER_SETTINGS_COOLER Cooler[NVAPI_MAX_COOLER_PER_GPU];
+
+}NV_GPU_COOLER_SETTINGS_V1;
+
+
 typedef INT32 *(*TYPE_NvAPI_QueryInterface)(UINT32 offset);
 typedef INT32(*TYPE_NvAPI_Initialize)();
 typedef INT32(*TYPE_NvAPI_EnumPhysicalGPUs)(INT32 **handles, INT32* count);
@@ -184,6 +212,7 @@ typedef INT32(*TYPE_NvAPI_GPU_GetPstatesInfo)(HANDLE GpuHandle, NV_GPU_PERF_PSTA
 typedef INT32(*TYPE_NvAPI_GPU_GetThermalSettings)(HANDLE PhysicalGpu, UINT32 SensorIndex, NV_GPU_THERMAL_SETTINGS* ThermalSettings);
 typedef INT32(*TYPE_NvAPI_GPU_GetVoltages)(HANDLE PhysicalGPU, NV_VOLTAGES* pPerfVoltages);
 typedef INT32(*TYPE_NvAPI_GPU_GetTachReading)(HANDLE PhysicalGPU, UINT32* pValue);
+typedef INT32(*TYPE_NvAPI_GPU_GetCoolerSettings)(HANDLE PhysicalGPU, UINT32 CoolerIndex, NV_GPU_COOLER_SETTINGS_V1* CoolerInfo);
 
 
 
@@ -198,4 +227,5 @@ UINT64 Nvapi_GetFreeMemory();
 UINT8  Nvapi_GetTemperature();
 UINT32 Nvapi_GetVoltage();
 UINT32 Nvapi_GetFanSpeed();
+UINT32 Nvapi_GetFanDutyCycle();
 VOID Nvapi_ForceMaximumClocks();

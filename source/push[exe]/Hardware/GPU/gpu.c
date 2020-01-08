@@ -89,8 +89,8 @@ VOID GPU_GetInfo( GPU_INFO* Info )
         Info->MemoryClock = NvidiaGpu_GetMemoryClock();
         Info->Load = NvidiaGpu_GetLoad();
         Info->Temperature = NvidiaGpu_GetTemperature();
-        Info->FanSpeed = 0;
-        Info->FanDutyCycle = NvidiaGpu_GetFanSpeed();
+		Info->FanSpeed = NvidiaGpu_GetFanSpeed();
+		Info->FanDutyCycle = NvidiaGpu_GetFanDutyCycle();
 
         total = NvidiaGpu_GetTotalMemory();
         free = NvidiaGpu_GetFreeMemory();
