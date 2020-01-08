@@ -15,6 +15,7 @@ BOOL OpenDriver();
 
 
 #define SC_HANDLE HANDLE
+#define ERROR_PATH_NOT_FOUND             3L
 #define ERROR_SERVICE_EXISTS             1073L
 #define ERROR_SERVICE_ALREADY_RUNNING    1056L
 #define SERVICE_CONTROL_STOP                   0x00000001
@@ -25,6 +26,7 @@ BOOL __stdcall DeleteService(
 
 HANDLE gHandle = INVALID_HANDLE_VALUE;
 BOOLEAN Wr0DriverLoaded;
+VOID ChangeDriverPath(WCHAR* DriverId, WCHAR* NewPath);
 
 
 //-----------------------------------------------------------------------------
@@ -42,9 +44,26 @@ BOOL Wr0Initialize( WCHAR* DriverPath )
     //IsWow64Process(GetCurrentProcess(), &bIsWow64);
     //if (bIsWow64)InstallDriver(DRIVER_ID, DRIVER_x64);
     //else InstallDriver(DRIVER_ID, DRIVER_x86);
-    if (Wr0InstallDriver(DRIVER_ID, DriverPath))
-    if (StartDriver(DRIVER_ID))
-    if (OpenDriver())return TRUE;
+
+	if (Wr0InstallDriver(DRIVER_ID, DriverPath))
+	{
+		UINT32 result;
+
+		result = StartDriver(DRIVER_ID);
+
+		if (result)
+		{
+			if (result == 2)//wrong path
+			{
+				ChangeDriverPath(DRIVER_ID, DriverPath);
+				StartDriver(DRIVER_ID);
+			}
+
+			if (OpenDriver())return TRUE;
+		}
+		
+	}
+	
     return FALSE;
 }
 
@@ -183,7 +202,7 @@ BOOL OpenDriver()
 //
 //-----------------------------------------------------------------------------
 
-BOOL StartDriver(WCHAR* DriverId)
+int StartDriver( WCHAR* DriverId )
 {
     SC_HANDLE hSCManager = NULL;
     SC_HANDLE   hService = NULL;
@@ -202,19 +221,70 @@ BOOL StartDriver(WCHAR* DriverId)
     {
         if (!StartServiceW(hService, 0, NULL))
         {
-            if (GetLastError() == ERROR_SERVICE_ALREADY_RUNNING)
+			DWORD error;
+
+			error = GetLastError();
+
+            if (error == ERROR_SERVICE_ALREADY_RUNNING)
             {
                 rCode = TRUE;
             }
+
+			if (error == ERROR_PATH_NOT_FOUND)
+			{
+				rCode = 2;
+			}
         }
         else
         {
             rCode = TRUE;
         }
+
         CloseServiceHandle(hService);
     }
+
     CloseServiceHandle(hSCManager);
+
     return rCode;
+}
+
+
+VOID ChangeDriverPath( WCHAR* DriverId, WCHAR* NewPath )
+{
+	SC_HANDLE hSCManager = NULL;
+	SC_HANDLE   hService = NULL;
+	BOOL        rCode = FALSE;
+	DWORD       error = 0;
+
+	hSCManager = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+
+	if (hSCManager == NULL)
+	{
+		return;
+	}
+
+	hService = OpenServiceW(hSCManager, DriverId, SERVICE_ALL_ACCESS);
+
+	if (hService != NULL)
+	{
+		ChangeServiceConfigW(
+			hService,
+			SERVICE_NO_CHANGE,
+			SERVICE_NO_CHANGE,
+			SERVICE_NO_CHANGE,
+			NewPath,
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			NULL
+			);
+
+		CloseServiceHandle(hService);
+	}
+
+	CloseServiceHandle(hSCManager);
 }
 
 
