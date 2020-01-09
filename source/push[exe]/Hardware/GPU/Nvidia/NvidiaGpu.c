@@ -152,3 +152,9 @@ UINT16 NvidiaGpu_GetFanDutyCycle()
 {
 	return Nvapi_GetFanDutyCycle();
 }
+
+
+VOID NvidiaGpu_SetFanDutyCycle( int DutyCycle )
+{
+	Nvapi_SetFanDutyCycle(DutyCycle);
+}

@@ -259,6 +259,9 @@ VOID GPU_SetFanDutyCycle( int DutyCycle )
 		Adl_SetFanDutyCycle(DutyCycle);
 		break;
 	case NVIDIA:
-	default:;
+		NvidiaGpu_SetFanDutyCycle(DutyCycle);
+		break;
+	default:
+		break;
 	}
 }

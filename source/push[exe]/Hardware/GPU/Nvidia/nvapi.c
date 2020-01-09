@@ -16,6 +16,7 @@ TYPE_NvAPI_GPU_GetThermalSettings		NvAPI_GPU_GetThermalSettings;
 TYPE_NvAPI_GPU_GetVoltages				NvAPI_GPU_GetVoltages;
 TYPE_NvAPI_GPU_GetTachReading			NvAPI_GPU_GetTachReading;
 TYPE_NvAPI_GPU_GetCoolerSettings		NvAPI_GPU_GetCoolerSettings;
+TYPE_NvAPI_GPU_SetCoolerLevels			NvAPI_GPU_SetCoolerLevels;
 
 INT32 *gpuHandles[NVAPI_MAX_PHYSICAL_GPUS] = { NULL };
 INT32 gpuCount = 0;
@@ -46,6 +47,7 @@ BOOLEAN Nvapi_Initialize()
     NvAPI_GPU_GetVoltages			 =  (TYPE_NvAPI_GPU_GetVoltages)NvAPI_QueryInterface(0x7D656244);
     NvAPI_GPU_GetTachReading		 =  (TYPE_NvAPI_GPU_GetTachReading)NvAPI_QueryInterface(0x5F608315);
 	NvAPI_GPU_GetCoolerSettings		 =  (TYPE_NvAPI_GPU_GetCoolerSettings)NvAPI_QueryInterface(0xDA141340);
+	NvAPI_GPU_SetCoolerLevels		 =  (TYPE_NvAPI_GPU_SetCoolerLevels)NvAPI_QueryInterface(0x891FA0AE);
 
     NvAPI_Initialize();
     NvAPI_EnumPhysicalGPUs(gpuHandles, &gpuCount);
@@ -264,4 +266,18 @@ UINT32 Nvapi_GetFanDutyCycle()
 VOID Nvapi_ForceMaximumClocks()
 {
 
+}
+
+
+VOID Nvapi_SetFanDutyCycle( int DutyCycle )
+{
+	NV_GPU_SETCOOLER_LEVEL coolerLevels;
+
+	Memory_Clear(&coolerLevels, sizeof(NV_GPU_SETCOOLER_LEVEL));
+
+	coolerLevels.Version = sizeof(NV_GPU_SETCOOLER_LEVEL) | 0x10000;
+	coolerLevels.Cooler[0].CurrentLevel = DutyCycle;
+	coolerLevels.Cooler[0].CurrentPolicy = 1;
+
+	NvAPI_GPU_SetCoolerLevels(gpuHandles[0], 0, &coolerLevels);
 }

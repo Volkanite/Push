@@ -193,13 +193,14 @@ typedef struct _NV_GPU_COOLER_SETTINGS_COOLER
 
 }NV_GPU_COOLER_SETTINGS_COOLER;
 
-#define NVAPI_MAX_COOLER_PER_GPU 20
+
+#define NVAPI_MAX_COOLERS_PER_GPU   20
 
 typedef struct _NV_GPU_COOLER_SETTINGS_V1
 {
 	UINT32 Version;
 	UINT32 Count;
-	NV_GPU_COOLER_SETTINGS_COOLER Cooler[NVAPI_MAX_COOLER_PER_GPU];
+	NV_GPU_COOLER_SETTINGS_COOLER Cooler[NVAPI_MAX_COOLERS_PER_GPU];
 
 }NV_GPU_COOLER_SETTINGS_V1;
 
@@ -220,19 +221,42 @@ typedef struct _NV_GPU_CLOCK_FREQUENCIES_V1
 }NV_GPU_CLOCK_FREQUENCIES_V1;
 
 
+typedef enum _NV_COOLER_POLICY
+{
+	NVAPI_COOLER_POLICY_NONE = 0,
+	NVAPI_COOLER_POLICY_MANUAL,                     // Manual adjustment of cooler level. Gets applied right away independent of temperature or performance level.
+	NVAPI_COOLER_POLICY_PERF,                       // GPU performance controls the cooler level.
+	NVAPI_COOLER_POLICY_TEMPERATURE_DISCRETE = 4,   // Discrete thermal levels control the cooler level.
+	NVAPI_COOLER_POLICY_TEMPERATURE_CONTINUOUS = 8, // Cooler level adjusted at continuous thermal levels.
+	NVAPI_COOLER_POLICY_HYBRID,                     // Hybrid of performance and temperature levels.
+} NV_COOLER_POLICY;
+
+typedef struct _NV_GPU_SETCOOLER_LEVEL
+{
+	UINT32 Version;                       //structure version
+	struct
+	{
+		UINT32 CurrentLevel;              // the new value % of the cooler
+		NV_COOLER_POLICY CurrentPolicy;  // the new cooler control policy - auto-perf, auto-thermal, manual, hybrid...
+	} Cooler[NVAPI_MAX_COOLERS_PER_GPU];
+} NV_GPU_SETCOOLER_LEVEL;
+
+
+typedef INT32 NvAPI_Status;
+
 typedef INT32 *(*TYPE_NvAPI_QueryInterface)(UINT32 offset);
 typedef INT32(*TYPE_NvAPI_Initialize)();
-typedef INT32(*TYPE_NvAPI_EnumPhysicalGPUs)(INT32 **handles, INT32* count);
-typedef INT32(*TYPE_NvAPI_GetMemoryInfo)(HANDLE hPhysicalGpu, NV_MEMORY_INFO* memInfo);
-typedef INT32(*TYPE_NvAPI_GPU_GetUsages)(HANDLE handle, NV_USAGES* Usages);
-typedef INT32(*TYPE_NvAPI_GPU_GetAllClocks)(HANDLE GpuHandle, NV_CLOCKS* Clocks);
-typedef INT32(*TYPE_NvAPI_GPU_GetAllClockFrequencies)(HANDLE GpuHandle, NV_GPU_CLOCK_FREQUENCIES_V1* Clocks);
-typedef INT32(*TYPE_NvAPI_GPU_GetPstatesInfo)(HANDLE GpuHandle, NV_GPU_PERF_PSTATES_INFO *PerfPstatesInfo);
-typedef INT32(*TYPE_NvAPI_GPU_GetThermalSettings)(HANDLE PhysicalGpu, UINT32 SensorIndex, NV_GPU_THERMAL_SETTINGS* ThermalSettings);
-typedef INT32(*TYPE_NvAPI_GPU_GetVoltages)(HANDLE PhysicalGPU, NV_VOLTAGES* pPerfVoltages);
-typedef INT32(*TYPE_NvAPI_GPU_GetTachReading)(HANDLE PhysicalGPU, UINT32* pValue);
-typedef INT32(*TYPE_NvAPI_GPU_GetCoolerSettings)(HANDLE PhysicalGPU, UINT32 CoolerIndex, NV_GPU_COOLER_SETTINGS_V1* CoolerInfo);
-
+typedef NvAPI_Status(*TYPE_NvAPI_EnumPhysicalGPUs)(INT32 **handles, INT32* count);
+typedef NvAPI_Status(*TYPE_NvAPI_GetMemoryInfo)(HANDLE hPhysicalGpu, NV_MEMORY_INFO* memInfo);
+typedef NvAPI_Status(*TYPE_NvAPI_GPU_GetUsages)(HANDLE handle, NV_USAGES* Usages);
+typedef NvAPI_Status(*TYPE_NvAPI_GPU_GetAllClocks)(HANDLE GpuHandle, NV_CLOCKS* Clocks);
+typedef NvAPI_Status(*TYPE_NvAPI_GPU_GetAllClockFrequencies)(HANDLE GpuHandle, NV_GPU_CLOCK_FREQUENCIES_V1* Clocks);
+typedef NvAPI_Status(*TYPE_NvAPI_GPU_GetPstatesInfo)(HANDLE GpuHandle, NV_GPU_PERF_PSTATES_INFO *PerfPstatesInfo);
+typedef NvAPI_Status(*TYPE_NvAPI_GPU_GetThermalSettings)(HANDLE PhysicalGpu, UINT32 SensorIndex, NV_GPU_THERMAL_SETTINGS* ThermalSettings);
+typedef NvAPI_Status(*TYPE_NvAPI_GPU_GetVoltages)(HANDLE PhysicalGPU, NV_VOLTAGES* pPerfVoltages);
+typedef NvAPI_Status(*TYPE_NvAPI_GPU_GetTachReading)(HANDLE PhysicalGPU, UINT32* pValue);
+typedef NvAPI_Status(*TYPE_NvAPI_GPU_GetCoolerSettings)(HANDLE PhysicalGPU, UINT32 CoolerIndex, NV_GPU_COOLER_SETTINGS_V1* CoolerInfo);
+typedef NvAPI_Status(*TYPE_NvAPI_GPU_SetCoolerLevels)(HANDLE PhysicalGPU, UINT32 coolerIndex, NV_GPU_SETCOOLER_LEVEL *pCoolerLevels);
 
 
 BOOLEAN Nvapi_Initialize();
@@ -248,3 +272,4 @@ UINT32 Nvapi_GetVoltage();
 UINT32 Nvapi_GetFanSpeed();
 UINT32 Nvapi_GetFanDutyCycle();
 VOID Nvapi_ForceMaximumClocks();
+VOID Nvapi_SetFanDutyCycle(int DutyCycle);

@@ -13,3 +13,5 @@ UINT64 NvidiaGpu_GetTotalMemory();
 UINT64 NvidiaGpu_GetFreeMemory();
 UINT16 NvidiaGpu_GetVoltage();
 UINT16 NvidiaGpu_GetVoltageMax();
+
+VOID NvidiaGpu_SetFanDutyCycle(int DutyCycle);
