@@ -1046,7 +1046,8 @@ DWORD __stdcall PipeThread( VOID* Parameter )
                     Hardware_ForceMaxClocks();
                     break;
                 case CMD_SETGPUFAN:
-                    Adl_SetFanDutyCycle(PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle);
+                    //Adl_SetFanDutyCycle(PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle);
+					GPU_SetFanDutyCycle(PushSharedMemory->HarwareInformation.DisplayDevice.FanDutyCycle);
                     break;
                 case CMD_GETDSKRSP:
                 {

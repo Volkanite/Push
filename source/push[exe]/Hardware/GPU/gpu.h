@@ -31,5 +31,6 @@ UINT64 GPU_GetFreeMemory();
 VOID GPU_SetEngineClock( int Frequency );
 VOID GPU_SetMemoryClock( int Frequency );
 VOID GPU_SetVoltage( int Millivolts );
+VOID GPU_SetFanDutyCycle( int DutyCycle );
 
 #endif //GPU_H
