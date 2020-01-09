@@ -19,7 +19,7 @@ typedef enum
 typedef struct _NV_CLOCKS
 {
     UINT32 Version;
-    UINT32 Clock[NVAPI_MAX_CLOCKS_PER_GPU];
+    UINT32 Clocks[NVAPI_MAX_CLOCKS_PER_GPU];
 
 }NV_CLOCKS;
 
@@ -68,11 +68,13 @@ typedef enum _NV_GPU_PERF_PSTATE_ID
 
 typedef enum _NV_GPU_PUBLIC_CLOCK_ID
 {
-    NVAPI_GPU_PUBLIC_CLOCK_GRAPHICS = 0,
-    NVAPI_GPU_PUBLIC_CLOCK_MEMORY = 4,
-    NVAPI_GPU_PUBLIC_CLOCK_PROCESSOR = 7,
-    NVAPI_GPU_PUBLIC_CLOCK_UNDEFINED = NVAPI_MAX_GPU_PUBLIC_CLOCKS,
-} NV_GPU_PUBLIC_CLOCK_ID;
+	NVAPI_GPU_PUBLIC_CLOCK_GRAPHICS = 0,
+	NVAPI_GPU_PUBLIC_CLOCK_MEMORY = 4,
+	NVAPI_GPU_PUBLIC_CLOCK_PROCESSOR = 7,
+	NVAPI_GPU_PUBLIC_CLOCK_VIDEO = 8,
+	NVAPI_GPU_PUBLIC_CLOCK_UNDEFINED = NVAPI_MAX_GPU_PUBLIC_CLOCKS
+
+}NV_GPU_PUBLIC_CLOCK_ID;
 
 typedef struct
 {
@@ -202,12 +204,29 @@ typedef struct _NV_GPU_COOLER_SETTINGS_V1
 }NV_GPU_COOLER_SETTINGS_V1;
 
 
+typedef struct _NV_GPU_CLOCK_FREQUENCIES_V1
+{
+	UINT32 Version;
+	UINT32 	Reserved;
+
+	struct 
+	{
+		UINT32   bIsPresent : 1;
+		UINT32   reserved : 31;
+		UINT32   frequency;
+
+	} Domain[NVAPI_MAX_GPU_PUBLIC_CLOCKS];
+
+}NV_GPU_CLOCK_FREQUENCIES_V1;
+
+
 typedef INT32 *(*TYPE_NvAPI_QueryInterface)(UINT32 offset);
 typedef INT32(*TYPE_NvAPI_Initialize)();
 typedef INT32(*TYPE_NvAPI_EnumPhysicalGPUs)(INT32 **handles, INT32* count);
 typedef INT32(*TYPE_NvAPI_GetMemoryInfo)(HANDLE hPhysicalGpu, NV_MEMORY_INFO* memInfo);
 typedef INT32(*TYPE_NvAPI_GPU_GetUsages)(HANDLE handle, NV_USAGES* Usages);
 typedef INT32(*TYPE_NvAPI_GPU_GetAllClocks)(HANDLE GpuHandle, NV_CLOCKS* Clocks);
+typedef INT32(*TYPE_NvAPI_GPU_GetAllClockFrequencies)(HANDLE GpuHandle, NV_GPU_CLOCK_FREQUENCIES_V1* Clocks);
 typedef INT32(*TYPE_NvAPI_GPU_GetPstatesInfo)(HANDLE GpuHandle, NV_GPU_PERF_PSTATES_INFO *PerfPstatesInfo);
 typedef INT32(*TYPE_NvAPI_GPU_GetThermalSettings)(HANDLE PhysicalGpu, UINT32 SensorIndex, NV_GPU_THERMAL_SETTINGS* ThermalSettings);
 typedef INT32(*TYPE_NvAPI_GPU_GetVoltages)(HANDLE PhysicalGPU, NV_VOLTAGES* pPerfVoltages);
