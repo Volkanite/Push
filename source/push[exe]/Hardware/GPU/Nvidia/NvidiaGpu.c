@@ -102,13 +102,15 @@ UINT8 NvidiaGpu_GetTemperature()
 
 UINT64 NvidiaGpu_GetTotalMemory()
 {
-    return ReadGpuRegister(0x10020c);
+    //return ReadGpuRegister(0x10020c);
+	return Nvapi_GetTotalMemory();
 }
 
 
 UINT64 NvidiaGpu_GetFreeMemory()
 {
-    return OpenNvapi_GetFreeMemory();
+    //return OpenNvapi_GetFreeMemory();
+	return Nvapi_GetFreeMemory();
 }
 
 
