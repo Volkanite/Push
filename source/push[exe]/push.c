@@ -1483,26 +1483,19 @@ INT32 __stdcall start( )
     Process_EnumProcesses(ProcessEnum);
 
     // Activate process monitoring
-    if (PushDriverLoaded)
-    {
-        PushToggleProcessMonitoring(TRUE);
-    }
-    else
-    {
-        HANDLE overlayLib = NULL;
-        void* prcAddress = 0;
+	HANDLE overlayLib = NULL;
+	void* prcAddress = 0;
 
-        Resource_Extract(L"OVERLAY32", PUSH_LIB_NAME_32);
+	Resource_Extract(L"OVERLAY32", PUSH_LIB_NAME_32);
 
-        overlayLib = Module_Load(L"overlay32.dll");
-        prcAddress = Module_GetProcedureAddress(overlayLib, "InstallOverlayHook");
+	overlayLib = Module_Load(L"overlay32.dll");
+	prcAddress = Module_GetProcedureAddress(overlayLib, "InstallOverlayHook");
 
-        if (prcAddress)
-        {
-            InstallOverlayHook = (TYPE_InstallOverlayHook)prcAddress;
-            InstallOverlayHook();
-        }
-    }
+	if (prcAddress)
+	{
+		InstallOverlayHook = (TYPE_InstallOverlayHook)prcAddress;
+		InstallOverlayHook();
+	}
 
     g_szPrevGame[5] = '\0';
 
