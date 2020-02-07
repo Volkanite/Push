@@ -289,10 +289,10 @@ VOID RnRender( OvOverlay* Overlay )
 
         InitializeKeyboardHook();
 
-        COMMAND_HEADER cmdBuffer;
-        cmdBuffer.CommandIndex= CMD_STARTHWMON;
-        cmdBuffer.ProcessId = GetCurrentProcessId();
-        CallPipe((BYTE*) &cmdBuffer, sizeof(cmdBuffer), NULL);
+        COMMAND_HEADER cmdBufferr;
+        cmdBufferr.CommandIndex= CMD_STARTHWMON;
+        cmdBufferr.ProcessId = GetCurrentProcessId();
+        CallPipe((BYTE*) &cmdBufferr, sizeof(cmdBufferr), NULL);
     }
 
     Osd_Draw( Overlay );
