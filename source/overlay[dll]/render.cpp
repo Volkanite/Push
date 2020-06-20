@@ -159,6 +159,12 @@ VOID RunFrameStatistics()
 
     if (frameTime > acceptableFrameTime)
     {
+		if (PushSharedMemory->HarwareInformation.DisplayDevice.Load > 95)
+		{
+			PushSharedMemory->OSDFlags |= OSD_GPU_E_CLK;
+			PushSharedMemory->OSDFlags |= OSD_GPU_M_CLK;
+		}
+
         if (PushSharedMemory->HarwareInformation.Processor.Load > 95)
             PushSharedMemory->Overloads |= OSD_CPU_LOAD;
 
