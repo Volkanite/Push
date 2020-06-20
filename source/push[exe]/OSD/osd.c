@@ -243,7 +243,7 @@ UINT32 OSD_Initialize()
     OSD_AddItem(OSD_GPU_M_CLK, L"GPU Memory Clock", L"GPU-m : %i MHz", &hardware->DisplayDevice.MemoryClock, sizeof(UINT32), NULL, 0, NULL);
     OSD_AddItem(OSD_GPU_VOLTAGE, L"GPU Voltage", L"GPU : %i mV", &hardware->DisplayDevice.Voltage, sizeof(UINT32), NULL, 0, NULL);
     OSD_AddItem(OSD_GPU_FAN_RPM, L"GPU Fan Speed", L"GPU : %i RPM", &hardware->DisplayDevice.FanSpeed, sizeof(UINT32), NULL, 0, NULL);
-    OSD_AddItem(OSD_GPU_FAN_DC, L"GPU Fan Duty Cycle", L"GPU : %i %%", &hardware->DisplayDevice.FanDutyCycle, sizeof(UINT8), NULL, 90, NULL);
+    OSD_AddItem(OSD_GPU_FAN_DC, L"GPU Fan Duty Cycle", L"GPU-f : %i %%", &hardware->DisplayDevice.FanDutyCycle, sizeof(UINT8), NULL, 90, NULL);
     OSD_AddItem(OSD_GPU_VRAM, L"GPU VRAM usage", L"GPU : %i MB", &hardware->DisplayDevice.FrameBuffer.Load, sizeof(UINT8), &hardware->DisplayDevice.FrameBuffer.Used, 90, NULL);
     OSD_AddItem(OSD_RAM, L"RAM usage", L"RAM : %i MB", &hardware->Memory.Load, sizeof(UINT8), &hardware->Memory.Used, 90, NULL);
     OSD_AddItem(OSD_CPU_SPEED, L"CPU Speed", L"CPU : %i MHz", &hardware->Processor.MhzCurrent, sizeof(UINT16), NULL, 0, NULL);
