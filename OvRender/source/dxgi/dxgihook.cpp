@@ -247,6 +247,8 @@ VOID DxgiHook_Initialize( IDXGISWAPCHAIN_HOOK* HookParameters )
         DetourCreate(vmt[13], IDXGISwapChain_ResizeBuffersHook, &DetourDXGIResizeBuffers);
         HkIDXGISwapChain_ResizeBuffers = (TYPE_IDXGISwapChain_ResizeBuffers)DetourDXGIResizeBuffers.Trampoline;
     }
+
+	swapChain->Release();
 }
 
 
