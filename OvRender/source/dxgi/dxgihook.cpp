@@ -97,13 +97,6 @@ FakeWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 
-#define PATT_DXGIPRESENT_X86            "\x8B\xFF\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x24\xA1\x00\x00\x00\x00\x33\xC4\x89\x44\x24\x20\x8B\x45\x10\x53"
-#define MASK_DXGIPRESENT_X86            "xxxxxxxxxxxx????xxxxxxxxxx"
-#define PATT_DXGIPRESENT_X64            "\x40\x55\x53\x56\x57\x41\x56\x48\x8D\x6C\x24\xC9"
-#define MASK_DXGIPRESENT_X64            "xxxxxxxxxxxx"
-#define PATT_IDXGISwapChain1_x86 "jhggh"
-
-
 IDXGISwapChain* BuildDevice()
 {
     IDXGIFactory* factory;
@@ -195,27 +188,6 @@ IDXGISwapChain* BuildDevice()
     UnregisterClassW(L"JustGimmeADamnWindow", GetModuleHandleW(NULL));
 
     return swapChain;
-}
-
-
-VOID* FindDevice()
-{
-#ifdef _M_IX86
-    DWORD base = (DWORD)LoadLibraryW(L"dxgi.dll");
-    DWORD swapchainvftable = base + 0x5070;
-
-    return (VOID*)swapchainvftable;
-#else
-    VOID **vmt;
-    DWORD64 pattern;
-    DWORD64 base = (DWORD64)LoadLibraryW(L"dxgi.dll");
-
-    pattern = base + 0x5AE0;
-    OvLog(L"pattern 0x%llX", pattern);
-    vmt = (VOID**)pattern;
-    OvLog(L"vmt[8].new 0x%llX", vmt[8]);
-    return (VOID*)pattern;
-#endif
 }
 
 
