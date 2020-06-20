@@ -4,20 +4,20 @@
 #include "nvapi.h"
 
 
-TYPE_NvAPI_QueryInterface				NvAPI_QueryInterface;
-TYPE_NvAPI_Initialize					NvAPI_Initialize;
-TYPE_NvAPI_EnumPhysicalGPUs				NvAPI_EnumPhysicalGPUs;
-TYPE_NvAPI_GetMemoryInfo				NvAPI_GetMemoryInfo;
-TYPE_NvAPI_GPU_GetUsages				NvAPI_GPU_GetUsages;
-TYPE_NvAPI_GPU_GetAllClocks				NvAPI_GPU_GetAllClocks;
-TYPE_NvAPI_GPU_GetAllClockFrequencies	NvAPI_GPU_GetAllClockFrequencies;
-TYPE_NvAPI_GPU_GetPstatesInfo			NvAPI_GPU_GetPstatesInfo;
-TYPE_NvAPI_GPU_GetPstates20				NvAPI_GPU_GetPstates20;
-TYPE_NvAPI_GPU_GetThermalSettings		NvAPI_GPU_GetThermalSettings;
-TYPE_NvAPI_GPU_GetVoltages				NvAPI_GPU_GetVoltages;
-TYPE_NvAPI_GPU_GetTachReading			NvAPI_GPU_GetTachReading;
-TYPE_NvAPI_GPU_GetCoolerSettings		NvAPI_GPU_GetCoolerSettings;
-TYPE_NvAPI_GPU_SetCoolerLevels			NvAPI_GPU_SetCoolerLevels;
+TYPE_NvAPI_QueryInterface               NvAPI_QueryInterface;
+TYPE_NvAPI_Initialize                   NvAPI_Initialize;
+TYPE_NvAPI_EnumPhysicalGPUs             NvAPI_EnumPhysicalGPUs;
+TYPE_NvAPI_GetMemoryInfo                NvAPI_GetMemoryInfo;
+TYPE_NvAPI_GPU_GetUsages                NvAPI_GPU_GetUsages;
+TYPE_NvAPI_GPU_GetAllClocks             NvAPI_GPU_GetAllClocks;
+TYPE_NvAPI_GPU_GetAllClockFrequencies   NvAPI_GPU_GetAllClockFrequencies;
+TYPE_NvAPI_GPU_GetPstatesInfo           NvAPI_GPU_GetPstatesInfo;
+TYPE_NvAPI_GPU_GetPstates20             NvAPI_GPU_GetPstates20;
+TYPE_NvAPI_GPU_GetThermalSettings       NvAPI_GPU_GetThermalSettings;
+TYPE_NvAPI_GPU_GetVoltages              NvAPI_GPU_GetVoltages;
+TYPE_NvAPI_GPU_GetTachReading           NvAPI_GPU_GetTachReading;
+TYPE_NvAPI_GPU_GetCoolerSettings        NvAPI_GPU_GetCoolerSettings;
+TYPE_NvAPI_GPU_SetCoolerLevels          NvAPI_GPU_SetCoolerLevels;
 
 INT32 *gpuHandles[NVAPI_MAX_PHYSICAL_GPUS] = { NULL };
 INT32 gpuCount = 0;
@@ -37,19 +37,19 @@ BOOLEAN Nvapi_Initialize()
         "nvapi_QueryInterface"
         );
 
-    NvAPI_Initialize				 =  NvAPI_QueryInterface(0x0150E828);
-    NvAPI_EnumPhysicalGPUs			 =  NvAPI_QueryInterface(0xE5AC921F);
-    NvAPI_GPU_GetUsages				 =  NvAPI_QueryInterface(0x189A1FDF);
-    NvAPI_GPU_GetAllClocks			 =  NvAPI_QueryInterface(0x1BD69F49);
-	NvAPI_GPU_GetAllClockFrequencies =  NvAPI_QueryInterface(0xDCB616C3);
-    NvAPI_GPU_GetPstatesInfo		 =  NvAPI_QueryInterface(0xBA94C56E);
-	NvAPI_GPU_GetPstates20			 =  NvAPI_QueryInterface(0x6FF81213);
-    NvAPI_GetMemoryInfo				 =  NvAPI_QueryInterface(0x774AA982);
-    NvAPI_GPU_GetThermalSettings	 =  NvAPI_QueryInterface(0xE3640A56);
-    NvAPI_GPU_GetVoltages			 =  NvAPI_QueryInterface(0x7D656244);
-    NvAPI_GPU_GetTachReading		 =  NvAPI_QueryInterface(0x5F608315);
-	NvAPI_GPU_GetCoolerSettings		 =  NvAPI_QueryInterface(0xDA141340);
-	NvAPI_GPU_SetCoolerLevels		 =  NvAPI_QueryInterface(0x891FA0AE);
+    NvAPI_Initialize                 =  NvAPI_QueryInterface(0x0150E828);
+    NvAPI_EnumPhysicalGPUs           =  NvAPI_QueryInterface(0xE5AC921F);
+    NvAPI_GPU_GetUsages              =  NvAPI_QueryInterface(0x189A1FDF);
+    NvAPI_GPU_GetAllClocks           =  NvAPI_QueryInterface(0x1BD69F49);
+    NvAPI_GPU_GetAllClockFrequencies =  NvAPI_QueryInterface(0xDCB616C3);
+    NvAPI_GPU_GetPstatesInfo         =  NvAPI_QueryInterface(0xBA94C56E);
+    NvAPI_GPU_GetPstates20           =  NvAPI_QueryInterface(0x6FF81213);
+    NvAPI_GetMemoryInfo              =  NvAPI_QueryInterface(0x774AA982);
+    NvAPI_GPU_GetThermalSettings     =  NvAPI_QueryInterface(0xE3640A56);
+    NvAPI_GPU_GetVoltages            =  NvAPI_QueryInterface(0x7D656244);
+    NvAPI_GPU_GetTachReading         =  NvAPI_QueryInterface(0x5F608315);
+    NvAPI_GPU_GetCoolerSettings      =  NvAPI_QueryInterface(0xDA141340);
+    NvAPI_GPU_SetCoolerLevels        =  NvAPI_QueryInterface(0x891FA0AE);
 
     NvAPI_Initialize();
     NvAPI_EnumPhysicalGPUs(gpuHandles, &gpuCount);
@@ -73,109 +73,109 @@ UINT8 Nvapi_GetLoad()
 UINT16 Nvapi_GetEngineClock()
 {
     NV_CLOCKS clocksInfo;
-	NV_GPU_CLOCK_FREQUENCIES_V1 clkFreqs;
-	UINT16 coreClock;
-	int status;
+    NV_GPU_CLOCK_FREQUENCIES_V1 clkFreqs;
+    UINT16 coreClock;
+    int status;
 
-	coreClock = 0;
+    coreClock = 0;
 
-	Memory_Clear(&clkFreqs, sizeof(NV_GPU_CLOCK_FREQUENCIES_V1));
+    Memory_Clear(&clkFreqs, sizeof(NV_GPU_CLOCK_FREQUENCIES_V1));
 
-	clkFreqs.Version = sizeof(NV_GPU_CLOCK_FREQUENCIES_V1) | 0x20000;
+    clkFreqs.Version = sizeof(NV_GPU_CLOCK_FREQUENCIES_V1) | 0x20000;
 
-	NvAPI_GPU_GetAllClockFrequencies(gpuHandles[0], &clkFreqs);
+    NvAPI_GPU_GetAllClockFrequencies(gpuHandles[0], &clkFreqs);
 
-	if (clkFreqs.Domain[NVAPI_GPU_PUBLIC_CLOCK_GRAPHICS].bIsPresent)
-		coreClock = clkFreqs.Domain[NVAPI_GPU_PUBLIC_CLOCK_GRAPHICS].frequency / 1000;
+    if (clkFreqs.Domain[NVAPI_GPU_PUBLIC_CLOCK_GRAPHICS].bIsPresent)
+        coreClock = clkFreqs.Domain[NVAPI_GPU_PUBLIC_CLOCK_GRAPHICS].frequency / 1000;
 
-	if (coreClock == 0)
-	{
-		Memory_Clear(&clocksInfo, sizeof(NV_CLOCKS));
+    if (coreClock == 0)
+    {
+        Memory_Clear(&clocksInfo, sizeof(NV_CLOCKS));
 
-		clocksInfo.Version = sizeof(NV_CLOCKS) | 0x20000;
+        clocksInfo.Version = sizeof(NV_CLOCKS) | 0x20000;
 
-		status = NvAPI_GPU_GetAllClocks(gpuHandles[0], &clocksInfo);
+        status = NvAPI_GPU_GetAllClocks(gpuHandles[0], &clocksInfo);
 
-		coreClock = 0.001f * clocksInfo.Clocks[NVAPI_CLOCK_TARGET_ENGINE];
+        coreClock = 0.001f * clocksInfo.Clocks[NVAPI_CLOCK_TARGET_ENGINE];
 
-		if (clocksInfo.Clocks[30] != 0)
-		{
-			if (coreClock == 0)
-				coreClock = (UINT16)(clocksInfo.Clocks[30] * 0.0005f);
-		}
-	}
+        if (clocksInfo.Clocks[30] != 0)
+        {
+            if (coreClock == 0)
+                coreClock = (UINT16)(clocksInfo.Clocks[30] * 0.0005f);
+        }
+    }
 
-	return coreClock;
+    return coreClock;
 }
 
 
 UINT16 Nvapi_GetMemoryClock()
 {
-	NV_CLOCKS clocksInfo;
-	NV_GPU_CLOCK_FREQUENCIES_V1 clkFreqs;
-	UINT16 memoryClock;
+    NV_CLOCKS clocksInfo;
+    NV_GPU_CLOCK_FREQUENCIES_V1 clkFreqs;
+    UINT16 memoryClock;
 
-	memoryClock = 0;
+    memoryClock = 0;
 
-	Memory_Clear(&clkFreqs, sizeof(NV_GPU_CLOCK_FREQUENCIES_V1));
+    Memory_Clear(&clkFreqs, sizeof(NV_GPU_CLOCK_FREQUENCIES_V1));
 
-	clkFreqs.Version = sizeof(NV_GPU_CLOCK_FREQUENCIES_V1) | 0x20000;
+    clkFreqs.Version = sizeof(NV_GPU_CLOCK_FREQUENCIES_V1) | 0x20000;
 
-	NvAPI_GPU_GetAllClockFrequencies(gpuHandles[0], &clkFreqs);
+    NvAPI_GPU_GetAllClockFrequencies(gpuHandles[0], &clkFreqs);
 
-	if (clkFreqs.Domain[NVAPI_GPU_PUBLIC_CLOCK_MEMORY].bIsPresent)
-		memoryClock = clkFreqs.Domain[NVAPI_GPU_PUBLIC_CLOCK_MEMORY].frequency / 1000;
+    if (clkFreqs.Domain[NVAPI_GPU_PUBLIC_CLOCK_MEMORY].bIsPresent)
+        memoryClock = clkFreqs.Domain[NVAPI_GPU_PUBLIC_CLOCK_MEMORY].frequency / 1000;
 
-	if (memoryClock == 0)
-	{
-		Memory_Clear(&clocksInfo, sizeof(NV_CLOCKS));
+    if (memoryClock == 0)
+    {
+        Memory_Clear(&clocksInfo, sizeof(NV_CLOCKS));
 
-		clocksInfo.Version = sizeof(NV_CLOCKS) | 0x20000;
+        clocksInfo.Version = sizeof(NV_CLOCKS) | 0x20000;
 
-		NvAPI_GPU_GetAllClocks(gpuHandles[0], &clocksInfo);
+        NvAPI_GPU_GetAllClocks(gpuHandles[0], &clocksInfo);
 
-		memoryClock = 0.001f * clocksInfo.Clocks[NVAPI_CLOCK_TARGET_MEMORY];
-	}
+        memoryClock = 0.001f * clocksInfo.Clocks[NVAPI_CLOCK_TARGET_MEMORY];
+    }
 
-	return memoryClock / 2;//DDR (Double Data Rate)
+    return memoryClock / 2;//DDR (Double Data Rate)
 }
 
 
 UINT16 Nvapi_GetMaxEngineClock()
 {
-	NV_GPU_PERF_PSTATES20_INFO_V1 *pstateInfo;
-	UINT16 frequency;
+    NV_GPU_PERF_PSTATES20_INFO_V1 *pstateInfo;
+    UINT16 frequency;
 
-	pstateInfo = pstateInfo = Memory_AllocateEx(/*sizeof(NV_GPU_PERF_PSTATES20_INFO_V1)*/0x11c94, HEAP_ZERO_MEMORY);
+    pstateInfo = pstateInfo = Memory_AllocateEx(/*sizeof(NV_GPU_PERF_PSTATES20_INFO_V1)*/0x11c94, HEAP_ZERO_MEMORY);
 
-	pstateInfo->version = /*sizeof(NV_GPU_PERF_PSTATES20_INFO_V1) | 0x10000;*/0x11c94;
+    pstateInfo->version = /*sizeof(NV_GPU_PERF_PSTATES20_INFO_V1) | 0x10000;*/0x11c94;
 
-	NvAPI_GPU_GetPstates20(gpuHandles[0], pstateInfo);
+    NvAPI_GPU_GetPstates20(gpuHandles[0], pstateInfo);
 
-	frequency = pstateInfo->pstates[NVAPI_GPU_PERF_PSTATE_P0].clocks[0].data.range.maxFreq_kHz * 0.001f;
+    frequency = pstateInfo->pstates[NVAPI_GPU_PERF_PSTATE_P0].clocks[0].data.range.maxFreq_kHz * 0.001f;
 
-	Memory_Free(pstateInfo);
+    Memory_Free(pstateInfo);
 
-	return frequency;
+    return frequency;
 }
 
 
 UINT16 Nvapi_GetMaxMemoryClock()
 {
-	NV_GPU_PERF_PSTATES20_INFO_V1 *pstateInfo;
-	UINT16 frequency;
+    NV_GPU_PERF_PSTATES20_INFO_V1 *pstateInfo;
+    UINT16 frequency;
 
-	pstateInfo = Memory_AllocateEx(/*sizeof(NV_GPU_PERF_PSTATES20_INFO_V1)*/0x11c94, HEAP_ZERO_MEMORY);
+    pstateInfo = Memory_AllocateEx(/*sizeof(NV_GPU_PERF_PSTATES20_INFO_V1)*/0x11c94, HEAP_ZERO_MEMORY);
 
-	pstateInfo->version = /*sizeof(NV_GPU_PERF_PSTATES20_INFO_V1) | 0x10000;*/0x11c94;
+    pstateInfo->version = /*sizeof(NV_GPU_PERF_PSTATES20_INFO_V1) | 0x10000;*/0x11c94;
 
-	NvAPI_GPU_GetPstates20(gpuHandles[0], pstateInfo);
+    NvAPI_GPU_GetPstates20(gpuHandles[0], pstateInfo);
 
-	frequency = pstateInfo->pstates[NVAPI_GPU_PERF_PSTATE_P0].clocks[1].data.single.freq_kHz * 0.001f;
+    frequency = pstateInfo->pstates[NVAPI_GPU_PERF_PSTATE_P0].clocks[1].data.single.freq_kHz * 0.001f;
 
-	Memory_Free(pstateInfo);
+    Memory_Free(pstateInfo);
 
-	return frequency / 2;//DDR (Double Data Rate);
+    return frequency / 2;//DDR (Double Data Rate);
 }
 
 
@@ -205,9 +205,9 @@ UINT64 Nvapi_GetFreeMemory()
 
 UINT8 Nvapi_GetTemperature()
 {
-	NV_GPU_THERMAL_SETTINGS thermalInfo;
+    NV_GPU_THERMAL_SETTINGS thermalInfo;
 
-	Memory_Clear(&thermalInfo, sizeof(NV_GPU_THERMAL_SETTINGS));
+    Memory_Clear(&thermalInfo, sizeof(NV_GPU_THERMAL_SETTINGS));
 
     thermalInfo.Version = sizeof(NV_GPU_THERMAL_SETTINGS) | 0x20000;
     thermalInfo.Count = 0;
@@ -222,10 +222,10 @@ UINT8 Nvapi_GetTemperature()
 
 UINT32 Nvapi_GetVoltage()
 {
-	NV_VOLTAGES *voltageInfo;
-	UINT32 voltage;
+    NV_VOLTAGES *voltageInfo;
+    UINT32 voltage;
 
-	voltageInfo = Memory_AllocateEx(sizeof(NV_VOLTAGES), HEAP_ZERO_MEMORY);
+    voltageInfo = Memory_AllocateEx(sizeof(NV_VOLTAGES), HEAP_ZERO_MEMORY);
 
     voltageInfo->Version = sizeof(NV_VOLTAGES) | 0x10000;
     voltageInfo->Flags = 0;
@@ -233,11 +233,11 @@ UINT32 Nvapi_GetVoltage()
 
     NvAPI_GPU_GetVoltages(gpuHandles[0], voltageInfo);
 
-	voltage = voltageInfo->voltages[0].info[2].mvolt;
+    voltage = voltageInfo->voltages[0].info[2].mvolt;
 
-	Memory_Free(voltageInfo);
+    Memory_Free(voltageInfo);
 
-	return voltage;
+    return voltage;
 }
 
 
@@ -253,15 +253,15 @@ UINT32 Nvapi_GetFanSpeed()
 
 UINT32 Nvapi_GetFanDutyCycle()
 {
-	NV_GPU_COOLER_SETTINGS_V1 coolerSettings;
+    NV_GPU_COOLER_SETTINGS_V1 coolerSettings;
 
-	Memory_Clear(&coolerSettings, sizeof(NV_GPU_COOLER_SETTINGS_V1));
+    Memory_Clear(&coolerSettings, sizeof(NV_GPU_COOLER_SETTINGS_V1));
 
-	coolerSettings.Version = sizeof(NV_GPU_COOLER_SETTINGS_V1) | 0x20000;
+    coolerSettings.Version = sizeof(NV_GPU_COOLER_SETTINGS_V1) | 0x20000;
 
-	NvAPI_GPU_GetCoolerSettings(gpuHandles[0], 0, &coolerSettings);
+    NvAPI_GPU_GetCoolerSettings(gpuHandles[0], 0, &coolerSettings);
 
-	return coolerSettings.Cooler[0].CurrentLevel;
+    return coolerSettings.Cooler[0].CurrentLevel;
 }
 
 
@@ -273,13 +273,13 @@ VOID Nvapi_ForceMaximumClocks()
 
 VOID Nvapi_SetFanDutyCycle( int DutyCycle )
 {
-	NV_GPU_SETCOOLER_LEVEL coolerLevels;
+    NV_GPU_SETCOOLER_LEVEL coolerLevels;
 
-	Memory_Clear(&coolerLevels, sizeof(NV_GPU_SETCOOLER_LEVEL));
+    Memory_Clear(&coolerLevels, sizeof(NV_GPU_SETCOOLER_LEVEL));
 
-	coolerLevels.Version = sizeof(NV_GPU_SETCOOLER_LEVEL) | 0x10000;
-	coolerLevels.Cooler[0].CurrentLevel = DutyCycle;
-	coolerLevels.Cooler[0].CurrentPolicy = 1;
+    coolerLevels.Version = sizeof(NV_GPU_SETCOOLER_LEVEL) | 0x10000;
+    coolerLevels.Cooler[0].CurrentLevel = DutyCycle;
+    coolerLevels.Cooler[0].CurrentPolicy = 1;
 
-	NvAPI_GPU_SetCoolerLevels(gpuHandles[0], 0, &coolerLevels);
+    NvAPI_GPU_SetCoolerLevels(gpuHandles[0], 0, &coolerLevels);
 }
