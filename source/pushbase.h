@@ -265,13 +265,8 @@ typedef enum _KEYBOARD_HOOK_TYPE
 } PUSH_KEYBOARD_HOOK_TYPE;
 
 
-typedef VOID(*OSD_DYNAMIC_FORMAT)(
-    UINT32 Value,
-    WCHAR* Buffer
-    );
-
 typedef UINT16 OSDVALUE;
-
+#define MAX_OSD_TEXT_LEN 32
 
 #pragma pack(push,1)
 typedef struct _OSD_ITEM
@@ -288,7 +283,7 @@ typedef struct _OSD_ITEM
     UINT32 HighestDelta;
     UINT32 ValueAvg;
     UINT32 Color;
-    WCHAR Text[20];
+    WCHAR Text[MAX_OSD_TEXT_LEN];
     WCHAR Description[40];
 
     //LOCAL //fix //pointers can only reside locally (push.exe)?
@@ -298,6 +293,8 @@ typedef struct _OSD_ITEM
     ULONG ValueSource2Ptr;  // UINT32* ValueSource2;
 
 }OSD_ITEM;
+
+typedef VOID(*OSD_DYNAMIC_FORMAT)(OSD_ITEM* Value);
 
 
 // Structure for shared memory

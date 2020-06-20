@@ -17,7 +17,7 @@ typedef enum CPU_CALC_INDEX
 } CPU_CALC_INDEX;
 CPU_CALC_INDEX CPUStrap = CPU_CALC_twc;/*CPU_CALC_o;*/
 
-VOID FormatDiskReadWriteRate(
+/*VOID FormatDiskReadWriteRate(
     UINT32 Value,
     WCHAR* Buffer
     );
@@ -25,32 +25,26 @@ VOID FormatDiskReadWriteRate(
 VOID FormatTime(
     UINT32 Value,
     WCHAR* Buffer
-    );
+    );*/
 
-typedef VOID(*OSD_DYNAMIC_FORMAT)(
-    UINT32 Value,
-    WCHAR* Buffer
-    );
+//typedef VOID(*OSD_DYNAMIC_FORMAT)(OSD_ITEM* Value);
 
 
 OSD_ITEM* OsdItems;
 
 
-VOID FormatTime( UINT32 Value, WCHAR* Buffer )
+VOID FormatTime( OSD_ITEM* Item )
 {
-    Push_FormatTime(Buffer);
+    Push_FormatTime(Item->Text);
 }
 
 
-VOID FormatDiskReadWriteRate( 
-    UINT32 Value, 
-    WCHAR* Buffer 
-    )
+VOID FormatDiskReadWriteRate( OSD_ITEM* Item )
 {
     UINT32 rate;
     WCHAR *format;
 
-    rate = Value;
+	rate = Item->Value2;
 
     format = L"DSK : %i B/s";
 
@@ -65,7 +59,30 @@ VOID FormatDiskReadWriteRate(
         format = L"DSK : %i MB/s";
     }
 
-    String_Format(Buffer, 20, format, rate);
+    String_Format(Item->Text, MAX_OSD_TEXT_LEN, format, rate);
+}
+
+
+VOID FormatGpuClocks( OSD_ITEM* Item )
+{
+	WCHAR *format;
+	float percentage;
+
+	if (Item->Flag == OSD_GPU_E_CLK)
+	{
+		format = L"GPU-e : %i MHz (%i %%)";
+		percentage = ((float)PushSharedMemory->HarwareInformation.DisplayDevice.EngineClock / 
+			(float)PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax) * 100.0f;
+	}
+		
+	else if (Item->Flag == OSD_GPU_M_CLK)
+	{
+		format = L"GPU-m : %i MHz (%i %%)";
+		percentage = ((float)PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClock / 
+			(float)PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax) * 100.0f;
+	}
+		
+	String_Format(Item->Text, MAX_OSD_TEXT_LEN, format, Item->Value, (int)percentage);
 }
 
 
@@ -141,6 +158,9 @@ VOID OSD_Refresh()
             osdItem->Triggered = TRUE;
             osdItem->Queue = TRUE;
 
+			//DynamicFormat = When formatting has to happen at run-time depending on the value, i.e. OSD_DISK => MBs=>KBs
+			//DisplayFormat = Standard formatting that most items use.
+
             if (osdItem->DisplayFormatPtr || osdItem->DynamicFormatPtr)
             {
                 if (osdItem->DynamicFormatPtr)
@@ -149,7 +169,8 @@ VOID OSD_Refresh()
 
                     dynamicFormat = (OSD_DYNAMIC_FORMAT) osdItem->DynamicFormatPtr;
 
-                    dynamicFormat(osdItem->Value2 ? osdItem->Value2 : 0, osdItem->Text);
+                    //dynamicFormat(osdItem->Value2 ? osdItem->Value2 : 0, osdItem->Text);
+					dynamicFormat(osdItem);
 
                     String_Concatenate(osdItem->Text, L"\n");
                 }
@@ -158,19 +179,19 @@ VOID OSD_Refresh()
                     wchar_t buffer[260];
                     int charactersWritten;
 
-                    charactersWritten = String_Format(
-                        buffer,
-                        260,
-                        (WCHAR*) osdItem->DisplayFormatPtr,
-                        osdItem->Value2 ? osdItem->Value2 : osdItem->Value
-                        );
+					charactersWritten = String_Format(
+						buffer,
+						260,
+						(WCHAR*)osdItem->DisplayFormatPtr,
+						osdItem->Value2 ? osdItem->Value2 : osdItem->Value
+						);
 
-                    String_CopyN(osdItem->Text, buffer, 20);
+                    String_CopyN(osdItem->Text, buffer, MAX_OSD_TEXT_LEN);
 
-                    osdItem->Text[18] = L'\0';
-                    osdItem->Text[19] = L'\n';
+                    osdItem->Text[MAX_OSD_TEXT_LEN - 2] = L'\0';
+                    osdItem->Text[MAX_OSD_TEXT_LEN - 1] = L'\n';
 
-                    if (charactersWritten > 18)
+                    if (charactersWritten > MAX_OSD_TEXT_LEN - 2)
                     {
                         Log(L"OSD_ITEM::Text buffer is too small for %s", buffer);
                     }
@@ -239,8 +260,8 @@ UINT32 OSD_Initialize()
 
     OSD_AddItem(OSD_GPU_LOAD, L"GPU Core utilization", L"GPU : %i %%", &hardware->DisplayDevice.Load, sizeof(UINT8), NULL, 90, NULL);
     OSD_AddItem(OSD_GPU_TEMP, L"GPU Core temperature", L"GPU : %i °C", &hardware->DisplayDevice.Temperature, sizeof(UINT8), NULL, 75, NULL);
-    OSD_AddItem(OSD_GPU_E_CLK, L"GPU Engine Clock", L"GPU-e : %i MHz", &hardware->DisplayDevice.EngineClock, sizeof(UINT32), NULL, 0, NULL);
-    OSD_AddItem(OSD_GPU_M_CLK, L"GPU Memory Clock", L"GPU-m : %i MHz", &hardware->DisplayDevice.MemoryClock, sizeof(UINT32), NULL, 0, NULL);
+    OSD_AddItem(OSD_GPU_E_CLK, L"GPU Engine Clock", L"GPU-e : %i MHz", &hardware->DisplayDevice.EngineClock, sizeof(UINT32), NULL, 0, FormatGpuClocks);
+    OSD_AddItem(OSD_GPU_M_CLK, L"GPU Memory Clock", L"GPU-m : %i MHz", &hardware->DisplayDevice.MemoryClock, sizeof(UINT32), NULL, 0, FormatGpuClocks);
     OSD_AddItem(OSD_GPU_VOLTAGE, L"GPU Voltage", L"GPU : %i mV", &hardware->DisplayDevice.Voltage, sizeof(UINT32), NULL, 0, NULL);
     OSD_AddItem(OSD_GPU_FAN_RPM, L"GPU Fan Speed", L"GPU : %i RPM", &hardware->DisplayDevice.FanSpeed, sizeof(UINT32), NULL, 0, NULL);
     OSD_AddItem(OSD_GPU_FAN_DC, L"GPU Fan Duty Cycle", L"GPU-f : %i %%", &hardware->DisplayDevice.FanDutyCycle, sizeof(UINT8), NULL, 90, NULL);
