@@ -532,6 +532,9 @@ VOID GetHardwareInfo()
     PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax = GPU_GetMaximumMemoryClock();
     PushSharedMemory->HarwareInformation.DisplayDevice.VoltageMax = GPU_GetMaximumVoltage();
 
+	Log(L"E: %i", PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax);
+	Log(L"M: %i", PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax);
+
     if (Ini_ReadBoolean(L"Settings", L"GpuUsageD3DKMT", FALSE, L".\\" PUSH_SETTINGS_FILE))
         PushGpuLoadD3DKMT = TRUE;
 
