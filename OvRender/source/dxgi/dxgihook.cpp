@@ -97,7 +97,7 @@ FakeWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 
-IDXGISwapChain* BuildDevice()
+IDXGISwapChain* BuildSwapChain()
 {
     IDXGIFactory* factory;
     IDXGIAdapter *pAdapter;
@@ -203,7 +203,7 @@ VOID DxgiHook_Initialize( IDXGISWAPCHAIN_HOOK* HookParameters )
     HkIDXGISwapChain_PresentCallback = (HK_IDXGISWAPCHAIN_CALLBACK) HookParameters->PresentCallback;
     HkIDXGISwapChain_ResizeBuffersCallback = (HK_IDXGISWAPCHAIN_CALLBACK) HookParameters->ResizeBuffersCallback;
 
-    swapChain = BuildDevice();
+	swapChain = BuildSwapChain();
 
     if (!swapChain)
         return;
