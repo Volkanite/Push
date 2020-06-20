@@ -70,112 +70,100 @@ UINT8 Nvapi_GetLoad()
 }
 
 
+UINT16 GetEngineClock( NvU32 ClockType )
+{
+	NV_CLOCKS clocksInfo;
+	NV_GPU_CLOCK_FREQUENCIES_V2 clkFreqs;
+	UINT16 coreClock;
+	int status;
+
+	coreClock = 0;
+
+	Memory_Clear(&clkFreqs, sizeof(NV_GPU_CLOCK_FREQUENCIES_V2));
+
+	clkFreqs.version = sizeof(NV_GPU_CLOCK_FREQUENCIES_V2) | 0x20000;
+	clkFreqs.ClockType = ClockType;
+
+	NvAPI_GPU_GetAllClockFrequencies(gpuHandles[0], &clkFreqs);
+
+	if (clkFreqs.domain[NVAPI_GPU_PUBLIC_CLOCK_GRAPHICS].bIsPresent)
+		coreClock = clkFreqs.domain[NVAPI_GPU_PUBLIC_CLOCK_GRAPHICS].frequency / 1000;
+
+	if (coreClock == 0)
+	{
+		Memory_Clear(&clocksInfo, sizeof(NV_CLOCKS));
+
+		clocksInfo.Version = sizeof(NV_CLOCKS) | 0x20000;
+
+		status = NvAPI_GPU_GetAllClocks(gpuHandles[0], &clocksInfo);
+
+		coreClock = 0.001f * clocksInfo.Clocks[NVAPI_CLOCK_TARGET_ENGINE];
+
+		if (clocksInfo.Clocks[30] != 0)
+		{
+			if (coreClock == 0)
+				coreClock = (UINT16)(clocksInfo.Clocks[30] * 0.0005f);
+		}
+	}
+
+	return coreClock;
+}
+
+
+UINT16 GetMemoryClock( NvU32 ClockType )
+{
+	NV_CLOCKS clocksInfo;
+	NV_GPU_CLOCK_FREQUENCIES_V2 clkFreqs;
+	UINT16 memoryClock;
+
+	memoryClock = 0;
+
+	Memory_Clear(&clkFreqs, sizeof(NV_GPU_CLOCK_FREQUENCIES_V2));
+
+	clkFreqs.version = sizeof(NV_GPU_CLOCK_FREQUENCIES_V2) | 0x20000;
+	clkFreqs.ClockType = ClockType;
+
+	NvAPI_GPU_GetAllClockFrequencies(gpuHandles[0], &clkFreqs);
+
+	if (clkFreqs.domain[NVAPI_GPU_PUBLIC_CLOCK_MEMORY].bIsPresent)
+		memoryClock = clkFreqs.domain[NVAPI_GPU_PUBLIC_CLOCK_MEMORY].frequency / 1000;
+
+	if (memoryClock == 0)
+	{
+		Memory_Clear(&clocksInfo, sizeof(NV_CLOCKS));
+
+		clocksInfo.Version = sizeof(NV_CLOCKS) | 0x20000;
+
+		NvAPI_GPU_GetAllClocks(gpuHandles[0], &clocksInfo);
+
+		memoryClock = 0.001f * clocksInfo.Clocks[NVAPI_CLOCK_TARGET_MEMORY];
+	}
+
+	return memoryClock / 2;//DDR (Double Data Rate)
+}
+
+
 UINT16 Nvapi_GetEngineClock()
 {
-    NV_CLOCKS clocksInfo;
-    NV_GPU_CLOCK_FREQUENCIES_V1 clkFreqs;
-    UINT16 coreClock;
-    int status;
-
-    coreClock = 0;
-
-    Memory_Clear(&clkFreqs, sizeof(NV_GPU_CLOCK_FREQUENCIES_V1));
-
-    clkFreqs.Version = sizeof(NV_GPU_CLOCK_FREQUENCIES_V1) | 0x20000;
-
-    NvAPI_GPU_GetAllClockFrequencies(gpuHandles[0], &clkFreqs);
-
-    if (clkFreqs.Domain[NVAPI_GPU_PUBLIC_CLOCK_GRAPHICS].bIsPresent)
-        coreClock = clkFreqs.Domain[NVAPI_GPU_PUBLIC_CLOCK_GRAPHICS].frequency / 1000;
-
-    if (coreClock == 0)
-    {
-        Memory_Clear(&clocksInfo, sizeof(NV_CLOCKS));
-
-        clocksInfo.Version = sizeof(NV_CLOCKS) | 0x20000;
-
-        status = NvAPI_GPU_GetAllClocks(gpuHandles[0], &clocksInfo);
-
-        coreClock = 0.001f * clocksInfo.Clocks[NVAPI_CLOCK_TARGET_ENGINE];
-
-        if (clocksInfo.Clocks[30] != 0)
-        {
-            if (coreClock == 0)
-                coreClock = (UINT16)(clocksInfo.Clocks[30] * 0.0005f);
-        }
-    }
-
-    return coreClock;
+	return GetEngineClock(NV_GPU_CLOCK_FREQUENCIES_CURRENT_FREQ);
 }
 
 
 UINT16 Nvapi_GetMemoryClock()
 {
-    NV_CLOCKS clocksInfo;
-    NV_GPU_CLOCK_FREQUENCIES_V1 clkFreqs;
-    UINT16 memoryClock;
-
-    memoryClock = 0;
-
-    Memory_Clear(&clkFreqs, sizeof(NV_GPU_CLOCK_FREQUENCIES_V1));
-
-    clkFreqs.Version = sizeof(NV_GPU_CLOCK_FREQUENCIES_V1) | 0x20000;
-
-    NvAPI_GPU_GetAllClockFrequencies(gpuHandles[0], &clkFreqs);
-
-    if (clkFreqs.Domain[NVAPI_GPU_PUBLIC_CLOCK_MEMORY].bIsPresent)
-        memoryClock = clkFreqs.Domain[NVAPI_GPU_PUBLIC_CLOCK_MEMORY].frequency / 1000;
-
-    if (memoryClock == 0)
-    {
-        Memory_Clear(&clocksInfo, sizeof(NV_CLOCKS));
-
-        clocksInfo.Version = sizeof(NV_CLOCKS) | 0x20000;
-
-        NvAPI_GPU_GetAllClocks(gpuHandles[0], &clocksInfo);
-
-        memoryClock = 0.001f * clocksInfo.Clocks[NVAPI_CLOCK_TARGET_MEMORY];
-    }
-
-    return memoryClock / 2;//DDR (Double Data Rate)
+	return GetMemoryClock(NV_GPU_CLOCK_FREQUENCIES_CURRENT_FREQ);
 }
 
 
-UINT16 Nvapi_GetMaxEngineClock()
+UINT16 Nvapi_GetBaseEngineClock()
 {
-    NV_GPU_PERF_PSTATES20_INFO_V1 *pstateInfo;
-    UINT16 frequency;
-
-    pstateInfo = pstateInfo = Memory_AllocateEx(/*sizeof(NV_GPU_PERF_PSTATES20_INFO_V1)*/0x11c94, HEAP_ZERO_MEMORY);
-
-    pstateInfo->version = /*sizeof(NV_GPU_PERF_PSTATES20_INFO_V1) | 0x10000;*/0x11c94;
-
-    NvAPI_GPU_GetPstates20(gpuHandles[0], pstateInfo);
-
-    frequency = pstateInfo->pstates[NVAPI_GPU_PERF_PSTATE_P0].clocks[0].data.range.maxFreq_kHz * 0.001f;
-
-    Memory_Free(pstateInfo);
-
-    return frequency;
+	return GetEngineClock(NV_GPU_CLOCK_FREQUENCIES_BASE_CLOCK);
 }
 
 
-UINT16 Nvapi_GetMaxMemoryClock()
+UINT16 Nvapi_GetBaseMemoryClock()
 {
-    NV_GPU_PERF_PSTATES20_INFO_V1 *pstateInfo;
-    UINT16 frequency;
-
-    pstateInfo = Memory_AllocateEx(/*sizeof(NV_GPU_PERF_PSTATES20_INFO_V1)*/0x11c94, HEAP_ZERO_MEMORY);
-
-    pstateInfo->version = /*sizeof(NV_GPU_PERF_PSTATES20_INFO_V1) | 0x10000;*/0x11c94;
-
-    NvAPI_GPU_GetPstates20(gpuHandles[0], pstateInfo);
-
-    frequency = pstateInfo->pstates[NVAPI_GPU_PERF_PSTATE_P0].clocks[1].data.single.freq_kHz * 0.001f;
-
-    Memory_Free(pstateInfo);
-
-    return frequency / 2;//DDR (Double Data Rate);
+	return GetMemoryClock(NV_GPU_CLOCK_FREQUENCIES_BASE_CLOCK);
 }
 
 

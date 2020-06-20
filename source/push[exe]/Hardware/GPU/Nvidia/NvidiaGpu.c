@@ -122,13 +122,13 @@ UINT8 NvidiaGpu_GetLoad()
 
 UINT16 NvidiaGpu_GetEngineClockMax()
 {
-    return Nvapi_GetMaxEngineClock();
+    return Nvapi_GetBaseEngineClock();
 }
 
 
 UINT16 NvidiaGpu_GetMemoryClockMax()
 {
-    return Nvapi_GetMaxMemoryClock();
+    return Nvapi_GetBaseMemoryClock();
 }
 
 

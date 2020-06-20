@@ -205,7 +205,7 @@ typedef struct _NV_GPU_COOLER_SETTINGS_V1
 }NV_GPU_COOLER_SETTINGS_V1;
 
 
-typedef struct _NV_GPU_CLOCK_FREQUENCIES_V1
+/*typedef struct _NV_GPU_CLOCK_FREQUENCIES_V1
 {
 	UINT32 Version;
 	UINT32 	Reserved;
@@ -218,7 +218,23 @@ typedef struct _NV_GPU_CLOCK_FREQUENCIES_V1
 
 	} Domain[NVAPI_MAX_GPU_PUBLIC_CLOCKS];
 
-}NV_GPU_CLOCK_FREQUENCIES_V1;
+}NV_GPU_CLOCK_FREQUENCIES_V1;*/
+
+typedef unsigned long NvU32;
+
+typedef struct
+{
+	NvU32   version;        //!< Structure version
+	NvU32   ClockType : 2;    //!< One of NV_GPU_CLOCK_FREQUENCIES_CLOCK_TYPE. Used to specify the type of clock to be returned.
+	NvU32   reserved : 22;    //!< These bits are reserved for future use. Must be set to 0.
+	NvU32   reserved1 : 8;    //!< These bits are reserved.
+	struct
+	{
+		NvU32 bIsPresent : 1;         //!< Set if this domain is present on this GPU
+		NvU32 reserved : 31;          //!< These bits are reserved for future use.
+		NvU32 frequency;            //!< Clock frequency (kHz)
+	}domain[NVAPI_MAX_GPU_PUBLIC_CLOCKS];
+} NV_GPU_CLOCK_FREQUENCIES_V2;
 
 
 typedef enum _NV_COOLER_POLICY
@@ -241,19 +257,6 @@ typedef struct _NV_GPU_SETCOOLER_LEVEL
 	} Cooler[NVAPI_MAX_COOLERS_PER_GPU];
 } NV_GPU_SETCOOLER_LEVEL;
 
-typedef unsigned long NvU32;
-
-/*typedef struct {
-	NvU32   version;
-	NvU32   ClockType : 2;
-	NvU32   reserved : 22;
-	NvU32   reserved1 : 8;
-	struct {
-		NvU32   bIsPresent : 1;
-		NvU32   reserved : 31;
-		NvU32   frequency;
-	}domain[32];
-} NV_GPU_CLOCK_FREQUENCIES_V2;*/
 
 typedef struct {
 	int value;
@@ -308,6 +311,15 @@ typedef struct {
 } NV_GPU_PERF_PSTATES20_INFO_V1;
 #pragma pack(pop)
 
+typedef enum
+{
+	NV_GPU_CLOCK_FREQUENCIES_CURRENT_FREQ = 0,
+	NV_GPU_CLOCK_FREQUENCIES_BASE_CLOCK = 1,
+	NV_GPU_CLOCK_FREQUENCIES_BOOST_CLOCK = 2,
+	NV_GPU_CLOCK_FREQUENCIES_CLOCK_TYPE_NUM = 3
+}   NV_GPU_CLOCK_FREQUENCIES_CLOCK_TYPE;
+
+
 typedef INT32 NvAPI_Status;
 
 typedef INT32 *(*TYPE_NvAPI_QueryInterface)(UINT32 offset);
@@ -316,7 +328,7 @@ typedef NvAPI_Status(*TYPE_NvAPI_EnumPhysicalGPUs)(INT32 **handles, INT32* count
 typedef NvAPI_Status(*TYPE_NvAPI_GetMemoryInfo)(HANDLE hPhysicalGpu, NV_MEMORY_INFO* memInfo);
 typedef NvAPI_Status(*TYPE_NvAPI_GPU_GetUsages)(HANDLE handle, NV_USAGES* Usages);
 typedef NvAPI_Status(*TYPE_NvAPI_GPU_GetAllClocks)(HANDLE GpuHandle, NV_CLOCKS* Clocks);
-typedef NvAPI_Status(*TYPE_NvAPI_GPU_GetAllClockFrequencies)(HANDLE GpuHandle, NV_GPU_CLOCK_FREQUENCIES_V1* Clocks);
+typedef NvAPI_Status(*TYPE_NvAPI_GPU_GetAllClockFrequencies)(HANDLE GpuHandle, NV_GPU_CLOCK_FREQUENCIES_V2* Clocks);
 typedef NvAPI_Status(*TYPE_NvAPI_GPU_GetPstatesInfo)(HANDLE GpuHandle, NV_GPU_PERF_PSTATES_INFO *PerfPstatesInfo);
 typedef NvAPI_Status(*TYPE_NvAPI_GPU_GetPstates20)(HANDLE GpuHandle, NV_GPU_PERF_PSTATES20_INFO_V1 *pstates_info);
 typedef NvAPI_Status(*TYPE_NvAPI_GPU_GetThermalSettings)(HANDLE PhysicalGpu, UINT32 SensorIndex, NV_GPU_THERMAL_SETTINGS* ThermalSettings);
@@ -330,8 +342,8 @@ BOOLEAN Nvapi_Initialize();
 UINT8 Nvapi_GetLoad();
 UINT16 Nvapi_GetEngineClock();
 UINT16 Nvapi_GetMemoryClock();
-UINT16 Nvapi_GetMaxEngineClock();
-UINT16 Nvapi_GetMaxMemoryClock();
+UINT16 Nvapi_GetBaseEngineClock();
+UINT16 Nvapi_GetBaseMemoryClock();
 UINT64 Nvapi_GetTotalMemory();
 UINT64 Nvapi_GetFreeMemory();
 UINT8  Nvapi_GetTemperature();
