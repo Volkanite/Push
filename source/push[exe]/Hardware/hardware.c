@@ -534,7 +534,10 @@ VOID GetHardwareInfo()
 
 	Log(L"E: %i", PushSharedMemory->HarwareInformation.DisplayDevice.EngineClockMax);
 	Log(L"M: %i", PushSharedMemory->HarwareInformation.DisplayDevice.MemoryClockMax);
-	InitializeFanSettings();
+
+	//Only implimented auto-fan control for Nvidia hardware D:
+	if (PushSharedMemory->HarwareInformation.DisplayDevice.VendorId == NVIDIA)
+		InitializeFanSettings();
 
     if (Ini_ReadBoolean(L"Settings", L"GpuUsageD3DKMT", FALSE, L".\\" PUSH_SETTINGS_FILE))
         PushGpuLoadD3DKMT = TRUE;

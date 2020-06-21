@@ -7,48 +7,68 @@
 int numTempPoints;
 int numColumns;
 int **arr;
+int AmbientTemp;
 
 
-void InitializeFanSettings()
+void FreeSpeedMap()
+{
+	for (int i = 0; i < numTempPoints; i++)
+	{
+		Memory_Free(arr[i]);
+	}
+
+	Memory_Free(arr);
+
+	arr = NULL;
+}
+
+
+void DrawSpeedMap( UINT32 MinTemp )
 {
 	int fanHigh = 80;
 	int fanLow = 30;
 	int tempMax = 80;
-	int tempMin = 24;
-	int numFanPoints;	
+	//int tempMin = 24;
+	int numFanPoints;
 	int temp;
 	float fanIncrease;
 	float fanSpeed;
 
 	numFanPoints = fanHigh - fanLow;
-	numTempPoints = tempMax - tempMin;
-	fanIncrease = (float) numFanPoints / (float) numTempPoints;
+	numTempPoints = tempMax - MinTemp;
+	fanIncrease = (float)numFanPoints / (float)numTempPoints;
 
-	fanSpeed = (float) fanLow;
-	temp = tempMin;
+	fanSpeed = (float)fanLow;
+	temp = MinTemp;
 
-	arr = Memory_Allocate((numTempPoints+1) * sizeof(int *));
+	if (arr != NULL)
+	{
+		Log(L"Destroying speed map");
+		FreeSpeedMap();
+	}
+
+	arr = Memory_Allocate((numTempPoints + 1) * sizeof(int *));
 	numColumns = 2;
 
-	if (arr == NULL)
+	/*if (arr == NULL)
 	{
 		Log(L"out of memory");
 		return;
-	}
+	}*/
 
-	for (int i = 0; i < numTempPoints+1; i++)
+	for (int i = 0; i < numTempPoints + 1; i++)
 	{
 		arr[i] = Memory_Allocate(numColumns * sizeof(int));
 	}
 
 	int j = 0;
 
-	for (int i = 0; i < numTempPoints+1; i++)
+	for (int i = 0; i < numTempPoints + 1; i++)
 	{
 		for (j = 0; j < numColumns; j++)
 		{
 			arr[i][0] = temp;
-			arr[i][1] = (int) fanSpeed;
+			arr[i][1] = (int)fanSpeed;
 		}
 
 		fanSpeed += fanIncrease;
@@ -59,6 +79,14 @@ void InitializeFanSettings()
 	{
 		Log(L"[temp] = %i [fanSpeed] = %i", arr[i][0], arr[i][1]);
 	}*/
+}
+
+
+void InitializeFanSettings()
+{
+	AmbientTemp = Nvapi_GetTemperature();
+
+	DrawSpeedMap(AmbientTemp);
 }
 
 
@@ -86,6 +114,15 @@ void UpdateFanSpeed()
 	int speedForTemp;
 
 	temp = Nvapi_GetTemperature();
+
+	//draw a new speed map every time a lower ambient temp is
+	//discovered.
+	if (temp < AmbientTemp)
+	{
+		AmbientTemp = temp;
+		DrawSpeedMap(AmbientTemp);
+	}
+
 	fanSpeed = Nvapi_GetFanDutyCycle();
 	speedForTemp = GetSpeedFromMap(temp);
 
