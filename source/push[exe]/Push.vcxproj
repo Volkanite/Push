@@ -35,6 +35,7 @@
     <ClCompile Include="Hardware\GPU\AMD\atom.c" />
     <ClCompile Include="Hardware\GPU\AMD\AtomBios.c" />
     <ClCompile Include="Hardware\GPU\d3dkmt.c" />
+    <ClCompile Include="Hardware\GPU\fan.c" />
     <ClCompile Include="Hardware\GPU\gpu.c" />
     <ClCompile Include="Hardware\GPU\Intel\IntelGpu.c" />
     <ClCompile Include="Hardware\GPU\Nvidia\nv50.c" />
@@ -87,6 +88,7 @@
     <ClInclude Include="Hardware\GPU\AMD\adl.h" />
     <ClInclude Include="Hardware\GPU\AMD\AmdGpu.h" />
     <ClInclude Include="Hardware\GPU\d3dkmt.h" />
+    <ClInclude Include="Hardware\GPU\fan.h" />
     <ClInclude Include="Hardware\GPU\gpu.h" />
     <ClInclude Include="Hardware\GPU\Intel\IntelGpu.h" />
     <ClInclude Include="Hardware\GPU\Nvidia\nv50.h" />

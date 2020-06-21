@@ -1,0 +1,2 @@
+void InitializeFanSettings();
+void UpdateFanSpeed();

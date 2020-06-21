@@ -158,6 +158,9 @@
       <Filter>Hardware</Filter>
     </ClCompile>
     <ClCompile Include="wr0shell.c" />
+    <ClCompile Include="Hardware\GPU\fan.c">
+      <Filter>Hardware\GPU</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\cache.h">
@@ -246,6 +249,9 @@
     </ClInclude>
     <ClInclude Include="Hardware\wr0.h">
       <Filter>Hardware</Filter>
+    </ClInclude>
+    <ClInclude Include="Hardware\GPU\fan.h">
+      <Filter>Hardware\GPU</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
