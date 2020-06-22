@@ -185,12 +185,21 @@ WCHAR ModuleName[260];
 BOOLEAN Guard;
 void HookDirectInput();
 
+
 LRESULT CALLBACK OverlayCBTProc(
     _In_ int    nCode,
     _In_ WPARAM wParam,
     _In_ LPARAM lParam
     )
 {
+	if (nCode == HCBT_KEYSKIPPED)
+	{
+		if ((0x80000000 & lParam) == 0)//key down
+		{
+			Menu_KeyboardHook(wParam);
+		}
+	}
+		
     if (!RenderThreadHandle && !Guard)
     {
         Guard = TRUE;
@@ -216,6 +225,8 @@ LRESULT CALLBACK OverlayCBTProc(
     
     return CallNextHookEx(Hook, nCode, wParam, lParam);
 }
+
+
 extern "C" __declspec(dllexport) VOID InstallOverlayHook()
 {
     Hook = SetWindowsHookExA(WH_CBT, OverlayCBTProc, OverlayInstance, 0);

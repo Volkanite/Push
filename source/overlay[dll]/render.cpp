@@ -293,7 +293,7 @@ VOID RnRender( OvOverlay* Overlay )
     {
         rendering = TRUE;
 
-        InitializeKeyboardHook();
+        //InitializeKeyboardHook();
 
         COMMAND_HEADER cmdBufferr;
         cmdBufferr.CommandIndex= CMD_STARTHWMON;
