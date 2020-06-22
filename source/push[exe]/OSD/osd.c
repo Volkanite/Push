@@ -7,17 +7,18 @@
 
 int NumberOfItems;
 
+
 typedef enum CPU_CALC_INDEX
 {
-    CPU_CALC_twc,
-    CPU_CALC_t,
-    CPU_CALC_o,
-    CPU_CALC_c
+    CPU_CALC_twc,   //highest thread usage, with wait cycles stripped. [Default]
+    CPU_CALC_t,     //highest thread usage
+    CPU_CALC_o,     //overall cpu usage (all cores)
+    CPU_CALC_c      //highest core usage
 
 } CPU_CALC_INDEX;
+
+
 CPU_CALC_INDEX CPUStrap = CPU_CALC_twc;/*CPU_CALC_o;*/
-
-
 OSD_ITEM* OsdItems;
 
 
