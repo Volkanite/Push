@@ -46,6 +46,7 @@ typedef struct OV_HOOK_PARAMS{
     WCHAR*                  FontName;
     BOOLEAN                 FontBold;
     DWORD                   InterfaceFlags;
+	HWND					WindowHandle;
 }OV_HOOK_PARAMS;
 
 typedef struct _FONT_PROPERTIES{

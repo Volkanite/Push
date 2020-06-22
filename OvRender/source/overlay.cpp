@@ -16,6 +16,7 @@ DDrawOverlay*   DirectDrawOverlay;
 //UINT32 BackBufferWidth;
 //UINT32 BackBufferHeight;
 OV_GRAPHICS_API GraphicsApi;
+HWND OvWindowHandle;
 
 
 OvOverlay::OvOverlay()
@@ -49,6 +50,8 @@ VOID OvCreateOverlay( OV_HOOK_PARAMS* HookParameters )
 {
     OV_HOOK_PARAMS *hookParams = (OV_HOOK_PARAMS*)HookParameters;
     DWORD flags = hookParams->InterfaceFlags;
+	
+	OvWindowHandle = HookParameters->WindowHandle;
 
     if ((flags & OV_D3D8) && D3D8Overlay == NULL)
     {

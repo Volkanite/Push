@@ -14,8 +14,7 @@
 Dx11Overlay* D3D11Overlay;
 Dx10Overlay* DxgiOvDx10Overlay;
 extern DxgiOverlay* DXGIOverlay;
-
-
+extern HWND OvWindowHandle;
 
 
 typedef HRESULT (WINAPI* TYPE_IDXGIFactory_CreateSwapChain) (
@@ -83,6 +82,7 @@ DxgiOverlay::DxgiOverlay( OV_RENDER RenderFunction )
 
     hookParams.PresentCallback = IDXGISwapChain_PresentCallback;
     hookParams.ResizeBuffersCallback = IDXGISwapChain_ResizeBuffersCallback;
+	hookParams.WindowHandle = OvWindowHandle;
 
     DxgiHook_Initialize(&hookParams);
 }

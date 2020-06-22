@@ -97,95 +97,62 @@ FakeWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 
-IDXGISwapChain* BuildSwapChain()
+IDXGISwapChain* BuildSwapChain( HWND WindowHandle )
 {
-    IDXGIFactory* factory;
-    IDXGIAdapter *pAdapter;
-    IDXGISwapChain* swapChain;
-    ID3D10Device *pDevice;
-    UINT CreateFlags = 0;
-    DXGI_MODE_DESC requestedMode;
-    DXGI_SWAP_CHAIN_DESC scDesc;
-    HWND windowHandle;
-    HRESULT hr;
+	IDXGIFactory* factory;
+	IDXGIAdapter *pAdapter;
+	IDXGISwapChain* swapChain;
+	ID3D10Device *pDevice;
+	UINT CreateFlags = 0;
+	DXGI_MODE_DESC requestedMode;
+	DXGI_SWAP_CHAIN_DESC scDesc;
+	HRESULT hr;
 
-    CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
-    factory->EnumAdapters(0, &pAdapter);
+	CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory);
+	factory->EnumAdapters(0, &pAdapter);
 
-    D3D10CreateDevice(
-        pAdapter,
-        D3D10_DRIVER_TYPE_HARDWARE,
-        NULL,
-        CreateFlags,
-        D3D10_SDK_VERSION,
-        &pDevice
-        );
+	D3D10CreateDevice(
+		pAdapter,
+		D3D10_DRIVER_TYPE_HARDWARE,
+		NULL,
+		CreateFlags,
+		D3D10_SDK_VERSION,
+		&pDevice
+		);
 
-    requestedMode.Width = 500;
-    requestedMode.Height = 500;
-    requestedMode.RefreshRate.Numerator = 0;
-    requestedMode.RefreshRate.Denominator = 0;
-    requestedMode.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-    requestedMode.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-    requestedMode.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+	requestedMode.Width = 500;
+	requestedMode.Height = 500;
+	requestedMode.RefreshRate.Numerator = 0;
+	requestedMode.RefreshRate.Denominator = 0;
+	requestedMode.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	requestedMode.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	requestedMode.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 
-    // Create fake window
+	if (!WindowHandle)
+	{
+		OvLog(L"Invalid window handle");
+		return NULL;
+	}
 
-    WNDCLASSEX windowClass = { 0 };
+	// Now create the thing
 
-    windowClass.lpfnWndProc = FakeWndProc;
-    windowClass.lpszClassName = L"JustGimmeADamnWindow";
-    windowClass.cbSize = sizeof(WNDCLASSEX);
+	scDesc.BufferDesc = requestedMode;
+	scDesc.SampleDesc.Count = 1;
+	scDesc.SampleDesc.Quality = 0;
+	scDesc.BufferUsage = DXGI_USAGE_BACK_BUFFER | DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	scDesc.BufferCount = 2;
+	scDesc.OutputWindow = WindowHandle;
+	scDesc.Windowed = TRUE;
+	scDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	scDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-    ATOM classy = RegisterClassExW(&windowClass);
+	hr = factory->CreateSwapChain(pDevice, &scDesc, &swapChain);
 
-    if (!classy)
-    {
-        OvLog(L"RegisterClassExW failed with 0x%i", GetLastError());
-        return NULL;
-    }
-
-    windowHandle = CreateWindowExW(
-        0,
-        L"JustGimmeADamnWindow",
-        L"HwBtYouJustGimmeMyDamnWindow?",
-        WS_SYSMENU,
-        CW_USEDEFAULT,
-        NULL,
-        300,
-        300,
-        0, 0, 0, 0
-        );
-
-    if (!windowHandle)
-    {
-        OvLog(L"CreateWindowExW failed with 0x%i", GetLastError());
-        return NULL;
-    }
-
-    // Now create the thing
-
-    scDesc.BufferDesc = requestedMode;
-    scDesc.SampleDesc.Count = 1;
-    scDesc.SampleDesc.Quality = 0;
-    scDesc.BufferUsage = DXGI_USAGE_BACK_BUFFER | DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    scDesc.BufferCount = 2;
-    scDesc.OutputWindow = windowHandle;
-    scDesc.Windowed = TRUE;
-    scDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-    scDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-
-    hr = factory->CreateSwapChain(pDevice, &scDesc, &swapChain);
-
-    if (FAILED(hr))
-    {
-        OvLog(L"IDXGIFactory::CreateSwapChain failed! hr=0x%X",hr);
-        return NULL;
-    }
-
-    // Destroy window
-    DestroyWindow(windowHandle);
-    UnregisterClassW(L"JustGimmeADamnWindow", GetModuleHandleW(NULL));
+	if (FAILED(hr))
+	{
+		OvLog(L"IDXGIFactory::CreateSwapChain failed! hr=0x%X", hr);
+		return NULL;
+	}
 
     return swapChain;
 }
@@ -203,7 +170,7 @@ VOID DxgiHook_Initialize( IDXGISWAPCHAIN_HOOK* HookParameters )
     HkIDXGISwapChain_PresentCallback = (HK_IDXGISWAPCHAIN_CALLBACK) HookParameters->PresentCallback;
     HkIDXGISwapChain_ResizeBuffersCallback = (HK_IDXGISWAPCHAIN_CALLBACK) HookParameters->ResizeBuffersCallback;
 
-	swapChain = BuildSwapChain();
+	swapChain = BuildSwapChain(HookParameters->WindowHandle);
 
     if (!swapChain)
         return;

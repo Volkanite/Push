@@ -199,29 +199,42 @@ LRESULT CALLBACK OverlayCBTProc(
 			Menu_KeyboardHook(wParam);
 		}
 	}
-		
-    if (!RenderThreadHandle && !Guard)
-    {
-        Guard = TRUE;
-        OV_HOOK_PARAMS hookParams = { 0 };
 
-        hookParams.RenderFunction = RnRender;
+	if (nCode == HCBT_ACTIVATE || nCode == HCBT_CREATEWND || nCode == HCBT_SETFOCUS)
+	{
+		/*if (nCode == HCBT_CREATEWND)
+			Log(L"CreateWindow(0x%X)", wParam);
 
-        if (PushSharedMemory->VsyncOverrideMode == PUSH_VSYNC_FORCE_ON)
-        {
-            hookParams.VsyncOverrideMode = VSYNC_FORCE_ON;
-        }
-        else if (PushSharedMemory->VsyncOverrideMode == PUSH_VSYNC_FORCE_OFF)
-            hookParams.VsyncOverrideMode = VSYNC_FORCE_OFF;
+		if (nCode == HCBT_ACTIVATE)
+			Log(L"ActivateWindow(0x%X)", wParam);
 
-        hookParams.FontName = PushSharedMemory->FontName;
-        hookParams.FontBold = PushSharedMemory->FontBold;
-        hookParams.InterfaceFlags = GetOverlayMask();
+		if (nCode == HCBT_SETFOCUS)
+			Log(L"SetFocus(0x%X)", wParam);*/
 
-        OvCreateOverlay(&hookParams);
-        //HookDirectInput();
-        Guard = FALSE;
-    }
+		if (!RenderThreadHandle && !Guard)
+		{
+			Guard = TRUE;
+			OV_HOOK_PARAMS hookParams = { 0 };
+
+			hookParams.RenderFunction = RnRender;
+
+			if (PushSharedMemory->VsyncOverrideMode == PUSH_VSYNC_FORCE_ON)
+			{
+				hookParams.VsyncOverrideMode = VSYNC_FORCE_ON;
+			}
+			else if (PushSharedMemory->VsyncOverrideMode == PUSH_VSYNC_FORCE_OFF)
+				hookParams.VsyncOverrideMode = VSYNC_FORCE_OFF;
+
+			hookParams.FontName = PushSharedMemory->FontName;
+			hookParams.FontBold = PushSharedMemory->FontBold;
+			hookParams.InterfaceFlags = GetOverlayMask();
+			hookParams.WindowHandle = (HWND)wParam;
+
+			OvCreateOverlay(&hookParams);
+			//HookDirectInput();
+			Guard = FALSE;
+		}
+	}
     
     return CallNextHookEx(Hook, nCode, wParam, lParam);
 }
