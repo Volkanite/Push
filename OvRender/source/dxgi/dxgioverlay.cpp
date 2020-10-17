@@ -38,11 +38,13 @@ VOID DxgiOvInit( IDXGISwapChain* SwapChain )
         D3D11Overlay = new Dx11Overlay(SwapChain, DXGIOverlay->UserRenderFunction);
         GraphicsApi = API_D3D11;
         D3D11Overlay->FontProperties = DXGIOverlay->FontProperties;
+		OvLog(L"DxgiOvInit D3D11");
     }
     else if (SUCCEEDED(SwapChain->GetDevice(__uuidof(ID3D10Device), (void **) &device10)))
     {
         DxgiOvDx10Overlay = new Dx10Overlay(device10, DXGIOverlay->UserRenderFunction);
         GraphicsApi = API_D3D10;
+		OvLog(L"DxgiOvInit D3D10");
     }
 
     DxgiOverlayInitialized = TRUE;

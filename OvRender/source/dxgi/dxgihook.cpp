@@ -9,11 +9,18 @@
 #pragma comment(lib, "d3d10.lib")
 
 
-typedef HRESULT (__stdcall* TYPE_IDXGISwapChain_Present) (
+typedef HRESULT (__stdcall* TYPE_IDXGISwapChain_Present0) (
     IDXGISwapChain *SwapChain,
     UINT SyncInterval,
     UINT Flags
     );
+
+typedef HRESULT(__stdcall* TYPE_IDXGISwapChain_Present1) (
+	IDXGISwapChain *SwapChain,
+	UINT SyncInterval,
+	UINT Flags,
+	const void* pPresentParameters
+	);
 
 typedef HRESULT(__stdcall* TYPE_IDXGISwapChain_ResizeBuffers) (
     IDXGISwapChain *SwapChain,
@@ -24,7 +31,8 @@ typedef HRESULT(__stdcall* TYPE_IDXGISwapChain_ResizeBuffers) (
     UINT SwapChainFlags
     );
 
-TYPE_IDXGISwapChain_Present         HkIDXGISwapChain_Present;
+TYPE_IDXGISwapChain_Present0         HkIDXGISwapChain_Present;
+TYPE_IDXGISwapChain_Present1		_Present1;
 TYPE_IDXGISwapChain_ResizeBuffers   HkIDXGISwapChain_ResizeBuffers;
 
 typedef VOID (*HK_IDXGISWAPCHAIN_CALLBACK)(
@@ -59,9 +67,41 @@ HRESULT __stdcall IDXGISwapChain_PresentHook(
     {
         HkIDXGISwapChain_PresentCallback(SwapChain);
     }
-
-    return HkIDXGISwapChain_Present(SwapChain, SyncInterval, Flags);
+	//OvLog(L"Hook before @ IDXGISwapChain_Present");
+    HRESULT hr = HkIDXGISwapChain_Present(SwapChain, SyncInterval, Flags);
+	//OvLog(L"Hook after @ IDXGISwapChain_Present");
+	return hr;
 }
+typedef HRESULT(__fastcall* tPresent)(IDXGISwapChain* pThis, UINT SyncInterval, UINT Flags);
+tPresent oPresent = nullptr;
+HRESULT __fastcall hkPresent(IDXGISwapChain* pThis, void* notused, UINT SyncInterval, UINT Flags)
+{
+	return oPresent(pThis, SyncInterval, Flags);
+}
+
+/*HRESULT __stdcall IDXGISwapChain_Present1Hook(
+	IDXGISwapChain* SwapChain,
+	UINT SyncInterval,
+	UINT Flags,
+	const void* pPresentParameters
+	)
+{
+	static BOOLEAN init = FALSE;
+
+	if (!init)
+	{
+		init = TRUE;
+
+		OvLog(L"Hook called @ IDXGISwapChain_Present1");
+	}
+
+	if (HkIDXGISwapChain_PresentCallback)
+	{
+		HkIDXGISwapChain_PresentCallback(SwapChain);
+	}
+
+	return _Present1(SwapChain, SyncInterval, Flags, pPresentParameters);
+}*/
 
 
 HRESULT __stdcall IDXGISwapChain_ResizeBuffersHook( 
@@ -75,7 +115,7 @@ HRESULT __stdcall IDXGISwapChain_ResizeBuffersHook(
 {
     if (HkIDXGISwapChain_ResizeBuffersCallback)
     {
-        HkIDXGISwapChain_ResizeBuffersCallback(SwapChain);
+        //HkIDXGISwapChain_ResizeBuffersCallback(SwapChain);
     }
 
     return HkIDXGISwapChain_ResizeBuffers(
@@ -160,34 +200,231 @@ IDXGISwapChain* BuildSwapChain( HWND WindowHandle )
 
 DETOUR_PROPERTIES DetourDXGIPresent;
 DETOUR_PROPERTIES DetourDXGIResizeBuffers;
+DETOUR_PROPERTIES DetourCreateFactory0;
+DETOUR_PROPERTIES DetourCreateFactory1;
+DETOUR_PROPERTIES DetourCreateSwapChain0;
+DETOUR_PROPERTIES DetourCreateSwapChain1;
+
+typedef HRESULT(__stdcall *TYPE_CreateDXGIFactory)(REFIID, void**);
+typedef HRESULT(__stdcall *TYPE_CreateSwapChain)(
+	IDXGIFactory1                  *factory,
+	IUnknown                        *pDevice,
+	DXGI_SWAP_CHAIN_DESC            *pDesc,
+	IDXGISwapChain                  **ppSwapChain
+	);
+
+
+TYPE_CreateDXGIFactory	_CreateDXGIFactory0;
+TYPE_CreateDXGIFactory	_CreateDXGIFactory1;
+TYPE_CreateSwapChain	_CreateSwapChain;
+BOOL Factory_CreateSwapChainHooked;
+
+
+HRESULT __stdcall CreateSwapChain0_hook(
+	IDXGIFactory1                   *factory,
+	IUnknown                        *pDevice,
+	DXGI_SWAP_CHAIN_DESC            *pDesc,
+	IDXGISwapChain                  **ppSwapChain
+	) 
+{
+	VOID **vmt;
+	IDXGISwapChain* swapChain;
+	
+	OvLog(L"CreateSwapChain!");
+
+	HRESULT res = _CreateSwapChain(factory, pDevice, pDesc, ppSwapChain);
+
+	if (FAILED(res)) {
+		OvLog(L"Swap chain creation failed, bailing out");
+		return res;
+	}
+
+	swapChain = *ppSwapChain;
+
+	if (!swapChain)
+		return res;
+
+	vmt = (VOID**) swapChain;
+	vmt = (VOID**) vmt[0];
+
+	if (HkIDXGISwapChain_Present)
+		return res;
+
+#ifdef _M_IX86
+	DetourCreate(vmt[8], IDXGISwapChain_PresentHook, &DetourDXGIPresent);
+	HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present0)DetourDXGIPresent.Trampoline;
+#else
+	DetourCreate(vmt[8], hkPresent, &DetourDXGIPresent);
+	oPresent = (tPresent)DetourDXGIPresent.Trampoline;
+#endif
+
+	DetourCreate(vmt[13], IDXGISwapChain_ResizeBuffersHook, &DetourDXGIResizeBuffers);
+	HkIDXGISwapChain_ResizeBuffers = (TYPE_IDXGISwapChain_ResizeBuffers)DetourDXGIResizeBuffers.Trampoline;
+
+	return res;
+}
+
+
+/*HRESULT __stdcall CreateSwapChain1_hook(
+	IDXGIFactory1                   *factory,
+	IUnknown                        *pDevice,
+	DXGI_SWAP_CHAIN_DESC            *pDesc,
+	IDXGISwapChain                  **ppSwapChain
+	)
+{
+	VOID **vmt;
+	IDXGISwapChain* swapChain;
+	swapChain = *ppSwapChain;
+
+	OvLog(L"CreateSwapChain1");
+
+	HRESULT res = _CreateSwapChain(factory, pDevice, pDesc, ppSwapChain);
+
+	if (FAILED(res)) {
+		OvLog(L"Swap chain creation failed, bailing out");
+		return res;
+	}
+
+	if (!swapChain)
+		return res;
+
+	vmt = (VOID**)swapChain;
+	vmt = (VOID**)vmt[0];
+
+	if (HkIDXGISwapChain_Present)
+		return res;
+
+	DetourCreate(vmt[22], IDXGISwapChain_Present1Hook, &DetourDXGIPresent);
+	_Present1 = (TYPE_IDXGISwapChain_Present1)DetourDXGIPresent.Trampoline;
+
+	DetourCreate(vmt[13], IDXGISwapChain_ResizeBuffersHook, &DetourDXGIResizeBuffers);
+	HkIDXGISwapChain_ResizeBuffers = (TYPE_IDXGISwapChain_ResizeBuffers)DetourDXGIResizeBuffers.Trampoline;
+
+	return res;
+}*/
+
+
+HRESULT __stdcall CreateDXGIFactory0_hook( REFIID riid, void** ppFactory ) 
+{
+	OvLog(L"CreateDXGIFactory called");
+
+	HRESULT res = _CreateDXGIFactory0(riid, ppFactory);
+
+	if (SUCCEEDED(res)) 
+	{
+		VOID **vmt;
+		IDXGIFactory* factory = (IDXGIFactory *)*ppFactory;
+
+		if (!factory)
+			return res;
+
+		vmt = (VOID**)factory;
+		vmt = (VOID**)vmt[0];
+
+		if (!Factory_CreateSwapChainHooked)
+		{
+			DetourCreate(vmt[10], CreateSwapChain0_hook, &DetourCreateSwapChain0);
+			_CreateSwapChain = (TYPE_CreateSwapChain)DetourCreateSwapChain0.Trampoline;
+
+			Factory_CreateSwapChainHooked = TRUE;
+		}
+	}
+	else 
+	{
+		OvLog(L"CreateDXGIFactory failed!");
+	}
+
+	return res;
+}
+
+
+HRESULT __stdcall CreateDXGIFactory1_hook(REFIID riid, void** ppFactory) 
+{
+	OvLog(L"CreateDXGIFactory1 called");
+
+	HRESULT res = _CreateDXGIFactory1(riid, ppFactory);
+
+	if (SUCCEEDED(res))
+	{
+		VOID **vmt;
+		IDXGIFactory* factory = (IDXGIFactory *)*ppFactory;
+
+		if (!factory)
+			return res;
+
+		vmt = (VOID**)factory;
+		vmt = (VOID**)vmt[0];
+
+		if (!Factory_CreateSwapChainHooked)
+		{
+			DetourCreate(vmt[10], CreateSwapChain0_hook, &DetourCreateSwapChain1);
+			_CreateSwapChain = (TYPE_CreateSwapChain)DetourCreateSwapChain1.Trampoline;
+
+			Factory_CreateSwapChainHooked = TRUE;
+		}
+	}
+	else
+	{
+		OvLog(L"CreateDXGIFactory failed!");
+	}
+
+	return res;
+}
+
+
+void CaptureInterface()
+{
+	HMODULE module = LoadLibraryW(L"dxgi.dll");
+	void *fac0 = GetProcAddress(module, "CreateDXGIFactory");
+	void *fac1 = GetProcAddress(module, "CreateDXGIFactory1");
+
+	DetourCreate(fac0, CreateDXGIFactory0_hook, &DetourCreateFactory0);
+	_CreateDXGIFactory0 = (TYPE_CreateDXGIFactory)DetourCreateFactory0.Trampoline;
+
+	DetourCreate(fac1, CreateDXGIFactory1_hook, &DetourCreateFactory1);
+	_CreateDXGIFactory1 = (TYPE_CreateDXGIFactory)DetourCreateFactory1.Trampoline;
+}
+
+void ReplaceVirtualMethod(void **VTable, int Function, void *Detour);
+
+void BuildInterface( HWND WindowHandle )
+{
+	IDXGISwapChain* swapChain;
+	VOID **vmt;
+
+	swapChain = BuildSwapChain(WindowHandle);
+
+	if (!swapChain)
+	return;
+
+	vmt = (VOID**) swapChain;
+	vmt = (VOID**) vmt[0];
+
+	//OvLog(L"Present: 0x%X", vmt[8]);
+
+	if (!HkIDXGISwapChain_Present)
+	{
+		HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present0)vmt[8];
+		ReplaceVirtualMethod(vmt, 8, IDXGISwapChain_PresentHook);
+
+		/*DetourCreate(vmt[8], IDXGISwapChain_PresentHook, &DetourDXGIPresent);
+		HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present0)DetourDXGIPresent.Trampoline;
+
+		DetourCreate(vmt[13], IDXGISwapChain_ResizeBuffersHook, &DetourDXGIResizeBuffers);
+		HkIDXGISwapChain_ResizeBuffers = (TYPE_IDXGISwapChain_ResizeBuffers)DetourDXGIResizeBuffers.Trampoline;*/
+	}
+
+	swapChain->Release();
+}
 
 
 VOID DxgiHook_Initialize( IDXGISWAPCHAIN_HOOK* HookParameters )
 {
-    IDXGISwapChain* swapChain;
-    VOID **vmt;
-
-    HkIDXGISwapChain_PresentCallback = (HK_IDXGISWAPCHAIN_CALLBACK) HookParameters->PresentCallback;
-    HkIDXGISwapChain_ResizeBuffersCallback = (HK_IDXGISWAPCHAIN_CALLBACK) HookParameters->ResizeBuffersCallback;
-
-	swapChain = BuildSwapChain(HookParameters->WindowHandle);
-
-    if (!swapChain)
-        return;
-
-    vmt = (VOID**) swapChain;
-    vmt = (VOID**) vmt[0];
-
-    if (!HkIDXGISwapChain_Present)
-    {
-        DetourCreate(vmt[8], IDXGISwapChain_PresentHook, &DetourDXGIPresent);
-        HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present)DetourDXGIPresent.Trampoline;
-        
-        DetourCreate(vmt[13], IDXGISwapChain_ResizeBuffersHook, &DetourDXGIResizeBuffers);
-        HkIDXGISwapChain_ResizeBuffers = (TYPE_IDXGISwapChain_ResizeBuffers)DetourDXGIResizeBuffers.Trampoline;
-    }
-
-	swapChain->Release();
+	HkIDXGISwapChain_PresentCallback = (HK_IDXGISWAPCHAIN_CALLBACK)HookParameters->PresentCallback;
+	HkIDXGISwapChain_ResizeBuffersCallback = (HK_IDXGISWAPCHAIN_CALLBACK)HookParameters->ResizeBuffersCallback;
+	
+	BuildInterface(HookParameters->WindowHandle);
+	//CaptureInterface();
 }
 
 
