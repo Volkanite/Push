@@ -200,7 +200,8 @@ VOID Overclock()
 {
 	HANDLE windowHandle;
 	
-	WNDCLASSEX windowClass = { 0 };
+	WNDCLASSEX windowClass /*= { 0 }*/;
+	Memory_Clear(&windowClass, sizeof(windowClass));
 
 	windowClass.WndProc = OverlockWndProc;
 	windowClass.ClassName = L"overclock";

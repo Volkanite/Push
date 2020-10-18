@@ -1542,9 +1542,9 @@ struct atom_context *amdgpu_atom_parse(struct card_info *card, void *bios)
         Log(L"ATOMFIX: Code needs fixing");
         return NULL;
     }
-    if (strncmp
+    if (ntdll_strncmp
         (CSTR(ATOM_ATI_MAGIC_PTR), ATOM_ATI_MAGIC,
-         strlen(ATOM_ATI_MAGIC))) {
+         ntdll_strlen(ATOM_ATI_MAGIC))) {
         Log(L"Invalid ATI magic\n");
         //kfree(ctx);
         Log(L"ATOMFIX: Code needs fixing");
@@ -1552,9 +1552,9 @@ struct atom_context *amdgpu_atom_parse(struct card_info *card, void *bios)
     }
 
     base = CU16(ATOM_ROM_TABLE_PTR);
-    if (strncmp
+    if (ntdll_strncmp
         (CSTR(base + ATOM_ROM_MAGIC_PTR), ATOM_ROM_MAGIC,
-         strlen(ATOM_ROM_MAGIC))) {
+         ntdll_strlen(ATOM_ROM_MAGIC))) {
         Log(L"Invalid ATOM magic\n");
         //kfree(ctx);
         Log(L"ATOMFIX: Code needs fixing");
@@ -1591,7 +1591,7 @@ struct atom_context *amdgpu_atom_parse(struct card_info *card, void *bios)
            }
        }
 
-      len = strlen(bios_name);
+      len = ntdll_strlen(bios_name);
       if (len > 63)
           len = 63;
       UTF8ToWchar(help, 260, str, len);
@@ -1618,7 +1618,7 @@ int amdgpu_atom_asic_init(struct atom_context *ctx)
     uint32_t ps[16];
     int ret;
 
-    memset(ps, 0, 64);
+    ntdll_memset(ps, 0, 64);
 
     //ps[0] = cpu_to_le32(CU32(hwi + ATOM_FWI_DEFSCLK_PTR));
     //ps[1] = cpu_to_le32(CU32(hwi + ATOM_FWI_DEFMCLK_PTR));
@@ -1632,7 +1632,7 @@ int amdgpu_atom_asic_init(struct atom_context *ctx)
     if (ret)
         return ret;
 
-    memset(ps, 0, 64);
+    ntdll_memset(ps, 0, 64);
 
     return ret;
 }

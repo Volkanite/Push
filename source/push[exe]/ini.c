@@ -430,7 +430,7 @@ PROFILE_Load( VOID* FileHandle )
                 if (!(section = (PROFILESECTION*)Memory_Allocate(sizeof(*section) + length * sizeof(WCHAR))))
                     break;
 
-                memcpy(section->Name, szLineStart, length * sizeof(WCHAR));
+                ntdll_memcpy(section->Name, szLineStart, length * sizeof(WCHAR));
                 section->Name[length] = '\0';
                 section->Key  = NULL;
                 section->next = NULL;
@@ -466,7 +466,7 @@ PROFILE_Load( VOID* FileHandle )
             if (!(key = (PROFILEKEY*)Memory_Allocate(sizeof(*key) + length * sizeof(WCHAR))))
                 break;
 
-            memcpy(key->Name, szLineStart, length * sizeof(WCHAR));
+            ntdll_memcpy(key->Name, szLineStart, length * sizeof(WCHAR));
 
             key->Name[length] = '\0';
 
@@ -476,7 +476,7 @@ PROFILE_Load( VOID* FileHandle )
                 //key->value = HeapAlloc( GetProcessHeap(), 0, (length + 1) * sizeof(WCHAR) );
                 key->Value = (WCHAR*)Memory_Allocate((length + 1) * sizeof(WCHAR));
 
-                memcpy(key->Value, szValueStart, length * sizeof(WCHAR));
+                ntdll_memcpy(key->Value, szValueStart, length * sizeof(WCHAR));
 
                 key->Value[length] = '\0';
             }
@@ -594,7 +594,7 @@ PROFILE_Open( WCHAR* Filename, BOOLEAN WriteAccess )
             {
                 File_GetLastWriteTime(fileHandle, &LastWriteTime);
 
-                if (!memcmp( &CurrentProfile->LastWriteTime, &LastWriteTime, sizeof(FILETIME) ) &&
+                if (!ntdll_memcmp( &CurrentProfile->LastWriteTime, &LastWriteTime, sizeof(FILETIME) ) &&
                     is_not_current(&LastWriteTime))
                 {
 
@@ -908,7 +908,7 @@ PROFILE_GetSectionNames( WCHAR* buffer, DWORD len )
             if (tmplen >= buflen)
             {
                 if (buflen > 0) {
-                    memcpy(buf, section->Name, (buflen-1) * sizeof(WCHAR));
+                    ntdll_memcpy(buf, section->Name, (buflen-1) * sizeof(WCHAR));
                     buf += buflen-1;
                     *buf++='\0';
                 }
@@ -916,7 +916,7 @@ PROFILE_GetSectionNames( WCHAR* buffer, DWORD len )
                 return len-2;
             }
 
-            memcpy(buf, section->Name, tmplen * sizeof(WCHAR));
+            ntdll_memcpy(buf, section->Name, tmplen * sizeof(WCHAR));
             buf += tmplen;
             buflen -= tmplen;
         }
@@ -1198,7 +1198,7 @@ DWORD Ini_GetString( wchar_t* section, wchar_t* entry, wchar_t* def_val, wchar_t
 
             defval_tmp = (WCHAR*)Memory_Allocate((length + 1) * sizeof(WCHAR));
 
-            memcpy(defval_tmp, def_val, length * sizeof(WCHAR));
+            ntdll_memcpy(defval_tmp, def_val, length * sizeof(WCHAR));
             defval_tmp[length] = '\0';
             def_val = defval_tmp;
         }

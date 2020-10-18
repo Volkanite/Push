@@ -99,13 +99,13 @@ UINT8 CPU_Intialize()
     Memory_Copy(name + 4, &edx, 4);
     Memory_Copy(name + 8, &ecx, 4);
 
-    if (strncmp(name, "GenuineIntel", 12) == 0)
+    if (ntdll_strncmp(name, "GenuineIntel", 12) == 0)
     {
         Vendor = INTEL;
 
         cores = IntelCPU_Initialize();
     }
-    else if (strncmp(name, "AuthenticAMD", 12) == 0)
+    else if (ntdll_strncmp(name, "AuthenticAMD", 12) == 0)
     {
         Vendor = AMD;
 

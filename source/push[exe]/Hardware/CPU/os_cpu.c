@@ -112,7 +112,7 @@ VOID PhProcessProviderInitialization()
     PhCpusUserDelta = PhCpusKernelDelta + (ULONG)HwInfoSystemBasicInformation.NumberOfProcessors;
     PhCpusIdleDelta = PhCpusUserDelta + (ULONG)HwInfoSystemBasicInformation.NumberOfProcessors;
 
-    memset(deltaBuffer, 0, sizeof(PH_UINT64_DELTA)* (ULONG)HwInfoSystemBasicInformation.NumberOfProcessors);
+    ntdll_memset(deltaBuffer, 0, sizeof(PH_UINT64_DELTA)* (ULONG)HwInfoSystemBasicInformation.NumberOfProcessors);
 }
 
 
@@ -139,7 +139,7 @@ VOID PhpUpdateCpuInformation()
         );
 
     // Zero the CPU totals.
-    memset(&PhCpuTotals, 0, sizeof(SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION));
+    ntdll_memset(&PhCpuTotals, 0, sizeof(SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION));
 
     for (i = 0; i < (ULONG)HwInfoSystemBasicInformation.NumberOfProcessors; i++)
     {

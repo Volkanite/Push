@@ -64,7 +64,7 @@ UINT32 strlen_o(CHAR* String)
 VOID RtlInitAnsiString( PANSI_STRING DestinationString, CHAR* SourceString )
 {
     if (SourceString)
-        DestinationString->MaximumLength = (DestinationString->Length = (UINT16)strlen ? strlen(SourceString) : strlen_o(SourceString)) + 1;
+        DestinationString->MaximumLength = (DestinationString->Length = (UINT16)ntdll_strlen ? ntdll_strlen(SourceString) : strlen_o(SourceString)) + 1;
     else
         DestinationString->MaximumLength = DestinationString->Length = 0;
 

@@ -184,13 +184,13 @@ typedef int (*TYPE__wtoi)(const wchar_t *Str);
 
 
 extern TYPE_iswspace    iswspace;
-extern TYPE_memcmp      memcmp;
-extern TYPE_memcpy      memcpy;
-extern TYPE_memset      memset;
-extern TYPE_strcmp      strcmp;
-extern TYPE_strcpy      strcpy;
-extern TYPE_strlen      strlen;
-extern TYPE_strncmp     strncmp;
+extern TYPE_memcmp      ntdll_memcmp;
+extern TYPE_memcpy      ntdll_memcpy;
+extern TYPE_memset      ntdll_memset;
+extern TYPE_strcmp      ntdll_strcmp;
+extern TYPE_strcpy      ntdll_strcpy;
+extern TYPE_strlen      ntdll_strlen;
+extern TYPE_strncmp     ntdll_strncmp;
 extern TYPE_strncpy     strncpy;
 extern TYPE_swscanf_s   swscanf_s;
 extern TYPE_vswprintf_s vswprintf_s;
@@ -199,8 +199,6 @@ extern TYPE_wcsnlen     wcsnlen;
 extern TYPE_wcstol      wcstol;
 extern TYPE__wtoi       _wtoi;
 
-extern TYPE_memcmp      ntdll_memcmp;
-extern TYPE_strcmp      ntdll_strcmp;
 
 #include <hardware.h>
 #include <gui.h>

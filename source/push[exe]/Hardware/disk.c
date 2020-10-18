@@ -644,7 +644,7 @@ VOID* PhpAddEntryHashtable(
     entry->Next = Hashtable->Buckets[index];
     Hashtable->Buckets[index] = freeEntry;
     // Copy the user-supplied data to the entry.
-    memcpy(&entry->Body, Entry, Hashtable->EntrySize);
+    ntdll_memcpy(&entry->Body, Entry, Hashtable->EntrySize);
 
     Hashtable->Count++;
 

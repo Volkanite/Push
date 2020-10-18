@@ -85,10 +85,10 @@ VOID RTSS_Update( OSD_ITEM* OsdItems )
 
             if (dwPass)
             {
-                if (!strlen(pEntry->szOSDOwner)) strcpy(pEntry->szOSDOwner, "RTSSPush");
+                if (!ntdll_strlen(pEntry->szOSDOwner)) ntdll_strcpy(pEntry->szOSDOwner, "RTSSPush");
             }
 
-            if (!strcmp(pEntry->szOSDOwner, "RTSSPush"))
+            if (!ntdll_strcmp(pEntry->szOSDOwner, "RTSSPush"))
             {
                 strncpy(pEntry->szOSD, ansiText, sizeof(pEntry->szOSD) - 1);
 

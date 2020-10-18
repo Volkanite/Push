@@ -959,7 +959,7 @@ VOID File_Rename( WCHAR* FilePath, WCHAR* NewFileName )
     renameInfo->RootDirectory = NULL;
     renameInfo->FileNameLength = (ULONG)newFileName.Length;
 
-    memcpy(renameInfo->FileName, newFileName.Buffer, newFileName.Length);
+    ntdll_memcpy(renameInfo->FileName, newFileName.Buffer, newFileName.Length);
 
     NtSetInformationFile(
         fileHandle,

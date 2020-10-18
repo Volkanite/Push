@@ -186,7 +186,7 @@ VOID Memory_Free( VOID* Heap )
 
 VOID Memory_Copy( VOID* Destination, VOID* Source, UINT32 Length )
 {
-    memcpy(Destination, Source, Length);
+    ntdll_memcpy(Destination, Source, Length);
 }
 
 
@@ -198,7 +198,7 @@ VOID Memory_Clear( VOID* Region, UINT32 Size )
 
 VOID Memory_ClearEx(VOID* Region, DWORD Val, UINT32 Size)
 {
-    memset(Region, Val, Size);
+    ntdll_memset(Region, Val, Size);
 }
 
 

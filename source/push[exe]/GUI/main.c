@@ -516,7 +516,9 @@ INT32 __stdcall MainWndProc( VOID *hWnd,UINT32 uMessage, UINT32 wParam, LONG lPa
                     if (pIDL != NULL)
                     {
                         // Create a buffer to store the path, then get the path.
-                        WCHAR buffer[260] = { '\0' };
+                        WCHAR buffer[260] /*= { '\0' }*/;
+						
+						Memory_Clear(buffer, sizeof(buffer));
                         
                         if (SHGetPathFromIDListW(pIDL, buffer) != 0)
                         {
