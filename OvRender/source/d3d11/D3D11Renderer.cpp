@@ -94,8 +94,8 @@ BOOLEAN Dx11Font::InitD3D11Sprite( )
     D3D11_SUBRESOURCE_DATA indexData = { 0 };
     D3D11_BUFFER_DESC vbd;
     D3D11_BUFFER_DESC ibd;
-    char *vertexShaderModel;
-    char *pixelShaderModel;
+    char *vertexShaderModel = NULL;
+    char *pixelShaderModel = NULL;
 
     switch (device->GetFeatureLevel())
     {
@@ -120,10 +120,17 @@ BOOLEAN Dx11Font::InitD3D11Sprite( )
         pixelShaderModel  = "ps_4_1";
         break;
     case D3D_FEATURE_LEVEL_11_0:
+	case D3D_FEATURE_LEVEL_11_1:
         vertexShaderModel = "vs_5_0";
         pixelShaderModel  = "ps_5_0";
         break;
     }
+
+	if (!pixelShaderModel || !vertexShaderModel)
+	{
+		OvLog(L"Unknown shader target: %u", device->GetFeatureLevel());
+		return FALSE;
+	}
 
     CompileShader(
         D3DXFont_VertexShaderData,
