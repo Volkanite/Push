@@ -47,6 +47,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)resources\sl;$(SolutionDir)source;$(SolutionDir)source\push[exe];$(SolutionDir)source\push[exe]\Hardware;$(SolutionDir)source\push[exe]\GUI;$(SolutionDir)source\push[exe]\OSD;$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)bin\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
