@@ -1487,6 +1487,8 @@ INT32 __stdcall start( )
 	void* prcAddress = 0;
 
 	Resource_Extract(L"OVERLAY32", PUSH_LIB_NAME_32);
+	Resource_Extract(L"OVERLAY64", L"overlay64.dll");
+	Resource_Extract(L"HOOKS64", L"hooks64.exe");
 
 	overlayLib = Module_Load(L"overlay32.dll");
 	prcAddress = Module_GetProcedureAddress(overlayLib, "InstallOverlayHook");
