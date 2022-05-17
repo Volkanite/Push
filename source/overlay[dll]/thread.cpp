@@ -107,6 +107,16 @@ AddToThreadList( UINT16 ThreadId )
 }
 
 
+extern "C" INTBOOL __stdcall IsBadReadPtr(
+	const VOID *lp,
+	ULONG_PTR   ucb
+	);
+bool IsValidPointer(void* p)
+{
+	return !IsBadReadPtr(p, sizeof(ULONG_PTR)) && p;
+}
+
+
 SYSTEM_PROCESS_INFORMATION* GetProcessInformation( UINT32* BufferSize )
 {
     UINT64 delta = 0;
@@ -148,6 +158,9 @@ SYSTEM_PROCESS_INFORMATION* GetProcessInformation( UINT32* BufferSize )
     do
     {
         processEntry = (SYSTEM_PROCESS_INFORMATION*)((UINT_B)processEntry + ProcOffset);
+
+		if (!IsValidPointer(processEntry))
+			return NULL;
     
         if (processEntry && (UINT16)processEntry->UniqueProcessId == processId)
         {
@@ -171,23 +184,26 @@ ThreadMonitor::ThreadMonitor()
     SYSTEM_PROCESS_INFORMATION *processEntry;
     SYSTEM_THREAD_INFORMATION *threads;
 
+	TmHeapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
     processEntry = GetProcessInformation(&bufferSize);
 
-    threads = processEntry->Threads;
-    TmHeapHandle = NtCurrentTeb()->ProcessEnvironmentBlock->ProcessHeap;
+	if (processEntry)
+	{
+		threads = processEntry->Threads;
 
-    for(n = 0; n < processEntry->NumberOfThreads; n++)
-    {
-        AddToThreadList( (UINT16) threads[n].ClientId.UniqueThread );
-        //Log(L"adding thread %u to list\n", (UINT16) threads[n].ClientId.UniqueThread);
-    }
+		for (n = 0; n < processEntry->NumberOfThreads; n++)
+		{
+			AddToThreadList((UINT16)threads[n].ClientId.UniqueThread);
+			//Log(L"adding thread %u to list\n", (UINT16) threads[n].ClientId.UniqueThread);
+		}
 
-    NtFreeVirtualMemory(
-        (VOID*)-1, 
-        (VOID**)&processEntry, 
-        (UINT32*)&bufferSize, 
-        MEM_RELEASE
-        );
+		NtFreeVirtualMemory(
+			(VOID*)-1,
+			(VOID**)&processEntry,
+			(UINT32*)&bufferSize,
+			MEM_RELEASE
+			);
+	}
 
     BaseMhz = PushSharedMemory->HarwareInformation.Processor.MhzBase;
 }
