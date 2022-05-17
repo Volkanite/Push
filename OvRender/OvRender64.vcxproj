@@ -45,6 +45,7 @@
     <ClInclude Include="source\dxgi\dxgihook.h" />
     <ClInclude Include="source\dxgi\dxgioverlay.h" />
     <ClInclude Include="source\font.h" />
+    <ClInclude Include="source\overlay.h" />
     <ClInclude Include="source\shaders.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -3,6 +3,7 @@
 #include <D3D10.h>
 #include <hexus.h>
 
+#include "..\overlay.h"
 #include "dxgihook.h"
 
 #pragma comment(lib, "dxgi.lib")
@@ -404,14 +405,19 @@ void BuildInterface( HWND WindowHandle )
 
 	if (!HkIDXGISwapChain_Present)
 	{
-		HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present0)vmt[8];
-		ReplaceVirtualMethod(vmt, 8, IDXGISwapChain_PresentHook);
+		if (OvHookMethod == HOOK_METHOD_VMT)
+		{
+			HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present0)vmt[8];
+			ReplaceVirtualMethod(vmt, 8, IDXGISwapChain_PresentHook);
+		}
+		else if (OvHookMethod == HOOK_METHOD_DETOUR)
+		{
+			DetourCreate(vmt[8], IDXGISwapChain_PresentHook, &DetourDXGIPresent);
+			HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present0)DetourDXGIPresent.Trampoline;
 
-		/*DetourCreate(vmt[8], IDXGISwapChain_PresentHook, &DetourDXGIPresent);
-		HkIDXGISwapChain_Present = (TYPE_IDXGISwapChain_Present0)DetourDXGIPresent.Trampoline;
-
-		DetourCreate(vmt[13], IDXGISwapChain_ResizeBuffersHook, &DetourDXGIResizeBuffers);
-		HkIDXGISwapChain_ResizeBuffers = (TYPE_IDXGISwapChain_ResizeBuffers)DetourDXGIResizeBuffers.Trampoline;*/
+			/*DetourCreate(vmt[13], IDXGISwapChain_ResizeBuffersHook, &DetourDXGIResizeBuffers);
+			HkIDXGISwapChain_ResizeBuffers = (TYPE_IDXGISwapChain_ResizeBuffers)DetourDXGIResizeBuffers.Trampoline;*/
+		}
 	}
 
 	swapChain->Release();

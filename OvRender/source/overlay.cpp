@@ -2,6 +2,7 @@
 #include <OvRender.h>
 #include <stdio.h>
 
+#include "overlay.h"
 #include "d3d8\d3d8overlay.h"
 #include "d3d9\d3d9overlay.h"
 #include "dxgi\dxgioverlay.h"
@@ -17,6 +18,7 @@ DDrawOverlay*   DirectDrawOverlay;
 //UINT32 BackBufferHeight;
 OV_GRAPHICS_API GraphicsApi;
 HWND OvWindowHandle;
+HOOK_METHOD OvHookMethod = HOOK_METHOD_DETOUR;
 
 
 OvOverlay::OvOverlay()

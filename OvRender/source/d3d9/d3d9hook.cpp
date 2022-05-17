@@ -3,6 +3,7 @@
 #include <slmodule.h>
 #include <hexus.h>
 
+#include "..\overlay.h"
 #include "d3d9hook.h"
 
 #define DIRECTINPUT_VERSION 0x800
@@ -16,14 +17,6 @@ typedef struct _HOOK_PARAMS
 
 } HOOK_PARAMS;
 /*Callbacks*/
-
-
-typedef enum _HOOK_METHOD
-{
-    HOOK_METHOD_DETOUR,
-    HOOK_METHOD_VMT,
-
-} HOOK_METHOD;
 
 
 typedef IDirect3D9* (__stdcall *TYPE_Direct3DCreate9)(
@@ -132,7 +125,6 @@ DX9HOOK_RESET_CALLBACK      Dx9Hook_CreateDevice;
 
 HOOK_PARAMS hookParams;
 D3DPRESENT_PARAMETERS PresentParams;
-HOOK_METHOD D3D9Hook_HookMethod = HOOK_METHOD_DETOUR;
 BOOLEAN D3D9Hook_ForceReset = FALSE;
 IDirect3DDevice9*   D3D9Hook_IDirect3DDevice9;
 
@@ -408,7 +400,7 @@ HRESULT __stdcall IDirect3D9_CreateDevice_Detour(
         ReturnedDeviceInterface
         );
 
-    if (D3D9Hook_HookMethod == HOOK_METHOD_VMT && result == S_OK)
+    if (OvHookMethod == HOOK_METHOD_VMT && result == S_OK)
     {
         VOID **vmt;
         HRESULT hr;
@@ -630,11 +622,11 @@ VOID Dx9Hook_Initialize( D3D9HOOK_PARAMS* HookParams )
     if (!device)
         return;
 
-    if (D3D9Hook_HookMethod == HOOK_METHOD_VMT)
+    if (OvHookMethod == HOOK_METHOD_VMT)
     {
         ReplaceVirtualMethods(device);
     }
-    else if (D3D9Hook_HookMethod == HOOK_METHOD_DETOUR)
+    else if (OvHookMethod == HOOK_METHOD_DETOUR)
     {
         ApplyDetourXsHooks(device, vtable);
     }
