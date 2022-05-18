@@ -121,6 +121,7 @@ BOOLEAN Dx11Font::InitD3D11Sprite( )
         break;
     case D3D_FEATURE_LEVEL_11_0:
 	case D3D_FEATURE_LEVEL_11_1:
+	default:
         vertexShaderModel = "vs_5_0";
         pixelShaderModel  = "ps_5_0";
         break;
