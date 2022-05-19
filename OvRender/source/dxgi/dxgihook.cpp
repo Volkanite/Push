@@ -43,7 +43,7 @@ HK_IDXGISWAPCHAIN_CALLBACK HkIDXGISwapChain_PresentCallback;
 HK_IDXGISWAPCHAIN_CALLBACK HkIDXGISwapChain_ResizeBuffersCallback;
 
 
-VOID OvLog(const wchar_t* Format, ...);
+//VOID OvLog(const wchar_t* Format, ...);
 DWORD FindPattern(WCHAR* Module, char pattern[], char mask[]);
 DWORD64 FindPattern64(WCHAR* Module, char pattern[], char mask[]);
 void ReplaceVirtualMethod(void **VTable, int Function, void *Detour);
@@ -401,7 +401,7 @@ void BuildInterface( HWND WindowHandle )
 	vmt = (VOID**) swapChain;
 	vmt = (VOID**) vmt[0];
 
-	//OvLog(L"Present: 0x%X", vmt[8]);
+	OvLog(L"IDXGISwapChain::Present: 0x%p", vmt[8]);
 
 	if (!HkIDXGISwapChain_Present)
 	{

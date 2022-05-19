@@ -141,7 +141,7 @@ DWORD64 FindPattern64(WCHAR* Module, char pattern[], char mask[]);
 
 void ReplaceVirtualMethod(void **VTable, int Function, void *Detour);
 VOID ReplaceVirtualMethods(IDirect3DDevice9* Device);
-VOID OvLog(const wchar_t* Format, ...);
+//VOID OvLog(const wchar_t* Format, ...);
 
 
 HRESULT __stdcall IDirect3DDevice9_Present_Detour(

@@ -10,7 +10,7 @@ typedef HRESULT(WINAPI *TYPE_DirectDrawCreate) (
     );
 
 TYPE_DirectDrawCreate pDirectDrawCreate;
-VOID OvLog(const wchar_t* Format, ...);
+//VOID OvLog(const wchar_t* Format, ...);
 
 
 HRESULT WINAPI DirectDrawCreate_Hook(

@@ -178,7 +178,9 @@ void ReplaceVirtualMethod(void **VTable, int Function, void *Detour)
 }
 
 
-VOID OvLog(const wchar_t* Format, ...)
+#if defined( DEBUG ) || defined( _DEBUG )
+
+VOID OvDbg(const wchar_t* Format, ...)
 {
     wchar_t buffer[260];
     wchar_t output[260] = L"[OVRENDER] ";
@@ -192,3 +194,4 @@ VOID OvLog(const wchar_t* Format, ...)
     OutputDebugStringW(output);
 }
 
+#endif

@@ -1,3 +1,5 @@
+#include "..\inc\OvRender.h"
+
 typedef enum _HOOK_METHOD
 {
 	HOOK_METHOD_DETOUR,

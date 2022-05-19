@@ -79,7 +79,13 @@ public:
 VOID OvCreateOverlay( OV_HOOK_PARAMS* HookParameters );
 VOID DestroyOverlay();
 
-VOID OvLog(const wchar_t* Format, ...);
+VOID OvDbg(const wchar_t* Format, ...);
+#if defined( _DEBUG )
+#define DEBUG 1
+#else
+#define DEBUG 0
+#endif
+#define OvLog(fmt, ...) if (DEBUG) OvDbg(fmt, __VA_ARGS__)
 
 //extern UINT32 BackBufferWidth;
 //extern UINT32 BackBufferHeight;

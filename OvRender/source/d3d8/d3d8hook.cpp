@@ -2,6 +2,8 @@
 #include <d3d8.h>
 #include <slmodule.h>
 #include <hexus.h>
+
+#include "..\overlay.h"
 #include "d3d8hook.h"
 
 
@@ -22,7 +24,7 @@ typedef HRESULT (WINAPI *TYPE_IDirect3DDevice8_Reset) (
     D3DPRESENT_PARAMETERS* pPresentationParameters
     );
 
-VOID OvLog(const wchar_t* Format, ...);
+//VOID OvLog(const wchar_t* Format, ...);
 
 
 

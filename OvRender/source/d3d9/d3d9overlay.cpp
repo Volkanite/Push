@@ -25,7 +25,7 @@ ULONG __stdcall CloseAVI(LPVOID Params);
 DWORD InitializeAviFile();
 bool InitFreqUnits();
 
-VOID OvLog(const wchar_t* Format, ...);
+//VOID OvLog(const wchar_t* Format, ...);
 
 
 VOID DebugRec()
