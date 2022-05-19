@@ -26,7 +26,7 @@ HANDLE ImageMonitoringThreadHandle;
 VOID Log(const wchar_t* Format, ...)
 {
     wchar_t buffer[260];
-    wchar_t output[260] = L"[OVRENDER] ";
+    wchar_t output[260] = L"[OVERLAY32] ";
     va_list _Arglist;
 
     _crt_va_start(_Arglist, Format);
