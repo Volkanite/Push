@@ -279,7 +279,8 @@
       <IgnoreSpecificDefaultLibraries>msvcrtd.lib;msvcrt.lib;libcmt.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <EntryPointSymbol>start</EntryPointSymbol>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
       <SubSystem>Windows</SubSystem>
     </Link>
     <PostBuildEvent>

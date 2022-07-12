@@ -57,6 +57,8 @@ NTSTATUS __stdcall NtSetSecurityObject(
     VOID* SecurityDescriptor
     );
 
+HANDLE OpenSCM();
+
 
 VOID Driver_Extract()
 {
@@ -308,7 +310,7 @@ void StartServiceAvi (WCHAR *pszServiceName)
     void *hService;
     INTBOOL result;
 
-    hSCManager = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+	hSCManager = OpenSCM();
     hService = OpenServiceW(hSCManager, pszServiceName, SERVICE_ALL_ACCESS);
     result = StartServiceW(hService, 0, NULL);
 
@@ -416,7 +418,7 @@ NTSTATUS SlLoadDriver(
 
     GetDriverPath(DriverBinaryName, driverPath);
 
-    scmHandle = OpenSCManagerW(0, 0, SC_MANAGER_ALL_ACCESS);
+	scmHandle = OpenSCM();
 
     serviceHandle = OpenServiceW(
         scmHandle,

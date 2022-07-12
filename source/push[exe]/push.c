@@ -1265,7 +1265,7 @@ BOOLEAN DropWinRing0( WCHAR* OutputPath )
 }
 
 
-INT32 __stdcall start( )
+int __stdcall WinMainCRTStartup()
 {
     HANDLE sectionHandle, *hMutex;
     HANDLE eventHandle;

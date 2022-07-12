@@ -22,11 +22,28 @@ BOOL OpenDriver();
 BOOL __stdcall DeleteService(
     SC_HANDLE hService
     );
-
+typedef HANDLE(__stdcall* TYPE_OpenSCManagerW)(
+	WCHAR*  lpMachineName,
+	WCHAR*  lpDatabaseName,
+	DWORD   dwDesiredAccess
+	);
 
 HANDLE gHandle = INVALID_HANDLE_VALUE;
 BOOLEAN Wr0DriverLoaded;
+TYPE_OpenSCManagerW _OpenSCManager;
 VOID ChangeDriverPath(WCHAR* DriverId, WCHAR* NewPath);
+
+
+HANDLE OpenSCM()
+{
+	HANDLE module;
+	
+	module = Module_Load(L"Advapi32.dll");
+
+	_OpenSCManager = Module_GetProcedureAddress(module, "OpenSCManagerW");
+
+	return _OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+}
 
 
 //-----------------------------------------------------------------------------
@@ -95,7 +112,7 @@ BOOL Wr0InstallDriver(WCHAR* DriverId, WCHAR* DriverPath)
     BOOL        rCode = FALSE;
     DWORD       error = 0;
 
-    hSCManager = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+	hSCManager = OpenSCM();
     if (hSCManager == NULL)
     {
         return FALSE;
@@ -146,7 +163,7 @@ BOOL RemoveDriver(WCHAR* DriverId)
     SC_HANDLE   hService = NULL;
     BOOL        rCode = FALSE;
 
-    hSCManager = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+	hSCManager = OpenSCM();
     if (hSCManager == NULL)
     {
         return FALSE;
@@ -209,7 +226,7 @@ int StartDriver( WCHAR* DriverId )
     BOOL        rCode = FALSE;
     DWORD       error = 0;
 
-    hSCManager = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+	hSCManager = OpenSCM();
     if (hSCManager == NULL)
     {
         return FALSE;
@@ -256,7 +273,7 @@ VOID ChangeDriverPath( WCHAR* DriverId, WCHAR* NewPath )
 	BOOL        rCode = FALSE;
 	DWORD       error = 0;
 
-	hSCManager = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+	hSCManager = OpenSCM();
 
 	if (hSCManager == NULL)
 	{
@@ -302,7 +319,7 @@ BOOL StopDriver(WCHAR* DriverId)
     SERVICE_STATUS  serviceStatus;
     DWORD       error = 0;
 
-    hSCManager = OpenSCManagerW(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+	hSCManager = OpenSCM();
     if (hSCManager == NULL)
     {
         return FALSE;
