@@ -1,4 +1,4 @@
 PUSH_ICON   ICON		"push.ico"
 //OVERLAY32   OVERLAY32	"..\..\bin\overlay32.dll"
 //OVERLAY64   OVERLAY64	"..\..\bin\overlay64.dll"
-//HOOKS64		HOOKS64		"..\..\bin\hooks64.exe"
+HOOKS64		HOOKS64		"..\..\bin\hooks64.exe"
