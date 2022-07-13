@@ -18,7 +18,7 @@ NTSleep(UINT32 Milliseconds)
 }
 
 
-int main()
+int __stdcall mainCRTStartup()
 {
 	HANDLE overlayLib = NULL;
 	void* prcAddress = 0;
@@ -35,4 +35,6 @@ int main()
 	}
 
 	NTSleep(0xFFFFFFFF);
+
+	return 0;
 }
