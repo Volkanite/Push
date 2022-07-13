@@ -310,7 +310,7 @@ INT32
 PROFILE_isspaceW(WCHAR c)
 {
     /* ^Z (DOS EOF) is a space too  (found on CD-ROMs) */
-    return iswspace(c) || c == 0x1a;
+    return _iswspace(c) || c == 0x1a;
 }
 
 

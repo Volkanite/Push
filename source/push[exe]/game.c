@@ -154,7 +154,7 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
 
     if (buffer)
     {
-        Game->CheckSum = wcstol(buffer, NULL, 16);
+        Game->CheckSum = _wcstol(buffer, NULL, 16);
     }
 
     if (Game->CheckSum == 0)
@@ -200,7 +200,7 @@ VOID Game_Initialize( WCHAR* Win32Name, PUSH_GAME* Game )
     }
 
     Ini_GetString(L"Settings", L"FrameLimit", L"0", buffer, 260, gameFile);
-    Game->Settings.FrameLimit = _wtoi(buffer);
+    Game->Settings.FrameLimit = __wtoi(buffer);
 
     Ini_GetString(L"Settings", L"ForceVsync", NULL, buffer, 260, gameFile);
 

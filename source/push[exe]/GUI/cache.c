@@ -198,7 +198,7 @@ LONG __stdcall CacheWndProc(
                 ListView_GetItemText(message->iItem, 1, fileSize, 260);
 
                 file.Name = fileName;
-                file.Bytes = wcstol(fileSize, NULL, 10);
+                file.Bytes = _wcstol(fileSize, NULL, 10);
 
                 if (ListView_GetCheckState(message->iItem))
                 {

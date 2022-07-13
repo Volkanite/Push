@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="batch.c" />
+    <ClCompile Include="crt.c" />
     <ClCompile Include="game.c" />
     <ClCompile Include="GUI\cache.c" />
     <ClCompile Include="GUI\copy.c" />

@@ -183,7 +183,7 @@ typedef __int32 (*TYPE_wcstol)(const wchar_t *Str, wchar_t **EndPtr, int Radix);
 typedef int (*TYPE__wtoi)(const wchar_t *Str);
 
 
-extern TYPE_iswspace    iswspace;
+extern TYPE_iswspace    _iswspace;
 extern TYPE_memcmp      ntdll_memcmp;
 extern TYPE_memcpy      ntdll_memcpy;
 extern TYPE_memset      ntdll_memset;
@@ -196,8 +196,8 @@ extern TYPE_swscanf_s   swscanf_s;
 extern TYPE_vswprintf_s vswprintf_s;
 extern TYPE_wcsncat     wcsncat;
 extern TYPE_wcsnlen     wcsnlen;
-extern TYPE_wcstol      wcstol;
-extern TYPE__wtoi       _wtoi;
+extern TYPE_wcstol      _wcstol;
+extern TYPE__wtoi       __wtoi;
 
 
 #include <hardware.h>

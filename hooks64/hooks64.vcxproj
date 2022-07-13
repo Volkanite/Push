@@ -82,6 +82,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\source\push[exe]\crt.c" />
     <ClCompile Include="..\source\push[exe]\sl\module.c" />
     <ClCompile Include="..\source\push[exe]\string.c" />
     <ClCompile Include="main.c" />

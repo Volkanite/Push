@@ -199,7 +199,7 @@ INT32 String_ToInteger( WCHAR* String )
 #ifdef GCC
     return 0;
 #else
-    return _wtoi(String);
+    return __wtoi(String);
 #endif // GCC
 }
 
